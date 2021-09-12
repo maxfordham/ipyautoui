@@ -7,7 +7,7 @@ import ipydatagrid as ipg
 from ipyfilechooser import FileChooser
 import pathlib
 import pandas as pd
-from traitlets import HasTraits, Unicode, default, TraitError, validate
+from traitlets import HasTraits, TraitError, Unicode, default, validate
 import re
 
 class AutoUiDataGrid(ipg.DataGrid, HasTraits):

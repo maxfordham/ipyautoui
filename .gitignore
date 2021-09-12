@@ -60,3 +60,8 @@ target/
 
 # pyenv python configuration file
 .python-version
+.ipynb_checkpoints/README-checkpoint.ipynb
+.ipynb_checkpoints/README-checkpoint.md
+.ipynb_checkpoints/requirements-checkpoint.txt
+.ipynb_checkpoints/setup-checkpoint.py
+/.ipynb_checkpoints

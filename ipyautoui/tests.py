@@ -47,6 +47,13 @@ def test_mapping(di_test_autologic, df_map=DF_MAP):
         widget_name = name_from_class_string(widget_class_string)
         assert k in widget_name, f'{k} != {widget_name}'
     
+def test_display_widget_mapping(di_test_autologic, df_map=DF_MAP):
+    li = []
+    for k, v in di_test_autologic.items():
+        data = WidgetRowBase(**v)
+        ui = WidgetRow(data)
+        assert str(type(ui.widget)) == data.autoui_type, 'WidgetRow not initalised'
+
 def test_display_WidgetRow_widget(di_test_autologic, df_map=DF_MAP):
     li = []
     for k, v in di_test_autologic.items():
@@ -73,9 +80,11 @@ def test_display_AutoUi(di_test_autologic, df_map=DF_MAP):
     ui = AutoUi(data)
     return ui
 
-        
-test_mapping(di_test_autologic)
-test_display_WidgetRow_widget(di_test_autologic)
-ui=test_display_AutoUi(di_test_autologic)
-display(ui)
-#---------------------------------------------------------------
+if __name__ == "__main__":
+    test_display_WidgetRow_widget(di_test_autologic)
+    ui=test_display_AutoUi(di_test_autologic)
+    display(ui)
+    #---------------------------------------------------------------
+# -
+
+

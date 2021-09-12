@@ -1,9 +1,13 @@
-from setuptools import setup
+
+from setuptools import setup, find_packages
 import versioneer
 
-requirements = [
-    # package requirements go here
-]
+with open('README.md') as readme_file:
+    README = readme_file.read()
+
+with open('requirements.txt') as requirements_file:
+    reqs = requirements_file.readlines()
+REQUIREMENTS = [r.split('==')[0] for r in reqs] # lets the mamba solver solve versions
 
 setup(
     name='ipyautoui',
@@ -15,12 +19,12 @@ setup(
     author_email='gunstone.john@gmail.com',
     url='https://github.com/gunstonej/ipyautoui',
     packages=['ipyautoui'],
-    
-    install_requires=requirements,
+    install_requires=REQUIREMENTS,
     keywords='ipyautoui',
     classifiers=[
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ]
 )

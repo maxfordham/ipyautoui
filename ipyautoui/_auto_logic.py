@@ -4,11 +4,12 @@ this is messy. think of better implementation.
 
 import pandas as pd
 import logging
-from constants import DF_MAP
 import datetime
 import pathlib
 from typing import Union
 import datetime
+
+from ipyautoui.constants import DF_MAP
 
 ALLOWED_VALUE_TYPES = Union[
     int,

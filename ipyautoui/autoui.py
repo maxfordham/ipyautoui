@@ -202,5 +202,3 @@ if __name__ == "__main__":
     from IPython.display import Markdown
     display(Markdown('## Widgets'))
     # %run tests.py
-
-

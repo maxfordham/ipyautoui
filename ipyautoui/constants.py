@@ -1,4 +1,5 @@
 import pandas as pd
+import pathlib
 
 
 def make_cols_bool(df):
@@ -10,7 +11,7 @@ def make_cols_bool(df):
     return df
 
 def get_df_map():
-    df_map = pd.read_csv('autoui_mapping.csv')
+    df_map = pd.read_csv(pathlib.Path(__file__).parent / 'autoui_mapping.csv')
     df_map = make_cols_bool(df_map)
     return df_map
 
