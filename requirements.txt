@@ -9,3 +9,4 @@ cx_Freeze==6.8
 ipython==7.27.0
 py2exe==0.10.4.1
 pydantic==1.8.2
+stringcase

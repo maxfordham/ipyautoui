@@ -46,7 +46,8 @@ ui
 
 ```python
 # AutoUi class adds the widget attribute
-# and it uses traitlets to ensure that if the widget value changes the ui.value attribute also changes with it
+# it uses traitlets to ensure that if the widget value
+# changes the ui.value attribute also changes with it
 display(ui.rows[0].widget)
 print(ui.rows[0].widget.value)
 ui.rows[0].widget.value = 2
@@ -56,7 +57,9 @@ ui.rows[0].value
 ## Output / transport data from UI
 
 ```python
-## using Pydantic data serialisation, the JSON inconpatible attributes are removed (i.e. the widget objects) and the data is serialised to JSON. 
+## using Pydantic data serialisation amd config option introduced in v1.8.3,
+# the JSON inconpatible attributes are removed
+# when the widget is written to dict or JSON. 
 ui.dict()
 ```
 
@@ -65,6 +68,7 @@ ui.dict()
 the `autoui_type` saves a class string defining what widget should be used. This is converted to the object using importlib.
 
 ```python
+#  importlib is used to create the widget from the `autoui_type` string characteristic
 aui = AutoUiBase(**ui.dict())
 AutoUi(aui)
 ```

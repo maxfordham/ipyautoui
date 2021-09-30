@@ -32,14 +32,13 @@ from ipyautoui._auto_logic import get_widget_class_strings, ALLOWED_VALUE_TYPES
 from ipyautoui._custom_widgets import AutoUiFileChooser, AutoUiFileUpload, AutoUiDataGrid, AutoModelRunName
 
 
-
 # +
 # data-definitions only. they define the fields that are required to create a ui object. 
 
-class WidgetBase(BaseModel):
+class AutoWidget(BaseModel):
     """data container for a AutoWidget. 
-    the AutoWidgetBase is a data container for all auto-widgets.
-    it inherits BaseModel from pydantic and uses pydantic validation tools to 
+    this is a data container for all auto-widgets.
+    it inherits pydantic.BaseModel and uses pydantic validation tools to 
     initiate the "widget" and the "autoui_type" based on the value type and kwargs. 
     using the pydantic ".dict()" and ".json()" commands data can be serialised. the "widget"
     parameter is excluded from the "dict()" and "json()" commands; this means that the 
@@ -48,6 +47,7 @@ class WidgetBase(BaseModel):
     value: Any # ALLOWED_VALUE_TYPES
     kwargs: Dict = {}
     autoui_type: str = None
+    widget: Any = None
     
     @validator('autoui_type', pre=True, always=True)
     def get_autoui_type(cls, v, values):
@@ -67,6 +67,16 @@ class WidgetBase(BaseModel):
             raise ValueError('autoui_type must be a class string')
         return cls_str 
     
+    @validator('widget', always=True)
+    def get_widget(cls, v, values):
+        value = values['value']
+        kwargs = values['kwargs']
+        if value is not None:
+            kwargs = {'value':value} | kwargs
+        else:
+            kwargs = kwargs
+        return obj_from_string(values['autoui_type'])(**kwargs)
+        
     class Config:
         arbitrary_types_allowed = True
         
@@ -74,7 +84,7 @@ class RowBase(BaseModel):
     name: str = 'name'
     label: str = 'label'
 
-class WidgetRowBase(RowBase, WidgetBase):
+class WidgetRowBase(RowBase,AutoWidget):
     class Config:
         arbitrary_types_allowed = True
 
@@ -115,31 +125,22 @@ class WidgetRow(WidgetRowBase):
             awc: AutoWidgetBase, data object for AutoWidget
         """
         super().__init__(**aw.dict())
-        self._init_widget()
+        self._init_row()
         self._init_controls()
         
-    def _init_widget(self):
-        if self.value is not None:
-            kwargs = {'value':self.value} | self.kwargs
-        else:
-            kwargs = self.kwargs
-        self.widget = obj_from_string(self.autoui_type)(**kwargs)
+    def _init_row(self):
         self.row = self._get_row()
+    
+    def _init_controls(self):
+        self.widget.observe(self._copy_value, 'value')
+        
+    def _copy_value(self, onchange):
+        self.value = self.widget.value
         
     def _get_row(self):
         name = self.name
         label = self.label
         return widgets.HBox([self.widget, _markdown(value=f'__{name}__, '), _markdown(value=f'_{label}_')], layout={'width':'100%'}) 
-    
-    def _init_controls(self):
-        self.widget.observe(self._copy_value, 'value')
-        #self.widget.observe(self._copy_kwargs, 'kwargs')
-        
-    def _copy_value(self, onchange):
-        self.value = self.widget.value
-        
-    #def _copy_kwargs(self, onchange):
-    #    self.kwargs = self.widget.kwargs
         
     def display(self):
         display(self.row)
@@ -202,3 +203,5 @@ if __name__ == "__main__":
     from IPython.display import Markdown
     display(Markdown('## Widgets'))
     # %run tests.py
+
+
