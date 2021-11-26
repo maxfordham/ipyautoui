@@ -463,9 +463,10 @@ class AutoUi(traitlets.HasTraits):
     def _ipython_display_(self):
         self.display()
 
-# +
+
+# -
+
 if __name__ == "__main__":
     test = TestAutoLogic() 
     aui = AutoUi(test)
     display(aui)
-# -
