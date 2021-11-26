@@ -1,12 +1,12 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py
+#     formats: ipynb,py:light
 #     text_representation:
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.4
+#       jupytext_version: 1.12.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -202,6 +202,9 @@ class AutoUi(AutoUiBase):
 if __name__ == "__main__":
     from IPython.display import Markdown
     display(Markdown('## Widgets'))
-    # %run tests.py
-
-
+    from ipyautoui.test_autoui_data import di_test_autologic 
+    from ipyautoui.tests import test_display_WidgetRow_widget, test_display_AutoUi
+    test_display_WidgetRow_widget(di_test_autologic)
+    ui=test_display_AutoUi(di_test_autologic)
+    display(ui)
+    #ui

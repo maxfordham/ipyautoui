@@ -60,7 +60,7 @@ di_test_autologic = {
         'kwargs': {}
     },
     'FileChooser': {
-        'value': pathlib.Path('/mnt/c/engDev/git_mf/ipyautoui/ipyautoui/autoui.ipynb'),
+        'value': pathlib.Path('/mnt/c/engDev/git_mf/ipyautoui/ipyautoui/_autoui.ipynb'),
         'kwargs': {}
     },
     'FileUpload': { 
@@ -77,5 +77,3 @@ di_test_autologic = {
         'kwargs': {}
     }
 }
-
-rows = [v for k, v in di_test_autologic.items()]

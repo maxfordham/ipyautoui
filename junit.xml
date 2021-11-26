@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.968" timestamp="2021-11-26T20:15:23.156299" hostname="PORT4028"><testcase classname="" name="src.ipyautoui.test_autoui_data" time="0.000"><error message="collection failure">import file mismatch:
+imported module 'ipyautoui.test_autoui_data' has this __file__ attribute:
+  /mnt/c/engDev/git_mf/ipyautoui/ipyautoui/test_autoui_data.py
+which is not the same as the test file we want to collect:
+  /mnt/c/engDev/git_mf/ipyautoui/src/ipyautoui/test_autoui_data.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules</error></testcase></testsuite></testsuites>

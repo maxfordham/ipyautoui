@@ -1,0 +1,38 @@
+name: ipyautoui
+# channels priority
+# see https://bioconda.github.io/
+# conda-forge has highest prioriy
+channels:
+  - defaults
+  - conda-forge
+#  - http://10.10.30.125:8000
+dependencies:
+  - python>=3.7,<3.10
+  - numpy
+  - pandas
+  - jupyterlab>=3.0.14
+  - xeus-python
+  - ipywidgets
+  - ipysheet>=0.5.0
+  - ipyfilechooser
+  - ipydatagrid
+#  - ipyrun>=v0.1.9
+  - voila>=0.2.11
+  - plotly
+  - halo
+  - jupytext
+  - markdown
+  - nodejs
+  - altair
+  - pydantic
+  - dacite
+  - xmltodict
+  - pyyaml
+  - pillow
+  - pip
+#  - click
+  - openpyxl
+#  - xlsxwriter 
+#  - xlsxtemplater 
+#  - mf_file_utilities 
+#  - mfom

@@ -1,0 +1,7 @@
+[report]
+omit =
+    setup.py
+    ipyautoui/__main__.py
+    ipyautoui/_version.py
+    versioneer.py
+    tests/*

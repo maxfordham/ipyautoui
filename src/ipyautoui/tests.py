@@ -84,5 +84,5 @@ if __name__ == "__main__":
     ui=test_display_AutoUi(di_test_autologic)
     display(ui)
     #---------------------------------------------------------------
-# -
+    # -
 
