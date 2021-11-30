@@ -3,6 +3,7 @@ import importlib
 from typing import Type
 from markdown import markdown
 import ipywidgets as widgets
+from IPython.display import display, Markdown
 
 def _markdown(value='_Markdown_',
               **kwargs):
@@ -72,3 +73,100 @@ def read_json(fpth, encoding='utf8'):
     with open(fpth, 'r', encoding=encoding) as f:
         json_file = json.loads(f)
     return json_file
+
+def del_cols(df, cols):
+    """delete a pandas column if it is in
+    the column index otherwise ignore it. """
+    if type(cols) == str:
+        try:
+            del df[cols]
+        except:
+            print(cols + ' is not in column index')
+    else:
+        for col in cols:
+            try:
+                del df[col]
+            except:
+                print(col + ' is not in column index')
+    return df
+
+
+def del_matching(df, string):
+    """
+    deletes columns if col name matches string
+    """
+    matching = [s for s in list(df) if string in s]
+    df = del_cols(df, matching)
+    return df
+
+#  from mf_modules.jupyter_formatting import md_fromfile, display_python_file
+#  ------------------------------------------------------------------------------------------------
+def md_fromfile(fpth):
+    """
+    read an md file and display in jupyter notebook
+
+    Note:
+        the markdown content (e.g. images) needs to be pathed relative to the jupyter notebook 
+        that you're displaying from rather than the to the markdown file that you're displaying. 
+        this can be confusing! 
+        
+    Args:
+        fpth:
+
+    Returns:
+        displays in IPython notebook
+    """
+    file = open(fpth,mode='r',encoding='utf-8') # Open a file: file
+    all_of_it = file.read() # read all lines at once
+    file.close() # close the file
+    display(Markdown(all_of_it))
+
+def display_python_file(fpth):
+    """
+    pass the fpth of a python file and get a
+    rendered view of the code.
+    """
+    with open(fpth, 'r') as myfile:
+        data = myfile.read()
+    return Markdown("\n```Python\n" + data + "\n```")
+
+
+def read_txt(fpth,encoding='utf-8',delim=None,read_lines=True):
+    '''
+    read a .txt file
+    
+    Args:
+        fpth(string): filepath
+        encoding(string): https://docs.python.org/3/library/codecs.html, examples:
+            utf-16, utf-8, ascii
+        delim(char): character to string split, examples:
+            '\t', ','
+        read_lines(bool): readlines or whole string (delim may not work if read_lines==False
+
+    '''
+    with codecs.open(fpth, encoding=encoding) as f:
+        if read_lines==True:
+            content = f.readlines()
+        else:
+            content = f.read()
+    f.close()
+    if delim!=None:
+        li = []
+        for n in range(0, len(content)):
+            li.append(content[n].split(delim))
+        return li
+    else:
+        return content
+    
+def read_yaml(fpth, encoding='utf8'):
+    """
+    read yaml file.
+
+    Ref:
+        https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python"""
+    with open(fpth, encoding=encoding) as stream:
+        try:
+            data = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+    return data

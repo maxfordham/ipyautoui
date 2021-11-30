@@ -1,22 +1,7 @@
-import pandas as pd
 import pathlib
 
-def make_cols_bool(df):
-    """convert listed cols to bools"""
-    cols = ['ensure_option_in_kwargs','options_in_kwargs','minmax_in_kwargs','autoui_default', 'string_len_is_long', 'tuple_vals_are_int']
-    for col in cols:
-        df[col] = df[col].fillna(0)
-        df[col] = df[col].astype(bool)
-    return df
-
-def get_df_map():
-    df_map = pd.read_csv(DIR_MODULE / 'autoui_mapping.csv')
-    df_map = make_cols_bool(df_map)
-    return df_map
-
 DIR_MODULE = pathlib.Path(__file__).parent
-DIR_TESTS = DIR_MODULE.parent / 'tests'
-DF_MAP = get_df_map()
+
 BUTTON_WIDTH_MIN = '41px'
 BUTTON_WIDTH_MEDIUM = '90px'
 BUTTON_HEIGHT_MIN = '25px'
@@ -24,10 +9,30 @@ ROW_WIDTH_MEDIUM = '120px'
 ROW_WIDTH_MIN = '60px'
 
 # documentinfo ------------------------------
-#  update this with WebApp data
+#  update this with WebApp data. TODO: delete this? 
 ROLES = ('Design Lead',
 'Project Engineer',
 'Engineer',
 'Project Coordinator',
 'Project Administrator',
 'Building Performance Modeller')
+
+DI_JSONSCHEMA_WIDGET_MAP = {
+    'minimum': 'min',
+    'maximum': 'max',
+    'enum': 'options',
+    'default': 'value',
+    'description': 'autoui_description'
+}
+#  ^ this is how the json-schema names map to ipywidgets.
+
+def load_test_constants():
+    """only in use for debugging within the package. not used in production code.
+
+    Returns:
+        module: test_constants object
+    """
+    from importlib.machinery import SourceFileLoader
+    path_testing_constants = DIR_MODULE.parents[1] / 'tests' / 'constants.py'
+    test_constants = SourceFileLoader("constants", str(path_testing_constants)).load_module()
+    return test_constants

@@ -21,17 +21,22 @@ import os
 import subprocess
 import pathlib
 import pandas as pd
+import numpy as np
 from IPython.display import display, JSON, Markdown, HTML, IFrame, clear_output, Image
 import time
-import ipydatagrid as ipg
-import ipywidgets as widgets
 from markdown import markdown
-import plotly.io as pio
 import copy
 from dataclasses import dataclass, asdict, field
 from dacite import from_dict
 from typing import List, Dict, Callable, Type
+import typing
+import enum
 import getpass
+
+import ipydatagrid as ipg
+import ipywidgets as widgets
+from halo import HaloNotebook
+import plotly.io as pio
 
 #  from mf library
 try: 
@@ -45,19 +50,11 @@ except:
     pass
 
 #  local imports
+from ipyautoui.mydocstring_display import display_module_docstring
+from ipyautoui._utils import del_matching, md_fromfile, display_python_file, read_json, read_yaml, read_txt
+#from ipyrun._runconfig import Output, Outputs, File
+from ipyautoui.constants import BUTTON_WIDTH_MIN, BUTTON_HEIGHT_MIN
 
-from ipyrun.mydocstring_display import display_module_docstring
-from ipyrun.utils import del_matching, md_fromfile, display_python_file, recursive_glob, time_meta_data, read_json, read_yaml, read_txt
-from ipyrun._runconfig import Output, Outputs, File
-from ipyrun.constants import BUTTON_WIDTH_MIN, BUTTON_HEIGHT_MIN, FDIR_PACKAGE
-
-from halo import HaloNotebook
-# -
-
-from mf_file_utilities import go as open_file
-
-
-# ?open_file
 
 # +
 #  NOT IN USE - need a way to display pdf's!
@@ -344,10 +341,6 @@ def xl_prev(fpth):
         #self._open_option()
 
 # + tags=[]
-import typing
-import enum
-import getpass
-import numpy as np
 
 def string_of_time(t):
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(t))
@@ -428,12 +421,9 @@ def open_ui(fpth: str):
     data = widgets.HTML(get_file_data(fpth),layout=widgets.Layout(justify_items='center'))   
     return isfile, openpreview, openfile, openfolder, filename, data
 
-# if __name__ == "__main__":
-#     test_box = widgets.HBox()
-#     test_box.children = list(open_ui('z_del_notebooks.bat'))
-#     display(test_box)
     
 class UiFile():
+    """generic ipywidget file object"""
     def __init__(self, path, save=True):
         self.path = pathlib.Path(path)
         self._init_form()
@@ -474,7 +464,6 @@ default_file_renderers = {
         '.csv': csv_prev,
         '.json': json_prev,
         '.plotly': plotlyjson_prev,
-        '.plotly.json': plotlyjson_prev,
         '.plotly.json': plotlyjson_prev,
         '.vg.json': vegajson_prev,
         '.vl.json': vegalitejson_prev,
@@ -566,7 +555,7 @@ class DisplayFile():
         """
         self.ui_file = UiFile(path)
         self.fdir = self.ui_file.path.parent
-        self.ext = get_ext(self.path)
+        self.ext = get_ext(self.ui_file.path)
         self.newroot = newroot
         self.out_caller = widgets.Output()
         self.out = widgets.Output()
@@ -587,8 +576,11 @@ class DisplayFile():
     def _update_file(self):
         self.ui_file._update_file()
 
-    def preview_fpth(self):
-        preview_path(self.ui_file.path)
+    def preview_path(self):
+        preview_path(self.ui_file.path, 
+                     default_file_renderers=self.default_file_renderers,
+                     user_file_renderers=self.user_file_renderers)
+        
         
     def _open_form(self):
         self.open_ui = widgets.VBox([self.ui_file.box_file, self.out_caller, self.out])
@@ -607,7 +599,7 @@ class DisplayFile():
         if self.ui_file.openpreview.value:
             self.ui_file.openpreview.icon ='eye-slash'
             with self.out:
-                preview_path(self.path)
+                self.preview_path()
         else:
             self.ui_file.openpreview.icon = 'eye'
             with self.out:
@@ -616,7 +608,7 @@ class DisplayFile():
     def _openfile(self, sender):
         with self.out_caller:
             clear_output()
-            open_file(self.path,newroot=self.newroot)
+            open_file(self.ui_file.path,newroot=self.newroot)
             time.sleep(5)
             clear_output()
         
@@ -640,28 +632,6 @@ if __name__ == "__main__":
     #file.note = 'this is a long file note describing the file'
     d = DisplayFile(fpth1, newroot=pathlib.PureWindowsPath('C:/'), auto_open=True)
     display(d)#.preview_fpth()
-
-# +
-from mfom.ui_docheader import DocumentHeaderUi
-
-doc = DocumentHeaderUi(fdir=pathlib.Path('.'))
-doc
-# -
-
-import mfom
-# ?mfom
-
-doc.dh.dict()
-
-# +
-from ipyrun._filecontroller import FileController
-from ipyrun._runconfig import SimpleInputs#
-
-inputs = SimpleInputs()
-FileController(inputs=inputs)
-# -
-
-open_ui(fpth)[0]
 
 
 # +
@@ -692,74 +662,7 @@ class DisplayFiles():
 if __name__ == "__main__":
     files = DisplayFiles([fpth, fpth1])
     display(files)
-
-
 # -
-
-class PreviewOutput(DisplayFile):
-    def __init__(self,
-                 output: Output,
-                 default_file_renderers: Dict[str, Callable] = default_file_renderers,
-                 user_file_renderers: Dict[str, Callable] = None,
-                 newroot=pathlib.PureWindowsPath('J:/'),
-                 auto_open: bool=False
-                ):
-        path = output.path
-        super().__init__(path, 
-                         default_file_renderers=default_file_renderers,
-                         user_file_renderers=user_file_renderers,
-                         newroot=newroot,
-                         auto_open=auto_open
-                        )
-
-
-class PreviewOutput(DisplayFile):
-    """
-    class that creates a ipywidgets based ui for previewing a file in the browser
-    TODO: add functionality to show DocumentHeader
-    """
-    def __init__(self, 
-                 output: Output,
-                 user_file_renderers: Dict[str, Callable] = None,
-                 newroot=pathlib.PureWindowsPath('J:/'),
-                 auto_open: bool=False
-                 ):
-        super().__init__(fpth=output.path,
-                 user_file_renderers=user_file_renderers,
-                 newroot=newroot,
-                 auto_open=auto_open)
-        
-    def _input_handler(self, fpth):
-        if type(fpth) == Output:
-            self.fpth = fpth.fpth
-            self.output = fpth
-        else:
-            self.fpth = fpth
-            self.output = Output(fpth)
-
-
-class PreviewOutputs():
-    """
-    class that creates a ipywidgets based ui for previewing multiple files in the browser
-    """
-    def __init__(self, outputs: List[Output], auto_open=False, user_file_renderers: Dict[str, Callable] = None, newroot=pathlib.PureWindowsPath('J:/')):
-        self.outputs = outputs
-        self.user_file_renderers = user_file_renderers
-        self.newroot = newroot
-        self.auto_open = auto_open
-        self._init_form()
-          
-    def _init_form(self):
-        self.display_outputs = [PreviewOutput(o, auto_open=self.auto_open, user_file_renderers=self.user_file_renderers, newroot=self.newroot) for o in self.outputs]
-        self.display_uis = [ui.open_ui for ui in self.display_outputs]
-        self.display_previews = widgets.VBox(self.display_uis,layout=widgets.Layout(height='100%',justify_items='center'))
-        
-    def display_PreviewOutputs(self):
-        display(self.display_previews) 
-        
-    def _ipython_display_(self):
-        self.display_PreviewOutputs()
-
 
 if __name__ =='__main__':
     # NOTE FOR FUTURE:
@@ -778,19 +681,19 @@ if __name__ =='__main__':
     fdir = os.path.dirname(os.path.realpath('__file__'))
     rel_fdir = os.path.join('..','test_filetypes')
 
-    fpths = recursive_glob(rootdir=rel_fdir)
+    fpths = list(pathlib.Path(fdir).glob('*'))
     #fpths = [os.path.join(rel,  fpth for fpth in fpths ]
 
     # single file
     d0 = DisplayFile(fpths[0])
     display(Markdown('### Example0'))
     display(Markdown('''display single file'''))
-    display(d0.preview_fpth())
+    display(d0.preview_path())
     display(Markdown('---'))
     display(Markdown(''))
     
     # single Output
-    o0 = Output(fpth=fpths[0])
+    #o0 = Output(fpth=fpths[0])
     p0 = DisplayFile(fpths[0])
     display(Markdown('### Example5'))
     display(Markdown('''display single Output'''))
@@ -799,7 +702,7 @@ if __name__ =='__main__':
     display(Markdown(''))
     
     # single Output side by side
-    o0 = Output(fpth=fpths[0])
+    #o0 = Output(fpth=fpths[0])
     p0 = DisplayFile(fpths[0])
     display(Markdown('### Example5'))
     display(Markdown('''display single Output'''))
@@ -814,7 +717,7 @@ if __name__ =='__main__':
     display(Markdown(''))
     
     # multiple Outputs
-    outputs = [Output(f) for f in fpths]
+    # outputs = [Output(f) for f in fpths]
     p1 = DisplayFiles(fpths)
     display(Markdown('### Example6'))
     display(Markdown('''display multiple Outputs'''))
@@ -826,3 +729,20 @@ if __name__ == "__main__":
     p1._activate_waiting()
     time.sleep(2)
     p1._update_files()
+
+if __name__ == "__main__":
+    display(Markdown('### Example7'))
+    display(Markdown('''extend standard supported filetypes'''))
+    #import
+    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.autoui import AutoUi, AutoUiConfig
+    from ipyautoui.constants import load_test_constants
+    tests_constants = load_test_constants()
+    config_ui = AutoUiConfig(ext='.aui.json', pydantic_model=TestAutoLogic)
+    TestUiDisplay = AutoUi.create_displayfile(config_autoui=config_ui)
+    def test_ui_prev(fpth):
+        display(TestUiDisplay(fpth))
+    
+    test_ui = DisplayFile(path=tests_constants.PATH_TEST_AUI, user_file_renderers={'.aui.json':test_ui_prev})
+
+    display(test_ui)

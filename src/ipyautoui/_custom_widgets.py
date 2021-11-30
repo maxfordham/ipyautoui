@@ -8,6 +8,7 @@ from ipyfilechooser import FileChooser
 import pathlib
 import pandas as pd
 from traitlets import HasTraits, TraitError, Unicode, default, validate
+from traitlets_paths import PurePath
 import re
 
 class AutoUiDataGrid(ipg.DataGrid, HasTraits):
@@ -46,7 +47,7 @@ class AutoUiFileChooser(FileChooser, HasTraits):
     with a value= kwarg and adds a fc.value property. this 
     follows the same convention as ipywidgets and therefore integrates
     better wiht ipyautoui"""
-    value = Unicode()
+    value = PurePath()
     def __init__(self, value: pathlib.Path=None, **kwargs):
         try:
             kwargs.pop('title')

@@ -22,7 +22,10 @@ def read_module_docstring(fpth):
     """
     with open(fpth, 'r') as f:
         tree = ast.parse(f.read())
-    docstring = ast.get_docstring(tree)
+    try: 
+        docstring = ast.get_docstring(tree)
+    except:
+        docstring = 'no docstring present'
     return docstring
 
 #  from mf_modules.pydtype_operations import list_items_after
