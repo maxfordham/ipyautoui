@@ -32,6 +32,7 @@ from typing import List, Dict, Callable, Type
 import typing
 import enum
 import getpass
+import json
 
 import ipydatagrid as ipg
 import ipywidgets as widgets
@@ -194,9 +195,9 @@ def default_grid(df, **kwargs):
     g = ipg.DataGrid(df, **_kwargs)
     return g
 
-if __name__ == "__main__":
-    df = pd.DataFrame.from_dict({'a':['a','b'],'b':['a','b']})
-    display(default_grid(df))
+# if __name__ == "__main__":
+#     df = pd.DataFrame.from_dict({'a':['a','b'],'b':['a','b']})
+#     display(default_grid(df))
 
 
 # +
@@ -288,13 +289,17 @@ def csv_prev(fpth):
     except:
         display(data.style)
 
-def vegajson_prev(fpth):
+def vegajson_prev(fpth):  # TODO: not working. fix!
     """display a plotly json file"""
-    display(Vega(read_json(fpth)))
+    with open(fpth, 'r', encoding='utf8') as f:
+        json_file = json.load(f)
+    display(Vega(json_file))
 
-def vegalitejson_prev(fpth):
+def vegalitejson_prev(fpth):  # TODO: not working. fix!
     """display a plotly json file"""
-    display(VegaLite(read_json(fpth)))
+    with open(fpth, 'r', encoding='utf8') as f:
+        json_file = json.load(f)
+    display(VegaLite(json_file))
 
 def plotlyjson_prev(fpth):
     """display a plotly json file"""
@@ -339,6 +344,16 @@ def xl_prev(fpth):
     else:
         return False
         #self._open_option()
+
+
+# -
+
+fpths
+
+fpth = pathlib.Path('/mnt/c/engDev/git_mf/ipyautoui/tests/filetypes/eg_vega_tree-layout.vg.json')
+fpth = '/mnt/c/engDev/git_mf/ipyautoui/tests/filetypes/eg_vega_tree-layout.vg.json'
+vegajson_prev(fpth)
+
 
 # + tags=[]
 
@@ -625,14 +640,10 @@ class DisplayFile():
     def _ipython_display_(self):
         self.display()
             
-if __name__ == "__main__":
-    fpth = '/mnt/c/engDev/git_mf/20200707_JohnGunstone_PersonalDevelopmentPlan.docx'
-    fpth1 = '/mnt/c/engDev/git_mf/click_test.py'
-    #file = File(fpth)
-    #file.note = 'this is a long file note describing the file'
-    d = DisplayFile(fpth1, newroot=pathlib.PureWindowsPath('C:/'), auto_open=True)
-    display(d)#.preview_fpth()
-
+# if __name__ == "__main__":
+#     fpth = 'test_schema.py'
+#     d = DisplayFile(fpth, auto_open=True)
+#     display(d)
 
 # +
 class DisplayFiles():
@@ -659,9 +670,12 @@ class DisplayFiles():
     def _update_files(self):
         [d.ui_file._update_file() for d in self.display_files]
         
-if __name__ == "__main__":
-    files = DisplayFiles([fpth, fpth1])
-    display(files)
+# if __name__ == "__main__":
+#     fpth1 = fpth
+#     files = DisplayFiles([fpth, fpth1])
+#     display(files)
+
+
 # -
 
 if __name__ =='__main__':
@@ -677,11 +691,10 @@ if __name__ =='__main__':
     #functions_list
     #class_list
     # -
+    from constants import load_test_constants
+    DIR_FILETYPES = load_test_constants().DIR_FILETYPES
 
-    fdir = os.path.dirname(os.path.realpath('__file__'))
-    rel_fdir = os.path.join('..','test_filetypes')
-
-    fpths = list(pathlib.Path(fdir).glob('*'))
+    fpths = list(pathlib.Path(DIR_FILETYPES).glob('*'))
     #fpths = [os.path.join(rel,  fpth for fpth in fpths ]
 
     # single file
@@ -746,3 +759,5 @@ if __name__ == "__main__":
     test_ui = DisplayFile(path=tests_constants.PATH_TEST_AUI, user_file_renderers={'.aui.json':test_ui_prev})
 
     display(test_ui)
+
+

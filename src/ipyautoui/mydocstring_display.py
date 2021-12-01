@@ -1,6 +1,10 @@
 """
 wrappers around mydocstring. 
 consider incorporating into the core package. 
+
+this is used by the python file previewer allowing the file to be 
+rendered either as a markdown file from the module level docstring
+or a python file. 
 """
 
 import os

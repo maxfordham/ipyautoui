@@ -4,6 +4,7 @@ from typing import Type
 from markdown import markdown
 import ipywidgets as widgets
 from IPython.display import display, Markdown
+import codecs
 
 def _markdown(value='_Markdown_',
               **kwargs):
@@ -71,7 +72,7 @@ def read_json(fpth, encoding='utf8'):
     read info in a .json file
     '''
     with open(fpth, 'r', encoding=encoding) as f:
-        json_file = json.loads(f)
+        json_file = json.loads(f.read())
     return json_file
 
 def del_cols(df, cols):
