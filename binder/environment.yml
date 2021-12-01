@@ -28,12 +28,15 @@ dependencies:
   - xmltodict
   - pyyaml
   - pillow
+  - immutables
+  - openpyxl
   - pip
 #  - click
-  - openpyxl
 #  - xlsxwriter 
 #  - xlsxtemplater 
 #  - mf_file_utilities 
 #  - mfom
+
   pip:
     - mydocstring
+    - traitlets_paths
