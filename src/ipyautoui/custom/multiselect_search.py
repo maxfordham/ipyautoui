@@ -13,20 +13,25 @@
 #     name: python3
 # ---
 
-# +
+"""
+multiselect dropdown widget definition. TODO: integrate with ipyautoui
 
+Reference:
+    https://gist.github.com/MattJBritton/9dc26109acb4dfe17820cf72d82f1e6f
+        
+
+"""
+# %run ../__init__.py
 import sys
-sys.path.append('/mnt/c/engDev/git_extrnl/pydantic')
-# %run __init__.py
 import ipywidgets as widgets
-
-# +
-
 import requests
 import random
-import ipywidgets as widgets
 
-class MultiCheckbox:
+# +
+
+
+
+class MultiSelectSearch:
     """
     multi-checkbox select widget with search 
     
@@ -135,12 +140,6 @@ Abel
     words = set([word.lower() for word in words.splitlines()])
     descriptions = list(words)[:10]
 
-    m = MultiCheckbox(options=descriptions)
+    m = MultiSelectSearch(options=descriptions)
     display(m)
-
-
-# -
-m.value
-
-
 
