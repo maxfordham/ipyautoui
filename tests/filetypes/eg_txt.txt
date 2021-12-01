@@ -1,0 +1,137 @@
+
+
+we'd like to get to this:
+https://davidbailey.codes/blog/2020-07-10-setting-up-jupyterlab-on-windows-10
+
+the below are broad instructions. 
+you'll probs need to google a bit to pad them out. 
+if you can update them to be more explicit that would be great. 
+
+
+1. hardware config
+------------------
+you need to do this:
+https://mashtips.com/enable-virtualization-windows-10/
+and make sure Hyper-V is enabled. 
+WK == windows key
+WK "hyper-v"
+WK "windows features"
+
+
+2. install wsl2
+------------------
+C:\engDev\git_mf\engDevSetup\dev\installers\wsl2\Current
+and enable it
+
+
+3. install ubuntu2004
+------------------
+run the copyInstaller.bat in this folder
+it copies the Ubuntu_2004.2020.424.0_x64.appx file into this folder
+unzip the .appx with 7zip and run the .exe inside. 
+	you can install 7zip using choco (for stuff like this choco is great). 
+	see C:\engDev\git_mf\engDevSetup\dev\choco
+*** use the same user name as your windows user as this makes pathing to user space easier (i learnt the hard way...)***
+###OR####
+just rename .appx to .zip and unzip normally then run the executable. 
+
+to uninstall:
+```cmd
+wsl --unregister Ubuntu-20.04
+```
+
+
+4. install Miniconda
+------------------
+https://docs.conda.io/en/latest/miniconda.html#linux-installers
+the site above downloads a shell script (below). run from linux.
+i.e. 
+C:\engDev\git_mf\engDevSetup\dev\installers\Miniconda3-Linux\Current\Miniconda3-latest-Linux-x86_64.sh
+***OR***
+from the command line
+$wsl
+$cd /home
+$sudo wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+$chmod +x Miniconda3-latest-Linux-x86_64.sh
+$./Miniconda3-latest-Linux-x86_64.sh
+note. should install here: /home/gunstonej/miniconda3
+
+Do you wish the installer to initialize Miniconda3
+by running conda init? [yes|no]
+$yes
+
+5. add mf internal conda channel
+
+```bash
+mkdir /mnt/conda-bld
+sudo mount -t drvfs '\\barbados\apps\conda\conda-bld' /mnt/conda-bld
+conda config --add channels file:///mnt/conda-bld
+conda config --add channels conda-forge
+```
+
+
+5. create conda envs
+------------------
+
+```bash
+#  install mamba
+conda install mamba -n base -c conda-forge -y
+#  create env
+mamba create -n base_mf -c conda-forge jupyterlab voila xeus-python pandas numpy markdown pydantic dacite ipysheet ipyfilechooser xmltodict plotly altair halo pyyaml jupytext click nodejs openpyxl xlsxwriter pip xlsxtemplater mf_file_utilities -y
+#  activate 
+conda activate base_mf
+#  add pip only installs
+pip install mydocstring pipreqs
+```
+
+5. add jupyter lab requirements
+------------------
+#  all deps below
+jupyter labextension install @jupyter-widgets/jupyterlab-manager @jupyter-voila/jupyterlab-preview ipysheet ipytree jupyter-matplotlib @krassowski/jupyterlab_go_to_definition jupyterlab-spreadsheet jupyterlab-plotly plotlywidget
+#  but many don't support new version... 
+jupyter labextension install @jupyter-widgets/jupyterlab-manager ipysheet jupyter-matplotlib @krassowski/jupyterlab_go_to_definition jupyterlab-spreadsheet jupyterlab-plotly plotlywidget
+
+(base_mf) gunstonej@PORT1005:/etc/profile.d$ jupyter labextension list
+JupyterLab v3.0.5
+/home/gunstonej/miniconda3/envs/base_mf/share/jupyter/labextensions
+        jupyter-matplotlib v0.8.3 enabled OK
+        jupyterlab-drawio v0.8.0 enabled OK (python, jupyterlab-drawio)
+        @jupyter-widgets/jupyterlab-manager v3.0.0 enabled OK (python, jupyterlab_widgets)
+        @voila-dashboards/jupyterlab-preview v2.0.0 enabled OK (python, voila)
+
+Other labextensions (built into JupyterLab)
+   app dir: /home/gunstonej/miniconda3/envs/base_mf/share/jupyter/lab
+        jupyterlab-plotly v4.14.3 enabled OK
+
+
+6. set env vars
+------------------
+https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-set-environment-variables-in-linux/
+put this script:
+	C:\engDev\git_mf\engDevSetup\dev\installers\wsl2_Ubuntu2004\Current\mf_root.sh
+place a script in here:
+	/etc/profile.d/mf_root.sh
+
+that sets them. i think this then runs on start up. note. it is case sensitive. 
+after doing this i could import mf_modules normally. 
+i did it manually using Nano - but this is something we'd like to automate.
+
+###OR###
+$sudo cp /mnt/c/engDev/git_mf/engDevSetup/dev/installers/wsl2_Ubuntu2004/Current/mf_root.sh /etc/profile.d
+
+
+7. Other quality of life things
+---------------------------------------
+Create a link to your C drive from your ubuntu home:
+$ln -s /mnt/c/engDev/ ~
+
+Get rid of the annoying bell:
+https://stackoverflow.com/questions/36724209/disable-beep-of-linux-bash-on-windows-10
+
+Conclusion
+------------------
+WK wsl 
+prompts me to launch linux. 
+need to do it as admin. 
+once done i've got the linux bash and can launch jupyter lab --no-browser
+then copy the ip into a browser and it works like a charm. 

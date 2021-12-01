@@ -1,0 +1,112 @@
+,names,description,units
+0,InnerDeltaTime,one minute time step in seconds,NaN
+1,nsvNumOfPipeHT,Number of Pipe Heat Transfer objects,NaN
+2,nsvInletNodeNum,module variable for inlet node number,NaN
+3,nsvOutletNodeNum,module variable for outlet node number,NaN
+4,nsvPipeHTNum,object index,NaN
+5,nsvMassFlowRate,pipe mass flow rate,NaN
+6,nsvVolumeFlowRate,pipe volumetric flow rate,NaN
+7,nsvDeltaTime,time change from last update,NaN
+8,nsvInletTemp,pipe inlet temperature,NaN
+9,nsvOutletTemp,pipe outlet temperature,NaN
+10,nsvEnvironmentTemp,environmental temperature (surrounding pipe),NaN
+11,nsvEnvHeatLossRate,heat loss rate from pipe to the environment,NaN
+12,nsvFluidHeatLossRate,overall heat loss from fluid to pipe,NaN
+13,nsvNumInnerTimeSteps,"the number of ""inner"" time steps for our model",NaN
+14,GetPipeInputFlag,"First time, input is ""gotten""",NaN
+15,Construction,construction object name,NaN
+16,Environment,"keyword:  'Schedule', 'OutdoorAir', 'Zone'",NaN
+17,EnvrSchedule,temperature schedule for environmental temp,NaN
+18,EnvrVelSchedule,temperature schedule for environmental temp,NaN
+19,EnvrZone,zone providing environmental temp,NaN
+20,EnvrAirNode,outside air node providing environmental temp,NaN
+21,Length,total pipe length [m],m
+22,PipeID,pipe inside diameter [m],m
+23,InletNode,inlet node name,NaN
+24,OutletNode,outlet node name,NaN
+25,InletNodeNum,inlet node number,NaN
+26,OutletNodeNum,outlet node number,NaN
+27,TypeOf,Type of pipe,NaN
+28,ConstructionNum,construction ref number,NaN
+29,EnvrSchedPtr,pointer to schedule used to set environmental temp,NaN
+30,EnvrVelSchedPtr,pointer to schedule used to set environmental temp,NaN
+31,EnvrZonePtr,pointer to zone number used to set environmental temp,NaN
+32,EnvrAirNodeNum,pointer to outside air node used to set environmental temp,NaN
+33,NumSections,total number of nodes along pipe length,NaN
+34,FluidSpecHeat,fluid Cp [J/kg.K],J/kg.K
+35,FluidDensity,density [kg/m3],kg/m3
+36,MaxFlowRate,max flow rate (from loop/node data),NaN
+37,FluidSectionVol,volume of each pipe section (node) [m^3],m^3
+38,InsideArea,pipe section inside surface area [m^2],m^2
+39,OutsideArea,pipe section outside surface area [m^2],m^2
+40,SectionArea,cross sectional area [m^2],m^2
+41,PipeHeatCapacity,heat capacity of pipe section [J/m.K],J/m.K
+42,PipeOD,pipe outside diameter [m],m
+43,PipeCp,pipe materail Cp [J/kg.K],J/kg.K
+44,PipeDensity,pipe material density [kg/m3],kg/m3
+45,PipeConductivity,pipe material thermal conductivity [W/m.K],W/m.K
+46,InsulationOD,insulation outside diameter [m],m
+47,InsulationCp,insulation  specific heat [J/kg.K],J/kg.K
+48,InsulationDensity,insulation density [kg/m3],kg/m3
+49,InsulationConductivity,insulation conductivity [W/m.K],W/m.K
+50,InsulationThickness,insulation thickness [m],m
+51,InsulationResistance,Insulation thermal resistance [m2.K/W],m2.K/W
+52,CurrentSimTime,Current simulation time [hr],hr
+53,PreviousSimTime,simulation time the report data was last updated,NaN
+54,FluidTemp,arrays for fluid and pipe temperatures at each node,NaN
+55,NumDepthNodes,number of soil grid points in the depth direction,NaN
+56,PipeNodeDepth,soil depth grid point where pipe is located,NaN
+57,PipeNodeWidth,soil width grid point where pipe is located,NaN
+58,PipeDepth,pipe burial depth [m],m
+59,DomainDepth,soil grid depth [m],m
+60,dSregular,grid spacing in cartesian domain [m],m
+61,OutdoorConvCoef,soil to air convection coefficient [W/m2.K],W/m2.K
+62,SoilMaterial,name of soil material:regular object,NaN
+63,SoilMaterialNum,soil material index in material data structure,NaN
+64,MonthOfMinSurfTemp,month of minimum ground surface temperature,NaN
+65,MinSurfTemp,minimum annual surface temperature [C],C
+66,SoilDensity,density of soil [kg/m3],kg/m3
+67,SoilDepth,thickness of soil [m],m
+68,SoilCp,specific heat of soil [J/kg.K],J/kg.K
+69,SoilConductivity,thermal conductivity of soil [W/m.K],W/m.K
+70,SoilRoughness,ground surface roughness,NaN
+71,SoilThermAbs,ground surface thermal absorptivity,NaN
+72,SoilSolarAbs,ground surface solar absorptivity,NaN
+73,CoefS1,soil surface finite difference coefficient,NaN
+74,CoefS2,soil surface finite difference coefficient,NaN
+75,CoefA1,soil finite difference coefficient,NaN
+76,CoefA2,soil finite difference coefficient,NaN
+77,FourierDS,soil Fourier number based on grid spacing,NaN
+78,SoilDiffusivity,soil thermal diffusivity [m2/s],m2/s
+79,SoilDiffusivityPerDay,soil thermal diffusivity [m2/day],m2/day
+80,T,soil temperature array,NaN
+81,BeginSimInit,begin sim and begin environment flag,NaN
+82,BeginSimEnvrn,begin sim and begin environment flag,NaN
+83,SolarExposed,Flag to determine if solar is included at ground surface,NaN
+84,SumTK,Sum of thickness/conductivity over all material layers,NaN
+85,ZoneHeatGainRate,Lagged energy summation for zone heat gain {W},NaN
+86,LoopNum,PlantLoop index where this pipe lies,NaN
+87,LoopSideNum,PlantLoop%LoopSide index where this pipe lies,NaN
+88,BranchNum,..LoopSide%Branch index where this pipe lies,NaN
+89,CompNum,..Branch%Comp index where this pipe lies,NaN
+90,FluidInletTemp,inlet temperature [C],C
+91,FluidOutletTemp,outlet temperature [C],C
+92,MassFlowRate,mass flow rate [kg/s],kg/s
+93,FluidHeatLossRate,overall heat transfer rate from fluid to pipe [W],W
+94,FluidHeatLossEnergy,energy transferred from fluid to pipe [J],J
+95,PipeInletTemp,pipe temperature at inlet [C],C
+96,PipeOutletTemp,pipe temperature at Oulet [C],C
+97,EnvironmentHeatLossRate,overall heat transfer rate from pipe to environment [W],W
+98,EnvHeatLossEnergy,energy transferred from pipe to environment [J],J
+99,error,component number,NaN
+100,error,Current Depth,NaN
+101,error,Current Simulation Day,NaN
+102,error,"Temperature of water entering the surface, in C",NaN
+103,error,"Mass flow rate, in kg/s",NaN
+104,error,"Pipe diameter, m",NaN
+105,ReportPipesHeatTransfer(),Index for the surface under consideration,NaN
+106,error,module object of pipe (error messages),NaN
+107,error,construction name of pipe (error messages),NaN
+108,error,fieldname of pipe (error messages),NaN
+109,error,pointer into construction data,NaN
+110,error,set to true if errors found here,NaN

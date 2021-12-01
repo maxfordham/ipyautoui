@@ -1,0 +1,35 @@
+{
+    "string": "adsf",
+    "int_slider": 3,
+    "int_text": 1,
+    "int_range_slider": [
+        0,
+        4
+    ],
+    "float_slider": 2.2,
+    "float_text": 2.2,
+    "float_range_slider": [
+        0.0,
+        3.0
+    ],
+    "checkbox": true,
+    "dropdown": null,
+    "dropdown_simple": "asd",
+    "combobox": "asd",
+    "select_multiple": [
+        "male",
+        "female"
+    ],
+    "select_multiple_simple": [
+        "male",
+        "female"
+    ],
+    "text": "short text",
+    "text_area": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ",
+    "date_picker": "2021-12-01",
+    "color_picker": "#f01414",
+    "file_chooser": ".",
+    "array": [],
+    "datagrid": "{\"test\":{\"0\":0,\"1\":1},\"df\":{\"0\":1,\"1\":2}}",
+    "nested": null
+}
