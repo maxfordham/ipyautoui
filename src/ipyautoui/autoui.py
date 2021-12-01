@@ -32,7 +32,7 @@ from enum import Enum
 
 import ipyautoui
 from ipyautoui._utils import obj_from_string
-from ipyautoui._custom_widgets import AutoUiDataGrid, AutoUiFileChooser
+from ipyautoui.custom import Grid, FileChooser
 from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
 
 from enum import Enum
@@ -301,8 +301,8 @@ DI_WIDGETS_MAPPER = {
     'SelectMultiple':WidgetMapper(fn_filt=get_SelectMultiple, widget=widgets.SelectMultiple),
     'Checkbox': WidgetMapper(fn_filt=get_Checkbox, widget=widgets.Checkbox),
     'DatePicker': WidgetMapper(fn_filt=get_DatePicker, widget=widgets.DatePicker),
-    'AutoUiFileChooser': WidgetMapper(fn_filt=get_FileChooser, widget=AutoUiFileChooser),
-    'AutoUiDataGrid': WidgetMapper(fn_filt=get_DataGrid, widget=AutoUiDataGrid),
+    'FileChooser': WidgetMapper(fn_filt=get_FileChooser, widget=FileChooser),
+    'Grid': WidgetMapper(fn_filt=get_DataGrid, widget=Grid),
     'ColorPicker': WidgetMapper(fn_filt=get_ColorPicker, widget=widgets.ColorPicker),
     'IntRangeSlider': WidgetMapper(fn_filt=get_IntRangeSlider, widget=widgets.IntRangeSlider),
     'FloatRangeSlider': WidgetMapper(fn_filt=get_FloatRangeSlider, widget=widgets.FloatRangeSlider),
@@ -442,9 +442,11 @@ class SaveButtonBar():
         if istrue:
             self.unsaved_changes.button_style='danger'
             self.unsaved_changes.icon='circle'
+            self.tooltip = 'DANGER: changes have been made since the last save'
         else:
             self.unsaved_changes.button_style='success'
             self.unsaved_changes.icon='check'
+            self.tooltip = 'SAFE: no changes have been made since the last save'
         
     def display(self):
         with self.out:
@@ -493,7 +495,7 @@ class AutoUi(traitlets.HasTraits):
                 if k in self.di_widgets.keys():
                     self.di_widgets[k].value=v
                 else:
-                    print(f'no widget created for {k}. fix this in the schema!')
+                    print(f'no widget created for {k}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify')
 
         
     def _extend_pydantic_base_model(self):
@@ -508,11 +510,13 @@ class AutoUi(traitlets.HasTraits):
         self._init_controls()
         
     def _init_save_dialogue(self):
-        assert self.path is not None, 'self.path == None. must be a valid path to save as json'
-        map_save_dialogue = immutables.Map(save_on_edit=self.call_save_buttonbar,
-                                           save_buttonbar=self.call_save_buttonbar,
-                                           disable_edits=self.disable_edits)
-        map_save_dialogue[self.config_autoui.save_controls]()
+        if self.path is not None:
+            map_save_dialogue = immutables.Map(save_on_edit=self.call_save_buttonbar,
+                                               save_buttonbar=self.call_save_buttonbar,
+                                               disable_edits=self.disable_edits)
+            map_save_dialogue[self.config_autoui.save_controls]()
+        else:
+            print( 'self.path == None. must be a valid path to save as json')
         
     def call_save_on_edit(self):
         self.save_on_edit = True
@@ -544,7 +548,9 @@ class AutoUi(traitlets.HasTraits):
         return AutoUi(cls.config_autoui.pydantic_model.parse_file(path).dict(), config_autoui=cls.config_autoui, path=path)
 
     def file(self, path: pathlib.Path=None):
-        assert not self.path is None and path is None, f'self.path = {self.path}, path = {path}. no path given.'
+        if self.path is None:
+            if path is None: 
+                raise AssertionError(f'self.path = {self.path}, path = {path}. no path given.')
         if self.path is not None and path is None:
             path = self.path
         ext = ''.join(path.suffixes)
@@ -581,20 +587,8 @@ class AutoUi(traitlets.HasTraits):
         
     def _ipython_display_(self):
         self.display()
-        
-config_autoui = AutoUiConfig(ext='.aui.json', pydantic_model=TestAutoLogic, save_controls='save_buttonbar')
-ui = AutoUi(test.dict(), config_autoui=config_autoui, path=test_constants.PATH_TEST_AUI)
-ui
+
 # -
-
-
-
-[display(v) for k,v in ui.di_widgets.items()]
-
-ui.pydantic_obj.dict()
-
-TestAutoLogic.parse_file(test_constants.PATH_TEST_AUI).dict()
-
 if __name__ == "__main__":
     from ipyautoui.constants import load_test_constants
     from ipyautoui.test_schema import TestAutoLogic
@@ -611,246 +605,4 @@ if __name__ == "__main__":
     print(f"test_constants.PATH_TEST_AUI.is_file() == {test_constants.PATH_TEST_AUI.is_file()} == {str(test_constants.PATH_TEST_AUI)}")
     display(Markdown('# test create displayfile widget'))
     TestAuiDisplayFile = AutoUi.create_displayfile(config_autoui=config_autoui)
-    TestAuiDisplayFile(test_constants.PATH_TEST_AUI)
-
-
-
-# +
-
-
-
-
-# +
-from enum import Enum
-from ipyautoui.constants import BUTTON_WIDTH_MIN
-from markdown import markdown
-from datetime import datetime
-
-class SaveControls(str, Enum):
-    save_on_edit = 'save_on_edit'
-    save_buttonbar = 'save_buttonbar'
-    disable_edits = 'disable_edits'
-    #archive_versions = 'archive_versions' #  TODO: implement this? 
-
-class AutoUiConfig(BaseModel):
-    pydantic_model: typing.Type[BaseModel]
-    widgets_mapper: typing.Dict[str, WidgetMapper] = DI_WIDGETS_MAPPER
-    save_controls: SaveControls = SaveControls.save_buttonbar
-    ext: str ='.aui.json'
-    
-def save():
-    print('save')
-    
-def revert():
-    print('revert')
-
-class SaveButtonBar():
-    def __init__(self, save: typing.Callable=save, revert: typing.Callable=revert):
-        self.fn_save = save
-        self.fn_revert = revert
-        self.out = widgets.Output()
-        self._init_form()
-        self._init_controls()
-        
-    def _init_form(self):
-        self.unsaved_changes = widgets.ToggleButton(disabled=True, layout=widgets.Layout(width=BUTTON_WIDTH_MIN))
-        self.revert = widgets.Button(icon='fa-undo',tooltip='revert to last save',button_style='warning',style={'font_weight':'bold'},layout=widgets.Layout(width=BUTTON_WIDTH_MIN))#,button_style='success'
-        self.save = widgets.Button(icon='fa-save',tooltip='save changes',button_style='success',layout=widgets.Layout(width=BUTTON_WIDTH_MIN))
-        self.message = widgets.HTML('a message')
-        self.save_buttonbar = widgets.HBox([self.unsaved_changes, self.revert, self.save, self.message])
-        
-    def _init_controls(self):
-        self.save.on_click(self._save)
-        self.revert.on_click(self._revert)
-        
-    def _save(self, click):
-        self.fn_save()
-        self.message.value = markdown(f'_changes saved: {datetime.now().strftime("%H:%M:%S")}_')
-        self._unsaved_changes(False)
-        
-    def _revert(self, click):
-        self.fn_revert()
-        self.message.value = markdown(f'_UI reverted to last save_')
-        self._unsaved_changes(True)
-        
-    def _unsaved_changes(self, istrue: bool):
-        if istrue:
-            self.unsaved_changes.button_style='danger'
-            self.unsaved_changes.icon='circle'
-        else:
-            self.unsaved_changes.button_style='success'
-            self.unsaved_changes.icon='check'
-        
-    def display(self):
-        with self.out:
-            display(self.save_buttonbar)
-        display(self.out)
-        
-    def _ipython_display_(self):
-        self.display()
-        
-save_dialogue = SaveButtonBar()
-save_dialogue
-
-# +
-
-
-now = datetime.now().strftime("%H:%M:%S")
-now
-# -
-
-self.show_me_the_code.button_style='info'
-
-
-# +
-@dataclass
-class SimpleInputs:
-    """NOT IN USE. defines simple input locations for SimpleEditJson"""
-    fdir_inputs: str = 'fdir_inputs'
-    fdir_template_inputs: str = 'fdir_template_inputs'
-    fpth_inputs: str = 'fpth_inputs'
-    fpth_inputs_options: InputOptions = InputOptions(
-        project=InputDirs(fdir=fdir_inputs),
-        template=InputDirs(fdir=fdir_template_inputs))
-
-class FileController(Errors):
-
-    def __init__(self, inputs: SimpleInputs):
-        self.out = widgets.Output()
-        self.inputs = inputs
-        self._inherit_Inputs()
-        self._init_FileController()
-
-    def _init_FileController(self):
-        self._errors()
-        self.file_control_form()
-        self._init_control()
-
-    def _inherit_Inputs(self):
-        self.__dict__.update(**asdict(self.inputs))
-
-    def _init_control(self):
-        self.save_changes.on_click(self._save_changes)
-        self.load_inputs.observe(self._load_inputs,'value')
-        self.load_button.on_click(self._load)
-        self.revert.on_click(self._revert)
-
-    @property
-    def mf_layout(self):
-        return widgets.Layout(
-            display='flex',
-            flex_flow='row',
-            justify_content='flex-start',
-            #border='dashed 0.2px green',
-            grid_auto_columns='False',
-            width='100%',
-            #align_items='stretch',
-        )
-
-    def file_control_form(self):
-
-        # button bar
-        self.load_inputs = widgets.ToggleButton(icon='folder-open',tooltip='open inputs from file',button_style='info',layout=widgets.Layout(width='50px'))# (FontAwesome names without the `fa-` prefix)
-        self.revert = widgets.Button(icon='fa-undo',tooltip='revert to last save',button_style='warning',style={'font_weight':'bold'},layout=widgets.Layout(width='50px'))#,button_style='success'
-        self.save_changes = widgets.Button(icon='fa-save',tooltip='save changes',button_style='success',layout=widgets.Layout(width='50px'))
-        self.button_bar = widgets.HBox([ self.load_inputs, self.revert, self.save_changes])
-
-        # nested buttons
-        template_inputs = self.get_template_inputs()
-        project_inputs = self.get_project_inputs()
-        options = dict(template_inputs, **project_inputs)
-        self.load_button = widgets.Button(description = 'load',icon='fa-upload',style={'font_weight':'bold'})
-        self.choose_inputs = widgets.RadioButtons(
-            options = options,
-            layout = self.mf_layout,
-        )
-        self.load = widgets.VBox([self.load_button,self.choose_inputs])
-        self.temp_message = widgets.HTML(markdown('edit user input form below'))
-        self.inputform = widgets.VBox([], layout = self.mf_layout)
-
-    def _revert(self, sender):
-        """revert to last save of working inputs file"""
-        fpth = self.fpth_inputs
-        self.temp_message.value = markdown('revert to inputs in last save of: {0}'.format(fpth))
-
-        # add code here to revert to last save
-
-        self.update_display()
-        self.display()
-
-    def _save_changes(self, sender):
-        """save changes to working inputs file"""
-        fpth = self.fpth_inputs
-        dateTimeObj = datetime.now()
-        self.save_timestampStr = dateTimeObj.strftime("%d-%b-%Y %H:%M:%S")
-        self.temp_message.value = markdown('{0} saved at: {1}'.format(fpth, self.save_timestampStr))
-
-        # add code here to save changes to file
-
-        self.update_display()
-        self.display()
-
-    def _load_inputs(self,sender):
-        """launches the inputs from file dialog"""
-        self.temp_message.value = markdown('update the user input form with data from file')
-        if self.load_inputs.value:
-            self.inputform.children = [self.load_button, self.choose_inputs]
-        else:
-            self.temp_message.value = markdown('')
-            self.inputform.children = []
-        self.update_display()
-        self.display()
-
-    def _load(self,sender):
-        self.update_display()
-        self.display()
-        fpth = self.choose_inputs.value
-
-        # add code here to load form from file
-
-        self.temp_message.value = markdown('input form load data from: {0}'.format(fpth))
-        try:
-            self.iserror = False
-            message = 'load input form from: {0}'.format(fpth)
-        except:
-            self.iserror = True
-            self.errormessage = '''__error__ loading : {0}.
-            the file has either been deleted or modified such that it is unreadable'''.format(fpth)
-        with self.out:
-            clear_output()
-            if self.load_inputs.value:
-                display(Markdown(message))
-            if self.iserror:
-                display(Markdown(self.errormessage))
-
-    def get_project_inputs(self):
-        fpths = self.fpth_inputs_options['project']['fpths']
-        di = {}
-        for fpth in fpths:
-            description = 'PROJECT: '+ fpth
-            di[description] = fpth
-        return di
-
-    def get_template_inputs(self):
-        fpths = self.fpth_inputs_options['template']['fpths']
-        di = {}
-        for fpth in fpths:
-            description = 'TEMPLATE: '+ fpth
-            di[description] = fpth
-        return di
-
-    def update_display(self):
-        box = widgets.VBox([
-            self.button_bar,
-            self.temp_message,
-            self.inputform,
-        ])
-        self.layout = box
-
-    def display(self):
-        display(self.layout)
-        display(self.out)
-
-    def _ipython_display_(self):
-        self.update_display()
-        self.display()
+    display(TestAuiDisplayFile(test_constants.PATH_TEST_AUI))

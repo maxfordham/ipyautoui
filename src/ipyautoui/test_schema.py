@@ -1,3 +1,6 @@
+"""
+An example schema definition that demonstrates the current capability of the AutoUi class
+"""
 import typing
 from enum import Enum
 from pydantic import BaseModel, Field, conint, constr, validator
@@ -5,6 +8,7 @@ from pydantic.color import Color
 from datetime import datetime, date
 import pathlib
 import pandas as pd
+from pathlib import PurePosixPath
 
 class Gender(str, Enum):
     male = 'male'
@@ -47,3 +51,6 @@ class TestAutoLogic(BaseModel):
     @validator('color_picker')
     def _color_picker(cls, v):
         return v.as_hex()
+    
+    class Config:
+        json_encoders = {PurePosixPath:  str}
