@@ -9,13 +9,13 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.11.4
 #   kernelspec:
-#     display_name: Python [conda env:mf_base1] *
+#     display_name: Python 3.9 (XPython)
 #     language: python
-#     name: conda-env-mf_base1-xpython
+#     name: xpython
 # ---
 
 # +
-"""generic array object"""
+"""generic iterable object"""
 # %run __init__.py
 # %load_ext lab_black
 import ipywidgets as widgets
@@ -32,15 +32,10 @@ frozenmap = (
     immutables.Map
 )  # https://www.python.org/dev/peps/pep-0603/, https://github.com/MagicStack/immutables
 BOX = frozenmap({True:widgets.HBox, False:widgets.VBox })
-# -
-
 TOGGLE_BUTTON_KWARGS = frozenmap(
     icon="",
-    # style={"button_color":"white"},
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
-    # disabled=True
 )
-
 
 def make_row(item, add, remove, orient_rows, append_only, show_add_remove, label=""):
     """creates a generic row item. code below defined the structure
@@ -69,21 +64,17 @@ def make_row(item, add, remove, orient_rows, append_only, show_add_remove, label
         
     return box
 
-
-
-# +
 @dataclass
-class ArrayItem:
+class IterableItem:
     index: int
     add: typing.Any
     remove: typing.Any
-    guid: uuid.uuid4
+    key: typing.Union[uuid.uuid4, str, int, float, bool]
     item: typing.Any  # this must be valid to be a child of a HBox or VBox and must have a "value" that can be watched
         
 
-
-class Array(traitlets.HasTraits):
-    """generic array. pass a list of items """
+class Iterable(traitlets.HasTraits):
+    """generic iterable. pass a list of items """
     value = traitlets.List()
     def __init__(
         self,
@@ -101,12 +92,12 @@ class Array(traitlets.HasTraits):
         description=""
     ):
         
-        self.array = [
-            ArrayItem(
+        self.iterable = [
+            IterableItem(
                 index=n,
                 add=widgets.Button(**ADD_BUTTON_KWARGS),
                 remove=widgets.Button(**REMOVE_BUTTON_KWARGS),
-                guid=uuid.uuid4(),
+                key=uuid.uuid4(),
                 item=i,
             )
             for n, i in enumerate(items)
@@ -130,28 +121,29 @@ class Array(traitlets.HasTraits):
         if self.watch_value:
             self._update_value('change')
         
+        
     @property
     def items(self):
-        return [a.item for a in self.array]
+        return [a.item for a in self.iterable]
     
-    def row_from_array_item(self, array_item):
+    def row_from_iterable_item(self, iterable_item):
         if self.show_index:
-            self.zfill = math.floor(math.log10(len(self.array)))
-            label = str(array_item.index).zfill(self.zfill) + '. '
+            self.zfill = math.floor(math.log10(len(self.iterable)))
+            label = str(iterable_item.index).zfill(self.zfill) + '. '
         else:
             label =""
-        return make_row(array_item.item, array_item.add, array_item.remove, self.orient_rows, self.append_only, self.show_add_remove)
+        return make_row(iterable_item.item, iterable_item.add, iterable_item.remove, self.orient_rows, self.append_only, self.show_add_remove)
     
     def _update_index_labels(self):
         if self.show_index:
-            self.zfill = math.floor(math.log10(len(self.array)))
-            labels = [str(a.index).zfill(self.zfill) + '. ' for a in self.array]
+            self.zfill = math.floor(math.log10(len(self.iterable)))
+            labels = [str(a.index).zfill(self.zfill) + '. ' for a in self.iterable]
             for r, l in zip(self.rows_box.children, labels):
                 r.children[1].children[0].value = f'<b>{l}</b>'
             #[a.item]
 
     def _init_form(self):
-        rows = [self.row_from_array_item(a) for a in self.array] 
+        rows = [self.row_from_iterable_item(a) for a in self.iterable] 
         
         header = [widgets.HTML(f'<b>{self.title}</b>'), widgets.HTML(f'<i>{self.description}</i>')]
         if self.toggle:
@@ -167,11 +159,10 @@ class Array(traitlets.HasTraits):
             [setattr(self.rows_box.children[0].children[0].children[1], k, v) for k,v in BLANK_BUTTON_KWARGS.items()];
             [setattr(self.rows_box.children[0].children[0].children[0], k, v) for k,v in ADD_BUTTON_KWARGS.items()];
 
-            
     def _init_controls(self):
         if self.toggle:
             self.toggle_button.observe(self._toggle_button, 'value')
-        [self._init_row_controls(guid=r.guid) for r in self.array]
+        [self._init_row_controls(key=r.key) for r in self.iterable]
         
     def _toggle_button(self, change):
         if self.toggle_button.value:
@@ -181,116 +172,116 @@ class Array(traitlets.HasTraits):
             self.toggle_button.icon = 'plus'
             self.form_box.children = [self.title_box]
 
-    def _init_row_controls(self, guid=None):
+    def _init_row_controls(self, key=None):
         if self.append_only:
             self.rows_box.children[0].children[0].children[0].on_click(self.append_row)
         else:
-            self._get_add_widget(guid).on_click(
-                functools.partial(self._add_rows, guid=guid)
+            self._get_add_widget(key).on_click(
+                functools.partial(self._add_rows, key=key)
             )
-        self._get_remove_widget(guid).on_click(
-            functools.partial(self._remove_rows, guid=guid)
+        self._get_remove_widget(key).on_click(
+            functools.partial(self._remove_rows, key=key)
         )
         if self.watch_value:
-            self._get_item(guid).observe(self._update_value, names='value')
+            self._get_item(key).observe(self._update_value, names='value')
             
     def _update_value(self, onchange):
-        self.value = [a.item.value for a in self.array]
+        self.value = [a.item.value for a in self.iterable]
         
     # -----------------------------------------------------    
-    def _get_add_widget(self, guid):
-        return [r.add for r in self.array if r.guid == guid][0]
+    def _get_add_widget(self, key):
+        return [r.add for r in self.iterable if r.key == key][0]
 
-    def _get_remove_widget(self, guid):
-        return [r.remove for r in self.array if r.guid == guid][0]
+    def _get_remove_widget(self, key):
+        return [r.remove for r in self.iterable if r.key == key][0]
 
-    def _get_guid(self, index):
-        return [r.guid for r in self.array if r.index == index][0]
+    def _get_key(self, index):
+        return [r.key for r in self.iterable if r.index == index][0]
 
-    def _get_index(self, guid):
-        return [r.index for r in self.array if r.guid == guid][0]
+    def _get_index(self, key):
+        return [r.index for r in self.iterable if r.key == key][0]
     
-    def _get_item(self, guid):
-         return [r.item for r in self.array if r.guid == guid][0]
+    def _get_item(self, key):
+         return [r.item for r in self.iterable if r.key == key][0]
     # TODO: combine these functions ^^^ -------------------
     
     def _sort_map(self):
-        sort = sorted(self.array, key=lambda k: k.index)
+        sort = sorted(self.iterable, key=lambda k: k.index)
         for n, s in enumerate(sort):
             s.index = n
         return sort
 
-    def _remove_rows(self, onclick, guid=None):
+    def _remove_rows(self, onclick, key=None):
 
-        if len(self.array) <= 1:
+        if len(self.iterable) <= 1:
             pass
         else:
-            n = self._get_index(guid)
+            n = self._get_index(key)
             # add item
             children = list(self.rows_box.children[0:n]) + list(
                 self.rows_box.children[n + 1 :]
             ) 
             self.rows_box.children = children
             # update map
-            self.array.pop(n)
-            self.array = self._sort_map()
+            self.iterable.pop(n)
+            self.iterable = self._sort_map()
             if self.watch_value:
                 self._update_value('change')
             if self.show_index:
                 self._update_index_labels()
 
-    def remove_row(self, guid=None):
-        self._remove_rows("click", guid=guid)
+    def remove_row(self, key=None):
+        self._remove_rows("click", key=key)
 
     def remove_row_index(self, index):
         if index is None:
             raise ValueError(
-                "index must be an integer less than the number of items in the array"
+                "index must be an integer less than the number of items in the iterable"
             )
-        guid = self._get_guid(index) # +1
-        self.remove_row(guid=guid)
+        key = self._get_key(index) # +1
+        self.remove_row(key=key)
 
-    def _add_rows(self, onclick, guid=None):
-        if len(self.array)>= self.maxlen:
+    def _add_rows(self, onclick, key=None):
+        if len(self.iterable)>= self.maxlen:
             return None
-        n = self._get_index(guid)
+        n = self._get_index(key)
         # add item
         new_item = self.add_item()
-        item = ArrayItem(
+        item = IterableItem(
             index=n,
             add=widgets.Button(**ADD_BUTTON_KWARGS),
             remove=widgets.Button(**REMOVE_BUTTON_KWARGS),
-            guid=uuid.uuid4(),
+            key=uuid.uuid4(),
             item=new_item,
         )
-        self.array.append(item)
-        row = self.row_from_array_item(item)
+        self.iterable.append(item)
+        row = self.row_from_iterable_item(item)
         children = (
             list(self.rows_box.children[0 : n + 1])
             + [row]
             + list(self.rows_box.children[n + 1 :])
         )
         self.rows_box.children = children
-        self.array = self._sort_map()  # update map
-        self._init_row_controls(item.guid)  # init controls
+        self.iterable = self._sort_map()  # update map
+        self._init_row_controls(item.key)  # init controls
         if self.watch_value:
             self._update_value('change')
         if self.show_index:
             self._update_index_labels()
 
-    def add_row(self, guid=None):
-        self._add_rows("click", guid=guid)
+    def add_row(self, key=None):
+        self._add_rows("click", key=key)
 
     def add_row_after_index(self, index=None):
         if index is None:
             raise ValueError(
-                "index must be an integer less than the number of items in the array"
+                "index must be an integer less than the number of items in the iterable"
             )
-        guid = self._get_guid(index)
-        self.add_row(guid=guid)
+        key = self._get_key(index)
+        self.add_row(key=key)
         
     def append_row(self, action):
-        self._add_rows('click', self.array[-1].guid)
+        self._add_rows('click', self.iterable[-1].key)
 
     def display(self):
         display(self.form_box)
@@ -298,11 +289,8 @@ class Array(traitlets.HasTraits):
     def _ipython_display_(self):
         self.display()
         
-class AutoArray:
-    pass # TODO: create AutoArray class that works with the AutoUi class for arrays
-
-
-# -
+class AutoIterable:
+    pass # TODO: create AutoIterable class that works with the AutoUi class for iterables
 
 if __name__ == "__main__":
     import random
@@ -317,6 +305,8 @@ if __name__ == "__main__":
 
     def add_item():
         return TestItem(di=get_di())
+    
+    
 
     class TestItem(widgets.HBox, traitlets.HasTraits):
         value= traitlets.Dict()
@@ -351,7 +341,7 @@ if __name__ == "__main__":
     display(test_make_row())
     display(Markdown("---")) 
     
-    array = Array(
+    iterable = Iterable(
         items=[add_item()],
         add_item=add_item,
         #orient_rows=False,
@@ -363,7 +353,50 @@ if __name__ == "__main__":
         title='asdfasd',
         description='asfasdf'
     )
-    display(array)
+    display(iterable)
     display(Markdown("---")) 
+
+
+# -
+
+class Dictionary(Iterable):
+    value = typing.Dict
+    
+    def __init__(
+        self,
+        items: typing.List,
+        toggle=True,
+        orient_rows: bool = True,
+        add_item: typing.Callable = lambda: display("add item"),
+        watch_value: bool = True,
+        minlen=1,
+        maxlen=None, 
+        append_only=False, 
+        show_add_remove=True,
+        show_index=False,
+        title="", 
+        description=""
+    ):
+        super().__init__(items, items, orient_rows, add_item, watch_value, minlen, maxlen, append_only, show_add_remove, show_index, title, description)
+        
+        
+    def _update_value(self, onchange):
+        self.value = {a.key: a.item.value for a in self.iterable}
+
+iterable = Dictionary(
+    items=[add_item()],
+    add_item=add_item,
+    #orient_rows=False,
+    #show_add_remove=False,
+    maxlen=10, 
+    append_only=True,
+    show_index=True,
+    #toggle=False,
+    title='asdfasd',
+    description='asfasdf'
+)
+display(iterable)
+
+iterable.value
 
 
