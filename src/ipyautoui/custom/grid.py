@@ -9,7 +9,7 @@ class Grid(ipg.DataGrid, HasTraits):
     is a json string of the ipydatagrid pandas dataframe. using  
     HasTraits from the traitlets library the 
     """
-    value = Unicode()
+    value = Unicode() # TODO: store dataframe as dict instead of string
     def __init__(self, value: pd.DataFrame=pd.read_json('{"test":{"0":0,"1":1},"df":{"0":1,"1":2}}'), **kwargs):
         """
         Args:
