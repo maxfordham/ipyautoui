@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.1
+#       jupytext_version: 1.11.4
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python 3
 #     language: python
 #     name: python3
 # ---
@@ -207,14 +207,18 @@ class PreviewPy():
     module and get a display output of the modules
     docstring with a toggle option to view the code
     """
-    def __init__(self, module, preview_script=True):
+    def __init__(self, module, preview_script=True, docstring_priority=True):
         self.input = module
         self.preview_script = preview_script
+        self.docstring_priority = docstring_priority
         self.out = widgets.Output()
         self.fpth = self._handle_input()
         self._init_form()
         self._init_controls()
-        self._show_docstring()
+        if self.docstring_priority:
+            self._show_docstring()
+        else:
+            self.show_me_the_code.value = True
 
     def _handle_input(self):
         if str(type(self.input)) == "<class 'module'>":
@@ -271,6 +275,13 @@ class PreviewPy():
 
     def _ipython_display_(self):
         self.display()
+
+if __name__ == "__main__":
+    fpth = 'test_schema.py'
+    display(PreviewPy(fpth)) 
+
+# +
+
 
 def pdf_prev(fpth):
     display(IFrame(fpth, width=1000, height=600))
@@ -346,14 +357,10 @@ def xl_prev(fpth):
         #self._open_option()
 
 
-# -
-
-fpths
-
-fpth = pathlib.Path('/mnt/c/engDev/git_mf/ipyautoui/tests/filetypes/eg_vega_tree-layout.vg.json')
-fpth = '/mnt/c/engDev/git_mf/ipyautoui/tests/filetypes/eg_vega_tree-layout.vg.json'
-vegajson_prev(fpth)
-
+# +
+# fpth = pathlib.Path('/mnt/c/engDev/git_mf/ipyautoui/tests/filetypes/eg_vega_tree-layout.vg.json')
+# fpth = '/mnt/c/engDev/git_mf/ipyautoui/tests/filetypes/eg_vega_tree-layout.vg.json'
+# vegajson_prev(fpth)
 
 # + tags=[]
 
@@ -388,7 +395,7 @@ def convert_unit(size_in_bytes, unit):
 def format_number(number, sigfigs=3):
     return '{:g}'.format(float('{:.{p}g}'.format(number, p=sigfigs)))
 
-def get_file_size(path:pathlib.Path, size_type = SIZE_UNIT.KB, sigfigs=3):
+def get_file_size(path:pathlib.Path, size_type = SIZE_UNIT.MB, sigfigs=3):
     """ Get file in size in given unit like KB, MB or GB"""
     if path.is_file():
         return format_number(convert_unit(path.stat().st_size, size_type))
@@ -396,8 +403,11 @@ def get_file_size(path:pathlib.Path, size_type = SIZE_UNIT.KB, sigfigs=3):
         return '-'
     
 def get_file_data(path):
-    return '<b>--</b> {} <b>--</b> <i>{}</i> <b>--</b> <i>{} KB</i>'.format(
-                getpass.getuser(), st_mtime_string(path),get_file_size(path))
+    return [
+        widgets.HTML(f' | <b>{getpass.getuser()}</b>'), 
+        widgets.HTML(f' | <i>{st_mtime_string(path)}</i>'),
+        widgets.HTML(f' | <i>{get_file_size(path)} MB</i>'),
+    ]
 
 def open_ui(fpth: str):
     """
@@ -433,7 +443,8 @@ def open_ui(fpth: str):
         style={'font_weight': 'bold','button_color':None}) #,'button_color':'LightYellow'
     filename = widgets.HTML(
         '<b>{0}</b>'.format(fpth.name),layout=widgets.Layout(justify_items='center'))   
-    data = widgets.HTML(get_file_data(fpth),layout=widgets.Layout(justify_items='center'))   
+    data = widgets.HBox(layout=widgets.Layout(justify_items='center'))
+    data.children = get_file_data(fpth) 
     return isfile, openpreview, openfile, openfolder, filename, data
 
     
@@ -644,11 +655,16 @@ class DisplayFile():
 #     fpth = 'test_schema.py'
 #     d = DisplayFile(fpth, auto_open=True)
 #     display(d)
-
 # +
 class DisplayFiles():
-    def __init__(self, paths: typing.List[pathlib.Path], auto_open: bool=False):
-        self.display_files = [DisplayFile(p, auto_open=auto_open) for p in paths]
+    def __init__(self, 
+                 paths: typing.List[pathlib.Path], 
+                 default_file_renderers: Dict[str, Callable] = default_file_renderers,
+                 user_file_renderers: Dict[str, Callable] = None,
+                 newroot=pathlib.PureWindowsPath('J:/'),
+                 auto_open: bool=False, # TODO - add possibility to open only certain items...
+                ):
+        self.display_files = [DisplayFile(p, auto_open=auto_open, user_file_renderers=user_file_renderers, default_file_renderers=default_file_renderers) for p in paths]
         self._init_form()
         
     def _init_form(self):

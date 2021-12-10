@@ -22,14 +22,14 @@ class NestedObject(BaseModel):
     int_text1: int = 1
 
 class TestAutoLogic(BaseModel):
-    """<br>this is a test UI form to demonstrate how pydantic class can be used to generate an ipywidget input form"""
+    """this is a test UI form to demonstrate how pydantic class can be used to generate an ipywidget input form"""
     string: str = Field(default='adsf', description='a description about my string')
     int_slider: conint(ge=0,le=3) =2
     int_text: int = 1
-    int_range_slider: typing.Tuple[int,int] = Field(default=(0,3),ge=0,le=4)   # check
+    int_range_slider: tuple[int,int] = Field(default=(0,3),ge=0,le=4)   # check
     float_slider: float = Field(default=2.2, ge=0,le=3) 
     float_text: float =2.2
-    float_range_slider: typing.Tuple[float,float] = Field(default=(0,2.2), ge=0,le=3.5)
+    float_range_slider: tuple[float,float] = Field(default=(0,2.2), ge=0,le=3.5)
     checkbox: bool = True
     dropdown: Gender = None
     dropdown_simple: str = Field(default ='asd', enum=['asd','asdf'])
@@ -40,7 +40,7 @@ class TestAutoLogic(BaseModel):
     text: constr(min_length=0, max_length=20) = 'short text'
     text_area: constr(min_length=0, max_length=800)  = 'long text ' * 50
     date_picker: date = date.today()
-    color_picker: Color = '#ffffff'
+    color_picker: Color = '#f5f595'
     file_chooser: pathlib.Path = pathlib.Path('.')
     array: typing.List[str] = Field(default=[], max_items=5)
     # file_upload # TODO: how best to implement this? could auto-save to another location...

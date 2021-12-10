@@ -32,6 +32,8 @@ dependencies:
   - pip
 #  - click
   - openpyxl
+  - black
+  - nb_black
 #  - xlsxwriter 
 #  - xlsxtemplater 
 #  - mf_file_utilities 
