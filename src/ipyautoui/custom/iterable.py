@@ -9,12 +9,12 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.13.3
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: python3
+#     name: conda-env-ipyautoui-xpython
 # ---
 
-# """generic iterable object"""
+"""generic iterable object."""
 # %run __init__.py
 # %load_ext lab_black
 
@@ -76,9 +76,9 @@ def make_row(item, add, remove, orient_rows, append_only, show_add_remove, label
 @dataclass
 class IterableItem:
     index: int
+    key: typing.Union[uuid.uuid4, str, int, float, bool]
     add: typing.Any
     remove: typing.Any
-    key: typing.Union[uuid.uuid4, str, int, float, bool]
     item: typing.Any  # this must be valid to be a child of a HBox or VBox and must have a "value" that can be watched
 
 
@@ -95,6 +95,9 @@ class Iterable(traitlets.HasTraits):
                 f'{proposal} given. allowed values of show_hash are "index", "key" and "False" only'
             )
         return proposal
+    
+    def _update_value(self, onchange):
+        self.value = [a.item.value for a in self.iterable]
 
     def __init__(
         self,
@@ -108,20 +111,12 @@ class Iterable(traitlets.HasTraits):
         append_only=False,
         show_add_remove=True,
         show_hash="False",
+        sort_on_index=True,
         title="",
         description="",
     ):
 
-        self.iterable = [
-            IterableItem(
-                index=n,
-                add=widgets.Button(**ADD_BUTTON_KWARGS),
-                remove=widgets.Button(**REMOVE_BUTTON_KWARGS),
-                key=uuid.uuid4(),
-                item=i,
-            )
-            for n, i in enumerate(items)
-        ]
+        self.iterable = self._init_iterable(items)
         self.orient_rows = orient_rows
         self.toggle = toggle
         self.add_item = add_item
@@ -137,8 +132,22 @@ class Iterable(traitlets.HasTraits):
         self._init_form()
         self._init_controls()
         self.watch_value = watch_value
+        self.sort_on_index = sort_on_index
         self.zfill = 1
+        
+    def _init_iterable(self, items):
+        return [
+            IterableItem(
+                index=n,
+                key=uuid.uuid4(),
+                add=widgets.Button(**ADD_BUTTON_KWARGS),
+                remove=widgets.Button(**REMOVE_BUTTON_KWARGS),
+                item=i,
+            )
+            for n, i in enumerate(items)
+        ]
 
+    # labels ------
     def _hash_labels(self):
         if self.show_hash.value == "index":
             self._update_index_labels()
@@ -156,7 +165,9 @@ class Iterable(traitlets.HasTraits):
     def _update_key_labels(self):
         for r, i in zip(self.rows_box.children, self.iterable):
             r.children[1].children[0].value = f"<b>{i.key}</b>"
-
+    # ------------
+    
+    
     @property
     def items(self):
         return [a.item for a in self.iterable]
@@ -191,14 +202,14 @@ class Iterable(traitlets.HasTraits):
                 layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
             )
             header.insert(0, self.toggle_button)
-
-        self.form_box.children = [self.title_box]
+            self.form_box.children = [self.title_box]
+        else:
+            self.form_box.children = [self.title_box, self.rows_box]
         self._hash_labels()
 
-        # update buttons
-        if (
-            self.append_only
-        ):  # disable remove bottom row and enable add button on bottom row to be used for append
+        # if self.append_only: 
+        # disable remove bottom row and enable add button on bottom row to be used for append
+        if self.show_add_remove and self.append_only: 
             [
                 setattr(self.rows_box.children[0].children[0].children[1], k, v)
                 for k, v in BLANK_BUTTON_KWARGS.items()
@@ -224,10 +235,10 @@ class Iterable(traitlets.HasTraits):
             self.form_box.children = [self.title_box]
 
     def _init_row_controls(self, key=None):
-        if self.append_only:
-            self.rows_box.children[0].children[0].children[0].on_click(self.append_row)
+        if self.show_add_remove and self.append_only:
+            self.rows_box.children[0].children[0].children[0].on_click(self.add_row)
         else:
-            self._get_add_widget(key).on_click(
+            self._get_attribute(key, 'add').on_click(
                 functools.partial(self._add_rows, key=key)
             )
         self._get_remove_widget(key).on_click(
@@ -236,10 +247,10 @@ class Iterable(traitlets.HasTraits):
         if self.watch_value:
             self._get_item(key).observe(self._update_value, names="value")
 
-    def _update_value(self, onchange):
-        self.value = [a.item.value for a in self.iterable]
-
     # -----------------------------------------------------
+    def _get_attribute(self, key, get):
+        return [getattr(r, get) for r in self.iterable if r.key == key][0]
+    
     def _get_add_widget(self, key):
         return [r.add for r in self.iterable if r.key == key][0]
 
@@ -258,7 +269,10 @@ class Iterable(traitlets.HasTraits):
     # TODO: combine these functions ^^^ -------------------
 
     def _sort_map(self):
-        sort = sorted(self.iterable, key=lambda k: k.index)
+        if self.sort_on_index:
+            sort = sorted(self.iterable, key=lambda k: k.index)
+        else:
+            sort = sorted(self.iterable, key=lambda k: k.key)
         for n, s in enumerate(sort):
             s.index = n
         return sort
@@ -293,18 +307,33 @@ class Iterable(traitlets.HasTraits):
         self.remove_row(key=key)
 
     def _add_rows(self, onclick, key=None):
+        self.add_row(key=key)
+
+    def add_row(self, key=None, new_key=None, add_kwargs=None):
+        """add row to array. if key=None then append to end"""
         if len(self.iterable) >= self.maxlen:
             return None
-        if key in [i.key for i in self.iterable]:
-            raise ValueError(f"{key} already exists. The 'key' value must be unique.")
-        n = self._get_index(key)
+        
+        if add_kwargs is None:
+            add_kwargs = {}
+        
+        if key is None: 
+            key = self.iterable[-1].key
+            
+        if new_key is None:
+            new_key = uuid.uuid4()
+            
+        if new_key in [i.key for i in self.iterable]:
+            print(f'{new_key} already exists in keys')
+            return None
         # add item
-        new_item = self.add_item()
+        n = self._get_index(key)
+        new_item = self.add_item(**add_kwargs)
         item = IterableItem(
             index=n,
             add=widgets.Button(**ADD_BUTTON_KWARGS),
             remove=widgets.Button(**REMOVE_BUTTON_KWARGS),
-            key=uuid.uuid4(),
+            key=new_key,
             item=new_item,
         )
         self.iterable.append(item)
@@ -320,9 +349,7 @@ class Iterable(traitlets.HasTraits):
         if self.watch_value:
             self._update_value("change")
         self._hash_labels()
-
-    def add_row(self, key=None):
-        self._add_rows("click", key=key)
+        
 
     def add_row_after_index(self, index=None):
         if index is None:
@@ -331,9 +358,6 @@ class Iterable(traitlets.HasTraits):
             )
         key = self._get_key(index)
         self.add_row(key=key)
-
-    def append_row(self, action):
-        self._add_rows("click", self.iterable[-1].key)
 
     def display(self):
         display(self.form_box)
@@ -347,7 +371,93 @@ class AutoIterable:
 
 
 class Array(Iterable):
-    value = traitlets.List()
+    def __init__(
+        self,
+        items: typing.List,
+        toggle=True,
+        orient_rows: bool = True,
+        add_item: typing.Callable = lambda: display("add item"),
+        watch_value: bool = True,
+        minlen=1,
+        maxlen=None,
+        append_only=False,
+        show_add_remove=True,
+        show_index=False,
+        title="",
+        description="",
+    ):
+        if show_index:
+            show_hash = 'index'
+        else:
+            show_hash = 'False'
+        super().__init__(items,
+            toggle=toggle,
+            orient_rows=orient_rows,
+            add_item=add_item,
+            watch_value=watch_value,
+            minlen=minlen,
+            maxlen=maxlen,
+            append_only=append_only,
+            show_add_remove=show_add_remove,
+            show_hash=show_hash,
+            title=title,
+            description=description,
+    )
+        
+        
+class Dictionary(Iterable):
+    value = traitlets.Dict()
+    def __init__(
+        self,
+        items: typing.Dict,
+        toggle=True,
+        orient_rows: bool = True,
+        add_item: typing.Callable = lambda: display("add item"),
+        watch_value: bool = True,
+        minlen=1,
+        maxlen=None,
+        append_only=False,
+        show_add_remove=True,
+        show_key=False,
+        title="",
+        description="",
+    ):
+        if show_key:
+            show_hash = 'key'
+        else:
+            show_hash = 'False'
+        super().__init__(items,
+            toggle=toggle,
+            orient_rows=orient_rows,
+            add_item=add_item,
+            watch_value=watch_value,
+            minlen=minlen,
+            maxlen=maxlen,
+            append_only=append_only,
+            show_add_remove=show_add_remove,
+            show_hash=show_hash,
+            title=title,
+            description=description,
+    )
+        
+    def _update_value(self, onchange):
+        self.value = {a.key: a.item.value for a in self.iterable}
+        
+    @property
+    def items(self):
+        return {a.key: a.item for a in self.iterable}
+    
+    def _init_iterable(self, items):
+        return [
+            IterableItem(
+                index=n,
+                key=k,
+                add=widgets.Button(**ADD_BUTTON_KWARGS),
+                remove=widgets.Button(**REMOVE_BUTTON_KWARGS),
+                item=v,
+            )
+            for n, (k, v) in enumerate(items.items())
+        ]
 
 
 # -
@@ -416,73 +526,34 @@ if __name__ == "__main__":
     display(test_make_row())
     display(Markdown("---"))
 
-    iterable = Iterable(
+    arr = Array(
         items=[add_item()],
         add_item=add_item,
         # orient_rows=False,
-        # show_add_remove=False,
+        #show_add_remove=False,
         maxlen=10,
-        append_only=True,
-        # show_index=True,
+        #append_only=True,
+        show_index=True,
         toggle=False,
         title="asdfasd",
-        show_hash="key",
         description="asfasdf",
     )
-    display(iterable)
+    display(arr)
     display(Markdown("---"))
-
-(
-
-
-def test():
-    print('asdf')
-label_map = {
-            'False': lambda : None,
-            'index': lambda : print('#ads'),
-            'key': test
-        }
-label_map['key']()
-
-
-class Dictionary(Iterable):
-    value = typing.Dict
     
-    def __init__(
-        self,
-        items: typing.List,
-        toggle=True,
-        orient_rows: bool = True,
-        add_item: typing.Callable = lambda: display("add item"),
-        watch_value: bool = True,
-        minlen=1,
-        maxlen=None, 
-        append_only=False, 
-        show_add_remove=True,
-        show_index=False,
-        title="", 
-        description=""
-    ):
-        super().__init__(items, items, orient_rows, add_item, watch_value, minlen, maxlen, append_only, show_add_remove, show_index, title, description)
-        
-        
-    def _update_value(self, onchange):
-        self.value = {a.key: a.item.value for a in self.iterable}
-
-iterable = Dictionary(
-    items=[add_item()],
-    add_item=add_item,
-    #orient_rows=False,
-    #show_add_remove=False,
-    maxlen=10, 
-    append_only=True,
-    show_index=True,
-    #toggle=False,
-    title='asdfasd',
-    description='asfasdf'
-)
-display(iterable)
-
-iterable.value
+    di = Dictionary(
+        items={'key':add_item()},#[add_item()],#{'key':add_item()},
+        add_item=add_item,
+        # orient_rows=False,
+        #show_add_remove=False,
+        maxlen=10,
+        #append_only=True,
+        show_key=False,
+        toggle=False,
+        title="asdfasd",
+        description="asfasdf",
+    )
+    display(di)
+    display(Markdown("---"))
 
 
