@@ -11,6 +11,7 @@ BUTTON_WIDTH_MEDIUM = '90px'
 BUTTON_HEIGHT_MIN = '25px'
 ROW_WIDTH_MEDIUM = '120px'
 ROW_WIDTH_MIN = '60px'
+BUTTON_MIN_SIZE = frozenmap(width=BUTTON_WIDTH_MIN, height=BUTTON_HEIGHT_MIN)
 
 ADD_BUTTON_KWARGS = frozenmap(
     icon="plus",
