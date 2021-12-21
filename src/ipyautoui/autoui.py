@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.4
+#       jupytext_version: 1.13.3
 #   kernelspec:
 #     display_name: Python [conda env:ipyautoui]
 #     language: python
@@ -450,7 +450,7 @@ def file(self, path: pathlib.Path, **json_kwargs):
 class SaveControls(str, Enum):
     save_on_edit = "save_on_edit"  #  TODO: test this
     save_buttonbar = "save_buttonbar"
-    disable_edits = "disable_edits"
+    disable_edits = "disable_edits"  #  TODO: implement this
     # archive_versions = 'archive_versions' #  TODO: implement this?
 
 
@@ -470,9 +470,15 @@ def revert():
 
 
 class SaveButtonBar:
-    def __init__(self, save: typing.Callable = save, revert: typing.Callable = revert):
+    def __init__(
+        self,
+        save: typing.Callable = save,
+        revert: typing.Callable = revert,
+        fn_onsave: typing.Callable = lambda: None,
+    ):
         self.fn_save = save
         self.fn_revert = revert
+        self.fn_onsave = fn_onsave
         self.out = widgets.Output()
         self._init_form()
         self._init_controls()
@@ -509,6 +515,7 @@ class SaveButtonBar:
             f'_changes saved: {datetime.now().strftime("%H:%M:%S")}_'
         )
         self._unsaved_changes(False)
+        self.fn_onsave()
 
     def _revert(self, click):
         self.fn_revert()
@@ -535,6 +542,12 @@ class SaveButtonBar:
 
 
 # +
+def displayfile_renderer(path, renderer=None):
+    if renderer is None:
+        raise ValueError("renderer must not be None")
+    display(renderer(path))
+
+
 class AutoUi(traitlets.HasTraits):
     """AutoUi widget. generates UI form from pydantic schema. keeps the "value" field
     up-to-date on_change
@@ -552,6 +565,7 @@ class AutoUi(traitlets.HasTraits):
         pydantic_obj: typing.Type[BaseModel],
         config_autoui: AutoUiConfig = None,
         path: pathlib.Path = None,
+        fn_onsave: typing.Callable = lambda: None,
     ):
         """init AutoUi
 
@@ -586,6 +600,7 @@ class AutoUi(traitlets.HasTraits):
         """
 
         self.pydantic_obj = pydantic_obj
+        self.fn_onsave = fn_onsave
         if config_autoui is None:
             self.config_autoui = AutoUiConfig(pydantic_model=type(pydantic_obj))
         else:
@@ -641,7 +656,9 @@ class AutoUi(traitlets.HasTraits):
         self.save_on_edit = True
 
     def call_save_buttonbar(self):
-        self.save_buttonbar = SaveButtonBar(save=self.file, revert=self._revert)
+        self.save_buttonbar = SaveButtonBar(
+            save=self.file, revert=self._revert, fn_onsave=self.fn_onsave
+        )
         self.ui_form.children = [
             self.save_buttonbar.save_buttonbar,
             self.title,
@@ -662,7 +679,9 @@ class AutoUi(traitlets.HasTraits):
         )  # calls setter
 
     @classmethod
-    def create_displayfile(cls, config_autoui: AutoUiConfig):
+    def create_displayfile(
+        cls, config_autoui: AutoUiConfig, fn_onsave: typing.Callable = lambda: None
+    ):
         """
         creates a configured AutoUi callable. this is used to extend ipyautoui.DisplayFiles which
         requires a function with only a single input variable (path).
@@ -700,10 +719,27 @@ class AutoUi(traitlets.HasTraits):
             user_file_renderers = {'.lg.json': line_graph_prev}
             DisplayFiles = functools.partial(DisplayFiles, user_file_renderers=user_file_renderers)
         """
-        return functools.partial(cls.parse_file, config_autoui=config_autoui)
+        return functools.partial(
+            cls.parse_file, config_autoui=config_autoui, fn_onsave=fn_onsave
+        )
 
     @classmethod
-    def parse_file(cls, path: pathlib.Path, config_autoui: AutoUiConfig = None):
+    def create_displayfile_renderer(
+        cls, config_autoui: AutoUiConfig, fn_onsave: typing.Callable = lambda: None
+    ):
+        renderer = cls.create_displayfile(
+            config_autoui=config_autoui, fn_onsave=fn_onsave
+        )
+        displayfile = functools.partial(displayfile_renderer, renderer=renderer)
+        return {config_autoui.ext: displayfile}
+
+    @classmethod
+    def parse_file(
+        cls,
+        path: pathlib.Path,
+        config_autoui: AutoUiConfig = None,
+        fn_onsave: typing.Callable = lambda: None,
+    ):
         if config_autoui is not None:
             cls.config_autoui = config_autoui
         assert cls.config_autoui is not None, ValueError(
@@ -713,6 +749,7 @@ class AutoUi(traitlets.HasTraits):
             cls.config_autoui.pydantic_model.parse_file(path),
             config_autoui=cls.config_autoui,
             path=path,
+            fn_onsave=fn_onsave,
         )
 
     def file(self, path: pathlib.Path = None):
@@ -790,7 +827,9 @@ if __name__ == "__main__":
     )
     display(Markdown("# test create displayfile widget"))
     config_autoui = AutoUiConfig(pydantic_model=TestAutoLogic)
-    TestAuiDisplayFile = AutoUi.create_displayfile(config_autoui=config_autoui)
+    TestAuiDisplayFile = AutoUi.create_displayfile(
+        config_autoui=config_autoui, fn_onsave=lambda: print("done")
+    )
     display(TestAuiDisplayFile(test_constants.PATH_TEST_AUI))
 # -
 
