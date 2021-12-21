@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -6,11 +7,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.4
+#       jupytext_version: 1.13.3
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: python3
+#     name: conda-env-ipyautoui-xpython
 # ---
 
 # %run __init__.py
@@ -230,13 +231,11 @@ class PreviewPy():
         return fpth
 
     def _init_form(self):
-        self.script_name = os.path.splitext(os.path.basename(self.fpth))[0]
-        self.title = widgets.HTML('')
-        self.show_fpth = _markdown('``` {} ```'.format(self.fpth))          
+        self.title = widgets.HTML('')       
         self.show_me_the_code = widgets.ToggleButton(
                               layout=widgets.Layout(width=BUTTON_WIDTH_MIN)
         )
-        self.headerbox = widgets.VBox([widgets.HBox([self.show_me_the_code, self.title]), self.show_fpth])
+        self.headerbox = widgets.VBox([widgets.HBox([self.show_me_the_code, self.title])])
                                
         if self.preview_script:
             display(self.headerbox)
@@ -245,13 +244,13 @@ class PreviewPy():
         self.show_me_the_code.observe(self._show_me_the_code, 'value')
     
     def _update_title(self):
-        self.title.value = '<b>{}</b>: {}'.format(self.script_name, self.description)
+        self.title.value = '👆 {}'.format(self.description)
 
     def _show_docstring(self):
         self.show_me_the_code.icon='scroll'
         self.show_me_the_code.tooltip='show the raw python code'
         self.show_me_the_code.button_style='warning'
-        self.description = 'script documentation'
+        self.description = 'show python code'
         self._update_title()
         with self.out:
             clear_output()
@@ -261,7 +260,7 @@ class PreviewPy():
         self.show_me_the_code.icon='book'
         self.show_me_the_code.tooltip='show the python script documentation'
         self.show_me_the_code.button_style='info'
-        self.description = 'python script'
+        self.description = 'show documentation'
         self._update_title()
         with self.out:
             clear_output()
@@ -402,12 +401,21 @@ def get_file_size(path:pathlib.Path, size_type = SIZE_UNIT.MB, sigfigs=3):
     else:
         return '-'
     
-def get_file_data(path):
+def get_file_data_children(path):
     return [
-        widgets.HTML(f' | <b>{getpass.getuser()}</b>'), 
-        widgets.HTML(f' | <i>{st_mtime_string(path)}</i>'),
-        widgets.HTML(f' | <i>{get_file_size(path)} MB</i>'),
+        widgets.HTML(f'<i>{str(path)}</i>'), 
+        widgets.HTML(f' <b>|</b> <i>{getpass.getuser()}</i>'), 
+        widgets.HTML(f' <b>|</b> <i>{st_mtime_string(path)}</i>'),
+        widgets.HTML(f' <b>|</b> <i>{get_file_size(path)} MB</i>'),
     ]
+
+def get_file_data(path):
+    return f"""
+path: {str(path)}
+user: {getpass.getuser()}
+last modified: {st_mtime_string(path)}
+file size: {get_file_size(path)} MB
+    """
 
 def open_ui(fpth: str):
     """
@@ -425,6 +433,7 @@ def open_ui(fpth: str):
     if type(fpth) != pathlib.Path:
         fpth = pathlib.Path(fpth)
     isfile = widgets.Button(disabled=True,layout=widgets.Layout(width=BUTTON_WIDTH_MIN, height=BUTTON_HEIGHT_MIN))
+    isfile.tooltip = get_file_data(fpth)
     openpreview = widgets.ToggleButton(
         icon='eye', 
         layout=widgets.Layout(width=BUTTON_WIDTH_MIN, height=BUTTON_HEIGHT_MIN),
@@ -444,7 +453,8 @@ def open_ui(fpth: str):
     filename = widgets.HTML(
         '<b>{0}</b>'.format(fpth.name),layout=widgets.Layout(justify_items='center'))   
     data = widgets.HBox(layout=widgets.Layout(justify_items='center'))
-    data.children = get_file_data(fpth) 
+    #data.children = get_file_data(fpth) 
+    
     return isfile, openpreview, openfile, openfolder, filename, data
 
     
@@ -603,6 +613,7 @@ class DisplayFile():
         self.ui_file._update_file()
 
     def preview_path(self):
+        display(widgets.HBox(get_file_data_children(self.ui_file.path)))
         preview_path(self.ui_file.path, 
                      default_file_renderers=self.default_file_renderers,
                      user_file_renderers=self.user_file_renderers)
@@ -774,6 +785,12 @@ if __name__ == "__main__":
     
     test_ui = DisplayFile(path=tests_constants.PATH_TEST_AUI, user_file_renderers={'.aui.json':test_ui_prev})
 
+    display(test_ui)
+
+if __name__ == "__main__":
+    config_ui = AutoUiConfig(ext='.aui.json', pydantic_model=TestAutoLogic)
+    user_file_renderers = AutoUi.create_displayfile_renderer(config_autoui=config_ui)
+    test_ui = DisplayFile(path=tests_constants.PATH_TEST_AUI, user_file_renderers=user_file_renderers)
     display(test_ui)
 
 
