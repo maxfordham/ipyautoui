@@ -19,6 +19,10 @@
 # %load_ext lab_black
 
 # +
+#  TODO: allow for removal of 0th index... 
+#  TODO: annoying scoll bar in HArray
+
+# +
 import ipywidgets as widgets
 import traitlets
 from traitlets import validate
@@ -81,7 +85,7 @@ class IterableItem(BaseModel):
         else:
             return v
     
-def make_row(item, add, remove, orient_rows): #, orient_rows, append_only, show_add_remove, label=""
+def make_row(item, add, remove, orient_rows):
     """creates a generic row item. code below defined the structure
     
     Code:
@@ -98,14 +102,6 @@ def make_row(item, add, remove, orient_rows): #, orient_rows, append_only, show_
     
     box.children = [box_buttons, box_label, box_item]
     box_item.children = [item]
-    
-#     box_label.children = [widgets.HTML(f"<b>{label}</b>")]
-
-#     if show_add_remove:
-#         box_buttons.children = [add, remove]
-
-#     if append_only:
-#         [setattr(add, k, v) for k, v in BLANK_BUTTON_KWARGS.items()]
 
     return box
 
@@ -116,7 +112,7 @@ class Iterable(widgets.Box, traitlets.HasTraits):
     # -----------------------------------------------------------------------------------
     value = traitlets.List()
     _show_hash = traitlets.Unicode()
-    _show_add_remove  = traitlets.Unicode(allow_none=True)
+    _add_remove_controls  = traitlets.Unicode(allow_none=True)
     
     @validate("show_hash")
     def _validate_show_hash(self, proposal):
@@ -126,11 +122,11 @@ class Iterable(widgets.Box, traitlets.HasTraits):
             )
         return proposal
     
-    @validate("_show_add_remove")
-    def _validate_show_add_remove(self, proposal):
+    @validate("_add_remove_controls")
+    def _validate_add_remove_controls(self, proposal):
         if proposal.value not in ["add_remove", "append_only", "remove_only", None]:
             raise ValueError(
-                f'{proposal} given. allowed values of _show_add_remove are "add_remove", "append_only", "remove_only", None only'
+                f'{proposal} given. allowed values of _add_remove_controls are "add_remove", "append_only", "remove_only", None only'
             )
         return proposal
     
@@ -140,23 +136,26 @@ class Iterable(widgets.Box, traitlets.HasTraits):
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
-        items: typing.List,
+        items: typing.List=None,
         toggle=True,
-        add_item: typing.Callable = lambda: display("add item"),
+        fn_add: typing.Callable = lambda: display("add item"),
         watch_value: bool = True,
         minlen=1,
         maxlen=None,
         #append_only=False,
-        show_add_remove='add_remove',
+        add_remove_controls='add_remove',
         show_hash="False",
         sort_on_index=True,
         title="",
         orient_rows = False
     ):
+        
         self.orient_rows = orient_rows
         self.minlen = minlen  # TODO: validation. must be > 1
+        if maxlen is None:
+            maxlen = 100
         self.maxlen = maxlen
-        self.add_item = add_item
+        self.fn_add = fn_add
         self.watch_value = watch_value
         self.zfill = 2
         
@@ -165,7 +164,7 @@ class Iterable(widgets.Box, traitlets.HasTraits):
         self._toggle = toggle
         self.title = title
         
-        self.show_add_remove = show_add_remove
+        self.add_remove_controls = add_remove_controls
         self.show_hash = show_hash
 
         self._init_controls()
@@ -181,6 +180,18 @@ class Iterable(widgets.Box, traitlets.HasTraits):
             for n, i in enumerate(items)
         ]
     
+    @property
+    def items(self):
+        return [a.item for i in self.iterable]
+    
+    @items.setter
+    def items(self, value: str):
+        self.iterable = self._init_iterable(value)
+        self._update_form()
+        self.style_iterable_items()
+        self._init_controls()
+        [self.update_buttons_box(n) for n, item in enumerate(self.iterable)];
+    
     def _init_form(self):
         # init containers
         super().__init__(layout=widgets.Layout(width='100%', display="flex", flex="flex-grow")) # main container
@@ -188,44 +199,46 @@ class Iterable(widgets.Box, traitlets.HasTraits):
         self.title_box = BOX[self.orient_rows](layout=widgets.Layout(display="flex", flex="flex-grow"))
         self.toggle_button = widgets.ToggleButton(icon="minus",layout=dict(BUTTON_MIN_SIZE))
         self.toggle_button.value = True
+        self.children = [self.title_box, self.rows_box]
+        self._update_form()
+        
+    def _update_form(self):
         rows = [self.row_from_iterable_item(a) for a in self.iterable]
         self.rows_box.children = rows
-        self.children = [self.title_box, self.rows_box ]
-        
-        
+    
     # buttons ---------------
     def style_zeroth_buttons(self):
-        if self.show_add_remove is None:
+        if self.add_remove_controls is None:
             pass
-        elif self.show_add_remove == "add_remove":
+        elif self.add_remove_controls == "add_remove":
             [setattr(self.iterable[0].add, k, v)for k, v in ADD_BUTTON_KWARGS.items()]
             [setattr(self.iterable[0].remove, k, v)for k, v in BLANK_BUTTON_KWARGS.items()]
-        elif self.show_add_remove == "append_only":
+        elif self.add_remove_controls == "append_only":
             [setattr(self.iterable[0].add, k, v)for k, v in ADD_BUTTON_KWARGS.items()]
             [setattr(self.iterable[0].remove, k, v)for k, v in BLANK_BUTTON_KWARGS.items()]
-        elif self.show_add_remove == "remove_only":
+        elif self.add_remove_controls == "remove_only":
             [setattr(self.iterable[0].add, k, v)for k, v in BLANK_BUTTON_KWARGS.items()]
             [setattr(self.iterable[0].remove, k, v)for k, v in BLANK_BUTTON_KWARGS.items()]
         else:
             pass
         
     def style_nth_buttons(self, index):
-        if self.show_add_remove is None:
+        if self.add_remove_controls is None:
             pass
-        elif self.show_add_remove == "add_remove":
+        elif self.add_remove_controls == "add_remove":
             [setattr(self.iterable[index].add, k, v)for k, v in ADD_BUTTON_KWARGS.items()]
             [setattr(self.iterable[index].remove, k, v)for k, v in REMOVE_BUTTON_KWARGS.items()]
-        elif self.show_add_remove == "append_only":
+        elif self.add_remove_controls == "append_only":
             [setattr(self.iterable[index].add, k, v)for k, v in BLANK_BUTTON_KWARGS.items()]
             [setattr(self.iterable[index].remove, k, v)for k, v in REMOVE_BUTTON_KWARGS.items()]
-        elif self.show_add_remove == "remove_only":
+        elif self.add_remove_controls == "remove_only":
             [setattr(self.iterable[index].add, k, v)for k, v in BLANK_BUTTON_KWARGS.items()]
             [setattr(self.iterable[index].remove, k, v)for k, v in REMOVE_BUTTON_KWARGS.items()]
         else:
             pass
         
     def update_buttons_box(self, n):
-        if self.show_add_remove is None:
+        if self.add_remove_controls is None:
             buttons_box = []
         else:
             buttons_box = [self.iterable[n].add, self.iterable[n].remove]
@@ -244,15 +257,15 @@ class Iterable(widgets.Box, traitlets.HasTraits):
         [self.style_iterable_item(i) for i in self.iterable];
             
     @property
-    def show_add_remove(self):
-        if self._show_add_remove is None:
+    def add_remove_controls(self):
+        if self._add_remove_controls is None:
             return None
         else:
-            return self._show_add_remove.value
+            return self._add_remove_controls.value
     
-    @show_add_remove.setter
-    def show_add_remove(self, value: str):
-        self._show_add_remove = value
+    @add_remove_controls.setter
+    def add_remove_controls(self, value: str):
+        self._add_remove_controls = value
         self.style_iterable_items()
         [self.update_buttons_box(n) for n, item in enumerate(self.iterable)];
     # ---------------------        
@@ -285,10 +298,7 @@ class Iterable(widgets.Box, traitlets.HasTraits):
         self._show_hash = value
         self._update_labels()
     # ---------------------
-    
-    @property
-    def items(self):
-        return [a.item for a in self.iterable]
+
 
     def row_from_iterable_item(self, iterable_item):
         return make_row(
@@ -344,7 +354,7 @@ class Iterable(widgets.Box, traitlets.HasTraits):
             self._update_value("change")
 
     def _init_row_controls(self, key=None):
-        if self.show_add_remove  == "append_only":
+        if self.add_remove_controls  == "append_only":
             self.iterable[0].add.on_click(self._add_row)
         else:
             self._get_attribute(key, 'add').on_click(
@@ -417,8 +427,11 @@ class Iterable(widgets.Box, traitlets.HasTraits):
             add_kwargs = {}
         
         if key is None: 
-            key = self.iterable[-1].key
-            #print(f'key == {key}')
+            if len(self.iterable) == 0:
+                index = 0
+            else:
+                key = self.iterable[-1].key
+                index = self._get_attribute(key, 'index')
             
         if new_key is None:
             new_key = uuid.uuid4()
@@ -428,19 +441,19 @@ class Iterable(widgets.Box, traitlets.HasTraits):
             return None
         
         # add item
-        n = self._get_attribute(key, 'index')
-        new_item = self.add_item(**add_kwargs)
+        
+        new_item = self.fn_add(**add_kwargs)
         item = IterableItem(
-            index=n,
+            index=index,
             key=new_key,
             item=new_item,
         )
         self.iterable.append(item)
         row = self.row_from_iterable_item(item)
         children = (
-            list(self.rows_box.children[0 : n + 1])
+            list(self.rows_box.children[0 : index + 1])
             + [row]
-            + list(self.rows_box.children[n + 1 :])
+            + list(self.rows_box.children[index + 1 :])
         )
         self.rows_box.children = children
         self.iterable = self._sort_map()  # update map
@@ -470,15 +483,15 @@ class VArray(Iterable):
     _view_name = traitlets.Unicode('VBoxView').tag(sync=True)
     def __init__(
         self,
-        items: typing.List,
+        items: typing.List=None,
         toggle=True,
         #orient_rows: bool = True,
-        add_item: typing.Callable = lambda: display("add item"),
+        fn_add: typing.Callable = lambda: display("add item"),
         watch_value: bool = True,
         minlen=1,
         maxlen=None,
         #append_only=False,
-        show_add_remove='append_only',
+        add_remove_controls='append_only',
         show_index=False,
         title="",
     ):
@@ -486,15 +499,17 @@ class VArray(Iterable):
             s_hash = 'index'
         else:
             s_hash = 'False'
+        if items is None:
+            items = []
         super().__init__(items,
             toggle=toggle,
             orient_rows=True,
-            add_item=add_item,
+            fn_add=fn_add,
             watch_value=watch_value,
             minlen=minlen,
             maxlen=maxlen,
             #append_only=append_only,
-            show_add_remove=show_add_remove,
+            add_remove_controls=add_remove_controls,
             show_hash=s_hash,
             title=title,
     )
@@ -505,15 +520,15 @@ class HArray(Iterable):
     _view_name = traitlets.Unicode('HBoxView').tag(sync=True)
     def __init__(
         self,
-        items: typing.List,
+        items: typing.List=None,
         toggle=True,
         #orient_rows: bool = True,
-        add_item: typing.Callable = lambda: display("add item"),
+        fn_add: typing.Callable = lambda: display("add item"),
         watch_value: bool = True,
         minlen=1,
         maxlen=None,
         #append_only=False,
-        show_add_remove='append_only',
+        add_remove_controls='append_only',
         show_index=False,
         title="",
     ):
@@ -521,15 +536,17 @@ class HArray(Iterable):
             s_hash = 'index'
         else:
             s_hash = 'False'
+        if items is None:
+            items = []
         super().__init__(items,
             toggle=toggle,
             orient_rows=False,
-            add_item=add_item,
+            fn_add=fn_add,
             watch_value=watch_value,
             minlen=minlen,
             maxlen=maxlen,
             #append_only=append_only,
-            show_add_remove=show_add_remove,
+            add_remove_controls=add_remove_controls,
             show_hash=s_hash,
             title=title,
     )
@@ -542,15 +559,15 @@ class VDictionary(Iterable):
     _view_name = traitlets.Unicode('VBoxView').tag(sync=True)
     def __init__(
         self,
-        items: typing.Dict,
+        items: typing.Dict=None,
         toggle=True,
         #orient_rows: bool = True,
-        add_item: typing.Callable = lambda: display("add item"),
+        fn_add: typing.Callable = lambda: display("add item"),
         watch_value: bool = True,
         minlen=1,
         maxlen=None,
         #append_only=False,
-        show_add_remove='append_only',
+        add_remove_controls='append_only',
         show_key=False,
         title="",
     ):
@@ -558,15 +575,17 @@ class VDictionary(Iterable):
             s_hash = 'key'
         else:
             s_hash = 'False'
+        if items is None:
+            items = {}
         super().__init__(items,
             toggle=toggle,
             orient_rows=True,
-            add_item=add_item,
+            fn_add=fn_add,
             watch_value=watch_value,
             minlen=minlen,
             maxlen=maxlen,
             #append_only=append_only,
-            show_add_remove=show_add_remove,
+            add_remove_controls=add_remove_controls,
             show_hash=s_hash,
             title=title,
     )
@@ -597,14 +616,14 @@ class HDictionary(Iterable):
     _view_name = traitlets.Unicode('HBoxView').tag(sync=True)
     def __init__(
         self,
-        items: typing.Dict,
+        items: typing.Dict=None,
         toggle=True,
-        add_item: typing.Callable = lambda: display("add item"),
+        fn_add: typing.Callable = lambda: display("add item"),
         watch_value: bool = True,
         minlen=1,
         maxlen=None,
         #append_only=False,
-        show_add_remove='append_only',
+        add_remove_controls='append_only',
         show_key=False,
         title="",
     ):
@@ -612,15 +631,17 @@ class HDictionary(Iterable):
             s_hash = 'key'
         else:
             s_hash = 'False'
+        if items is None:
+            items = {}
         super().__init__(items,
             toggle=toggle,
             orient_rows=False,
-            add_item=add_item,
+            fn_add=fn_add,
             watch_value=watch_value,
             minlen=minlen,
             maxlen=maxlen,
             #append_only=append_only,
-            show_add_remove=show_add_remove,
+            add_remove_controls=add_remove_controls,
             show_hash=s_hash,
             title=title,
     )
@@ -631,6 +652,7 @@ class HDictionary(Iterable):
     @property
     def items(self):
         return {a.key: a.item for a in self.iterable}
+    
     
     def _init_iterable(self, items):
         return [
@@ -643,8 +665,6 @@ class HDictionary(Iterable):
             )
             for n, (k, v) in enumerate(items.items())
         ]
-
-
 # -
 
 if __name__ == "__main__":
@@ -672,7 +692,7 @@ if __name__ == "__main__":
         _bool = {0: False, 1: True}
         return {words[n]: _bool[m]}
 
-    def add_item():
+    def fn_add():
         return TestItem(di=get_di())
 
     class TestItem(widgets.HBox, traitlets.HasTraits):
@@ -696,13 +716,13 @@ if __name__ == "__main__":
             self.value = {self._label.value: self._bool.value}
 
     def test_make_row(
-        item=add_item(),
+        item=fn_add(),
         add=widgets.Button(**ADD_BUTTON_KWARGS),
         remove=widgets.Button(**REMOVE_BUTTON_KWARGS),
         orient_rows=True,
     ):
         return make_row(
-            item, add, remove, orient_rows#, append_only, show_add_remove, label=label
+            item, add, remove, orient_rows#, append_only, add_remove_controls, label=label
         )
 
     display(Markdown("---"))
@@ -710,8 +730,8 @@ if __name__ == "__main__":
     display(Markdown("---"))
     
     di_h_arr = {
-        'items':[add_item()],
-        'add_item':add_item,
+        'items':[fn_add()],
+        'fn_add':fn_add,
         'maxlen':10,
         'show_index':False,
         'toggle':False,
@@ -724,8 +744,8 @@ if __name__ == "__main__":
     varr = VArray(**di_v_arr)
     
     di_h_di = {
-        'items':{'key':add_item()},
-        'add_item':add_item,
+        'items':{'key':fn_add()},
+        'fn_add':fn_add,
         'maxlen':10,
         'show_key':False,
         'toggle':False,
@@ -753,9 +773,9 @@ if __name__ == "__main__":
     display(vdi)
     display(Markdown("---"))
 
-harr.toggle = False
-harr.show_add_remove = None
-
-w.value
+if __name__ == "__main__":
+    varr1 = VArray(fn_add=fn_add)
+    #varr1.items = [fn_add(),fn_add(),fn_add()]
+    varr1.add_row()
 
 
