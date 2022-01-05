@@ -458,6 +458,7 @@ class AutoUiConfig(BaseModel):
     pydantic_model: typing.Type[BaseModel]
     widgets_mapper: typing.Dict[str, WidgetMapper] = DI_WIDGETS_MAPPER
     save_controls: SaveControls = SaveControls.save_buttonbar
+    show_raw: bool = True
     ext: str = ".aui.json"
 
 
@@ -476,6 +477,15 @@ class SaveButtonBar:
         revert: typing.Callable = revert,
         fn_onsave: typing.Callable = lambda: None,
     ):
+        """
+        UI save dialogue 
+        
+        Args: 
+            save: typing.Callable, zero input fn called on click of save button
+            revert: typing.Callable, zero input fn called on click of revert button
+            fn_onsave: typing.Callable, additional action that can be added to save button click
+        
+        """
         self.fn_save = save
         self.fn_revert = revert
         self.fn_onsave = fn_onsave
@@ -500,10 +510,16 @@ class SaveButtonBar:
             button_style="success",
             layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.message = widgets.HTML("a message")
-        self.save_buttonbar = widgets.HBox(
-            [self.unsaved_changes, self.revert, self.save, self.message]
+        self.showraw = widgets.ToggleButton(
+            icon="code",
+            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            tooltip="show raw text data",
+            style={"font_weight": "bold", "button_color": None},
         )
+        self.message = widgets.HTML("a message")
+        children = [self.unsaved_changes, self.revert, self.save]
+        children.append(self.message)
+        self.save_buttonbar = widgets.HBox(children)
 
     def _init_controls(self):
         self.save.on_click(self._save)
@@ -617,7 +633,7 @@ class AutoUi(traitlets.HasTraits):
 
     @pydantic_obj.setter
     def pydantic_obj(self, pydantic_obj):
-        self._pydantic_obj = pydantic_obj  # self.config_autoui.pydantic_model(**value) # set pydantic object
+        self._pydantic_obj = pydantic_obj
         self.value = (
             self.pydantic_obj.dict()
         )  # json.loads(self.pydantic_obj.json()) # set value
@@ -638,8 +654,53 @@ class AutoUi(traitlets.HasTraits):
         self.out = widgets.Output()
         self._init_schema()
         self._init_form()
+        self._init_titlebox()
         self._init_save_dialogue()
         self._init_controls()
+
+    def _init_schema(self):
+        sch = self.pydantic_obj.schema().copy()
+        key = "$ref"
+        self.sch = update_property_definitions(sch, key)
+        self.pr = map_to_widget(
+            self.sch, di_widgets_mapper=self.config_autoui.widgets_mapper
+        )
+
+    def _init_form(self):
+        self.ui_form = widgets.VBox()
+        self.ui_header = widgets.VBox()
+        self.ui_main = widgets.VBox()
+        self.ui_form.children = [self.ui_header, self.ui_main]
+
+        self.ui_titlebox = widgets.VBox()
+        self.ui_buttonbar = widgets.HBox()
+        self.ui_header.children = [self.ui_buttonbar, self.ui_titlebox]
+
+        self.ui_box, self.di_widgets = _init_widgets_and_rows(self.pr)
+        self.ui_main.children = [self.ui_box]
+        # self.ui_form.children = [self.title, self.ui_box]
+
+    def _init_titlebox(self):
+        children = []
+        titlebox_children = []
+        self.titlebox = widgets.HBox()
+        children.append(self.titlebox)
+
+        if self.config_autoui.show_raw:
+            self.showraw = widgets.ToggleButton(
+                icon="code",
+                layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+                tooltip="show raw data",
+                style={"font_weight": "bold", "button_color": None},
+            )
+            titlebox_children.append(self.showraw)
+        self.title = widgets.HTML(f"<big><b>{self.sch['title']}</b></big>")
+        titlebox_children.append(self.title)
+        if "description" in self.sch.keys():
+            children.append(widgets.HTML(markdown(f"{self.sch['description']}")))
+
+        self.titlebox.children = titlebox_children
+        self.ui_titlebox.children = children
 
     def _init_save_dialogue(self):
         if self.path is not None:
@@ -652,18 +713,15 @@ class AutoUi(traitlets.HasTraits):
         else:
             print("self.path == None. must be a valid path to save as json")
 
-    def call_save_on_edit(self):
-        self.save_on_edit = True
-
     def call_save_buttonbar(self):
+        fn_showraw_true = functools.partial(display_python_file, self.path)
         self.save_buttonbar = SaveButtonBar(
-            save=self.file, revert=self._revert, fn_onsave=self.fn_onsave
+            save=self.file,
+            revert=self._revert,
+            fn_onsave=self.fn_onsave,
+            # fn_showraw_true=fn_showraw,
         )
-        self.ui_form.children = [
-            self.save_buttonbar.save_buttonbar,
-            self.title,
-            self.ui_box,
-        ]
+        self.ui_buttonbar.children = [self.save_buttonbar.save_buttonbar]
 
     def disable_edits(self):
         for k, v in self.di_widgets.items():
@@ -671,6 +729,32 @@ class AutoUi(traitlets.HasTraits):
                 v.disabled = True
             except:
                 pass
+
+    def _init_controls(self):
+        [
+            v.observe(functools.partial(self._watch_change, key=k), "value")
+            for k, v in self.di_widgets.items()
+        ]
+        if self.config_autoui.show_raw:
+            self.showraw.observe(self._showraw, "value")
+
+    def _showraw(self, onchange):
+        if self.showraw.value:
+            self.showraw.tooltip = "show user interface"
+            self.showraw.icon = "user-edit"
+            parsed = json.loads(self.pydantic_obj.json())
+            s = json.dumps(parsed, indent=2)  # , sort_keys=True)
+            out = widgets.Output()
+            self.ui_main.children = [out]
+            with out:
+                display(Markdown("\n```Python\n" + s + "\n```"))
+        else:
+            self.showraw.tooltip = "show raw data"
+            self.showraw.icon = "code"
+            self.ui_main.children = [self.ui_box]
+
+    def call_save_on_edit(self):
+        self.save_on_edit = True
 
     def _revert(self):
         assert self.path is not None, f"self.path = {self.path}. must not be None"
@@ -766,35 +850,11 @@ class AutoUi(traitlets.HasTraits):
         )
         self.pydantic_obj.file(path)
 
-    def _init_schema(self):
-        sch = self.pydantic_obj.schema().copy()
-        key = "$ref"
-        self.sch = update_property_definitions(sch, key)
-        self.pr = map_to_widget(
-            self.sch, di_widgets_mapper=self.config_autoui.widgets_mapper
-        )
-
-    def _init_form(self):
-        self.ui_form = widgets.VBox()
-        self.title = widgets.HTML(f"<big><b>{self.sch['title']}</b></big>")
-        if "description" in self.sch.keys():
-            self.title.value += markdown(f"{self.sch['description']}")
-        self.ui_box, self.di_widgets = _init_widgets_and_rows(self.pr)
-        self.ui_form.children = [self.title, self.ui_box]
-
-    def _init_controls(self):
-        [
-            v.observe(functools.partial(self._watch_change, key=k), "value")
-            for k, v in self.di_widgets.items()
-        ]
-
     def _watch_change(self, change, key=None):
-        setattr(
-            self._pydantic_obj, key, self.di_widgets[key].value
-        )  # Note. not resetting the whole value so not using the setter
+        setattr(self._pydantic_obj, key, self.di_widgets[key].value)
         self.value = (
             self.pydantic_obj.dict()
-        )  # json.loads(self.pydantic_obj.json()) # TODO: update this to .dict() once pydantic supports json-like serialisation to dicts not just strings
+        )  # TODO: apply like serialisation to dicts not just strings
         if self.save_on_edit:
             self.file()
         if hasattr(self, "save_buttonbar"):
@@ -818,7 +878,6 @@ if __name__ == "__main__":
     test = TestAutoLogic()
 
     ui = AutoUi(test)
-    display(Markdown("# test display UI"))
     display(ui)
     display(Markdown("# test write to file"))
     ui.file(test_constants.PATH_TEST_AUI)
@@ -830,7 +889,5 @@ if __name__ == "__main__":
     TestAuiDisplayFile = AutoUi.create_displayfile(
         config_autoui=config_autoui, fn_onsave=lambda: print("done")
     )
-    display(TestAuiDisplayFile(test_constants.PATH_TEST_AUI))
-# -
-
-
+    ui_file = TestAuiDisplayFile(test_constants.PATH_TEST_AUI)
+    display(ui_file)
