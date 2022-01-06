@@ -57,7 +57,7 @@ class LoadProject(widgets.HBox, traitlets.HasTraits):
                  pattern="J[0-9][0-9][0-9][0-9]", 
                  li_projects=LI_PROJECTS,
                  fn_loadproject=lambda project_number: print(f'load project: {project_number}')):
-        super().__init__()
+        super().__init__(layout=dict(flex='1 0 auto'))
         self.pattern = pattern
         self.value = project_number
         self.example_project = example_project
@@ -69,8 +69,8 @@ class LoadProject(widgets.HBox, traitlets.HasTraits):
         self._highlight_example_job()
             
     def _init_form(self):
-        self.project_active = widgets.Text(value=self.value, layout=widgets.Layout(width='150px'), disabled=True, description='active job:')
-        self.project_select = widgets.Combobox(value=self.value, options=self.li_projects, layout=widgets.Layout(width='150px'))
+        self.project_active = widgets.Text(value=self.value, layout=widgets.Layout(width='150px'), disabled=True, description='active project:')
+        self.project_select = widgets.Combobox(value=self.value, options=self.li_projects, layout=widgets.Layout(width='70px'))
         self.project_load = widgets.Button(
                                 #description='add run',
                                 tooltip='load job',
@@ -95,9 +95,9 @@ class LoadProject(widgets.HBox, traitlets.HasTraits):
             self.project_load.tooltip = self.example_project_tooltip
         else:
             self.layout = widgets.Layout(border='')
-            self.project_load.tooltip='load job'
-        
-load_project = LoadProject()
-load_project
+            self.project_load.tooltip='load project'
+if __name__ == "__main__":
+    load_project = LoadProject()
+    display(load_project)
 
 # %%
