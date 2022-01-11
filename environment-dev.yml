@@ -34,6 +34,7 @@ dependencies:
   - openpyxl
   - black
   - nb_black
+  - immutables
 #  - xlsxwriter 
 #  - xlsxtemplater 
 #  - mf_file_utilities 
