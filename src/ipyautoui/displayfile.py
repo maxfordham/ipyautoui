@@ -34,6 +34,7 @@ import typing
 import enum
 import getpass
 import json
+import immutables
 
 import ipydatagrid as ipg
 import ipywidgets as widgets
@@ -41,11 +42,7 @@ from halo import HaloNotebook
 import plotly.io as pio
 
 #  from mf library
-try: 
-    from mf_file_utilities import go as open_file
-except:
-    def open_file(path):
-        subprocess.call(['open', path])
+
 try:      
     from xlsxtemplater import from_excel
 except:
@@ -53,7 +50,7 @@ except:
 
 #  local imports
 from ipyautoui.mydocstring_display import display_module_docstring
-from ipyautoui._utils import del_matching, md_fromfile, display_python_file, read_json, read_yaml, read_txt
+from ipyautoui._utils import del_matching, md_fromfile, display_python_file, read_json, read_yaml, read_txt, open_file
 #from ipyrun._runconfig import Output, Outputs, File
 from ipyautoui.constants import BUTTON_WIDTH_MIN, BUTTON_HEIGHT_MIN
 
@@ -107,7 +104,8 @@ def _markdown(value='_Markdown_',
     return widgets.HTML(**_kwargs)
 
 def mdboldstr(string, di):
-    return '__{}__: {}'.format(string,di[string])
+    """return bold __key__: value from dict"""
+    return '__{}__: {}'.format(string, di[string])
 
 def mdnorms(di):
     return mdboldstr('ProjectNo', di) + ' ........ ' + mdboldstr('Date', di) + ' ........ ' + mdboldstr('Author', di)
@@ -207,6 +205,9 @@ class PreviewPy():
     pass the class either a filepath or an imported
     module and get a display output of the modules
     docstring with a toggle option to view the code
+
+    Args:
+        
     """
     def __init__(self, module, preview_script=True, docstring_priority=True):
         self.input = module
@@ -317,20 +318,21 @@ def plotlyjson_prev(fpth):
         fpth = str(fpth)
     display(pio.read_json(fpth))
 
-def ipyuijson_prev(fpth):
-    print('add here!')
-
 def json_prev(fpth):
+    """preview json (doens't work in Voila)"""
     display(JSON(read_json(fpth)))
 
 def yaml_prev(fpth):
+    """preview yaml (doens't work in Voila)"""
     data = read_yaml(fpth)
     display(JSON(data))
 
 def img_prev(fpth):
+    """preview image (png, jpg)"""
     display(Image(fpth))
 
 def md_prev(fpth):
+    """preview markdown"""
     display(Markdown("`IMAGES WON'T DISPLAY UNLESS THE MARKDOWN FILE IS IN THE SAME FOLDER AS THIS JUPYTER NOTEBOOK`"))
     md_fromfile(fpth)
 
@@ -343,6 +345,7 @@ def py_prev(fpth):
     display(p)
 
 def txt_prev(fpth):
+    """preview txt file"""
     display(Markdown("```{}```".format(read_txt(fpth, read_lines=False))))
 
 def xl_prev(fpth):
@@ -354,6 +357,27 @@ def xl_prev(fpth):
     else:
         return False
         #self._open_option()
+        
+default_file_renderers = {
+        '.csv': csv_prev,
+        '.json': json_prev,
+        '.plotly': plotlyjson_prev,
+        '.plotly.json': plotlyjson_prev,
+        '.vg.json': vegajson_prev,
+        '.vl.json': vegalitejson_prev,
+        '.yaml': yaml_prev,
+        '.yml': yaml_prev,
+        '.png': img_prev,
+        '.jpg': img_prev,
+        '.jpeg': img_prev,
+        #'.obj': obj_prev, # add ipyvolume viewer? 
+        '.txt': txt_prev,
+        '.md': md_prev,
+        '.py': py_prev,
+        '.pdf': pdf_prev,
+    }
+frozenmap = immutables.Map
+default_file_renderers = frozenmap(**default_file_renderers)
 
 
 # +
@@ -362,14 +386,11 @@ def xl_prev(fpth):
 # vegajson_prev(fpth)
 
 # + tags=[]
-
-def string_of_time(t):
-    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(t))
-
 def st_mtime_string(path):
+    """st_mtime_string for a given path"""
     try: 
         t = path.stat().st_mtime
-        return string_of_time(t)
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(t))
     except:
         return '####-##-## ##:##:##'
 
@@ -408,6 +429,18 @@ def get_file_data_children(path):
         widgets.HTML(f' <b>|</b> <i>{st_mtime_string(path)}</i>'),
         widgets.HTML(f' <b>|</b> <i>{get_file_size(path)} MB</i>'),
     ]
+
+def get_file_data_children(path):
+    return [
+        widgets.HTML(markdown(f"""
+- path: {str(path)}
+- user: {getpass.getuser()}
+- last modified: {st_mtime_string(path)}
+- file size: {get_file_size(path)} MB
+    """))
+    ]
+def get_file_data_children(path):
+    return []
 
 def get_file_data(path):
     return f"""
@@ -454,7 +487,7 @@ def open_ui(fpth: str):
         '<b>{0}</b>'.format(fpth.name),layout=widgets.Layout(justify_items='center'))   
     data = widgets.HBox(layout=widgets.Layout(justify_items='center'))
     #data.children = get_file_data(fpth) 
-    
+
     return isfile, openpreview, openfile, openfolder, filename, data
 
     
@@ -496,25 +529,7 @@ class UiFile():
     def _ipython_display_(self):
         self.display()
         
-default_file_renderers = {
-        '.csv': csv_prev,
-        '.json': json_prev,
-        '.plotly': plotlyjson_prev,
-        '.plotly.json': plotlyjson_prev,
-        '.vg.json': vegajson_prev,
-        '.vl.json': vegalitejson_prev,
-        '.ipyui.json': ipyuijson_prev,
-        '.yaml': yaml_prev,
-        '.yml': yaml_prev,
-        '.png': img_prev,
-        '.jpg': img_prev,
-        '.jpeg': img_prev,
-        #'.obj': obj_prev, # add ipyvolume viewer? 
-        '.txt': txt_prev,
-        '.md': md_prev,
-        '.py': py_prev,
-        '.pdf': pdf_prev,
-    }
+
 
 def preview_path(path: typing.Union[str, pathlib.Path],
                  default_file_renderers: Dict[str, Callable] = default_file_renderers,
@@ -533,6 +548,43 @@ def preview_path(path: typing.Union[str, pathlib.Path],
 class DisplayFile():
     """
     displays the contents of a file in the notebook.
+    comes with the following default renderers:
+    default_file_renderers = {
+        '.csv': csv_prev,
+        '.json': json_prev,
+        '.plotly': plotlyjson_prev,
+        '.plotly.json': plotlyjson_prev,
+        '.vg.json': vegajson_prev,
+        '.vl.json': vegalitejson_prev,
+        '.ipyui.json': ipyuijson_prev,
+        '.yaml': yaml_prev,
+        '.yml': yaml_prev,
+        '.png': img_prev,
+        '.jpg': img_prev,
+        '.jpeg': img_prev,
+        #'.obj': obj_prev, # add ipyvolume viewer? 
+        '.txt': txt_prev,
+        '.md': md_prev,
+        '.py': py_prev,
+        '.pdf': pdf_prev,
+    }
+    user_file_renderers can be passed to class provided they have the correct
+    dict format: user_file_renderers = {'.ext': myrenderer}
+    notice that the class allows for "compound" filetypes, especially useful for .json files
+    if you want to display the data in a specific way. 
+    
+    How to extend:
+    
+    if you want to update the class definition for a compound filetype that you have created, 
+    you can do so using functools as follows:
+    ```
+        DisplayFile('default_config.test.yaml').preview_fpth()  # '.test.yaml' ext doesn't exist so renderer defaults to .yaml
+
+        import functools
+        user_file_renderers = {'.test.yaml': txt_prev}
+        DisplayFile = functools.partial(DisplayFile, user_file_renderers=user_file_renderers)
+        DisplayFile('default_config.test.yaml').preview_fpth()  # display yaml file as txt_prev renderer
+    ```
     """
     def __init__(self,
                  path: typing.Union[str, pathlib.Path],
@@ -542,52 +594,15 @@ class DisplayFile():
                  auto_open: bool=False
                 ):
         """
-        comes with the following default renderers:
-            default_file_renderers = {
-                    '.csv': csv_prev,
-                    '.json': json_prev,
-                    '.plotly': plotlyjson_prev,
-                    '.plotly.json': plotlyjson_prev,
-                    '.vg.json': vegajson_prev,
-                    '.vl.json': vegalitejson_prev,
-                    '.ipyui.json': ipyuijson_prev,
-                    '.yaml': yaml_prev,
-                    '.yml': yaml_prev,
-                    '.png': img_prev,
-                    '.jpg': img_prev,
-                    '.jpeg': img_prev,
-                    #'.obj': obj_prev, # add ipyvolume viewer? 
-                    '.txt': txt_prev,
-                    '.md': md_prev,
-                    '.py': py_prev,
-                    '.pdf': pdf_prev,
-                }
-        user_file_renderers can be passed to class provided they have the correct
-        dict format:
-            user_file_renderers = {'.ext': myrenderer}
-        notice that the class allows for "compound" filetypes, especially useful for .json files
-        if you want to display the data in a specific way. 
-        
         Args:
-            fpth (str): filepath to display
-            user_file_renderers: Dict[str, Callable] = None : user defined file renderers to extend
+            path (str): filepath to display
+            default_file_renderers: Dict[str, Callable] = default_file_renderers
                 the class
                 
         Usage:
             fpth = 'default_config.yaml'
             DisplayFile(fpth).preview_fpth()
         
-        How to extend:
-            if you want to update the class definition for a compound filetype that you have created, 
-            you can do so using functools as follows:
-            ```
-                DisplayFile('default_config.test.yaml').preview_fpth()  # '.test.yaml' ext doesn't exist so renderer defaults to .yaml
-                
-                import functools
-                user_file_renderers = {'.test.yaml': txt_prev}
-                DisplayFile = functools.partial(DisplayFile, user_file_renderers=user_file_renderers)
-                DisplayFile('default_config.test.yaml').preview_fpth()  # display yaml file as txt_prev renderer
-            ```
         """
         self.ui_file = UiFile(path)
         self.fdir = self.ui_file.path.parent
@@ -613,7 +628,7 @@ class DisplayFile():
         self.ui_file._update_file()
 
     def preview_path(self):
-        display(widgets.HBox(get_file_data_children(self.ui_file.path)))
+        display(widgets.VBox(get_file_data_children(self.ui_file.path)))
         preview_path(self.ui_file.path, 
                      default_file_renderers=self.default_file_renderers,
                      user_file_renderers=self.user_file_renderers)
@@ -626,7 +641,7 @@ class DisplayFile():
         self.ui_file.openfile.on_click(self._openfile)
         self.ui_file.openfolder.on_click(self._openfolder)
         self.ui_file.openpreview.observe(self._openpreview, names='value')
-
+        
     def _open_option(self, sender):
         self._open_form()
         self._init_controls()
@@ -779,11 +794,14 @@ if __name__ == "__main__":
     from ipyautoui.constants import load_test_constants
     tests_constants = load_test_constants()
     config_ui = AutoUiConfig(ext='.aui.json', pydantic_model=TestAutoLogic)
-    TestUiDisplay = AutoUi.create_displayfile(config_autoui=config_ui)
-    def test_ui_prev(fpth):
-        display(TestUiDisplay(fpth))
     
-    test_ui = DisplayFile(path=tests_constants.PATH_TEST_AUI, user_file_renderers={'.aui.json':test_ui_prev})
+    user_file_renderers = AutoUi.create_displayfile_renderer(config_autoui=config_ui)
+    
+    #TestUiDisplay = AutoUi.create_displayfile(config_autoui=config_ui)
+    # def test_ui_prev(fpth):
+    #     display(TestUiDisplay(fpth))
+    
+    test_ui = DisplayFile(path=tests_constants.PATH_TEST_AUI, user_file_renderers=user_file_renderers)
 
     display(test_ui)
 
