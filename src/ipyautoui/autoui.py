@@ -14,15 +14,15 @@
 # ---
 
 # +
-# import sys
-# sys.path.append('/mnt/c/engDev/git_extrnl/pydantic')
+# TODO: add ipyvuetify-jsonschema to this repo
+
 # %run __init__.py
 # %load_ext lab_black
 import pathlib
 import functools
 import pandas as pd
 import ipywidgets as widgets
-from IPython.display import display
+from IPython.display import display, Markdown
 from datetime import datetime, date
 from dataclasses import dataclass
 from pydantic import BaseModel
@@ -35,9 +35,12 @@ from enum import Enum
 
 from ipyautoui.displayfile import PreviewPy
 from ipyautoui.test_schema import TestAutoLogic
-from ipyautoui._utils import obj_from_string
+from ipyautoui._utils import obj_from_string, display_pydantic_json
 from ipyautoui.custom import Grid, FileChooser
 from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
+
+from ipyautoui.constants import load_test_constants
+from ipyautoui.test_schema import TestAutoLogic
 # +
 def display_template_ui_model():
     display(PreviewPy(test_schema, docstring_priority=False))
@@ -434,18 +437,10 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     return ui_box, di_widgets
 
 
-def file(self, path: pathlib.Path, **json_kwargs):
-    """
-    this is a method that is added to the pydantic BaseModel within AutoUi using
-    "setattr". i.e. setattr(self.config_autoui.pydantic_model, 'file', file)
-    Args:
-        self (pydantic.BaseModel): instance
-        path (pathlib.Path): to write file to
-    """
-    if "indent" not in json_kwargs.keys():
-        json_kwargs.update({"indent": 4})
-    path.write_text(self.json(**json_kwargs), encoding="utf-8")
 
+
+
+from ipyautoui._utils import file
 
 class SaveControls(str, Enum):
     save_on_edit = "save_on_edit"  #  TODO: test this
@@ -564,7 +559,7 @@ def displayfile_renderer(path, renderer=None):
     display(renderer(path))
 
 
-class AutoUi(traitlets.HasTraits):
+class AutoUi(widgets.VBox, traitlets.HasTraits):
     """AutoUi widget. generates UI form from pydantic schema. keeps the "value" field
     up-to-date on_change
 
@@ -651,7 +646,6 @@ class AutoUi(traitlets.HasTraits):
 
     def _init_ui(self):
         self._extend_pydantic_base_model()
-        self.out = widgets.Output()
         self._init_schema()
         self._init_form()
         self._init_titlebox()
@@ -667,10 +661,11 @@ class AutoUi(traitlets.HasTraits):
         )
 
     def _init_form(self):
-        self.ui_form = widgets.VBox()
+        super().__init__(
+            layout=widgets.Layout(width="100%", display="flex", flex="flex-grow")
+        )  # main container
         self.ui_header = widgets.VBox()
         self.ui_main = widgets.VBox()
-        self.ui_form.children = [self.ui_header, self.ui_main]
 
         self.ui_titlebox = widgets.VBox()
         self.ui_buttonbar = widgets.HBox()
@@ -678,7 +673,7 @@ class AutoUi(traitlets.HasTraits):
 
         self.ui_box, self.di_widgets = _init_widgets_and_rows(self.pr)
         self.ui_main.children = [self.ui_box]
-        # self.ui_form.children = [self.title, self.ui_box]
+        self.children = [self.ui_header, self.ui_main]
 
     def _init_titlebox(self):
         children = []
@@ -714,12 +709,8 @@ class AutoUi(traitlets.HasTraits):
             print("self.path == None. must be a valid path to save as json")
 
     def call_save_buttonbar(self):
-        fn_showraw_true = functools.partial(display_python_file, self.path)
         self.save_buttonbar = SaveButtonBar(
-            save=self.file,
-            revert=self._revert,
-            fn_onsave=self.fn_onsave,
-            # fn_showraw_true=fn_showraw,
+            save=self.file, revert=self._revert, fn_onsave=self.fn_onsave,
         )
         self.ui_buttonbar.children = [self.save_buttonbar.save_buttonbar]
 
@@ -742,12 +733,11 @@ class AutoUi(traitlets.HasTraits):
         if self.showraw.value:
             self.showraw.tooltip = "show user interface"
             self.showraw.icon = "user-edit"
-            parsed = json.loads(self.pydantic_obj.json())
-            s = json.dumps(parsed, indent=2)  # , sort_keys=True)
             out = widgets.Output()
-            self.ui_main.children = [out]
             with out:
-                display(Markdown("\n```Python\n" + s + "\n```"))
+                display(Markdown("\n```Python\n" + "#  raw json data of the user input form" + "\n```"))
+                display(display_pydantic_json(self.pydantic_obj))
+            self.ui_main.children = [out]
         else:
             self.showraw.tooltip = "show raw data"
             self.showraw.icon = "code"
@@ -860,19 +850,8 @@ class AutoUi(traitlets.HasTraits):
         if hasattr(self, "save_buttonbar"):
             self.save_buttonbar._unsaved_changes(True)
 
-    def display(self):
-        with self.out:
-            display(self.ui_form)
-        display(self.out)
-
-    def _ipython_display_(self):
-        self.display()
-
 
 if __name__ == "__main__":
-    from ipyautoui.constants import load_test_constants
-    from ipyautoui.test_schema import TestAutoLogic
-    from IPython.display import Markdown
 
     test_constants = load_test_constants()
     test = TestAutoLogic()
@@ -891,3 +870,13 @@ if __name__ == "__main__":
     )
     ui_file = TestAuiDisplayFile(test_constants.PATH_TEST_AUI)
     display(ui_file)
+
+# +
+# out = widgets.Output()
+# box = widgets.VBox([ui])
+# with out:
+#     display(ui)
+# out
+# -
+
+
