@@ -77,3 +77,4 @@ target/
 /tests/__pycache__
 /tests/testdata/.ipynb_checkpoints
 /tests/filetypes/.ipynb_checkpoints
+/examples/.ipynb_checkpoints
