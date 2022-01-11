@@ -175,7 +175,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self.fn_remove = fn_remove
         self.watch_value = watch_value
         self.zfill = 2
-        
+        items = self._init_items(items)
         self.iterable = self._init_iterable(items)
         self._init_form()
         self._toggle = toggle
@@ -195,6 +195,12 @@ class Array(widgets.VBox, traitlets.HasTraits):
             for n, i in enumerate(items)
         ]
     
+    def _init_items(self, items):
+        if items is None:
+            return []
+        else:
+            return items
+    
     @property
     def items(self):
         return [i.item for i in self.iterable]
@@ -205,6 +211,10 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self._update_rows_box()
         self._update_rows()
         self._init_controls()
+        
+    @property
+    def iterable_keys(self):
+        return [i.key for i in self.iterable]
     
     def _init_form(self):
         # init containers
@@ -398,15 +408,12 @@ class Array(widgets.VBox, traitlets.HasTraits):
             with out:
                 display(self.fn_add_dialogue(cls=self))
             
-    
-    def add_row(self, key=None, new_key=None, add_kwargs=None):
+    def add_row(self, key=None, new_key=None, add_kwargs=None, item=None):
         """add row to array after key. if key=None then append to end"""
         if len(self.iterable) >= self.maxlen:
             print('len(self.iterable) >= self.maxlen')
             return None
         
-        if add_kwargs is None:
-            add_kwargs = {}
         if key is None: 
             if len(self.iterable) == 0:
                 index = 0
@@ -421,8 +428,14 @@ class Array(widgets.VBox, traitlets.HasTraits):
                 print(f'{new_key} already exists in keys')
                 return None
            
-        # add item
-        new_item = self.fn_add(**add_kwargs)
+        if add_kwargs is None:
+            add_kwargs = {}
+            
+        if item is None:
+            new_item = self.fn_add(**add_kwargs)
+        else:
+            new_item = item
+            
         item = IterableItem(
             index=index,
             key=new_key,
@@ -497,10 +510,23 @@ class Dictionary(Array):
             sort_on=sort_on,
             orient_rows=orient_rows
         )
+        
+    def _init_items(self, items):
+        if items is None:
+            return {}
+        else:
+            return items
     
     @property
     def items(self):
         return {i.key: i.item for i in self.iterable}
+    
+    @items.setter
+    def items(self, value: typing.List):
+        self.iterable = self._init_iterable(value)
+        self._update_rows_box()
+        self._update_rows()
+        self._init_controls()
     
     def _init_iterable(self, items):
         return [
@@ -585,6 +611,23 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
+    di_arr = {
+        'items':None,
+        'fn_add':fn_add,
+        'maxlen':10,
+        'show_hash':'index',
+        'toggle':True,
+        'title':'Array',
+        'add_remove_controls': 'append_only',
+        'orient_rows':False
+        
+    }
+
+    arr = Array(**di_arr)
+    display(arr)
+
+# %%
+if __name__ == "__main__":
     di_di = {
         'items':{'key':fn_add()},
         'fn_add':fn_add,
@@ -603,3 +646,23 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     di.add_remove_controls = 'add_remove'
     di.show_hash = 'index'
+
+# %%
+if __name__ == "__main__":
+    di_di = {
+        'items':None,
+        'fn_add':fn_add,
+        'maxlen':10,
+        'show_hash':None,
+        'toggle':True,
+        'title':'Array',
+        'add_remove_controls': 'append_only',
+        'orient_rows':True
+    }
+
+    di = Dictionary(**di_di)
+    display(di)
+
+# %%
+if __name__ == "__main__":
+    di.items = {'key1':fn_add(), 'key2':fn_add()}
