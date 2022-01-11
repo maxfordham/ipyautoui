@@ -5,9 +5,9 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.11.4
+    jupytext_version: 1.13.3
 kernelspec:
-  display_name: Python 3
+  display_name: Python 3 (ipykernel)
   language: python
   name: python3
 ---
@@ -21,6 +21,10 @@ wrapper that sits on top of ipywidgets and other ipy widget libraries to templat
 ## Create a UI object
 
 ipyautoui creates a row of widgets with a: `name`, `value` and `label`. The `value` is interpreted by the WidgetRowBase class and a widget is widget type is guess by the type of the value and the `kwargs` that can also be passed when initialising the widget.
+
+```{code-cell} ipython3
+# TODO: refer to ipyfilechooser for inspiration for README.md
+```
 
 ```{code-cell} ipython3
 import sys
