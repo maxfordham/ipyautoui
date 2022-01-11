@@ -6,11 +6,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.3
+#       jupytext_version: 1.13.5
 #   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-ipyautoui-py
+#     name: python3
 # ---
 
 # +
@@ -437,10 +437,8 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     return ui_box, di_widgets
 
 
-
-
-
 from ipyautoui._utils import file
+
 
 class SaveControls(str, Enum):
     save_on_edit = "save_on_edit"  #  TODO: test this
@@ -735,7 +733,13 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
             self.showraw.icon = "user-edit"
             out = widgets.Output()
             with out:
-                display(Markdown("\n```Python\n" + "#  raw json data of the user input form" + "\n```"))
+                display(
+                    Markdown(
+                        "\n```Python\n"
+                        + "#  raw json data of the user input form"
+                        + "\n```"
+                    )
+                )
                 display(display_pydantic_json(self.pydantic_obj))
             self.ui_main.children = [out]
         else:

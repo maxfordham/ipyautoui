@@ -8,6 +8,8 @@ from IPython.display import display, Markdown
 import codecs
 from pydantic import BaseModel
 import typing
+import immutables
+frozenmap = immutables.Map
 
 try: 
     from mf_file_utilities import go as open_file

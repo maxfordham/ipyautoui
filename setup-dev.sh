@@ -3,3 +3,4 @@
 mamba env create -f environment-dev.yml
 conda activate ipyautoui
 pip install mydocstring
+pip install traitlets_paths

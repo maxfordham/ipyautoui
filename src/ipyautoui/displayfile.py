@@ -7,11 +7,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.3
+#       jupytext_version: 1.13.5
 #   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-ipyautoui-xpython
+#     name: python3
 # ---
 
 # %run __init__.py
@@ -50,7 +50,7 @@ except:
 
 #  local imports
 from ipyautoui.mydocstring_display import display_module_docstring
-from ipyautoui._utils import del_matching, md_fromfile, display_python_file, read_json, read_yaml, read_txt, open_file
+from ipyautoui._utils import del_matching, md_fromfile, display_python_file, read_json, read_yaml, read_txt, open_file, frozenmap
 #from ipyrun._runconfig import Output, Outputs, File
 from ipyautoui.constants import BUTTON_WIDTH_MIN, BUTTON_HEIGHT_MIN
 
@@ -376,7 +376,7 @@ default_file_renderers = {
         '.py': py_prev,
         '.pdf': pdf_prev,
     }
-frozenmap = immutables.Map
+
 default_file_renderers = frozenmap(**default_file_renderers)
 
 

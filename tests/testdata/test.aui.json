@@ -1,6 +1,6 @@
 {
     "string": "adsf",
-    "int_slider": 2,
+    "int_slider": 1,
     "int_text": 1,
     "int_range_slider": [
         0,
@@ -9,7 +9,7 @@
     "float_slider": 2.2,
     "float_text": 2.2,
     "float_range_slider": [
-        0,
+        0.0,
         2.2
     ],
     "checkbox": true,
@@ -26,7 +26,7 @@
     ],
     "text": "short text",
     "text_area": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ",
-    "date_picker": "2021-12-06",
+    "date_picker": "2022-01-11",
     "color_picker": "#f5f595",
     "file_chooser": ".",
     "array": [],
