@@ -1,3 +1,4 @@
+import pathlib
 import json
 import importlib
 from typing import Type
@@ -5,6 +6,20 @@ from markdown import markdown
 import ipywidgets as widgets
 from IPython.display import display, Markdown
 import codecs
+from pydantic import BaseModel
+import typing
+
+try: 
+    from mf_file_utilities import go as open_file
+except:
+    def open_file(path):
+        subprocess.call(['open', path])
+
+
+def display_pydantic_json(pydantic_obj: typing.Type[BaseModel]):
+    parsed = json.loads(pydantic_obj.json())
+    s = json.dumps(parsed, indent=2)  # , sort_keys=True)
+    return Markdown("\n```Python\n" + s + "\n```")
 
 def _markdown(value='_Markdown_',
               **kwargs):
@@ -171,3 +186,19 @@ def read_yaml(fpth, encoding='utf8'):
         except yaml.YAMLError as exc:
             print(exc)
     return data
+
+def file(self:Type[BaseModel], path: pathlib.Path, **json_kwargs):
+    """
+    this is a method that is added to the pydantic BaseModel within AutoUi using
+    "setattr".
+    
+    Example:
+        ```setattr(self.config_autoui.pydantic_model, 'file', file)```
+        
+    Args:
+        self (pydantic.BaseModel): instance
+        path (pathlib.Path): to write file to
+    """
+    if "indent" not in json_kwargs.keys():
+        json_kwargs.update({"indent": 4})
+    path.write_text(self.json(**json_kwargs), encoding="utf-8")
