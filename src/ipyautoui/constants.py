@@ -1,10 +1,10 @@
+"""contains packages global constants"""
 import pathlib
-import immutables
+import immutables.Map as frozenmap
+# https://www.python.org/dev/peps/pep-0603/
+# https://github.com/MagicStack/immutables
+# ^
 DIR_MODULE = pathlib.Path(__file__).parent
-
-frozenmap = (
-    immutables.Map
-)  # https://www.python.org/dev/peps/pep-0603/, https://github.com/MagicStack/immutables
 
 BUTTON_WIDTH_MIN = '41px'
 BUTTON_WIDTH_MEDIUM = '90px'
