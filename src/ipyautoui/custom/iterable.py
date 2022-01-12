@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.13.3
+#       jupytext_version: 1.13.6
 #   kernelspec:
 #     display_name: Python [conda env:ipyautoui]
 #     language: python
@@ -238,7 +238,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
             [setattr(self.iterable[0].remove, k, v)for k, v in REMOVE_BUTTON_KWARGS.items()]
         elif self.add_remove_controls == "append_only":
             [setattr(self.iterable[0].add, k, v)for k, v in ADD_BUTTON_KWARGS.items()]
-            [setattr(self.iterable[0].remove, k, v)for k, v in REMOVE_BUTTON_KWARGS.items()]
+            [setattr(self.iterable[0].remove, k, v)for k, v in BLANK_BUTTON_KWARGS.items()]
         elif self.add_remove_controls == "remove_only":
             [setattr(self.iterable[0].add, k, v)for k, v in BLANK_BUTTON_KWARGS.items()]
             [setattr(self.iterable[0].remove, k, v)for k, v in REMOVE_BUTTON_KWARGS.items()]
@@ -373,7 +373,9 @@ class Array(widgets.VBox, traitlets.HasTraits):
             
     def _init_row_controls(self, key=None):
         if self.add_remove_controls == "append_only":
+            #self.iterable[0].add = widgets.Button(layout=dict(BUTTON_MIN_SIZE))
             self.iterable[0].add.on_click(self._add_row)
+            #self._style_zeroth_buttonbar()
         else:
             self._get_attribute(key, 'add').on_click(functools.partial(self._add_row, key=key))
         self._get_attribute(key, 'remove').on_click(functools.partial(self._remove_rows, key=key))
@@ -453,18 +455,27 @@ class Array(widgets.VBox, traitlets.HasTraits):
     def _remove_rows(self, onclick, key=None):
         if len(self.iterable) <= 1:
             pass
+        n = self._get_attribute(key, 'index')
+        if self.add_remove_controls == 'append_only' and n==0:
+            pass
         else:
             n = self._get_attribute(key, 'index')
+            #print(f'n={str(n)}')
             self.iterable.pop(n)
             self.iterable = self._sort_iterable()
             if self.watch_value:
                 self._update_value("change")
             self._update_rows_box()
-            self._update_labels() 
-            if n == 0:
-                key = self.iterable[0].key
-                self._init_row_controls(key=key)
-                self._update_row(n)
+            self._update_labels()
+            
+            # if n == 0:
+            #     print('n=0')
+            #     print(self.iterable[0].key)
+            #     key = self.iterable[0].key
+            #     print(f'n={str(n)}, key={str(key)}')
+            #     self._init_row_controls(key=key)
+            #     self._update_row(n)
+            # ^ this was supposed to allow you to delete the zeroth row and then update the controls accordingly but it wasn't working... 
 
 
     def remove_row(self, key=None, remove_kwargs=None):
@@ -616,7 +627,7 @@ if __name__ == "__main__":
         'fn_add':fn_add,
         'maxlen':10,
         'show_hash':'index',
-        'toggle':True,
+        #'toggle':True,
         'title':'Array',
         'add_remove_controls': 'append_only',
         'orient_rows':False
