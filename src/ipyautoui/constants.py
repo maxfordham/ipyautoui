@@ -1,5 +1,6 @@
 """contains packages global constants"""
 import pathlib
+
 from ipyautoui._utils import frozenmap
 # https://www.python.org/dev/peps/pep-0603/
 # https://github.com/MagicStack/immutables

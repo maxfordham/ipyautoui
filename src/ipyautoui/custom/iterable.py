@@ -5,15 +5,66 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.13.6
+#       jupytext_version: 1.13.5
 #   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-ipyautoui-xpython
+#     name: python3
 # ---
 
 # %%
-"""generic iterable object."""
+"""A generic iterable object.
+
+Creates an array object where widgets can be added or removed.
+
+Example:
+    import traitlets
+    import typing
+
+    from ipywidgets import widgets
+    from IPython.display import Markdown
+
+    from ipyautoui.custom.iterable import IterableItem, Array, Dictionary
+
+
+    class TestItem(widgets.HBox, traitlets.HasTraits):
+        value = traitlets.Dict()
+
+        def __init__(self, di: typing.Dict):
+            self.value = di
+            self._init_form()
+            self._init_controls()
+
+        def _init_form(self):
+            self._label = widgets.HTML(f"{list(self.value.keys())[0]}")
+            self._bool = widgets.ToggleButton(list(self.value.values())[0])
+            super().__init__(children=[self._bool, self._label])  # self._acc,
+
+        def _init_controls(self):
+            self._bool.observe(self._set_value, names="value")
+
+        def _set_value(self, change):
+            self.value = {self._label.value: self._bool.value}
+
+
+    def fn_add():
+        return TestItem(di={"Example": 1})
+
+
+    di_arr = {
+        "items": [fn_add()],
+        "fn_add": fn_add,
+        "maxlen": 10,
+        "show_hash": "index",
+        "toggle": True,
+        "title": "Array",
+        "add_remove_controls": "append_only",
+        "orient_rows": False,
+    }
+
+    arr = Array(**di_arr)
+    display(arr)
+"""
 # %run __init__.py
 # %load_ext lab_black
 
@@ -23,6 +74,7 @@ import traitlets
 from traitlets import validate
 import typing
 import immutables
+
 # from pydantic.dataclasses import dataclass
 from ipyautoui.basemodel import BaseModel
 from pydantic import validator
@@ -36,7 +88,7 @@ from ipyautoui.constants import (
     BLANK_BUTTON_KWARGS,
     BUTTON_WIDTH_MIN,
     BUTTON_HEIGHT_MIN,
-    BUTTON_MIN_SIZE
+    BUTTON_MIN_SIZE,
 )
 from markdown import markdown
 
@@ -59,68 +111,69 @@ class IterableItem(BaseModel):
     label: typing.Any = None
     orient_rows: bool = True
     row: typing.Any = None
-    
+
     @validator("key", always=True)
     def _key(cls, v, values):
         if v is None:
             return uuid.uuid4()
         else:
             return v
-    
+
     @validator("add", always=True)
     def _add(cls, v, values):
         if v is None:
             return widgets.Button(layout=dict(BUTTON_MIN_SIZE))
         else:
             return v
-    
+
     @validator("remove", always=True)
     def _remove(cls, v, values):
         if v is None:
             return widgets.Button(layout=dict(BUTTON_MIN_SIZE))
         else:
             return v
-    
+
     @validator("label", always=True)
     def _label(cls, v, values):
         if v is None:
-            return widgets.HTML('placeholder label')
+            return widgets.HTML("placeholder label")
         else:
             return v
-        
+
     @validator("item", always=True)
     def _item(cls, v, values):
         if v is None:
-            return widgets.Button(description='placeholder item')
+            return widgets.Button(description="placeholder item")
         else:
             return v
-        
+
     @validator("row", always=True)
     def _row(cls, v, values):
-        ItemBox = BOX[values['orient_rows']]
+        ItemBox = BOX[values["orient_rows"]]
         if v is None:
-            v = ItemBox(children=[
-                ItemBox(layout=widgets.Layout(flex='1 0 auto')), # buttons
-                ItemBox(layout=widgets.Layout(flex='1 0 auto')), # label
-                ItemBox(layout=widgets.Layout(flex='100%')), # item
-            ]
-                              )
-            v.children[2].children = [values['item']]
+            v = ItemBox(
+                children=[
+                    ItemBox(layout=widgets.Layout(flex="1 0 auto")),  # buttons
+                    ItemBox(layout=widgets.Layout(flex="1 0 auto")),  # label
+                    ItemBox(layout=widgets.Layout(flex="100%")),  # item
+                ]
+            )
+            v.children[2].children = [values["item"]]
             return v
         else:
             return v
-    
 
 
 # %%
 class Array(widgets.VBox, traitlets.HasTraits):
     """generic iterable. pass a list of items"""
+
     # -----------------------------------------------------------------------------------
     value = traitlets.List()
     _show_hash = traitlets.Unicode(allow_none=True)
     _add_remove_controls = traitlets.Unicode(allow_none=True)
     _sort_on = traitlets.Unicode(allow_none=True)
-    
+
     @validate("show_hash")
     def _validate_show_hash(self, proposal):
         if proposal.value not in ["index", "key", None]:
@@ -128,7 +181,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
                 f'{proposal} given. allowed values of show_hash are "index", "key" and None only'
             )
         return proposal
-    
+
     @validate("_add_remove_controls")
     def _validate_add_remove_controls(self, proposal):
         if proposal.value not in ["add_remove", "append_only", "remove_only", None]:
@@ -136,7 +189,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
                 f'{proposal} given. allowed values of _add_remove_controls are "add_remove", "append_only", "remove_only", None only'
             )
         return proposal
-    
+
     @validate("_sort_on")
     def _validate_add_remove_controls(self, proposal):
         if proposal.value not in ["index", "key", None]:
@@ -144,26 +197,26 @@ class Array(widgets.VBox, traitlets.HasTraits):
                 f'{proposal} given. allowed values of sort_on are "index", "key" and None only'
             )
         return proposal
-    
+
     def _update_value(self, onchange):
         self.value = [a.item.value for a in self.iterable]
-        
+
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
-        items: typing.List=None,
+        items: typing.List = None,
         toggle=False,
         title=None,
         fn_add: typing.Callable = lambda: display("add item"),
         fn_add_dialogue: typing.Callable = None,
         fn_remove: typing.Callable = lambda: display("remove item"),
         watch_value: bool = True,
-        minlen: int =1,
-        maxlen: int =None,
-        add_remove_controls: str ='add_remove',
-        show_hash: str ='index',
-        sort_on='index',
-        orient_rows=True
+        minlen: int = 1,
+        maxlen: int = None,
+        add_remove_controls: str = "add_remove",
+        show_hash: str = "index",
+        sort_on="index",
+        orient_rows=True,
     ):
         self.orient_rows = orient_rows
         self.minlen = minlen  # TODO: validation. must be > 1
@@ -180,92 +233,126 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self._init_form()
         self._toggle = toggle
         self.title = title
-        
-        self.add_remove_controls = add_remove_controls # calls self._init_controls()
+
+        self.add_remove_controls = add_remove_controls  # calls self._init_controls()
         self.show_hash = show_hash
-        self.sort_on= sort_on
+        self.sort_on = sort_on
 
     def _init_iterable(self, items):
         return [
-            IterableItem(
-                index=n,
-                key=uuid.uuid4(),
-                item=i,
-            )
+            IterableItem(index=n, key=uuid.uuid4(), item=i,)
             for n, i in enumerate(items)
         ]
-    
+
     def _init_items(self, items):
         if items is None:
             return []
         else:
             return items
-    
+
     @property
     def items(self):
         return [i.item for i in self.iterable]
-    
+
     @items.setter
     def items(self, value: typing.List):
         self.iterable = self._init_iterable(value)
         self._update_rows_box()
         self._update_rows()
         self._init_controls()
-        
+
     @property
     def iterable_keys(self):
         return [i.key for i in self.iterable]
-    
+
     def _init_form(self):
         # init containers
-        super().__init__(layout=widgets.Layout(width='100%', display="flex", flex="flex-grow")) # main container
-        self.rows_box = BOX[not self.orient_rows](layout=widgets.Layout(width='100%', display="flex", flex="flex-grow"))
-        self.title_box = widgets.HBox(layout=widgets.Layout(display="flex", flex="flex-grow")) #BOX[self.orient_rows]
-        self.toggle_button = widgets.ToggleButton(icon="minus",layout=dict(BUTTON_MIN_SIZE))
+        super().__init__(
+            layout=widgets.Layout(width="100%", display="flex", flex="flex-grow")
+        )  # main container
+        self.rows_box = BOX[not self.orient_rows](
+            layout=widgets.Layout(width="100%", display="flex", flex="flex-grow")
+        )
+        self.title_box = widgets.HBox(
+            layout=widgets.Layout(display="flex", flex="flex-grow")
+        )  # BOX[self.orient_rows]
+        self.toggle_button = widgets.ToggleButton(
+            icon="minus", layout=dict(BUTTON_MIN_SIZE)
+        )
         self.toggle_button.value = True
         self._refresh_children()
         self._update_rows_box()
-        
+
     def _refresh_children(self):
         self.children = [self.title_box, self.rows_box]
-        
-    # buttons ---------------    
+
+    # buttons ---------------
     def _style_zeroth_buttonbar(self):
         if self.add_remove_controls is None:
             pass
         elif self.add_remove_controls == "add_remove":
-            [setattr(self.iterable[0].add, k, v)for k, v in ADD_BUTTON_KWARGS.items()]
-            [setattr(self.iterable[0].remove, k, v)for k, v in REMOVE_BUTTON_KWARGS.items()]
+            [setattr(self.iterable[0].add, k, v) for k, v in ADD_BUTTON_KWARGS.items()]
+            [
+                setattr(self.iterable[0].remove, k, v)
+                for k, v in REMOVE_BUTTON_KWARGS.items()
+            ]
         elif self.add_remove_controls == "append_only":
-            [setattr(self.iterable[0].add, k, v)for k, v in ADD_BUTTON_KWARGS.items()]
-            [setattr(self.iterable[0].remove, k, v)for k, v in BLANK_BUTTON_KWARGS.items()]
+            [setattr(self.iterable[0].add, k, v) for k, v in ADD_BUTTON_KWARGS.items()]
+            [
+                setattr(self.iterable[0].remove, k, v)
+                for k, v in BLANK_BUTTON_KWARGS.items()
+            ]
         elif self.add_remove_controls == "remove_only":
-            [setattr(self.iterable[0].add, k, v)for k, v in BLANK_BUTTON_KWARGS.items()]
-            [setattr(self.iterable[0].remove, k, v)for k, v in REMOVE_BUTTON_KWARGS.items()]
+            [
+                setattr(self.iterable[0].add, k, v)
+                for k, v in BLANK_BUTTON_KWARGS.items()
+            ]
+            [
+                setattr(self.iterable[0].remove, k, v)
+                for k, v in REMOVE_BUTTON_KWARGS.items()
+            ]
         else:
             pass
-        
+
     def _style_nth_buttonbar(self, index):
         if self.add_remove_controls is None:
             pass
         elif self.add_remove_controls == "add_remove":
-            [setattr(self.iterable[index].add, k, v)for k, v in ADD_BUTTON_KWARGS.items()]
-            [setattr(self.iterable[index].remove, k, v)for k, v in REMOVE_BUTTON_KWARGS.items()]
+            [
+                setattr(self.iterable[index].add, k, v)
+                for k, v in ADD_BUTTON_KWARGS.items()
+            ]
+            [
+                setattr(self.iterable[index].remove, k, v)
+                for k, v in REMOVE_BUTTON_KWARGS.items()
+            ]
         elif self.add_remove_controls == "append_only":
-            [setattr(self.iterable[index].add, k, v)for k, v in BLANK_BUTTON_KWARGS.items()]
-            [setattr(self.iterable[index].remove, k, v)for k, v in REMOVE_BUTTON_KWARGS.items()]
+            [
+                setattr(self.iterable[index].add, k, v)
+                for k, v in BLANK_BUTTON_KWARGS.items()
+            ]
+            [
+                setattr(self.iterable[index].remove, k, v)
+                for k, v in REMOVE_BUTTON_KWARGS.items()
+            ]
         elif self.add_remove_controls == "remove_only":
-            [setattr(self.iterable[index].add, k, v)for k, v in BLANK_BUTTON_KWARGS.items()]
-            [setattr(self.iterable[index].remove, k, v)for k, v in REMOVE_BUTTON_KWARGS.items()]
+            [
+                setattr(self.iterable[index].add, k, v)
+                for k, v in BLANK_BUTTON_KWARGS.items()
+            ]
+            [
+                setattr(self.iterable[index].remove, k, v)
+                for k, v in REMOVE_BUTTON_KWARGS.items()
+            ]
         else:
             pass
-        
+
     def _style_buttonbar(self, index):
-        if index == 0: 
+        if index == 0:
             self._style_zeroth_buttonbar()
         else:
             self._style_nth_buttonbar(index)
-        
+
     def _update_buttonbar_box(self, index):
         if self.add_remove_controls is None:
             buttons_box = []
@@ -274,78 +361,78 @@ class Array(widgets.VBox, traitlets.HasTraits):
             self.iterable[index].remove = widgets.Button(layout=dict(BUTTON_MIN_SIZE))
             buttons_box = [self.iterable[index].add, self.iterable[index].remove]
         self.iterable[index].row.children[0].children = buttons_box
-        
+
     def _update_buttonbar(self, index):
         self._update_buttonbar_box(index)
         self._style_buttonbar(index)
-        
+
     def _update_label(self, index):
         if self.show_hash is None:
             labels_box = []
             self.iterable[index].row.children[1].children = labels_box
-            return 
+            return
         if self.show_hash == "index":
-            label = str(self.iterable[index].index).zfill(self.zfill) + ". "    
+            label = str(self.iterable[index].index).zfill(self.zfill) + ". "
         elif self.show_hash == "key":
             label = str(self.iterable[index].key)
         else:
-            label = ''
+            label = ""
         self.iterable[index].label.value = f"<b>{label}</b>"
         labels_box = [self.iterable[index].label]
         self.iterable[index].row.children[1].children = labels_box
-        
+
     def _update_row(self, index):
         self._update_buttonbar(index)
         self._update_labels()
-        
+
     def _update_buttonbars(self):
-        [self._update_buttonbar(index) for index, item in enumerate(self.iterable)];
-        
+        [self._update_buttonbar(index) for index, item in enumerate(self.iterable)]
+
     def _update_labels(self):
-        [self._update_label(index) for index, item in enumerate(self.iterable)];
+        [self._update_label(index) for index, item in enumerate(self.iterable)]
 
     def _update_rows(self):
-        [self._update_row(index) for index, item in enumerate(self.iterable)];
-        
+        [self._update_row(index) for index, item in enumerate(self.iterable)]
+
     def _update_rows_box(self):
         self.rows_box.children = [i.row for i in self.iterable]
-        
+
     @property
     def add_remove_controls(self):
         if self._add_remove_controls is None:
             return None
         else:
-            return self._add_remove_controls#.value
-    
+            return self._add_remove_controls  # .value
+
     @add_remove_controls.setter
     def add_remove_controls(self, value: str):
         self._add_remove_controls = value
         self._update_buttonbars()
         self._init_controls()
-        
+
     @property
     def show_hash(self):
         return self._show_hash
-    
+
     @show_hash.setter
     def show_hash(self, value: str):
         self._show_hash = value
-        self._update_labels() 
-        
+        self._update_labels()
+
     @property
     def toggle(self):
         return self._toggle
-    
+
     @toggle.setter
     def toggle(self, value: bool):
         self._toggle = value
         self.toggle_button.value = True
         self._update_header()
-        
+
     @property
     def title(self):
         return self._title
-    
+
     @title.setter
     def title(self, value: typing.Union[str, None]):
         self._title = value
@@ -354,7 +441,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         else:
             self.html_title = widgets.HTML(markdown(self.title))
         self._update_header()
-    
+
     def _update_header(self):
         header = []
         if self.toggle:
@@ -362,7 +449,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         if self.title is not None:
             header.append(self.html_title)
         self.title_box.children = header
-        
+
     def _toggle_button(self, change):
         if self.toggle_button.value:
             self.toggle_button.icon = "minus"
@@ -370,104 +457,104 @@ class Array(widgets.VBox, traitlets.HasTraits):
         else:
             self.toggle_button.icon = "plus"
             self.children = [self.title_box]
-            
+
     def _init_row_controls(self, key=None):
         if self.add_remove_controls == "append_only":
-            #self.iterable[0].add = widgets.Button(layout=dict(BUTTON_MIN_SIZE))
+            # self.iterable[0].add = widgets.Button(layout=dict(BUTTON_MIN_SIZE))
             self.iterable[0].add.on_click(self._add_row)
-            #self._style_zeroth_buttonbar()
+            # self._style_zeroth_buttonbar()
         else:
-            self._get_attribute(key, 'add').on_click(functools.partial(self._add_row, key=key))
-        self._get_attribute(key, 'remove').on_click(functools.partial(self._remove_rows, key=key))
+            self._get_attribute(key, "add").on_click(
+                functools.partial(self._add_row, key=key)
+            )
+        self._get_attribute(key, "remove").on_click(
+            functools.partial(self._remove_rows, key=key)
+        )
         if self.watch_value:
-            self._get_attribute(key, 'item').observe(self._update_value, names="value")
+            self._get_attribute(key, "item").observe(self._update_value, names="value")
 
     def _init_controls(self):
         self.toggle_button.observe(self._toggle_button, "value")
         [self._init_row_controls(key=i.key) for i in self.iterable]
         # self._init_row_controls(item.key)  # TODO
-        
+
     def _sort_iterable(self):
-        if self.sort_on == 'index':
+        if self.sort_on == "index":
             sort = sorted(self.iterable, key=lambda k: k.index)
-        elif self.sort_on == 'key':
+        elif self.sort_on == "key":
             sort = sorted(self.iterable, key=lambda k: str(k.key))
         else:
             sort = self.iterable
         for n, s in enumerate(sort):
             s.index = n
         return sort
-    
+
     def _get_attribute(self, key, get):
         return [getattr(r, get) for r in self.iterable if r.key == key][0]
-    
+
     def _add_row(self, onclick, key=None):
         if self.fn_add_dialogue is None:
             self.add_row(key=key)
         else:
             out = widgets.Output()
-            self.children =  [self.title_box, out, self.rows_box]
+            self.children = [self.title_box, out, self.rows_box]
             with out:
                 display(self.fn_add_dialogue(cls=self))
-            
+
     def add_row(self, key=None, new_key=None, add_kwargs=None, item=None):
         """add row to array after key. if key=None then append to end"""
         if len(self.iterable) >= self.maxlen:
-            print('len(self.iterable) >= self.maxlen')
+            print("len(self.iterable) >= self.maxlen")
             return None
-        
-        if key is None: 
+
+        if key is None:
             if len(self.iterable) == 0:
                 index = 0
             else:
                 key = self.iterable[-1].key
-                index = self._get_attribute(key, 'index') # append
+                index = self._get_attribute(key, "index")  # append
         else:
-            index = self._get_attribute(key, 'index')
-            
+            index = self._get_attribute(key, "index")
+
         if new_key is not None:
             if new_key in [i.key for i in self.iterable]:
-                print(f'{new_key} already exists in keys')
+                print(f"{new_key} already exists in keys")
                 return None
-           
+
         if add_kwargs is None:
             add_kwargs = {}
-            
+
         if item is None:
             new_item = self.fn_add(**add_kwargs)
         else:
             new_item = item
-            
-        item = IterableItem(
-            index=index,
-            key=new_key,
-            item=new_item,
-        )
-        self.iterable.insert(index+1, item)
+
+        item = IterableItem(index=index, key=new_key, item=new_item,)
+        self.iterable.insert(index + 1, item)
         self.iterable = self._sort_iterable()  # update map
-        index = self._get_attribute(item.key, 'index')
+        index = self._get_attribute(item.key, "index")
         self._update_row(index)
         self._update_rows_box()
         self._init_row_controls(item.key)  # init controls
         if self.watch_value:
             self._update_value("change")
-            
+
     def _remove_rows(self, onclick, key=None):
         if len(self.iterable) <= 1:
             pass
-        n = self._get_attribute(key, 'index')
-        if self.add_remove_controls == 'append_only' and n==0:
+        n = self._get_attribute(key, "index")
+        if self.add_remove_controls == "append_only" and n == 0:
             pass
         else:
-            n = self._get_attribute(key, 'index')
-            #print(f'n={str(n)}')
+            n = self._get_attribute(key, "index")
+            # print(f'n={str(n)}')
             self.iterable.pop(n)
             self.iterable = self._sort_iterable()
             if self.watch_value:
                 self._update_value("change")
             self._update_rows_box()
             self._update_labels()
-            
+
             # if n == 0:
             #     print('n=0')
             #     print(self.iterable[0].key)
@@ -475,39 +562,40 @@ class Array(widgets.VBox, traitlets.HasTraits):
             #     print(f'n={str(n)}, key={str(key)}')
             #     self._init_row_controls(key=key)
             #     self._update_row(n)
-            # ^ this was supposed to allow you to delete the zeroth row and then update the controls accordingly but it wasn't working... 
-
+            # ^ this was supposed to allow you to delete the zeroth row and then update the controls accordingly but it wasn't working...
 
     def remove_row(self, key=None, remove_kwargs=None):
-        if key is None: 
+        if key is None:
             key = self.iterable[-1].key
         self._remove_rows("click", key=key)
         self.fn_remove(**remove_kwargs)
-        
+
+
 class Dictionary(Array):
     value = traitlets.Dict()
-    
+
     def _update_value(self, onchange):
         self.value = {a.key: a.item.value for a in self.iterable}
-        
+
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
-        items: typing.Dict=None,
+        items: typing.Dict = None,
         toggle=False,
         title=None,
         fn_add: typing.Callable = lambda: display("add item"),
         fn_add_dialogue: typing.Callable = None,
         fn_remove: typing.Callable = lambda: display("remove item"),
         watch_value: bool = True,
-        minlen: int =1,
-        maxlen: int =None,
-        add_remove_controls: str ='add_remove',
-        show_hash: str ='index',
-        sort_on='index',
-        orient_rows=True
+        minlen: int = 1,
+        maxlen: int = None,
+        add_remove_controls: str = "add_remove",
+        show_hash: str = "index",
+        sort_on="index",
+        orient_rows=True,
     ):
-        super().__init__(items,
+        super().__init__(
+            items,
             toggle=toggle,
             title=title,
             fn_add=fn_add,
@@ -519,26 +607,26 @@ class Dictionary(Array):
             add_remove_controls=add_remove_controls,
             show_hash=show_hash,
             sort_on=sort_on,
-            orient_rows=orient_rows
+            orient_rows=orient_rows,
         )
-        
+
     def _init_items(self, items):
         if items is None:
             return {}
         else:
             return items
-    
+
     @property
     def items(self):
         return {i.key: i.item for i in self.iterable}
-    
+
     @items.setter
     def items(self, value: typing.List):
         self.iterable = self._init_iterable(value)
         self._update_rows_box()
         self._update_rows()
         self._init_controls()
-    
+
     def _init_iterable(self, items):
         return [
             IterableItem(
@@ -550,10 +638,10 @@ class Dictionary(Array):
             )
             for n, (k, v) in enumerate(items.items())
         ]
-    
+
+
 class AutoIterable:
     pass  # TODO: create AutoIterable class that works with the AutoUi class for iterables
-
 
 
 # %%
@@ -596,24 +684,23 @@ if __name__ == "__main__":
         def _init_form(self):
             self._label = widgets.HTML(f"{list(self.value.keys())[0]}")
             self._bool = widgets.ToggleButton(list(self.value.values())[0])
-            super().__init__(children=[self._bool, self._label])#self._acc, 
+            super().__init__(children=[self._bool, self._label])  # self._acc,
 
         def _init_controls(self):
             self._bool.observe(self._set_value, names="value")
 
         def _set_value(self, change):
             self.value = {self._label.value: self._bool.value}
-            
+
     di_arr = {
-        'items':[fn_add()],
-        'fn_add':fn_add,
-        'maxlen':10,
-        'show_hash':'index',
-        'toggle':True,
-        'title':'Array',
-        'add_remove_controls': 'append_only',
-        'orient_rows':False
-        
+        "items": [fn_add()],
+        "fn_add": fn_add,
+        "maxlen": 10,
+        "show_hash": "index",
+        "toggle": True,
+        "title": "Array",
+        "add_remove_controls": "append_only",
+        "orient_rows": False,
     }
 
     arr = Array(**di_arr)
@@ -623,15 +710,14 @@ if __name__ == "__main__":
 # %%
 if __name__ == "__main__":
     di_arr = {
-        'items':None,
-        'fn_add':fn_add,
-        'maxlen':10,
-        'show_hash':'index',
+        "items": None,
+        "fn_add": fn_add,
+        "maxlen": 10,
+        "show_hash": "index",
         #'toggle':True,
-        'title':'Array',
-        'add_remove_controls': 'append_only',
-        'orient_rows':False
-        
+        "title": "Array",
+        "add_remove_controls": "append_only",
+        "orient_rows": False,
     }
 
     arr = Array(**di_arr)
@@ -640,14 +726,14 @@ if __name__ == "__main__":
 # %%
 if __name__ == "__main__":
     di_di = {
-        'items':{'key':fn_add()},
-        'fn_add':fn_add,
-        'maxlen':10,
-        'show_hash':None,
-        'toggle':True,
-        'title':'Array',
-        'add_remove_controls': 'append_only',
-        'orient_rows':True
+        "items": {"key": fn_add()},
+        "fn_add": fn_add,
+        "maxlen": 10,
+        "show_hash": None,
+        "toggle": True,
+        "title": "Array",
+        "add_remove_controls": "append_only",
+        "orient_rows": True,
     }
 
     di = Dictionary(**di_di)
@@ -655,20 +741,20 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
-    di.add_remove_controls = 'add_remove'
-    di.show_hash = 'index'
+    di.add_remove_controls = "add_remove"
+    di.show_hash = "index"
 
 # %%
 if __name__ == "__main__":
     di_di = {
-        'items':None,
-        'fn_add':fn_add,
-        'maxlen':10,
-        'show_hash':None,
-        'toggle':True,
-        'title':'Array',
-        'add_remove_controls': 'append_only',
-        'orient_rows':True
+        "items": None,
+        "fn_add": fn_add,
+        "maxlen": 10,
+        "show_hash": None,
+        "toggle": True,
+        "title": "Array",
+        "add_remove_controls": "append_only",
+        "orient_rows": True,
     }
 
     di = Dictionary(**di_di)
@@ -676,4 +762,6 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
-    di.items = {'key1':fn_add(), 'key2':fn_add()}
+    di.items = {"key1": fn_add(), "key2": fn_add()}
+
+# %%

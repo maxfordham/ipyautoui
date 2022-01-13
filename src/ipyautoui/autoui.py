@@ -13,8 +13,7 @@
 #     name: python3
 # ---
 
-"""
-autoui is used to automatically create ipywidgets from pydantic schema.
+"""autoui is used to automatically create ipywidgets from pydantic schema.
 
 This module maps the pydantic fields to appropriate wigets to display the data in a UI.
 This information can also be stored to file.
