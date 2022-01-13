@@ -620,7 +620,8 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
 
         self.pydantic_obj = pydantic_obj
         self.fn_onsave = fn_onsave
-        if config_autoui is None:
+        self.config_autoui = config_autoui
+        if self.config_autoui is None:
             self.config_autoui = AutoUiConfig(pydantic_model=type(pydantic_obj))
         else:
             assert self.config_autoui.pydantic_model == type(
@@ -661,7 +662,7 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
         self._init_controls()
 
     def _init_schema(self):
-        sch = self.pydantic_obj.schema().copy()
+        sch = self.pydantic_obj.schema(by_alias=False).copy()
         key = "$ref"
         self.sch = update_property_definitions(sch, key)
         self.pr = map_to_widget(

@@ -1,6 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.968" timestamp="2021-11-26T20:15:23.156299" hostname="PORT4028"><testcase classname="" name="src.ipyautoui.test_autoui_data" time="0.000"><error message="collection failure">import file mismatch:
-imported module 'ipyautoui.test_autoui_data' has this __file__ attribute:
-  /mnt/c/engDev/git_mf/ipyautoui/ipyautoui/test_autoui_data.py
-which is not the same as the test file we want to collect:
-  /mnt/c/engDev/git_mf/ipyautoui/src/ipyautoui/test_autoui_data.py
-HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules</error></testcase></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="1.583" timestamp="2022-01-13T17:00:04.284061" hostname="PORT3010"><testcase classname="" name="tests.test_autoui" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/engDev/git_mf/ipyautoui/tests/test_autoui.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/home/jovyan/miniconda3/envs/ipyautoui/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/test_autoui.py:15: in &lt;module&gt;
+    from ipyautoui.tests import test_display_widget_mapping
+E   ModuleNotFoundError: No module named 'ipyautoui.tests'</error></testcase></testsuite></testsuites>
