@@ -5,6 +5,7 @@ from ipyautoui._utils import frozenmap
 # https://github.com/MagicStack/immutables
 # ^
 DIR_MODULE = pathlib.Path(__file__).parent
+DIR_EXAMPLE = DIR_MODULE.parents[1] / "examples"
 
 BUTTON_WIDTH_MIN = '41px'
 BUTTON_WIDTH_MEDIUM = '90px'
@@ -63,3 +64,8 @@ def load_test_constants():
     path_testing_constants = DIR_MODULE.parents[1] / 'tests' / 'constants.py'
     test_constants = SourceFileLoader("constants", str(path_testing_constants)).load_module()
     return test_constants
+
+
+def DISPLAY_AUTOUI_EXAMPLE():
+    from ipyautoui.autoui import display_template_ui_model
+    display_template_ui_model()

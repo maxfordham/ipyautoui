@@ -13,6 +13,17 @@
 #     name: python3
 # ---
 
+"""
+autoui is used to automatically create ipywidgets from pydantic schema.
+
+This module maps the pydantic fields to appropriate wigets to display the data in a UI.
+This information can also be stored to file.
+
+Example:
+    from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
+    DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
+"""
+
 # +
 # TODO: add ipyvuetify-jsonschema to this repo
 
@@ -43,8 +54,8 @@ from ipyautoui.constants import load_test_constants
 from ipyautoui.test_schema import TestAutoLogic
 # +
 def display_template_ui_model():
+    from ipyautoui import test_schema
     display(PreviewPy(test_schema, docstring_priority=False))
-
 
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
 def recursive_search_schema(sch: typing.Dict, li: typing.List) -> typing.Dict:
