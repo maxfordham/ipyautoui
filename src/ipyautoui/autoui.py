@@ -649,7 +649,7 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
                     print(
                         f"no widget created for {k}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify"
                     )
-
+                            
     def _extend_pydantic_base_model(self):
         setattr(self.config_autoui.pydantic_model, "file", file)
 
@@ -737,6 +737,16 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
         ]
         if self.config_autoui.show_raw:
             self.showraw.observe(self._showraw, "value")
+            
+    def _watch_change(self, change, key=None):
+        setattr(self._pydantic_obj, key, self.di_widgets[key].value)
+        self.value = (
+            self.pydantic_obj.dict()
+        )  # TODO: apply like serialisation to dicts not just strings
+        if self.save_on_edit:
+            self.file()
+        if hasattr(self, "save_buttonbar"):
+            self.save_buttonbar._unsaved_changes(True)
 
     def _showraw(self, onchange):
         if self.showraw.value:
@@ -854,16 +864,7 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
             f"the file extension should be: {self.config_autoui.ext}, but {ext} given. "
         )
         self.pydantic_obj.file(path)
-
-    def _watch_change(self, change, key=None):
-        setattr(self._pydantic_obj, key, self.di_widgets[key].value)
-        self.value = (
-            self.pydantic_obj.dict()
-        )  # TODO: apply like serialisation to dicts not just strings
-        if self.save_on_edit:
-            self.file()
-        if hasattr(self, "save_buttonbar"):
-            self.save_buttonbar._unsaved_changes(True)
+        
 
 
 if __name__ == "__main__":
