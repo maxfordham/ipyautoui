@@ -6,11 +6,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.5
+#       jupytext_version: 1.13.6
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: python3
+#     name: conda-env-ipyautoui-xpython
 # ---
 
 """autoui is used to automatically create ipywidgets from pydantic schema.
@@ -46,7 +46,7 @@ from enum import Enum
 from ipyautoui.displayfile import PreviewPy
 from ipyautoui.test_schema import TestAutoLogic
 from ipyautoui._utils import obj_from_string, display_pydantic_json
-from ipyautoui.custom import Grid, FileChooser
+from ipyautoui.custom import Grid, FileChooser, SaveButtonBar
 from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
 
 from ipyautoui.constants import load_test_constants
@@ -463,101 +463,6 @@ class AutoUiConfig(BaseModel):
     save_controls: SaveControls = SaveControls.save_buttonbar
     show_raw: bool = True
     ext: str = ".aui.json"
-
-
-def save():
-    print("save")
-
-
-def revert():
-    print("revert")
-
-
-class SaveButtonBar:
-    def __init__(
-        self,
-        save: typing.Callable = save,
-        revert: typing.Callable = revert,
-        fn_onsave: typing.Callable = lambda: None,
-    ):
-        """
-        UI save dialogue 
-        
-        Args: 
-            save: typing.Callable, zero input fn called on click of save button
-            revert: typing.Callable, zero input fn called on click of revert button
-            fn_onsave: typing.Callable, additional action that can be added to save button click
-        
-        """
-        self.fn_save = save
-        self.fn_revert = revert
-        self.fn_onsave = fn_onsave
-        self.out = widgets.Output()
-        self._init_form()
-        self._init_controls()
-
-    def _init_form(self):
-        self.unsaved_changes = widgets.ToggleButton(
-            disabled=True, layout=widgets.Layout(width=BUTTON_WIDTH_MIN)
-        )
-        self.revert = widgets.Button(
-            icon="fa-undo",
-            tooltip="revert to last save",
-            button_style="warning",
-            style={"font_weight": "bold"},
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
-        )  # ,button_style='success'
-        self.save = widgets.Button(
-            icon="fa-save",
-            tooltip="save changes",
-            button_style="success",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
-        )
-        self.showraw = widgets.ToggleButton(
-            icon="code",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
-            tooltip="show raw text data",
-            style={"font_weight": "bold", "button_color": None},
-        )
-        self.message = widgets.HTML("a message")
-        children = [self.unsaved_changes, self.revert, self.save]
-        children.append(self.message)
-        self.save_buttonbar = widgets.HBox(children)
-
-    def _init_controls(self):
-        self.save.on_click(self._save)
-        self.revert.on_click(self._revert)
-
-    def _save(self, click):
-        self.fn_save()
-        self.message.value = markdown(
-            f'_changes saved: {datetime.now().strftime("%H:%M:%S")}_'
-        )
-        self._unsaved_changes(False)
-        self.fn_onsave()
-
-    def _revert(self, click):
-        self.fn_revert()
-        self.message.value = markdown(f"_UI reverted to last save_")
-        self._unsaved_changes(False)
-
-    def _unsaved_changes(self, istrue: bool):
-        if istrue:
-            self.unsaved_changes.button_style = "danger"
-            self.unsaved_changes.icon = "circle"
-            self.tooltip = "DANGER: changes have been made since the last save"
-        else:
-            self.unsaved_changes.button_style = "success"
-            self.unsaved_changes.icon = "check"
-            self.tooltip = "SAFE: no changes have been made since the last save"
-
-    def display(self):
-        with self.out:
-            display(self.save_buttonbar)
-        display(self.out)
-
-    def _ipython_display_(self):
-        self.display()
 
 
 # +
