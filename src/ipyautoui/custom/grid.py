@@ -1,6 +1,23 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: ipynb,py:light
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.13.6
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
+# ---
+
 """wrapper around ipydatagrid"""
 import ipydatagrid as ipg
 import pandas as pd
+import ipywidgets as widgets
 from traitlets import HasTraits, Unicode
 
 class Grid(ipg.DataGrid, HasTraits):
@@ -37,3 +54,5 @@ class Grid(ipg.DataGrid, HasTraits):
 if __name__ == "__main__":
     gr = Grid()
     display(gr)
+
+

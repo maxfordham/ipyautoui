@@ -6,11 +6,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.5
+#       jupytext_version: 1.13.6
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:mf_base]
 #     language: python
-#     name: python3
+#     name: conda-env-mf_base-py
 # ---
 
 """
@@ -27,11 +27,9 @@ import ipywidgets as widgets
 import requests
 import random
 
+
 # +
-
-
-
-class MultiSelectSearch:
+class MultiSelectSearch(widgets.VBox):
     """
     multi-checkbox select widget with search 
     
@@ -40,6 +38,7 @@ class MultiSelectSearch:
             https://gist.github.com/MattJBritton/9dc26109acb4dfe17820cf72d82f1e6f
     """
     def __init__(self, options):
+        super().__init__()
         self.options_dict = {
             x: widgets.Checkbox(
                 description=x, 
@@ -50,12 +49,8 @@ class MultiSelectSearch:
         
         self.ui = self.multi_checkbox_widget(self.options_dict)
         self.out = widgets.interactive_output(self.f, self.options_dict)
-    
-    def display(self):
-        display(widgets.HBox([self.ui, self.out]))
-    
-    def _ipython_display_(self):
-        self.display()
+        children = [self.ui, self.out]
+        self.children = children
         
     def f(self, **args):
         self.value = [key for key, value in args.items() if value]
@@ -144,5 +139,4 @@ Abel
     display(m)
 
 # -
-
 
