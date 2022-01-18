@@ -104,8 +104,7 @@ class RunName(widgets.HBox, HasTraits):
         super().__init__()
         self.inputs = RunNameInputs(**di)
         self._init_form()
-        if value is not None:
-            self.value = value
+        self.value = value
         self._init_controls()
         self.update_name('change')
         
