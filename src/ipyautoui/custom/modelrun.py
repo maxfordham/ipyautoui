@@ -2,11 +2,11 @@
 # jupyter:
 #   jupytext:
 #     cell_metadata_filter: -all
-#     formats: ipynb,py:light
+#     formats: ipynb,py:percent
 #     text_representation:
 #       extension: .py
-#       format_name: light
-#       format_version: '1.5'
+#       format_name: percent
+#       format_version: '1.3'
 #       jupytext_version: 1.13.6
 #   kernelspec:
 #     display_name: Python [conda env:ipyautoui]
@@ -14,6 +14,7 @@
 #     name: conda-env-ipyautoui-xpython
 # ---
 
+# %%
 import ipywidgets as widgets
 from traitlets import HasTraits, Unicode, default, validate, TraitError
 import re
@@ -21,6 +22,7 @@ from dataclasses import dataclass, asdict
 import typing
 
 
+# %%
 @dataclass
 class RunNameInputs:
     index: int = 1
@@ -58,6 +60,7 @@ class RunNameInputs:
         self.pattern = p[:-3]      
 
 
+# %%
 class RunName(widgets.HBox, HasTraits):
     """widget for creating an modelling iteration name to a defined format from component parts
     
@@ -86,7 +89,8 @@ class RunName(widgets.HBox, HasTraits):
     def value(self, value: Unicode):
         """The setter allows a user to pass a new value field to the class. This also updates the 
         `selected` argument used by RunName"""
-        self._value = value
+        if value is not None:
+            self._value = value
         self._set_value()
         
     def __init__(self, value = None,
@@ -162,11 +166,11 @@ class RunName(widgets.HBox, HasTraits):
             self.index.value, self.enum.value, self.description.value = self.inputs.index, None, 'description'
 
 
+# %%
 if __name__ == "__main__":
     run = RunName(value='03-lean-description', index=3)
     display(run)
 
+# %%
 if __name__ == "__main__":
     run.value = '06-green-thingymabob'  # Updates app with given value
-
-
