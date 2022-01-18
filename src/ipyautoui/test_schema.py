@@ -9,6 +9,7 @@ from datetime import datetime, date
 import pathlib
 import pandas as pd
 from pathlib import PurePosixPath
+from ipyautoui.custom import RunName
 
 class Gender(str, Enum):
     male = 'male'
@@ -44,7 +45,7 @@ class TestAutoLogic(BaseModel):
     file_chooser: pathlib.Path = pathlib.Path('.')
     array: typing.List[str] = Field(default=[], max_items=5)
     # file_upload # TODO: how best to implement this? could auto-save to another location...
-    # model_run_name # TODO: try and implement this as a test for custom widgets...
+    run_name: str = Field(default='000-lean-description', autoui="<class 'ipyautoui.custom.modelrun.RunName'>", zfill=3) 
     datagrid: str = Field(default=pd.DataFrame.from_dict({'test':[0,1],'df':[1,2]}).to_json(), format="DataFrame")
     nested: NestedObject = Field(default=None)
     
@@ -54,3 +55,4 @@ class TestAutoLogic(BaseModel):
     
     class Config:
         json_encoders = {PurePosixPath:  str}
+        #arbitrary_types_allowed = True
