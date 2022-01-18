@@ -13,6 +13,8 @@
 #     name: conda-env-ipyautoui-xpython
 # ---
 
+# +
+# TODO: add ipyvuetify-jsonschema to this repo
 """autoui is used to automatically create ipywidgets from pydantic schema.
 
 This module maps the pydantic fields to appropriate wigets to display the data in a UI.
@@ -22,10 +24,6 @@ Example:
     from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
     DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
 """
-
-# +
-# TODO: add ipyvuetify-jsonschema to this repo
-
 # %run __init__.py
 # %load_ext lab_black
 import pathlib
@@ -42,11 +40,17 @@ import json
 import traitlets
 import typing
 from enum import Enum
+import inspect
 
 from ipyautoui.displayfile import PreviewPy
 from ipyautoui.test_schema import TestAutoLogic
+
+from ipyautoui._utils import obj_from_string, display_pydantic_json, file
+#from ipyautoui.custom import Grid, FileChooser, RunName
+
 from ipyautoui._utils import obj_from_string, display_pydantic_json
 from ipyautoui.custom import Grid, FileChooser, SaveButtonBar
+
 from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
 
 from ipyautoui.constants import load_test_constants
@@ -434,7 +438,17 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     Returns:
         (widgets.VBox, typing.Dict): box with widgets, di of widgets
     """
-    di_widgets = {k: v["autoui"](**v) for k, v in pr.items()}
+    def _init_widget(v):
+        try:
+            kw = v
+            return v["autoui"](**kw)
+        except:
+            cl = v["autoui"]
+            args = inspect.getfullargspec(cl).args
+            kw = {k_: v_ for k_, v_ in v.items() if k_ in args}
+            return cl(**kw)
+        
+    di_widgets = {k: _init_widget(v) for k, v in pr.items()}
     labels = {
         k: widgets.HTML(f"<b>{v['title']}</b>, <i>{v['autoui_description']}</i>")
         for k, v in pr.items()
@@ -445,10 +459,6 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
         rows.append(widgets.HBox([v, v2]))
     ui_box.children = rows
     return ui_box, di_widgets
-
-
-from ipyautoui._utils import file
-
 
 class SaveControls(str, Enum):
     save_on_edit = "save_on_edit"  #  TODO: test this
@@ -636,15 +646,18 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
                 pass
 
     def _init_controls(self):
-        [
-            v.observe(functools.partial(self._watch_change, key=k), "value")
-            for k, v in self.di_widgets.items()
-        ]
+        for k, v in self.di_widgets.items():
+            if v.has_trait('value'):
+                v.observe(functools.partial(self._watch_change, key=k, watch="value"), "value")
+            elif v.has_trait('_value'):
+                v.observe(functools.partial(self._watch_change, key=k, watch="_value"), "_value")
+            else:
+                pass
         if self.config_autoui.show_raw:
             self.showraw.observe(self._showraw, "value")
             
-    def _watch_change(self, change, key=None):
-        setattr(self._pydantic_obj, key, self.di_widgets[key].value)
+    def _watch_change(self, change, key=None, watch="value"):
+        setattr(self._pydantic_obj, key, getattr(self.di_widgets[key], watch))
         self.value = (
             self.pydantic_obj.dict()
         )  # TODO: apply like serialisation to dicts not just strings
@@ -678,9 +691,8 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
 
     def _revert(self):
         assert self.path is not None, f"self.path = {self.path}. must not be None"
-        self.pydantic_obj = self.config_autoui.pydantic_model.parse_file(
-            self.path
-        )  # calls setter
+        self.pydantic_obj = self.config_autoui.pydantic_model.parse_file(self.path)
+        # ^ note. calls setter when pydantic_obj is overwritten
 
     @classmethod
     def create_displayfile(
@@ -772,6 +784,12 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
         
 
 
+
+
+
+
+# -
+
 if __name__ == "__main__":
 
     test_constants = load_test_constants()
@@ -792,12 +810,5 @@ if __name__ == "__main__":
     ui_file = TestAuiDisplayFile(test_constants.PATH_TEST_AUI)
     display(ui_file)
 
-# +
-# out = widgets.Output()
-# box = widgets.VBox([ui])
-# with out:
-#     display(ui)
-# out
-# -
 
 
