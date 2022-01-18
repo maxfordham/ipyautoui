@@ -2,19 +2,57 @@
 # -*- coding: utf-8 -*-
 
 """Tests for `ipyautoui` package."""
-import sys
-import pathlib
 from pprint import pprint
 import shutil
+import pytest
 
-sys.path.append(str(pathlib.Path(__file__).parents[1])) # append mfom root
-DIR_TEST = pathlib.Path(__file__).parent / "test_data"
-DIR_TEST.mkdir(parents=True, exist_ok=True) 
-shutil.rmtree(DIR_TEST) #  remove previous data. this allows tests to check if files exist.
+# from ipyautoui.tests import test_display_widget_mapping
+from .constants import AutoUiExample, fn_add, DIR_TESTS
+from ipyautoui.autoui import AutoUi
+from ipyautoui.custom.iterable import IterableItem, Array, Dictionary
 
-from ipyautoui.tests import test_display_widget_mapping
+DIR_TEST_DATA = DIR_TESTS / "test_data"
+DIR_TEST_DATA.mkdir(parents=True, exist_ok=True) 
+shutil.rmtree(DIR_TEST_DATA) #  remove previous data. this allows tests to check if files exist.
 
-class TestAutoUi:
-    def test_widget_mapping(self):
-        #di_test_autologic = di_test_autologic
-        test_display_widget_mapping(di_test_autologic)
+# Pytest fixture code
+# @pytest.fixture(scope="class")
+# def test():
+#     pass
+    
+# @pytest.mark.usefixtures("test")
+
+class TestUi:
+    # def test_widget_mapping(self):
+    #     #di_test_autologic = di_test_autologic
+    #     test_display_widget_mapping(di_test_autologic)
+    def test_auto_ui(self):
+        auto_ui_eg = AutoUiExample()
+        ui = AutoUi(auto_ui_eg)
+
+    def test_iterables_array(self):
+        di_arr = {
+            "items": [fn_add()],
+            "fn_add": fn_add,
+            "maxlen": 10,
+            "show_hash": "index",
+            "toggle": True,
+            "title": "Array",
+            "add_remove_controls": "append_only",
+            "orient_rows": False,
+        }
+        arr = Array(**di_arr)
+
+    def test_iterables_dict(self):
+        di_arr = {
+            "items": {"key": fn_add()},
+            "fn_add": fn_add,
+            "maxlen": 10,
+            "show_hash": None,
+            "toggle": True,
+            "title": "Array",
+            "add_remove_controls": "append_only",
+            "orient_rows": True,
+        }
+        arr = Dictionary(**di_arr)
+
