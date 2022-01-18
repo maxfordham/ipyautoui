@@ -1,6 +1,7 @@
 """wrapper for ipyfilechooster.FileChooser"""
+
 import pathlib
-from traitlets import HasTraits
+from traitlets import HasTraits, default
 from traitlets_paths import PurePath  # TODO: create conda recipe for this package
 from ipyfilechooser import FileChooser
 
@@ -9,7 +10,23 @@ class FileChooser(FileChooser, HasTraits):
     with a value= kwarg and adds a fc.value property. this 
     follows the same convention as ipywidgets and therefore integrates
     better wiht ipyautoui"""
-    value = PurePath()
+    _value = PurePath()
+    
+    @default('_value')
+    def _default_value(self):
+        return pathlib.Path('.')
+    
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, value: PurePath):
+        """having the setter allows users to pass a new value field to the class which also updates the 
+        `selected` argument used by FileChooser"""
+        self._value = value
+        self.selected = value
+    
     def __init__(self, value: pathlib.Path=None, **kwargs):
         try:
             kwargs.pop('title')
@@ -37,5 +54,5 @@ class FileChooser(FileChooser, HasTraits):
     
     def _set_value(self, onchange):
         if self.selected is not None:
-            self.value = self.selected
+            self._value = self.selected
             
