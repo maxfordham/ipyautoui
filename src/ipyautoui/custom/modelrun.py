@@ -89,6 +89,7 @@ class RunName(widgets.HBox, HasTraits):
                     order=('index', 'enum', 'description')
                 ):
         di = {k:v for k, v in locals().items() if k != 'value' and k != 'self' and k!='__class__'}
+        di['index'] = index
         super().__init__()
         self.inputs = RunNameInputs(**di)
         if value is not None:
@@ -106,10 +107,10 @@ class RunName(widgets.HBox, HasTraits):
         
     def _init_RunName(self):
         try:
-            index, enum, description = self.value.split(self.inputs.delimiter, self.inputs.sections)
+            index, enum, description = self.value.split(self.inputs.delimiter, len(self.inputs.order))
         except:
-            index, enum, description = None, None, 'description'
-        self.index = widgets.IntText(value=index,layout={'width':'50px'}, disabled=self.inputs.disabled_index)
+            index, enum, description = self.inputs.index, None, 'description'
+        self.index = widgets.IntText(value=int(index),layout={'width':'50px'}, disabled=self.inputs.disabled_index)
         self.enum = widgets.Dropdown(value=enum, options=self.get_options, layout={'width':'100px'})
         self.description = widgets.Text(value=description)
         self.name = widgets.Text(disabled=True)
@@ -150,5 +151,5 @@ class RunName(widgets.HBox, HasTraits):
 
 
 if __name__ == "__main__":
-    run = RunName()
+    run = RunName(index=3)
     display(run)
