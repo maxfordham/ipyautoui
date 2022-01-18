@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.3
+#       jupytext_version: 1.13.6
 #   kernelspec:
 #     display_name: Python [conda env:ipyautoui]
 #     language: python
@@ -66,18 +66,29 @@ class RunName(widgets.HBox, HasTraits):
         enum = ['lean', 'clean', 'green']
         zfill = 2
     """
-    value = Unicode()
+    _value = Unicode()
     
-    @validate('value')
+    @validate('_value')
     def _valid_value(self, proposal):
         val = proposal['value']
-        matched = re.match(self.inputs.pattern, val) #
+        matched = re.match(self.inputs.pattern, val)
         if not bool(matched):
             print(self.inputs.pattern)
             print(val)
-            raise TraitError(f'string musts have format: {self.inputs.pattern}')#
+            raise TraitError(f'string musts have format: {self.inputs.pattern}')
         return val
     
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, value: Unicode):
+        """The setter allows a user to pass a new value field to the class. This also updates the 
+        `selected` argument used by RunName"""
+        self._value = value
+        self._set_value()
+        
     def __init__(self, value = None,
                     index: int = 1,
                     disabled_index: bool = True,
@@ -92,9 +103,9 @@ class RunName(widgets.HBox, HasTraits):
         di['index'] = index
         super().__init__()
         self.inputs = RunNameInputs(**di)
+        self._init_form()
         if value is not None:
             self.value = value
-        self._init_RunName()
         self._init_controls()
         self.update_name('change')
         
@@ -105,14 +116,10 @@ class RunName(widgets.HBox, HasTraits):
         else:
             return self.inputs.enum 
         
-    def _init_RunName(self):
-        try:
-            index, enum, description = self.value.split(self.inputs.delimiter, len(self.inputs.order))
-        except:
-            index, enum, description = self.inputs.index, None, 'description'
-        self.index = widgets.IntText(value=int(index),layout={'width':'50px'}, disabled=self.inputs.disabled_index)
-        self.enum = widgets.Dropdown(value=enum, options=self.get_options, layout={'width':'100px'})
-        self.description = widgets.Text(value=description)
+    def _init_form(self):
+        self.index = widgets.IntText(layout={'width':'50px'}, disabled=self.inputs.disabled_index)
+        self.enum = widgets.Dropdown(options=self.get_options, layout={'width':'100px'})
+        self.description = widgets.Text()
         self.name = widgets.Text(disabled=True)
         di = {}   
         di['index'] = self.index
@@ -148,8 +155,19 @@ class RunName(widgets.HBox, HasTraits):
                 pass
         self.name.value = v[:-1]   
         self.value = self.name.value
+    
+    def _set_value(self):
+        try:
+            self.index.value, self.enum.value, self.description.value = self.value.split(self.inputs.delimiter, len(self.inputs.order))
+        except:
+            self.index.value, self.enum.value, self.description.value = self.inputs.index, None, 'description'
 
 
 if __name__ == "__main__":
-    run = RunName(index=3)
+    run = RunName(value='03-lean-description', index=3)
     display(run)
+
+if __name__ == "__main__":
+    run.value = '06-green-thingymabob'  # Updates app with given value
+
+
