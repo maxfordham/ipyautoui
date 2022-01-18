@@ -1,18 +1,19 @@
 # ---
 # jupyter:
 #   jupytext:
+#     formats: ipynb,py:light
 #     text_representation:
 #       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.13.5
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.13.6
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: python3
+#     name: conda-env-ipyautoui-xpython
 # ---
 
-# %%
+# +
 """A generic iterable object.
 
 Creates an array object where widgets can be added or removed.
@@ -67,8 +68,6 @@ Example:
 """
 # %run __init__.py
 # %load_ext lab_black
-
-# %%
 import ipywidgets as widgets
 import traitlets
 from traitlets import validate
@@ -101,7 +100,8 @@ TOGGLE_BUTTON_KWARGS = frozenmap(
 )
 
 
-# %%
+# +
+
 class IterableItem(BaseModel):
     index: int
     key: typing.Union[UUID, str, int, float, bool] = None
@@ -164,7 +164,7 @@ class IterableItem(BaseModel):
             return v
 
 
-# %%
+# # +
 class Array(widgets.VBox, traitlets.HasTraits):
     """generic iterable. pass a list of items"""
 
@@ -366,6 +366,9 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self._update_buttonbar_box(index)
         self._style_buttonbar(index)
 
+    def _update_buttonbars(self):
+        [self._update_buttonbar(index) for index, item in enumerate(self.iterable)];
+        
     def _update_label(self, index):
         if self.show_hash is None:
             labels_box = []
@@ -380,16 +383,15 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self.iterable[index].label.value = f"<b>{label}</b>"
         labels_box = [self.iterable[index].label]
         self.iterable[index].row.children[1].children = labels_box
-
+        
+    def _update_labels(self):
+        [self._update_label(index) for index, item in enumerate(self.iterable)];
+        
     def _update_row(self, index):
         self._update_buttonbar(index)
         self._update_labels()
 
-    def _update_buttonbars(self):
-        [self._update_buttonbar(index) for index, item in enumerate(self.iterable)]
 
-    def _update_labels(self):
-        [self._update_label(index) for index, item in enumerate(self.iterable)]
 
     def _update_rows(self):
         [self._update_row(index) for index, item in enumerate(self.iterable)]
@@ -644,7 +646,10 @@ class AutoIterable:
     pass  # TODO: create AutoIterable class that works with the AutoUi class for iterables
 
 
-# %%
+# + endofcell="--"
+
+# -
+
 if __name__ == "__main__":
     import random
     from IPython.display import Markdown
@@ -707,7 +712,6 @@ if __name__ == "__main__":
     display(arr)
 
 
-# %%
 if __name__ == "__main__":
     di_arr = {
         "items": None,
@@ -723,7 +727,6 @@ if __name__ == "__main__":
     arr = Array(**di_arr)
     display(arr)
 
-# %%
 if __name__ == "__main__":
     di_di = {
         "items": {"key": fn_add()},
@@ -739,12 +742,10 @@ if __name__ == "__main__":
     di = Dictionary(**di_di)
     display(di)
 
-# %%
 if __name__ == "__main__":
     di.add_remove_controls = "add_remove"
     di.show_hash = "index"
 
-# %%
 if __name__ == "__main__":
     di_di = {
         "items": None,
@@ -760,8 +761,6 @@ if __name__ == "__main__":
     di = Dictionary(**di_di)
     display(di)
 
-# %%
 if __name__ == "__main__":
     di.items = {"key1": fn_add(), "key2": fn_add()}
-
-# %%
+# --
