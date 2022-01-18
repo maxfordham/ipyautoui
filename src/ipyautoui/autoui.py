@@ -626,7 +626,7 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
         self.save_buttonbar = SaveButtonBar(
             save=self.file, revert=self._revert, fn_onsave=self.fn_onsave,
         )
-        self.ui_buttonbar.children = [self.save_buttonbar.save_buttonbar]
+        self.ui_buttonbar.children = [self.save_buttonbar]
 
     def disable_edits(self):
         for k, v in self.di_widgets.items():
