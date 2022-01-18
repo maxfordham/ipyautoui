@@ -30,6 +30,7 @@
     "color_picker": "#f5f595",
     "file_chooser": ".",
     "array": [],
+    "run_name": "000-lean-description",
     "datagrid": "{\"test\":{\"0\":0,\"1\":1},\"df\":{\"0\":1,\"1\":2}}",
     "nested": null
 }
