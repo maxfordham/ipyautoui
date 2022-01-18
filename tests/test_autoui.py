@@ -7,8 +7,9 @@ import shutil
 import pytest
 
 # from ipyautoui.tests import test_display_widget_mapping
-from .constants import AutoUiExample, fn_add, DIR_TESTS
-from ipyautoui.autoui import AutoUi
+from .constants import DIR_TESTS
+from .example_objects import AutoUiExample, fn_add
+from ipyautoui import AutoUi
 from ipyautoui.custom.iterable import IterableItem, Array, Dictionary
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
@@ -23,9 +24,6 @@ shutil.rmtree(DIR_TEST_DATA) #  remove previous data. this allows tests to check
 # @pytest.mark.usefixtures("test")
 
 class TestUi:
-    # def test_widget_mapping(self):
-    #     #di_test_autologic = di_test_autologic
-    #     test_display_widget_mapping(di_test_autologic)
     def test_auto_ui(self):
         auto_ui_eg = AutoUiExample()
         ui = AutoUi(auto_ui_eg)
