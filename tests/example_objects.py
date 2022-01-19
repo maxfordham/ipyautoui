@@ -53,3 +53,15 @@ class TestItem(widgets.HBox, traitlets.HasTraits):
 
     def _set_value(self, change):
         self.value = {self._label.value: self._bool.value}
+
+
+def get_descriptions():
+    words = """
+    a
+    AAA
+    AAAS
+    aardvark
+    """
+    words = set([word.lower() for word in words.splitlines()])
+    descriptions = list(words)[:10]
+    return descriptions
