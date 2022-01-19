@@ -5,11 +5,13 @@
 from pprint import pprint
 import shutil
 import pytest
+import pathlib
 
 # from ipyautoui.tests import test_display_widget_mapping
-from .constants import DIR_TESTS
+from .constants import DIR_TESTS, DIR_FILETYPES
 from .example_objects import AutoUiExample, fn_add
 from ipyautoui import AutoUi
+from ipyautoui.displayfile import DisplayFile
 from ipyautoui.custom.iterable import IterableItem, Array, Dictionary
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
@@ -17,11 +19,11 @@ DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
 shutil.rmtree(DIR_TEST_DATA) #  remove previous data. this allows tests to check if files exist.
 
 # Pytest fixture code
-# @pytest.fixture(scope="class")
-# def test():
-#     pass
+@pytest.fixture
+def load_display_file_types():
+    fpths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
+    return fpths
     
-# @pytest.mark.usefixtures("test")
 
 class TestUi:
     def test_auto_ui(self):
@@ -54,3 +56,8 @@ class TestUi:
         }
         arr = Dictionary(**di_arr)
 
+    def test_display_file(self):
+        fpths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
+        d0 = DisplayFile(fpths[0])
+
+    def 
