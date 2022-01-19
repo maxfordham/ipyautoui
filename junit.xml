@@ -1,8 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="1.583" timestamp="2022-01-13T17:00:04.284061" hostname="PORT3010"><testcase classname="" name="tests.test_autoui" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/engDev/git_mf/ipyautoui/tests/test_autoui.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/home/jovyan/miniconda3/envs/ipyautoui/lib/python3.9/importlib/__init__.py:127: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/test_autoui.py:15: in &lt;module&gt;
-    from ipyautoui.tests import test_display_widget_mapping
-E   ModuleNotFoundError: No module named 'ipyautoui.tests'</error></testcase></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="9" time="1.387" timestamp="2022-01-19T10:37:53.453029" hostname="PORT3010"><testcase classname="tests.test_autoui.TestUi" name="test_auto_ui" time="0.033" /><testcase classname="tests.test_autoui.TestUi" name="test_iterables_array" time="0.045" /><testcase classname="tests.test_autoui.TestUi" name="test_iterables_dict" time="0.043" /><testcase classname="tests.test_autoui.TestUi" name="test_display_file" time="0.042" /><testcase classname="tests.test_autoui.TestUi" name="test_grid" time="0.007" /><testcase classname="tests.test_autoui.TestUi" name="test_model_run" time="0.014" /><testcase classname="tests.test_autoui.TestUi" name="test_multiselect_search" time="0.029" /><testcase classname="tests.test_autoui.TestUi" name="test_save_button_bar" time="0.018" /><testcase classname="tests.test_autoui.TestUi" name="test_load_project" time="0.012" /></testsuite></testsuites>
