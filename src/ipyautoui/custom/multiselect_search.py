@@ -54,7 +54,6 @@ class MultiSelectSearch(widgets.VBox):
         
     def f(self, **args):
         self.value = [key for key, value in args.items() if value]
-        display(self.value)
     
     def multi_checkbox_widget(self,options_dict):
         """ Widget with a search field and lots of checkboxes """
@@ -97,7 +96,6 @@ class MultiSelectSearch(widgets.VBox):
             options_widget.children = new_options
 
         search_widget.observe(on_text_change, names='value')
-        display(output_widget)
         return multi_select
 
 if __name__ == "__main__":
