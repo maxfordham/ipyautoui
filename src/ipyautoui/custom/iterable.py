@@ -249,6 +249,10 @@ class Array(widgets.VBox, traitlets.HasTraits):
             return []
         else:
             return items
+      
+    @property
+    def length(self):
+        return len(self.iterable)
 
     @property
     def items(self):
