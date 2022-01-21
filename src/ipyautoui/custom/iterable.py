@@ -14,6 +14,7 @@
 # ---
 
 # +
+# TODO: support arrary / dictionary of length = 0
 """A generic iterable object.
 
 Creates an array object where widgets can be added or removed.
@@ -73,7 +74,7 @@ import traitlets
 from traitlets import validate
 import typing
 import immutables
-
+import inspect
 # from pydantic.dataclasses import dataclass
 from ipyautoui.basemodel import BaseModel
 from pydantic import validator
@@ -182,8 +183,9 @@ class Array(widgets.VBox, traitlets.HasTraits):
             )
         return proposal
 
-    @validate("_add_remove_controls")
+    @validate("_add_remove_controls")  # TODO: validator not getting called when this is changed once the class has been instantiated
     def _validate_add_remove_controls(self, proposal):
+        print(proposal.value)
         if proposal.value not in ["add_remove", "append_only", "remove_only", None]:
             raise ValueError(
                 f'{proposal} given. allowed values of _add_remove_controls are "add_remove", "append_only", "remove_only", None only'
@@ -233,8 +235,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self._init_form()
         self._toggle = toggle
         self.title = title
-
-        self.add_remove_controls = add_remove_controls  # calls self._init_controls()
+        self.add_remove_controls = add_remove_controls 
         self.show_hash = show_hash
         self.sort_on = sort_on
 
@@ -249,7 +250,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
             return []
         else:
             return items
-      
+
     @property
     def length(self):
         return len(self.iterable)
@@ -313,7 +314,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
             ]
             [
                 setattr(self.iterable[0].remove, k, v)
-                for k, v in REMOVE_BUTTON_KWARGS.items()
+                for k, v in BLANK_BUTTON_KWARGS.items()
             ]
         else:
             pass
@@ -372,7 +373,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
 
     def _update_buttonbars(self):
         [self._update_buttonbar(index) for index, item in enumerate(self.iterable)];
-        
+
     def _update_label(self, index):
         if self.show_hash is None:
             labels_box = []
@@ -387,15 +388,13 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self.iterable[index].label.value = f"<b>{label}</b>"
         labels_box = [self.iterable[index].label]
         self.iterable[index].row.children[1].children = labels_box
-        
+
     def _update_labels(self):
         [self._update_label(index) for index, item in enumerate(self.iterable)];
-        
+
     def _update_row(self, index):
         self._update_buttonbar(index)
         self._update_labels()
-
-
 
     def _update_rows(self):
         [self._update_row(index) for index, item in enumerate(self.iterable)]
@@ -546,8 +545,14 @@ class Array(widgets.VBox, traitlets.HasTraits):
             self._update_value("change")
 
     def _remove_rows(self, onclick, key=None):
+        self.remove_row(key=key)
+
+    def remove_row(self, key=None, remove_kwargs=None, fn_onremove=None):
         if len(self.iterable) <= 1:
             pass
+        if key is None:
+            print('key is None')
+            key = self.iterable[-1].key
         n = self._get_attribute(key, "index")
         if self.add_remove_controls == "append_only" and n == 0:
             pass
@@ -561,20 +566,13 @@ class Array(widgets.VBox, traitlets.HasTraits):
             self._update_rows_box()
             self._update_labels()
 
-            # if n == 0:
-            #     print('n=0')
-            #     print(self.iterable[0].key)
-            #     key = self.iterable[0].key
-            #     print(f'n={str(n)}, key={str(key)}')
-            #     self._init_row_controls(key=key)
-            #     self._update_row(n)
-            # ^ this was supposed to allow you to delete the zeroth row and then update the controls accordingly but it wasn't working...
+        if remove_kwargs is None:
+            remove_kwargs = {}
 
-    def remove_row(self, key=None, remove_kwargs=None):
-        if key is None:
-            key = self.iterable[-1].key
-        self._remove_rows("click", key=key)
-        self.fn_remove(**remove_kwargs)
+        try: 
+            self.fn_remove(**remove_kwargs, key=key)
+        except:
+            self.fn_remove(**remove_kwargs)
 
 
 class Dictionary(Array):
