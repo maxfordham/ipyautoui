@@ -1,5 +1,6 @@
 import pathlib
 import json
+import yaml
 import importlib
 from typing import Type
 from markdown import markdown
@@ -17,11 +18,26 @@ except:
     def open_file(path):
         subprocess.call(['open', path])
 
+# ------------------------------
+def str_presenter(dumper, data):
+    """configures yaml for dumping multiline strings
+    Ref: https://stackoverflow.com/questions/8640959/how-can-i-control-what-scalar-form-pyyaml-uses-for-my-data"""
+    if len(data.splitlines()) > 1:  # check for multiline string
+        return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
+    return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+yaml.add_representer(str, str_presenter)
+yaml.representer.SafeRepresenter.add_representer(str, str_presenter) # to use with safe_dum
+# ------------------------------
+# ^ configures yaml for pretty dumping of multiline strings
 
-def display_pydantic_json(pydantic_obj: typing.Type[BaseModel]):
+def display_pydantic_json(pydantic_obj: typing.Type[BaseModel], as_yaml=False, sort_keys=False):
     parsed = json.loads(pydantic_obj.json())
-    s = json.dumps(parsed, indent=2)  # , sort_keys=True)
-    return Markdown("\n```Python\n" + s + "\n```")
+    if as_yaml:
+        s = yaml.dump(parsed, indent=2, sort_keys=sort_keys)  # , sort_keys=True)
+        return Markdown("\n```yaml\n" + s + "\n```")
+    else:
+        s = json.dumps(parsed, indent=2, sort_keys=sort_keys)  # , sort_keys=True)
+        return Markdown("\n```Python\n" + s + "\n```")
 
 def _markdown(value='_Markdown_',
               **kwargs):
