@@ -12,3 +12,5 @@ pydantic==1.8.2
 stringcase
 immutables
 traitlets_paths
+markdown
+palettable
