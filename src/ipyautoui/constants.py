@@ -36,6 +36,8 @@ BLANK_BUTTON_KWARGS = frozenmap(
     style={"button_color":"white"},
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     disabled=True
+    
+TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT = 'solid yellow 2px'
 )
 # documentinfo ------------------------------
 #  update this with WebApp data. TODO: delete this? 
