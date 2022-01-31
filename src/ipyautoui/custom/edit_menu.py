@@ -42,13 +42,12 @@ from ipyautoui._utils import obj_from_string, display_pydantic_json
 
 from ipyautoui.displayfile import DisplayFiles
 from ipyautoui.autoui import AutoUi, AutoUiConfig
-from ipyautoui.constants import BUTTON_WIDTH_MIN, TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
+from ipyautoui.constants import BUTTON_WIDTH_MIN, TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT, KWARGS_DATAGRID_DEFAULT
 from ipyautoui.custom import SaveButtonBar
 
 from sql_app.schemas import UnitsBase, PropertyBase, PdtBase
 from ui.utils import get_all_units, get_unit_by_id, post_new_unit, patch_unit, delete_unit_by_id, round_sig_figs, spaces_before_capitals
 from ui.formatting import create_custom_format_units
-from ui.constants import kwargs_data_grid_default
 
 frozenmap = immutables.Map
 
@@ -321,8 +320,8 @@ class GridWrapper(DataGrid):
         self,
         pydantic_model: typing.Type[BaseModel],
         df: pd.DataFrame = None,
-        kwargs_data_grid_default: frozenmap = frozenmap(),
-        kwargs_data_grid_update: frozenmap = frozenmap(),
+        kwargs_datagrid_default: frozenmap = frozenmap(),
+        kwargs_datagrid_update: frozenmap = frozenmap(),
         ignore_cols: list = []
     ):
         # Put all objects in datagrid beloning to that particular model
@@ -333,16 +332,16 @@ class GridWrapper(DataGrid):
         
         self._check_data(df, ignore_cols)  # Checking data frame satisfies pydantic model
         
-        self.kwargs_data_grid_default = kwargs_data_grid_default
+        self.kwargs_datagrid_default = kwargs_datagrid_default
         self._init_form(df)
-        self.kwargs_data_grid_update = kwargs_data_grid_update
+        self.kwargs_datagrid_update = kwargs_datagrid_update
         
     def _init_form(self, df):
         super().__init__(
             df, 
             selection_mode="row",
             renderers=self.datetime_format_renderers,
-            **self.kwargs_data_grid_default,
+            **self.kwargs_datagrid_default,
         ) # main container
         if self.aui_column_widths:
             self._set_column_widths()
@@ -350,12 +349,12 @@ class GridWrapper(DataGrid):
             self._round_sig_figs()  # Rounds any specified fields in schema
     
     @property
-    def kwargs_data_grid_update(self):
-        return self._kwargs_data_grid_update
+    def kwargs_datagrid_update(self):
+        return self._kwargs_datagrid_update
     
-    @kwargs_data_grid_update.setter
-    def kwargs_data_grid_update(self, value):
-        self._kwargs_data_grid_update = value
+    @kwargs_datagrid_update.setter
+    def kwargs_datagrid_update(self, value):
+        self._kwargs_datagrid_update = value
         for k, v in value.items():
             setattr(self, k, v)
     
@@ -454,12 +453,12 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
-    kwargs_data_grid_update = create_custom_format_units()
+    KWARGS_DATAGRID_UPDATE = create_custom_format_units()
     df = pd.DataFrame([json.loads(UnitsBase(to_si_multiplication_factor=1.2341523).json(by_alias=True))])
     grid = GridWrapper(
         UnitsBase,
-        kwargs_data_grid_default=kwargs_data_grid_default,
-        kwargs_data_grid_update=kwargs_data_grid_update
+        kwargs_datagrid_default=KWARGS_DATAGRID_DEFAULT,
+        kwargs_datagrid_update=KWARGS_DATAGRID_UPDATE
     )
     display(grid)
 
@@ -468,8 +467,8 @@ if __name__ == "__main__":
     grid = GridWrapper(
         UnitsBase,
         df,
-        kwargs_data_grid_default=kwargs_data_grid_default,
-        kwargs_data_grid_update=kwargs_data_grid_update,
+        kwargs_datagrid_default=KWARGS_DATAGRID_DEFAULT,
+        kwargs_datagrid_update=KWARGS_DATAGRID_UPDATE,
         ignore_cols=["id"],
     )
     display(grid)
@@ -499,8 +498,8 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         pydantic_model: typing.Type[BaseModel],
         df: pd.DataFrame = None,
         data_handler: typing.Type[BaseModel] = None,
-        kwargs_data_grid_default: frozenmap = {},
-        kwargs_data_grid_update: frozenmap = {},
+        kwargs_datagrid_default: frozenmap = {},
+        kwargs_datagrid_update: frozenmap = {},
         ignore_cols: list = []
     ):
         self.data_handler = data_handler
@@ -510,8 +509,8 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self.out = widgets.Output()
         self._init_form(
             df=df,
-            kwargs_data_grid_default=kwargs_data_grid_default,
-            kwargs_data_grid_update=kwargs_data_grid_update,
+            kwargs_datagrid_default=kwargs_datagrid_default,
+            kwargs_datagrid_update=kwargs_datagrid_update,
             ignore_cols=ignore_cols,
         )
         self._init_controls()
@@ -520,8 +519,8 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
     def _init_form(
         self, 
         df,
-        kwargs_data_grid_default,
-        kwargs_data_grid_update,
+        kwargs_datagrid_default,
+        kwargs_datagrid_update,
         ignore_cols,
     ):
         super().__init__()  # main container
@@ -536,8 +535,8 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self.grid = GridWrapper(
             pydantic_model=self.pydantic_model,
             df=df,
-            kwargs_data_grid_default=kwargs_data_grid_default,
-            kwargs_data_grid_update=kwargs_data_grid_update,
+            kwargs_datagrid_default=kwargs_datagrid_default,
+            kwargs_datagrid_update=kwargs_datagrid_update,
             ignore_cols=ignore_cols
         )
         self.base_form = BaseForm(
@@ -729,8 +728,8 @@ if __name__ == "__main__":
     unit_app = EditGrid(
         pydantic_model=UnitsBase,
         df=df,
-        kwargs_data_grid_default=kwargs_data_grid_default,
-        kwargs_data_grid_update=kwargs_data_grid_update,
+        kwargs_datagrid_default=KWARGS_DATAGRID_DEFAULT,
+        kwargs_datagrid_update=KWARGS_DATAGRID_UPDATE,
         ignore_cols=["id"]
     )
     display(unit_app)
@@ -772,8 +771,8 @@ if __name__ == "__main__":
         data_handler=units_data_handler,
         pydantic_model=UnitsBase,
         df=df,
-        kwargs_data_grid_default=kwargs_data_grid_default,
-        kwargs_data_grid_update=kwargs_data_grid_update,
+        kwargs_datagrid_default=KWARGS_DATAGRID_DEFAULT,
+        kwargs_datagrid_update=KWARGS_DATAGRID_UPDATE,
         ignore_cols=["id"]
     )
     display(unit_app)

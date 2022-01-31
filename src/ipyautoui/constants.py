@@ -1,6 +1,8 @@
 """contains packages global constants"""
 import pathlib
 
+from ipydatagrid import TextRenderer, Expr, VegaExpr
+
 from ipyautoui._utils import frozenmap
 # https://www.python.org/dev/peps/pep-0603/
 # https://github.com/MagicStack/immutables
@@ -36,6 +38,13 @@ BLANK_BUTTON_KWARGS = frozenmap(
     style={"button_color":"white"},
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     disabled=True
+)
+
+KWARGS_DATAGRID_DEFAULT = frozenmap(
+    header_renderer = TextRenderer(
+        vertical_alignment="top",
+        horizontal_alignment="center",
+    )
 )
 
 TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT = 'solid yellow 2px'

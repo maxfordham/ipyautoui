@@ -8,9 +8,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.13.6
 #   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
+#     display_name: Python [conda env:mf_base]
 #     language: python
-#     name: conda-env-ipyautoui-xpython
+#     name: conda-env-mf_base-xpython
 # ---
 
 # +
@@ -293,6 +293,15 @@ def get_DatePicker(pr, rename_keys=True):
             v["default"] = datetime.strptime(v["default"], "%Y-%m-%d").date()
     return call_rename_schema_keys(date, rename_keys=rename_keys)
 
+def get_DatetimePicker(pr, rename_keys=True):
+    pr = drop_explicit_autoui(pr)
+    date = get_type(pr, "string")
+    date = get_format(date, typ="date-time")
+    for k, v in date.items():
+        if type(v["default"]) == str:
+            v["default"] = datetime.strptime(v["default"], "%Y-%m-%dT%H:%M:%S.%f").date()
+    return call_rename_schema_keys(date, rename_keys=rename_keys)
+
 
 def get_FileChooser(pr, rename_keys=True):
     pr = drop_explicit_autoui(pr)
@@ -362,6 +371,7 @@ DI_WIDGETS_MAPPER = {
     ),
     "Checkbox": WidgetMapper(fn_filt=get_Checkbox, widget=widgets.Checkbox),
     "DatePicker": WidgetMapper(fn_filt=get_DatePicker, widget=widgets.DatePicker),
+    "DatetimePicker": WidgetMapper(fn_filt=get_DatetimePicker, widget=widgets.DatePicker), # TODO: udpate to DatetimePicker with ipywidgets==8
     "FileChooser": WidgetMapper(fn_filt=get_FileChooser, widget=FileChooser),
     "Grid": WidgetMapper(fn_filt=get_DataGrid, widget=Grid),
     "ColorPicker": WidgetMapper(fn_filt=get_ColorPicker, widget=widgets.ColorPicker),

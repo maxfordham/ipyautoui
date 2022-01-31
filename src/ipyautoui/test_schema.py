@@ -41,6 +41,7 @@ class TestAutoLogic(BaseModel):
     text: constr(min_length=0, max_length=20) = 'short text'
     text_area: constr(min_length=0, max_length=800)  = 'long text ' * 50
     date_picker: date = date.today()
+    datetime_picker: datetime = datetime.now()
     color_picker: Color = '#f5f595'
     file_chooser: pathlib.Path = pathlib.Path('.')
     array: typing.List[str] = Field(default=[], max_items=5)
