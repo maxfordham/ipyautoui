@@ -102,8 +102,8 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
     @property
     def to_dict(self):
         """JSON serialisation occurs and produces dictionary."""
-        return self.auto_ui.pydantic_obj.dict(by_alias=True)
-        # return json.loads(self.auto_ui.pydantic_obj.json(by_alias=True))
+        # return self.auto_ui.pydantic_obj.dict(by_alias=True)
+        return json.loads(self.auto_ui.pydantic_obj.json(by_alias=True))
     
     @property
     def value(self):
@@ -595,7 +595,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             self._edit_bool = False  # Editing mode is False, therefore addition mode
             self.grid.clear_selection()  # Clear selection of data grid. We don't want to replace an existing value by accident.
             self.initial_value = self.pydantic_model()  # Obtain default value.
-            print("---------")
             self.base_form.value = dict(self.initial_value)
             self._display_base_form()
             self.button_bar.message.value = markdown('  ➕ _Adding Value_ ')
