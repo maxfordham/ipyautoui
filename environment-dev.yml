@@ -29,12 +29,15 @@ dependencies:
   - xmltodict
   - pyyaml
   - pillow
-  - pip
 #  - click
   - openpyxl
   - black
   - nb_black
   - immutables
+  - pytest
+  - pip
+  - pip:
+    - traitlets-paths
 #  - xlsxwriter 
 #  - xlsxtemplater 
 #  - mf_file_utilities 

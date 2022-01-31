@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.13.3
+    jupytext_version: 1.13.6
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -16,7 +16,7 @@ kernelspec:
 
 wrapper that sits on top of ipywidgets and other ipy widget libraries to template / automate the creation of widget forms. Uses pydantic to create defined data-container and serialisation to JSON. Includes example patterns for adding new custom widgets.
 
-+++
++++ {"tags": []}
 
 ## Create a UI object
 
@@ -55,6 +55,18 @@ print(ui.rows[0].widget.value)
 ui.rows[0].widget.value = 2
 ui.rows[0].value
 ```
+
+## Development installation
+
+For a development installation (requires JupyterLab (version >= 3), yarn, and mamba.):
+
+```
+$ git clone https://github.com/jgunstone/ipyautoui
+$ cd ipyautoui
+$ mamba env create --file environment-dev.yml
+```
+
++++
 
 ## Output / transport data from UI
 
