@@ -4,6 +4,7 @@ import yaml
 import importlib
 from typing import Type
 from markdown import markdown
+from math import log10, floor
 import ipywidgets as widgets
 from IPython.display import display, Markdown
 import codecs
@@ -220,3 +221,10 @@ def file(self:Type[BaseModel], path: pathlib.Path, **json_kwargs):
     if "indent" not in json_kwargs.keys():
         json_kwargs.update({"indent": 4})
     path.write_text(self.json(**json_kwargs), encoding="utf-8")
+    
+def round_sig_figs(x: float, sig_figs: int):
+    if x > 0:
+        sig = sig_figs
+        return round(x, sig-int(floor(log10(abs(x))))-1)
+    else:
+        return x
