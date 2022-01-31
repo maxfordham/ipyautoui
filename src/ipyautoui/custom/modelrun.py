@@ -9,9 +9,9 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.13.6
 #   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
+#     display_name: Python [conda env:jlaunch] *
 #     language: python
-#     name: conda-env-ipyautoui-xpython
+#     name: conda-env-jlaunch-py
 # ---
 
 # %%

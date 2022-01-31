@@ -5,7 +5,7 @@ import typing
 from pydantic import BaseModel, Field
 
 
-class AutoUiExample(BaseModel):
+class TestSchema(BaseModel):
     text: str = Field(default="Test", description="This test is important")
 
 

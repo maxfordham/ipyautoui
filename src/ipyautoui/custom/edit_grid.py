@@ -15,10 +15,16 @@
 #     name: conda-env-mf_base-py
 # ---
 
+# %run __init__.py
+
 # +
 """General widget for editing data"""
+# %run __init__.py
+# %run ../__init__.py
+# %load_ext lab_black
+
 import sys
-import pathlib 
+import pathlib
 import json
 import requests
 import traitlets
@@ -26,11 +32,6 @@ import functools
 import typing
 import collections
 from copy import deepcopy
-
-DIR_MODULE = pathlib.Path.cwd().parents[1]
-sys.path.append(str(DIR_MODULE))
-DIR_PDTTEMPLATER = DIR_MODULE.parents[1] / "pdttemplater"
-sys.path.append(str(DIR_PDTTEMPLATER))
 
 import immutables
 import pandas as pd
@@ -40,14 +41,32 @@ from ipydatagrid import DataGrid, TextRenderer, BarRenderer, Expr, VegaExpr
 from pydantic import BaseModel, Field
 from ipyautoui._utils import obj_from_string, display_pydantic_json
 
-from ipyautoui.displayfile import DisplayFiles
-from ipyautoui.autoui import AutoUi, AutoUiConfig
-from ipyautoui.constants import BUTTON_WIDTH_MIN, TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT, KWARGS_DATAGRID_DEFAULT
+# from ipyautoui.displayfile import DisplayFiles
+from ipyautoui import AutoUi, AutoUiConfig
+
+from ipyautoui.constants import (
+    BUTTON_WIDTH_MIN,
+    TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT,
+    KWARGS_DATAGRID_DEFAULT,
+)
 from ipyautoui.custom import SaveButtonBar
 
-from sql_app.schemas import UnitsBase, PropertyBase, PdtBase
-from ui.utils import get_all_units, get_unit_by_id, post_new_unit, patch_unit, delete_unit_by_id, round_sig_figs, spaces_before_capitals
-from ui.formatting import create_custom_format_units
+if __name__ == "__main__":
+    DIR_MODULE = pathlib.Path.cwd().parents[1]
+    # sys.path.append(str(DIR_MODULE))
+    DIR_PDTTEMPLATER = DIR_MODULE.parents[1] / "pdttemplater"
+    sys.path.append(str(DIR_PDTTEMPLATER))
+    from sql_app.schemas import UnitsBase, PropertyBase, PdtBase
+    from ui.utils import (
+        get_all_units,
+        get_unit_by_id,
+        post_new_unit,
+        patch_unit,
+        delete_unit_by_id,
+        round_sig_figs,
+        spaces_before_capitals,
+    )
+    from ui.formatting import create_custom_format_units
 
 frozenmap = immutables.Map
 
@@ -55,9 +74,9 @@ frozenmap = immutables.Map
 # -
 
 class BaseForm(widgets.VBox, traitlets.HasTraits):
-    
+
     _value = traitlets.Dict()
-    
+
     def __init__(
         self,
         pydantic_model: typing.Type[BaseModel],
@@ -69,69 +88,72 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
         self.fn_revert = revert
         self.fn_onsave = fn_onsave
         self.pydantic_model = pydantic_model
-        self.conf = AutoUiConfig(
-            pydantic_model=pydantic_model, 
-            show_raw=False
-            )
+        self.conf = AutoUiConfig(pydantic_model=pydantic_model, show_raw=False)
         self.out = widgets.Output()
         self._init_form()
         self._init_controls()
-            
+
     def _init_form(self):
         super().__init__()  # main container
         self.auto_ui = AutoUi(
-            pydantic_obj=self.pydantic_model(),
-            config_autoui=self.conf,
-            )
-        self.save_button_bar = SaveButtonBar(
-            save=self.fn_save, 
-            revert=self.fn_revert, 
-            fn_onsave=self.fn_onsave
+            pydantic_obj=self.pydantic_model(), config_autoui=self.conf,
         )
-        pydantic_model_name = spaces_before_capitals(type(self.pydantic_model()).__name__)
-        self.title = widgets.HTML(markdown(f"# _{pydantic_model_name} Menu_"))
+        self.save_button_bar = SaveButtonBar(
+            save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
+        )
+        # pydantic_model_name = spaces_before_capitals(
+        #     type(self.pydantic_model()).__name__
+        # )
+        # self.title = widgets.HTML(markdown(f"# _{pydantic_model_name} Menu_"))
+        self.title = widgets.HTML()
         self.children = [self.title, self.save_button_bar, self.auto_ui]
-    
+
     def _init_controls(self):
         for k, v in self.auto_ui.di_widgets.items():
-            if v.has_trait('value'):
-                v.observe(functools.partial(self._watch_change, key=k, watch="value"), "value")
-            elif v.has_trait('_value'):
-                v.observe(functools.partial(self._watch_change, key=k, watch="_value"), "_value")
-    
+            if v.has_trait("value"):
+                v.observe(
+                    functools.partial(self._watch_change, key=k, watch="value"), "value"
+                )
+            elif v.has_trait("_value"):
+                v.observe(
+                    functools.partial(self._watch_change, key=k, watch="_value"),
+                    "_value",
+                )
+
     @property
     def to_dict(self):
         """JSON serialisation occurs and produces dictionary."""
         # return self.auto_ui.pydantic_obj.dict(by_alias=True)
         return json.loads(self.auto_ui.pydantic_obj.json(by_alias=True))
-    
+
     @property
     def value(self):
         return self._value
-    
+
     @value.setter
     def value(self, value):
         """The setter allows a user to pass a new value field to the class."""
         if value is not None:
             self._value = value
         self._set_value()
-    
+
     def _watch_change(self, change, key=None, watch="value"):
         if hasattr(self, "save_button_bar"):
             self.save_button_bar._unsaved_changes(True)
-        
+
     def _set_value(self):
         self.auto_ui.pydantic_obj = self.pydantic_model(**self.value)
         self.save_button_bar._unsaved_changes(False)
 
 
 if __name__ == "__main__":
+
     def save():
         print("SAVE")
-        
+
     def revert():
         print("REVERT")
-    
+
     # Testing with UnitsBase
     base_form = BaseForm(PdtBase, save=save, revert=revert)
     display(base_form)
@@ -775,5 +797,7 @@ if __name__ == "__main__":
         ignore_cols=["id"]
     )
     display(unit_app)
+
+
 
 
