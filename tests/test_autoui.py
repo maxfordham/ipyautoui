@@ -11,7 +11,7 @@ import pathlib
 
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
-from .example_objects import TestSchema
+from .example_objects import ExampleSchema
 from ipyautoui import AutoUi
 from ipyautoui.displayfile import DisplayFile
 
@@ -23,7 +23,7 @@ shutil.rmtree(DIR_TEST_DATA) #  remove previous data. this allows tests to check
 
 class TestUi:
     def test_auto_ui(self):
-        auto_ui_eg = TestSchema()
+        auto_ui_eg = ExampleSchema()
         ui = AutoUi(auto_ui_eg)
         li_keys = [key for key in ui.di_widgets.keys()]
         assert li_keys[0] == 'text'
