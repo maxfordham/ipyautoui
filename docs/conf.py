@@ -18,8 +18,8 @@ print(os.path.abspath('../src'))
 # -- Project information -----------------------------------------------------
 
 project = 'ipyautoui'
-copyright = '2022, John Gunstone'
-author = 'John Gunstone'
+copyright = '2022, Max Fordham LLP'
+author = 'Max Fordham Developers'
 
 
 # -- General configuration ---------------------------------------------------
@@ -62,9 +62,14 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_book_theme'
+#html_theme = 'sphinx-book-theme' # 'alabaster'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# show __init__ docstring
+# https://stackoverflow.com/questions/5599254/how-to-use-sphinxs-autodoc-to-document-a-classs-init-self-method
+autoclass_content = 'both'
