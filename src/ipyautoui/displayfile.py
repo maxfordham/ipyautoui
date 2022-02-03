@@ -16,21 +16,23 @@
 
 """
 displayfile is used to display certain types of files.
-
 The module lets us preview a file, open a file, and open its directory.
 
 Example:
-    from ipyautoui.constants import load_test_constants
-    from ipyautoui.displayfile import DisplayFile, Markdown
-    import ipywidgets as widgets
+    ::
 
-    DIR_FILETYPES = load_test_constants().DIR_FILETYPES
+        from ipyautoui.constants import load_test_constants
+        from ipyautoui.displayfile import DisplayFile, Markdown
+        import ipywidgets as widgets
 
-    fpths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
+        DIR_FILETYPES = load_test_constants().DIR_FILETYPES
 
-    # single file
-    d = DisplayFile(fpths[7])
-    display(d)
+        fpths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
+
+        # single file
+        d = DisplayFile(fpths[7])
+        display(d)
+
 """
 
 # %run __init__.py

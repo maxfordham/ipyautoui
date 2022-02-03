@@ -8,9 +8,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.13.6
 #   kernelspec:
-#     display_name: Python [conda env:mf_base]
+#     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: conda-env-mf_base-xpython
+#     name: conda-env-ipyautoui-xpython
 # ---
 
 # +
@@ -21,8 +21,11 @@ This module maps the pydantic fields to appropriate wigets to display the data i
 This information can also be stored to file.
 
 Example:
-    from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
-    DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
+    see example for a pydantic schema that can be automatically converted into a 
+    ipywidgets UI. Currently nesting is not supported::
+    
+        from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
+        DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
 """
 # %run __init__.py
 # %load_ext lab_black
@@ -353,7 +356,6 @@ class WidgetMapper(BaseModel):
     """defines a filter function and associated widget. the "fn_filt" is used to search the
     json schema to find appropriate objects, the objects are then passed to the "widget" for the ui
     """
-
     fn_filt: typing.Callable
     widget: typing.Callable
 
@@ -494,12 +496,7 @@ def displayfile_renderer(path, renderer=None):
 
 class AutoUi(widgets.VBox, traitlets.HasTraits):
     """AutoUi widget. generates UI form from pydantic schema. keeps the "value" field
-    up-to-date on_change
-
-    Args:
-        traitlets.HasTraits ([type]): traitlets.HasTraits makes it possible to observe the value
-            of this widget.
-    """
+    up-to-date on_change"""
 
     value = traitlets.Dict()
     _pydantic_model: BaseModel = None
@@ -526,21 +523,29 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
             display self.ui_form in Notebook
 
         Example:
-            # import example
-            from ipyautoui.test_schema import TestAutoLogic
-            # from ipyautoui.autoui import display_template_ui_model
-            # display_template_ui_model()
-            # ^ view python / pydantic definition for TestAutoLogic
-            # ?TestAutoLogic
-            # ^ inspect TestAutoLogic
+            ::
+            
+                
+                from ipyautoui.test_schema import TestAutoLogic
+                # ^ import example schema
+                
+                # from ipyautoui.autoui import display_template_ui_model
+                # display_template_ui_model()
+                # ^ view python / pydantic definition for TestAutoLogic
+                
+                # ?TestAutoLogic
+                # ^ inspect TestAutoLogic
 
-            # create AutoUi instance
-            from ipyautoui.autoui import AutoUi, AutoUiConfig
-            config_autoui = AutoUiConfig(pydantic_model=TestAutoLogic, ext='.aui.json')
-            testui = TestAutoLogic()
-            path = pathlib.Path('test.aui.json')
-            ui = AutoUi(pydantic_object=testui, config_autoui=config_autoui, path=path)
-            display(ui)
+                # create AutoUi instance
+                from ipyautoui.autoui import AutoUi, AutoUiConfig
+                config_autoui = AutoUiConfig(pydantic_model=TestAutoLogic, ext='.aui.json') 
+                # ^ configure AutoUi: the compound extension (.aui) is specific to your UI schema
+                
+                testui = TestAutoLogic()
+                path = pathlib.Path('test.aui.json')
+                ui = AutoUi(pydantic_object=testui, config_autoui=config_autoui, path=path)
+                display(ui)
+                
         """
 
         self.pydantic_obj = pydantic_obj
@@ -723,27 +728,30 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
             functools.partial(cls.parse_file, config_autoui=config_autoui) (callable function)
 
         Example:
-            # import example
-            from ipyautoui.test_schema import TestAutoLogic
-            # from ipyautoui.autoui import display_template_ui_model
-            # display_template_ui_model()
-            # ^ view python / pydantic definition for TestAutoLogic
-            # ?TestAutoLogic
-            # ^ inspect TestAutoLogic
+            ::
+            
+                # import example
+                from ipyautoui.test_schema import TestAutoLogic
+                # from ipyautoui.autoui import display_template_ui_model
+                # display_template_ui_model()
+                # ^ view python / pydantic definition for TestAutoLogic
+                # ?TestAutoLogic
+                # ^ inspect TestAutoLogic
 
-            # create AutoUi instance
-            config_autoui = AutoUiConfig(pydantic_model=TestAutoLogic, ext='.aui.json')
-            TestUi = AutoUi.create_displayfile(config_autoui)
+                # create AutoUi instance
+                config_autoui = AutoUiConfig(pydantic_model=TestAutoLogic, ext='.aui.json')
+                TestUi = AutoUi.create_displayfile(config_autoui)
 
-            # extend DisplayFiles
-            import functools
-            from ipyautoui.displayfile import DisplayFiles
-            def test_ui_prev(path):
-                display(TestUi(path))
-            config_autoui = AutoUiConfig(pydantic_model=LineGraph, ext='.lg.json')
-            LineGraphUi = AutoUi.create_displayfile(config_autoui)
-            user_file_renderers = {'.lg.json': line_graph_prev}
-            DisplayFiles = functools.partial(DisplayFiles, user_file_renderers=user_file_renderers)
+                # extend DisplayFiles
+                import functools
+                from ipyautoui.displayfile import DisplayFiles
+                def test_ui_prev(path):
+                    display(TestUi(path))
+                config_autoui = AutoUiConfig(pydantic_model=LineGraph, ext='.lg.json')
+                LineGraphUi = AutoUi.create_displayfile(config_autoui)
+                user_file_renderers = {'.lg.json': line_graph_prev}
+                DisplayFiles = functools.partial(DisplayFiles, user_file_renderers=user_file_renderers)
+                
         """
         return functools.partial(
             cls.parse_file, config_autoui=config_autoui, fn_onsave=fn_onsave
@@ -791,10 +799,6 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
             f"the file extension should be: {self.config_autoui.ext}, but {ext} given. "
         )
         self.pydantic_obj.file(path)
-        
-
-
-
 
 
 

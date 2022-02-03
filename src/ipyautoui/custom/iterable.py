@@ -17,55 +17,59 @@
 # TODO: support arrary / dictionary of length = 0
 """A generic iterable object.
 
-Creates an array object where widgets can be added or removed.
+Creates an array object where widgets can be added or removed. if the widgets have a "value" or "_value" trait the 
+that trait is automatically watched / observed for 
 
 Example:
-    import traitlets
-    import typing
+    see below of simple example usage::
+    
+        import traitlets
+        import typing
 
-    from ipywidgets import widgets
-    from IPython.display import Markdown
+        from ipywidgets import widgets
+        from IPython.display import Markdown
 
-    from ipyautoui.custom.iterable import IterableItem, Array, Dictionary
-
-
-    class TestItem(widgets.HBox, traitlets.HasTraits):
-        value = traitlets.Dict()
-
-        def __init__(self, di: typing.Dict):
-            self.value = di
-            self._init_form()
-            self._init_controls()
-
-        def _init_form(self):
-            self._label = widgets.HTML(f"{list(self.value.keys())[0]}")
-            self._bool = widgets.ToggleButton(list(self.value.values())[0])
-            super().__init__(children=[self._bool, self._label])  # self._acc,
-
-        def _init_controls(self):
-            self._bool.observe(self._set_value, names="value")
-
-        def _set_value(self, change):
-            self.value = {self._label.value: self._bool.value}
+        from ipyautoui.custom.iterable import IterableItem, Array, Dictionary
 
 
-    def fn_add():
-        return TestItem(di={"Example": 1})
+        class TestItem(widgets.HBox, traitlets.HasTraits):
+            value = traitlets.Dict()
+
+            def __init__(self, di: typing.Dict):
+                self.value = di
+                self._init_form()
+                self._init_controls()
+
+            def _init_form(self):
+                self._label = widgets.HTML(f"{list(self.value.keys())[0]}")
+                self._bool = widgets.ToggleButton(list(self.value.values())[0])
+                super().__init__(children=[self._bool, self._label])  # self._acc,
+
+            def _init_controls(self):
+                self._bool.observe(self._set_value, names="value")
+
+            def _set_value(self, change):
+                self.value = {self._label.value: self._bool.value}
 
 
-    di_arr = {
-        "items": [fn_add()],
-        "fn_add": fn_add,
-        "maxlen": 10,
-        "show_hash": "index",
-        "toggle": True,
-        "title": "Array",
-        "add_remove_controls": "append_only",
-        "orient_rows": False,
-    }
+        def fn_add():
+            return TestItem(di={"Example": 1})
 
-    arr = Array(**di_arr)
-    display(arr)
+
+        di_arr = {
+            "items": [fn_add()],
+            "fn_add": fn_add,
+            "maxlen": 10,
+            "show_hash": "index",
+            "toggle": True,
+            "title": "Array",
+            "add_remove_controls": "append_only",
+            "orient_rows": False,
+        }
+
+        arr = Array(**di_arr)
+        display(arr)
+
 """
 # %run __init__.py
 # %load_ext lab_black
