@@ -5,7 +5,7 @@ import pytest
 
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
-from .example_objects import fn_add, get_descriptions, TestSchema
+from .example_objects import fn_add, get_descriptions, ExampleSchema
 from ipyautoui.custom import Array, Dictionary, Grid, RunName, MultiSelectSearch, SaveButtonBar, LoadProject
 from ipyautoui.custom.edit_grid import BaseForm, GridWrapper, EditGrid, ButtonBar
 
@@ -91,7 +91,7 @@ class TestCustom:
             print("REVERT")
         
         # Testing with UnitsBase
-        base_form = BaseForm(TestSchema, save=save, revert=revert)
+        base_form = BaseForm(ExampleSchema, save=save, revert=revert)
 
     def test_base_form_set_value(self):
         di_eg_unit = {
@@ -105,12 +105,12 @@ class TestCustom:
             print("REVERT")
         
         # Testing with UnitsBase
-        base_form = BaseForm(TestSchema, save=save, revert=revert)
+        base_form = BaseForm(ExampleSchema, save=save, revert=revert)
         base_form.value = di_eg_unit
 
     def test_grid_wrapper(self):
         grid = GridWrapper(
-            TestSchema,
+            ExampleSchema,
         )
 
     def test_grid_wrapper_from_dict_method(self):
@@ -120,7 +120,7 @@ class TestCustom:
         }
         li_dict = [di_eg_unit for i in range(3)]
         GridWrapper.from_dict(
-            pydantic_model=TestSchema, 
+            pydantic_model=ExampleSchema, 
             li=li_dict,
         )
 
@@ -130,7 +130,7 @@ class TestCustom:
     #     }]
     #     exc_info = "Exception: Pydantic model fields and data fields do not match. Rejected Columns: ['WRONG COLUMN']"
     #     try:
-    #         GridWrapper.from_dict(TestSchema, li_incorrect_dict)
+    #         GridWrapper.from_dict(ExampleSchema, li_incorrect_dict)
     #     except Exception as e:
     #         print(f"Exception: {e}")
 
@@ -138,5 +138,5 @@ class TestCustom:
 
     def test_edit_grid(self):
         grid = EditGrid(
-            pydantic_model=TestSchema,
+            pydantic_model=ExampleSchema,
         )
