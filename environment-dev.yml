@@ -34,6 +34,8 @@ dependencies:
   - black
   - nb_black
   - immutables
+  - sphinx # for docs
+  - sphinx-book-theme # for docs
   - pytest
   - pip
   - pip:
