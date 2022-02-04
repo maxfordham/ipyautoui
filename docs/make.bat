@@ -24,7 +24,10 @@ if errorlevel 9009 (
 	echo.https://www.sphinx-doc.org/
 	exit /b 1
 )
+
 sphinx-apidoc -f -d 6 -o source ../src/ipyautoui
+REM ^ build docs from package docstrings
+
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 goto end
 
