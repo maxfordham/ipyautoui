@@ -36,6 +36,7 @@ dependencies:
   - immutables
   - sphinx # for docs
   - sphinx-book-theme # for docs
+  - autodoc-pydantic # for docs
   - pytest
   - pip
   - pip:
