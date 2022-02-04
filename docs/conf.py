@@ -32,6 +32,7 @@ extensions = [
 	'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'sphinxcontrib.autodoc_pydantic'
 ]
 
 # Napoleon settings
@@ -46,6 +47,10 @@ napoleon_use_admonition_for_references = False
 napoleon_use_ivar = True
 napoleon_use_param = True
 napoleon_use_rtype = True
+
+# autodoc_pydantic settings
+autodoc_pydantic_model_show_json = True
+autodoc_pydantic_settings_show_json = False
 
 
 # Add any paths that contain templates here, relative to this directory.
