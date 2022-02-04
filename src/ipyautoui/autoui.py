@@ -421,7 +421,7 @@ def map_to_widget(
                 di_[k_]["autoui"] = v.widget(v_["autoui"])
     not_matched = set(di_.keys()) ^ set(li_pr)
     if len(not_matched) > 0:
-        print("the following UI items from schema not matched to a widget:")
+        print("the following UI items from schema not matched to a widget:") # TODO: add logging! 
         print(not_matched)
     li_ordered = [l for l in li_pr if l not in not_matched]
     di_ordered = {l: di_[l] for l in li_ordered}
@@ -573,13 +573,16 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
             self.pydantic_obj.dict()
         )  # json.loads(self.pydantic_obj.json()) # set value
         if hasattr(self, "di_widgets"):
-            for k, v in self.value.items():
-                if k in self.di_widgets.keys():
-                    self.di_widgets[k].value = v
-                else:
-                    print(
-                        f"no widget created for {k}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify"
-                    )
+            self._update_widgets_from_value()
+
+    def _update_widgets_from_value(self):
+        for k, v in self.value.items():
+            if k in self.di_widgets.keys():
+                self.di_widgets[k].value = v
+            else:
+                print(
+                    f"no widget created for {k}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify"
+                )
                             
     def _extend_pydantic_base_model(self):
         setattr(self.config_autoui.pydantic_model, "file", file)
@@ -614,6 +617,7 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
         self.ui_box, self.di_widgets = _init_widgets_and_rows(self.pr)
         self.ui_main.children = [self.ui_box]
         self.children = [self.ui_header, self.ui_main]
+        self._update_widgets_from_value()
 
     def _init_titlebox(self):
         children = []
@@ -768,21 +772,18 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
         displayfile = functools.partial(displayfile_renderer, renderer=renderer)
         return {config_autoui.ext: displayfile}
 
-    @classmethod
+    @staticmethod
     def parse_file(
-        cls,
         path: pathlib.Path,
         config_autoui: AutoUiConfig = None,
         fn_onsave: typing.Callable = lambda: None,
     ):
-        if config_autoui is not None:
-            cls.config_autoui = config_autoui
-        assert cls.config_autoui is not None, ValueError(
+        assert config_autoui is not None, ValueError(
             "self.config_autoui must not be None"
         )
         return AutoUi(
-            cls.config_autoui.pydantic_model.parse_file(path),
-            config_autoui=cls.config_autoui,
+            config_autoui.pydantic_model.parse_file(path),
+            config_autoui=config_autoui,
             path=path,
             fn_onsave=fn_onsave,
         )
@@ -803,6 +804,12 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
 
 
 
+
+# +
+# test_constants = load_test_constants()
+# path = test_constants.PATH_TEST_AUI
+# config_autoui = AutoUiConfig(pydantic_model=TestAutoLogic)
+# AutoUi.parse_file(test_constants.PATH_TEST_AUI, config_autoui=config_autoui)
 # -
 
 if __name__ == "__main__":
@@ -824,6 +831,3 @@ if __name__ == "__main__":
     )
     ui_file = TestAuiDisplayFile(test_constants.PATH_TEST_AUI)
     display(ui_file)
-
-
-

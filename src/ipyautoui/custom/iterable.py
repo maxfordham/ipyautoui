@@ -119,6 +119,7 @@ class IterableItem(BaseModel):
 
     @validator("key", always=True)
     def _key(cls, v, values):
+        """if no key given return uuid.uuid4()"""
         if v is None:
             return uuid.uuid4()
         else:
