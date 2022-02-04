@@ -1,16 +1,16 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:light
+#     formats: py:light
 #     text_representation:
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.13.6
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: python3
+#     name: conda-env-ipyautoui-xpython
 # ---
 
 # +
@@ -79,6 +79,7 @@ from traitlets import validate
 import typing
 import immutables
 import inspect
+
 # from pydantic.dataclasses import dataclass
 from ipyautoui.basemodel import BaseModel
 from pydantic import validator
@@ -106,7 +107,6 @@ TOGGLE_BUTTON_KWARGS = frozenmap(
 
 
 # +
-
 class IterableItem(BaseModel):
     index: int
     key: typing.Union[UUID, str, int, float, bool] = None
@@ -187,7 +187,9 @@ class Array(widgets.VBox, traitlets.HasTraits):
             )
         return proposal
 
-    @validate("_add_remove_controls")  # TODO: validator not getting called when this is changed once the class has been instantiated
+    @validate(
+        "_add_remove_controls"
+    )  # TODO: validator not getting called when this is changed once the class has been instantiated
     def _validate_add_remove_controls(self, proposal):
         print(proposal.value)
         if proposal.value not in ["add_remove", "append_only", "remove_only", None]:
@@ -239,7 +241,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self._init_form()
         self._toggle = toggle
         self.title = title
-        self.add_remove_controls = add_remove_controls 
+        self.add_remove_controls = add_remove_controls
         self.show_hash = show_hash
         self.sort_on = sort_on
 
@@ -376,7 +378,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self._style_buttonbar(index)
 
     def _update_buttonbars(self):
-        [self._update_buttonbar(index) for index, item in enumerate(self.iterable)];
+        [self._update_buttonbar(index) for index, item in enumerate(self.iterable)]
 
     def _update_label(self, index):
         if self.show_hash is None:
@@ -394,7 +396,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self.iterable[index].row.children[1].children = labels_box
 
     def _update_labels(self):
-        [self._update_label(index) for index, item in enumerate(self.iterable)];
+        [self._update_label(index) for index, item in enumerate(self.iterable)]
 
     def _update_row(self, index):
         self._update_buttonbar(index)
@@ -555,7 +557,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         if len(self.iterable) <= 1:
             pass
         if key is None:
-            print('key is None')
+            print("key is None")
             key = self.iterable[-1].key
         n = self._get_attribute(key, "index")
         if self.add_remove_controls == "append_only" and n == 0:
@@ -573,7 +575,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         if remove_kwargs is None:
             remove_kwargs = {}
 
-        try: 
+        try:
             self.fn_remove(**remove_kwargs, key=key)
         except:
             self.fn_remove(**remove_kwargs)

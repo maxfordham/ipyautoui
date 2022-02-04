@@ -2,7 +2,7 @@
 # jupyter:
 #   jupytext:
 #     cell_metadata_filter: -all
-#     formats: ipynb,py:percent
+#     formats: py:light
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -29,35 +29,35 @@ class RunNameInputs:
     disabled_index: bool = False
     zfill: int = 2
     enum: typing.List = None
-    delimiter: str = '-'
+    delimiter: str = "-"
     description_length: int = None
     allow_spaces: bool = False
-    order: tuple = ('index', 'enum', 'description')
+    order: tuple = ("index", "enum", "description")
     pattern: str = None
 
     def __post_init__(self):
         li = list(self.order)
         if self.index is None:
-            li = [l for l in li if l!='index'] 
+            li = [l for l in li if l != "index"]
         if self.enum is None:
-            li = [l for l in li if l!='enum'] 
+            li = [l for l in li if l != "enum"]
         if self.description_length is None:
-            li = [l for l in li if l!='description'] 
+            li = [l for l in li if l != "description"]
         self.order = tuple(li)
         if len(self.order) < 1:
-            raise ValueError('you must include 1 of index, enum or description')
-        
-        di={}
-        di['index'] = "[0-9]" * self.zfill + f"[{self.delimiter}]"
-        di['enum'] = f"[a-z,A-Z,0-9]*[{self.delimiter}]"
-        di['description'] = f".+[{self.delimiter}]"
+            raise ValueError("you must include 1 of index, enum or description")
+
+        di = {}
+        di["index"] = "[0-9]" * self.zfill + f"[{self.delimiter}]"
+        di["enum"] = f"[a-z,A-Z,0-9]*[{self.delimiter}]"
+        di["description"] = f".+[{self.delimiter}]"
         p = ""
         for l in self.order:
             try:
                 p += di[l]
             except:
                 pass
-        self.pattern = p[:-3]      
+        self.pattern = p[:-3]
 
 
 # %%
@@ -69,22 +69,23 @@ class RunName(widgets.HBox, HasTraits):
         enum = ['lean', 'clean', 'green']
         zfill = 2
     """
+
     _value = Unicode()
-    
-    @validate('_value')
+
+    @validate("_value")
     def _valid_value(self, proposal):
-        val = proposal['value']
+        val = proposal["value"]
         matched = re.match(self.inputs.pattern, val)
         if not bool(matched):
             print(self.inputs.pattern)
             print(val)
-            raise TraitError(f'string musts have format: {self.inputs.pattern}')
+            raise TraitError(f"string musts have format: {self.inputs.pattern}")
         return val
-    
+
     @property
     def value(self):
         return self._value
-    
+
     @value.setter
     def value(self, value: Unicode):
         """The setter allows a user to pass a new value field to the class. This also updates the 
@@ -92,42 +93,52 @@ class RunName(widgets.HBox, HasTraits):
         if value is not None:
             self._value = value
         self._set_value()
-        
-    def __init__(self, value = None,
-                    index: int = 1,
-                    disabled_index: bool = True,
-                    zfill: int = 2,
-                    enum: typing.List = ['lean','clean', 'green'],
-                    delimiter: str = '-',
-                    description_length: int = 30,
-                    allow_spaces: bool = False,
-                    order=('index', 'enum', 'description')
-                ):
-        di = {k:v for k, v in locals().items() if k != 'value' and k != 'self' and k!='__class__'}
-        di['index'] = index
+
+    def __init__(
+        self,
+        value=None,
+        index: int = 1,
+        disabled_index: bool = True,
+        zfill: int = 2,
+        enum: typing.List = ["lean", "clean", "green"],
+        delimiter: str = "-",
+        description_length: int = 30,
+        allow_spaces: bool = False,
+        order=("index", "enum", "description"),
+    ):
+        di = {
+            k: v
+            for k, v in locals().items()
+            if k != "value" and k != "self" and k != "__class__"
+        }
+        di["index"] = index
         super().__init__()
         self.inputs = RunNameInputs(**di)
         self._init_form()
         self.value = value
         self._init_controls()
-        self.update_name('change')
-        
+        self.update_name("change")
+
     @property
     def get_options(self):
         if self.inputs.enum is None:
             return []
         else:
-            return self.inputs.enum 
-        
+            return self.inputs.enum
+
     def _init_form(self):
-        self.index = widgets.IntText(layout={'width':'50px'}, disabled=self.inputs.disabled_index)
-        self.enum = widgets.Dropdown(options=self.get_options, layout={'width':'100px'})
+        self.index = widgets.IntText(
+            layout={"width": "50px"}, disabled=self.inputs.disabled_index
+        )
+        self.enum = widgets.Dropdown(
+            options=self.get_options, layout={"width": "100px"}
+        )
         self.description = widgets.Text()
         self.name = widgets.Text(disabled=True)
-        di = {}   
-        di['index'] = self.index
-        di['enum'] = self.enum
-        di['description'] = self.description
+        di = {}
+        di["index"] = self.index
+        di["enum"] = self.enum
+        di["description"] = self.description
         children = []
         for l in self.inputs.order:
             try:
@@ -135,42 +146,56 @@ class RunName(widgets.HBox, HasTraits):
             except:
                 pass
         self.children = children + [self.name]
-        
+
     def _init_controls(self):
-        self.index.observe(self.update_name, names='value')
-        self.enum.observe(self.update_name, names='value')
-        self.description.observe(self.update_name, names='value')
-        
+        self.index.observe(self.update_name, names="value")
+        self.enum.observe(self.update_name, names="value")
+        self.description.observe(self.update_name, names="value")
+
     def update_name(self, on_change):
         di = {}
-        di['enum'] = str(self.enum.value) + self.inputs.delimiter
-        di['index'] = str(self.index.value).zfill(self.inputs.zfill) + self.inputs.delimiter
-        di['description'] = self.description.value.replace(self.inputs.delimiter,'_') + self.inputs.delimiter
+        di["enum"] = str(self.enum.value) + self.inputs.delimiter
+        di["index"] = (
+            str(self.index.value).zfill(self.inputs.zfill) + self.inputs.delimiter
+        )
+        di["description"] = (
+            self.description.value.replace(self.inputs.delimiter, "_")
+            + self.inputs.delimiter
+        )
         if not self.inputs.allow_spaces:
-            di['description'] = di['description'].replace(' ','_')
+            di["description"] = di["description"].replace(" ", "_")
         if self.inputs.description_length is not None:
-            di['description'] = di['description'][0:self.inputs.description_length]
+            di["description"] = di["description"][0 : self.inputs.description_length]
         v = ""
         for l in self.inputs.order:
-            try: 
+            try:
                 v += di[l]
             except:
                 pass
-        self.name.value = v[:-1]   
+        self.name.value = v[:-1]
         self.value = self.name.value
-    
+
     def _set_value(self):
         try:
-            self.index.value, self.enum.value, self.description.value = self.value.split(self.inputs.delimiter, len(self.inputs.order))
+            (
+                self.index.value,
+                self.enum.value,
+                self.description.value,
+            ) = self.value.split(self.inputs.delimiter, len(self.inputs.order))
         except:
-            self.index.value, self.enum.value, self.description.value = self.inputs.index, None, 'description'
+            self.index.value, self.enum.value, self.description.value = (
+                self.inputs.index,
+                None,
+                "description",
+            )
 
 
 # %%
 if __name__ == "__main__":
-    run = RunName(value='03-lean-description', index=3)
+    run = RunName(value="03-lean-description", index=3)
     display(run)
 
 # %%
 if __name__ == "__main__":
-    run.value = '06-green-thingymabob'  # Updates app with given value
+    run.value = "06-green-thingymabob"  # Updates app with given value
+

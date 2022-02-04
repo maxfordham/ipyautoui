@@ -1,7 +1,7 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:light
+#     formats: py:light
 #     text_representation:
 #       extension: .py
 #       format_name: light
@@ -15,9 +15,10 @@
 
 # +
 # TODO: add ipyvuetify-jsonschema to this repo
-"""autoui is used to automatically create ipywidgets from pydantic schema.
+"""autoui is used to automatically create ipywidget user input (UI) form from a pydantic schema.
 
-This module maps the pydantic fields to appropriate wigets to display the data in a UI.
+This module maps the pydantic fields to appropriate widgets based on type to display the data in the UI.
+It also supports extension, but mapping custom datatypes onto custom widget classes.
 This information can also be stored to file.
 
 Example:

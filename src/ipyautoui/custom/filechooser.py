@@ -1,5 +1,4 @@
 """wrapper for ipyfilechooster.FileChooser"""
-
 import pathlib
 from traitlets import HasTraits, default
 from traitlets_paths import PurePath  # TODO: create conda recipe for this package
@@ -55,4 +54,4 @@ class FileChooser(FileChooser, HasTraits):
     def _set_value(self, onchange):
         if self.selected is not None:
             self._value = self.selected
-            
+

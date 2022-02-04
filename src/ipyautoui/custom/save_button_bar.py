@@ -1,7 +1,7 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:percent
+#     formats: py:light
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -68,7 +68,7 @@ class SaveButtonBar(widgets.HBox):
         self._init_controls()
 
     def _init_form(self):
-        super().__init__() 
+        super().__init__()
         self.unsaved_changes = widgets.ToggleButton(
             disabled=True, layout=widgets.Layout(width=BUTTON_WIDTH_MIN)
         )
@@ -122,7 +122,6 @@ class SaveButtonBar(widgets.HBox):
             self.unsaved_changes.button_style = "success"
             self.unsaved_changes.icon = "check"
             self.tooltip = "SAFE: no changes have been made since the last save"
-            
 
 
 # %%

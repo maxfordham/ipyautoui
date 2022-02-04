@@ -2,16 +2,16 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:light
+#     formats: py:light
 #     text_representation:
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.13.6
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: python3
+#     name: conda-env-ipyautoui-xpython
 # ---
 
 """
@@ -34,7 +34,6 @@ Example:
         display(d)
 
 """
-
 # %run __init__.py
 
 # +
@@ -597,15 +596,15 @@ class DisplayFile():
     How to extend:
     
     if you want to update the class definition for a compound filetype that you have created, 
-    you can do so using functools as follows:
-    ```
+    you can do so using functools as follows::
+
         DisplayFile('default_config.test.yaml').preview_fpth()  # '.test.yaml' ext doesn't exist so renderer defaults to .yaml
 
         import functools
         user_file_renderers = {'.test.yaml': txt_prev}
         DisplayFile = functools.partial(DisplayFile, user_file_renderers=user_file_renderers)
         DisplayFile('default_config.test.yaml').preview_fpth()  # display yaml file as txt_prev renderer
-    ```
+
     """
     def __init__(self,
                  path: typing.Union[str, pathlib.Path],
@@ -702,6 +701,8 @@ class DisplayFile():
 #     fpth = 'test_schema.py'
 #     d = DisplayFile(fpth, auto_open=True)
 #     display(d)
+
+
 # +
 class DisplayFiles():
     def __init__(self, 

@@ -3,16 +3,16 @@
 # jupyter:
 #   jupytext:
 #     cell_metadata_filter: -all
-#     formats: ipynb,py:light
+#     formats: py:light
 #     text_representation:
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.13.6
 #   kernelspec:
-#     display_name: Python [conda env:mf_base]
+#     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: conda-env-mf_base-py
+#     name: conda-env-ipyautoui-xpython
 # ---
 
 # +
@@ -53,6 +53,7 @@ frozenmap = immutables.Map
 
 
 # -
+
 
 class BaseForm(widgets.VBox, traitlets.HasTraits):
 
@@ -655,5 +656,4 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     def _set_value(self):
         self.data = pd.DataFrame(self.value)
-
 

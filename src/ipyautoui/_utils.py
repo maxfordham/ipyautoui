@@ -8,8 +8,9 @@ from math import log10, floor
 import ipywidgets as widgets
 from IPython.display import display, Markdown
 import codecs
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 import typing
+import importlib.util
 import immutables
 frozenmap = immutables.Map
 
@@ -228,3 +229,43 @@ def round_sig_figs(x: float, sig_figs: int):
         return round(x, sig-int(floor(log10(abs(x))))-1)
     else:
         return x
+    
+class PyObj(BaseModel):
+    """a definition of a python object"""
+    path: pathlib.Path
+    obj_name: str
+    module_name: str = None
+
+    @validator("module_name", always=True)
+    def _module_name(cls, v, values):
+        if v is None:
+            return values["path"].stem
+        else:
+            return v
+        
+def load_PyObj(obj: PyObj):
+    spec = importlib.util.spec_from_file_location(obj.module_name, obj.path)
+    foo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(foo)
+    return getattr(foo, obj.obj_name)
+
+def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
+    """
+    loads a pyobj (which must be a pydantic model) and then saves the default Json to file. 
+    
+    Args:
+        pyobj (PyObj): definition of where to get a pydantic model
+        path (pathlib.Path): where to save the pydantic json
+        **kwargs : passed to the pydantic model upon initiation
+        
+    Returns: 
+        path
+    """
+    obj = load_PyObj(pyobj)
+    assert str(type(obj)) == "<class 'pydantic.main.ModelMetaclass'>", "the python object must be a pydantic model"
+    if not hasattr(obj, "file"):
+        setattr(obj, 'file', file)
+    assert hasattr(obj, "file"), "the pydantic BaseModel must be extended to have method 'file' for writing model to json"
+    myobj = obj(**kwargs)
+    myobj.file(path)
+    return path
