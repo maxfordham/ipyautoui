@@ -52,6 +52,8 @@ napoleon_use_rtype = True
 autodoc_pydantic_model_show_json = True
 autodoc_pydantic_settings_show_json = False
 
+# order toc by source rather than alphabetically
+autodoc_member_order = 'bysource' # TODO: don't think this is working
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
