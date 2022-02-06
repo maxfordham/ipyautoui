@@ -27,6 +27,7 @@ if errorlevel 9009 (
 
 sphinx-apidoc -f -d 6 -o source ../src/ipyautoui
 REM ^ build docs from package docstrings
+REM ^^ 1st time have to run it manually... not sure why
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 goto end

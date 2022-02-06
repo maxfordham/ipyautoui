@@ -7,9 +7,7 @@ Welcome to ipyautoui's documentation!
 =====================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
+   myfile.md
 
 
 Indices and tables

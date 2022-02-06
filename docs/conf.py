@@ -32,9 +32,12 @@ extensions = [
 	'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'sphinxcontrib.autodoc_pydantic'
+    'sphinxcontrib.autodoc_pydantic',
+    'myst_parser'
 ]
-
+myst_enable_extensions = [
+  "colon_fence",
+]
 # Napoleon settings
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
