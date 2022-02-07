@@ -38,6 +38,7 @@ Example:
 
 # +
 import pathlib
+from wcmatch.pathlib import Path as wcPath
 import os
 import subprocess
 import pathlib
@@ -72,7 +73,7 @@ except:
 from ipyautoui.mydocstring_display import display_module_docstring
 from ipyautoui._utils import del_matching, md_fromfile, display_python_file, read_json, read_yaml, read_txt, open_file, frozenmap
 #from ipyrun._runconfig import Output, Outputs, File
-from ipyautoui.constants import BUTTON_WIDTH_MIN, BUTTON_HEIGHT_MIN
+from ipyautoui.constants import BUTTON_WIDTH_MIN, BUTTON_HEIGHT_MIN, KWARGS_OPENPREVIEW, KWARGS_OPENFILE, KWARGS_OPENFOLDER, KWARGS_DISPLAY_ALL_FILES, KWARGS_COLLAPSE_ALL_FILES, KWARGS_HOME_DISPLAY_FILES
 
 
 # +
@@ -487,27 +488,12 @@ def open_ui(fpth: str):
         fpth = pathlib.Path(fpth)
     isfile = widgets.Button(disabled=True,layout=widgets.Layout(width=BUTTON_WIDTH_MIN, height=BUTTON_HEIGHT_MIN))
     isfile.tooltip = get_file_data(fpth)
-    openpreview = widgets.ToggleButton(
-        icon='eye', 
-        layout=widgets.Layout(width=BUTTON_WIDTH_MIN, height=BUTTON_HEIGHT_MIN),
-        tooltip='preview file: {0}'.format(fpth),
-        style={'font_weight': 'bold','button_color':None}) 
-    openfile = widgets.Button(
-        layout=widgets.Layout(width=BUTTON_WIDTH_MIN, height=BUTTON_HEIGHT_MIN),
-        icon='fa-file',
-        tooltip='open file: {0}'.format(fpth),
-        style={'font_weight': 'bold','button_color':None})   #,'button_color':'white'
-    openfolder = widgets.Button(
-        #description='+', 
-        layout=widgets.Layout(width=BUTTON_WIDTH_MIN, height=BUTTON_HEIGHT_MIN),#,height='20px'
-        icon='fa-folder',
-        tooltip='open folder: {0}'.format(os.path.dirname(fpth)),
-        style={'font_weight': 'bold','button_color':None}) #,'button_color':'LightYellow'
+    openpreview = widgets.ToggleButton(**KWARGS_OPENPREVIEW)
+    openfile = widgets.Button(**KWARGS_OPENFILE)
+    openfolder = widgets.Button(**KWARGS_OPENFOLDER)
     filename = widgets.HTML(
         '<b>{0}</b>'.format(fpth.name),layout=widgets.Layout(justify_items='center'))   
     data = widgets.HBox(layout=widgets.Layout(justify_items='center'))
-    #data.children = get_file_data(fpth) 
-
     return isfile, openpreview, openfile, openfolder, filename, data
 
     
@@ -520,7 +506,7 @@ class UiFile():
         
     def _init_form(self):
         self.isfile, self.openpreview, self.openfile, self.openfolder, self.filename, self.data = open_ui(self.path)
-        self.box_isfile = widgets.HBox([self.isfile],layout=widgets.Layout(width='40px'))
+        self.box_isfile = widgets.HBox([self.isfile]) #,layout=widgets.Layout(width='40px')
         self.box_file = widgets.HBox([self.box_isfile, self.openpreview, self.openfile, self.openfolder, self.filename, self.data])
     
     def _update_file(self):
@@ -655,7 +641,9 @@ class DisplayFile():
         
         
     def _open_form(self):
-        self.open_ui = widgets.VBox([self.ui_file.box_file, self.out_caller, self.out])
+        self.box_out = widgets.VBox()
+        self.box_out_caller = widgets.VBox()
+        self.open_ui = widgets.VBox([self.ui_file.box_file, self.box_out_caller, self.box_out]) #self.out_caller, self.out
         
     def _init_controls(self):
         self.ui_file.openfile.on_click(self._openfile)
@@ -670,60 +658,155 @@ class DisplayFile():
     def _openpreview(self, onchange):
         if self.ui_file.openpreview.value:
             self.ui_file.openpreview.icon ='eye-slash'
+            self.box_out.children = [self.out]
+            #self.out.layout.display= "none" 
             with self.out:
                 self.preview_path()
         else:
             self.ui_file.openpreview.icon = 'eye'
+            self.box_out.children = []
+            #self.out.layout.display= "none" 
             with self.out:
                 clear_output()
                                     
     def _openfile(self, sender):
+        self.box_out_caller.children = [self.out_caller]
         with self.out_caller:
             clear_output()
             open_file(self.ui_file.path,newroot=self.newroot)
             time.sleep(5)
             clear_output()
+        self.box_out_caller.children = []
         
     def _openfolder(self, sender):
+        self.box_out_caller.children =[self.out_caller]
         with self.out_caller:
             clear_output()
             open_file(self.fdir,newroot=self.newroot)
             time.sleep(5)
             clear_output()
-            
+        self.box_out_caller.children = []
+        
     def display(self):
         display(self.open_ui) 
         
     def _ipython_display_(self):
         self.display()
             
-# if __name__ == "__main__":
-#     fpth = 'test_schema.py'
-#     d = DisplayFile(fpth, auto_open=True)
-#     display(d)
+if __name__ == "__main__":
+    fpth = 'test_schema.py'
+    d = DisplayFile(fpth, auto_open=True)
+    display(d)
 
 
 # +
-class DisplayFiles():
-    def __init__(self, 
-                 paths: typing.List[pathlib.Path], 
+from traitlets_paths import PurePath  # TODO: create conda recipe for this package
+import traitlets
+from traitlets import validate, HasTraits
+class DisplayFiles(HasTraits):
+    
+    _paths = traitlets.List()
+    
+    @validate('_paths')
+    def _valid_value(self, proposal):
+        return [wcPath(p) for p in proposal['value']]
+    
+    def __init__(self,
+                 paths: typing.List[pathlib.Path],
                  default_file_renderers: Dict[str, Callable] = default_file_renderers,
                  user_file_renderers: Dict[str, Callable] = None,
                  newroot=pathlib.PureWindowsPath('J:/'),
-                 auto_open: bool=False, # TODO - add possibility to open only certain items...
+                 patterns: str = None,
+                 title: str = None, 
+                 display_showhide: bool = False
                 ):
-        self.display_files = [DisplayFile(p, auto_open=auto_open, user_file_renderers=user_file_renderers, default_file_renderers=default_file_renderers) for p in paths]
         self._init_form()
+        self._init_controls()
+        self.title = title
+        self._paths = paths
+        self.patterns = patterns
+        self.default_file_renderers = default_file_renderers
+        self.user_file_renderers = user_file_renderers  
+        self.paths = paths
+        self.display_showhide = display_showhide
         
-    def _init_form(self):
-        self.box_files = widgets.VBox([d.open_ui for d in self.display_files])
-      
+    @property
+    def title(self):
+        return self._title
+    
+    @title.setter
+    def title(self, value):
+        self._title = value
+        if self.title is None:
+            self.box_title.children = []
+        else:
+            self.box_title.children = [widgets.HTML(self.title)]
+            
+    @property
+    def display_showhide(self):
+        return self._display_showhide
+    
+    @display_showhide.setter
+    def display_showhide(self, value):
+        self._display_showhide = value
+        if self.display_showhide:
+            self.box_showhide.children = [self.b_display_all, self.b_collapse_all, self.b_display_default]
+        else:
+            self.box_showhide.children = []
+        
     @property
     def paths(self):
-        return [d.path for d in self.display_files]
+        return self._paths  # [d.path for d in self.display_files]
+        
+    @paths.setter
+    def paths(self, value):
+        self._paths = value
+        self.display_files = [DisplayFile(p, auto_open=a, user_file_renderers=self.user_file_renderers, default_file_renderers=self.default_file_renderers) for p, a in zip(self.paths, self.auto_open)]
+        self.box_files.children = [d.open_ui for d in self.display_files]
+    
+    @property
+    def patterns(self):
+        return self._patterns
+    
+    @patterns.setter
+    def patterns(self, value):
+        self._patterns = value
+        if value is None:
+            self.auto_open = [False] * len(self.paths)
+        else:
+            self.auto_open = [p.match(value) for p in self.paths]       
+    
+    def _init_form(self):
+        self.b_display_all = widgets.Button(**KWARGS_DISPLAY_ALL_FILES)
+        self.b_collapse_all = widgets.Button(**KWARGS_COLLAPSE_ALL_FILES)
+        self.b_display_default = widgets.Button(**KWARGS_HOME_DISPLAY_FILES)
+        self.box_header = widgets.VBox()
+        self.box_showhide = widgets.HBox()
+        self.box_title = widgets.HBox()
+        self.box_header.children = [self.box_title, self.box_showhide ]
+        self.box_files = widgets.VBox()
+        self.box_form = widgets.VBox()
+        self.box_form.children = [self.box_header, self.box_files]
+        
+    def _init_controls(self):
+        self.b_display_all.on_click(self.display_all)
+        self.b_collapse_all.on_click(self.collapse_all)
+        self.b_display_default.on_click(self.display_default)
+        
+    def display_all(self, onclick=None):
+        for d in self.display_files:
+            d.ui_file.openpreview.value = True
+            
+    def collapse_all(self, onclick=None):
+        for d in self.display_files:
+            d.ui_file.openpreview.value = False
+        
+    def display_default(self, onclick=None):
+        for d, a in zip(self.display_files, self.auto_open):
+            d.ui_file.openpreview.value = a
         
     def display(self):
-        display(self.box_files) 
+        display(self.box_form) 
         
     def _ipython_display_(self):
         self.display()
@@ -734,12 +817,10 @@ class DisplayFiles():
     def _update_files(self):
         [d.ui_file._update_file() for d in self.display_files]
         
-# if __name__ == "__main__":
-#     fpth1 = fpth
-#     files = DisplayFiles([fpth, fpth1])
-#     display(files)
-
-
+if __name__ == "__main__":
+    fpth1 = fpth
+    files = DisplayFiles([fpth, fpth1], patterns='*.py', title=markdown('# python files'), display_showhide=True)
+    display(files)
 # -
 
 if __name__ =='__main__':
@@ -795,9 +876,12 @@ if __name__ =='__main__':
     
     # multiple Outputs
     # outputs = [Output(f) for f in fpths]
-    p1 = DisplayFiles(fpths)
-    display(Markdown('### Example6'))
-    display(Markdown('''display multiple Outputs'''))
+    title = markdown("""
+## Example6
+
+display multiple Outputs
+""")
+    p1 = DisplayFiles(fpths, title=title, patterns=["*.png", "*.jpg"], display_showhide=True)
     display(p1)
     display(Markdown('---'))
     display(Markdown(''))
@@ -832,5 +916,3 @@ if __name__ == "__main__":
     user_file_renderers = AutoUi.create_displayfile_renderer(config_autoui=config_ui)
     test_ui = DisplayFile(path=tests_constants.PATH_TEST_AUI, user_file_renderers=user_file_renderers)
     display(test_ui)
-
-
