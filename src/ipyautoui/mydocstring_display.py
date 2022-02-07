@@ -167,6 +167,7 @@ def docstring_to_mdfile(fpth_py, fpth_md=None, functions=None):
 
     
 if __name__ == "__main__":
+    # TODO: update / remove and add tests
     if __debug__:
         import os
         fpth = os.path.join(os.environ['mf_root'],r'MF_Toolbox\dev\mf_scripts\eplus_pipework_params.py')

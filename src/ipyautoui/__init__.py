@@ -5,9 +5,11 @@ The module has the capability to take a pydantic schema and create a ipywidget f
 The main features being that you can produce a widget from many field types and also save the
 data as a JSON easily.
 
-Example:
+Example::
+
     from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
     DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
+    
 """
 import pathlib
 import sys
