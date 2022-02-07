@@ -49,6 +49,44 @@ KWARGS_DATAGRID_DEFAULT = frozenmap(
 
 TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT = 'solid yellow 2px'
 
+KWARGS_OPENPREVIEW = frozenmap(
+        icon='eye', 
+        layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+        tooltip='preview file',
+        style={'font_weight': 'bold','button_color':None}
+)
+KWARGS_OPENFILE = frozenmap(
+        icon='fa-file', 
+        layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+        tooltip='open file with system software',
+        style={'font_weight': 'bold','button_color':None}
+)
+KWARGS_OPENFOLDER = frozenmap(
+        icon='fa-folder', 
+        layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+        tooltip='open folder in file-browser',
+        style={'font_weight': 'bold','button_color':None}
+)
+KWARGS_DISPLAY_ALL_FILES = frozenmap(
+    icon="plus",
+    tooltip="display all files",
+    layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+    disabled=False
+)
+KWARGS_COLLAPSE_ALL_FILES = frozenmap(
+    icon="minus",
+    tooltip="collapse all files",
+    layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+    disabled=False
+)
+KWARGS_HOME_DISPLAY_FILES = frozenmap(
+    icon="home",
+    tooltip="display default files",
+    layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+    disabled=False
+)
+
+
 # documentinfo ------------------------------
 #  update this with WebApp data. TODO: delete this? 
 ROLES = ('Design Lead',
