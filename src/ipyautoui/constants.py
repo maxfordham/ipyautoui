@@ -16,7 +16,35 @@ BUTTON_HEIGHT_MIN = '25px'
 ROW_WIDTH_MEDIUM = '120px'
 ROW_WIDTH_MIN = '60px'
 BUTTON_MIN_SIZE = frozenmap(width=BUTTON_WIDTH_MIN, height=BUTTON_HEIGHT_MIN)
+# ---------------------------
 
+TRUE_BUTTON_KWARGS = frozenmap(
+    icon="check",
+    style={'button_color':'lightgreen'},
+    #button_style="success",
+    tooltip="true",
+    layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+    disabled=True
+)
+
+FALSE_BUTTON_KWARGS = frozenmap(
+    icon="times",
+    style={'button_color':'tomato'},
+    #button_style="success",
+    tooltip="false",
+    layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+    disabled=True
+)
+
+DASH_BUTTON_KWARGS = frozenmap(
+    icon="circle",
+    style={'button_color':'lightyellow'},
+    #button_style="success",
+    tooltip="",
+    layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+    disabled=True
+)
+# ---------------------------
 ADD_BUTTON_KWARGS = frozenmap(
     icon="plus",
     style={},

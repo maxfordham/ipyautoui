@@ -697,6 +697,9 @@ if __name__ == "__main__":
     fpth = 'test_schema.py'
     d = DisplayFile(fpth, auto_open=True)
     display(d)
+# -
+
+
 
 
 # +
@@ -709,7 +712,8 @@ class DisplayFiles(HasTraits):
     
     @validate('_paths')
     def _valid_value(self, proposal):
-        return [wcPath(p) for p in proposal['value']]
+        """makes path a wcmatch.Path (for enhanced pattern matching) and filters out directories"""
+        return [wcPath(p) for p in proposal['value'] if not pathlib.Path(p).is_dir()]
     
     def __init__(self,
                  paths: typing.List[pathlib.Path],
@@ -741,7 +745,7 @@ class DisplayFiles(HasTraits):
             self.box_title.children = []
         else:
             self.box_title.children = [widgets.HTML(self.title)]
-            
+
     @property
     def display_showhide(self):
         return self._display_showhide
@@ -772,18 +776,24 @@ class DisplayFiles(HasTraits):
     def patterns(self, value):
         self._patterns = value
         if value is None:
+            self.b_display_default.layout.display = 'None'
             self.auto_open = [False] * len(self.paths)
         else:
-            self.auto_open = [p.match(value) for p in self.paths]       
+            self.auto_open = [p.match(value) for p in self.paths]   
+            if sum(self.auto_open) == len(self.paths):
+                self.b_display_default.layout.display = 'None'
+            else:
+                self.b_display_default.layout.display = 'blcok'
     
     def _init_form(self):
         self.b_display_all = widgets.Button(**KWARGS_DISPLAY_ALL_FILES)
         self.b_collapse_all = widgets.Button(**KWARGS_COLLAPSE_ALL_FILES)
         self.b_display_default = widgets.Button(**KWARGS_HOME_DISPLAY_FILES)
+        #self.box_display_default = widgets.HBox([self.b_display_default])
         self.box_header = widgets.VBox()
         self.box_showhide = widgets.HBox()
         self.box_title = widgets.HBox()
-        self.box_header.children = [self.box_title, self.box_showhide ]
+        self.box_header.children = [self.box_title, self.box_showhide]
         self.box_files = widgets.VBox()
         self.box_form = widgets.VBox()
         self.box_form.children = [self.box_header, self.box_files]
@@ -882,6 +892,7 @@ if __name__ =='__main__':
 display multiple Outputs
 """)
     p1 = DisplayFiles(fpths, title=title, patterns=["*.png", "*.jpg"], display_showhide=True)
+    p1 = DisplayFiles(fpths, title=title, patterns=None, display_showhide=True)
     display(p1)
     display(Markdown('---'))
     display(Markdown(''))

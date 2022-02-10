@@ -302,8 +302,9 @@ def get_DatetimePicker(pr, rename_keys=True):
     date = get_type(pr, "string")
     date = get_format(date, typ="date-time")
     for k, v in date.items():
-        if type(v["default"]) == str:
-            v["default"] = datetime.strptime(v["default"], "%Y-%m-%dT%H:%M:%S.%f").date()
+        if "default" in v.keys():
+            if type(v["default"]) == str:
+                v["default"] = datetime.strptime(v["default"], "%Y-%m-%dT%H:%M:%S.%f").date()
     return call_rename_schema_keys(date, rename_keys=rename_keys)
 
 
@@ -493,7 +494,14 @@ def displayfile_renderer(path, renderer=None):
     if renderer is None:
         raise ValueError("renderer must not be None")
     display(renderer(path))
-
+    
+def get_value_trait(widget):
+    if '_value' in widget.traits().keys():
+        return widget.traits()['_value']
+    elif 'value' in widget.traits().keys():
+        return widget.traits()['value']
+    else:
+        raise ValueError('no value (or _value) trait found')
 
 class AutoUi(widgets.VBox, traitlets.HasTraits):
     """AutoUi widget. generates UI form from pydantic schema. keeps the "value" field
@@ -578,6 +586,8 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
     def _update_widgets_from_value(self):
         for k, v in self.value.items():
             if k in self.di_widgets.keys():
+                if v is None:
+                    v = get_value_trait(self.di_widgets[k]).default()
                 self.di_widgets[k].value = v
             else:
                 print(
