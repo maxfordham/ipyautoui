@@ -22,6 +22,12 @@ from traitlets import HasTraits, default, validate
 from traitlets_paths import PurePath  # TODO: create conda recipe for this package
 from ipyfilechooser import FileChooser
 
+def make_path(path):
+    if type(path) == str:
+        return pathlib.PurePath(path)
+    else:
+        return path
+
 class FileChooser(FileChooser, HasTraits):
     """inherits ipyfilechooster.FileChooser but initialises
     with a value= kwarg and adds a fc.value property. this 
@@ -35,9 +41,7 @@ class FileChooser(FileChooser, HasTraits):
     
     @validate('_value')
     def _valid_value(self, proposal):
-        if type(proposal['value']) == str:
-            proposal['value'] = pathlib.PurePath(proposal['value'])
-        return proposal['value']
+        return make_path(proposal['value'])
     
     @default('_value')
     def _default_value(self):
@@ -51,8 +55,16 @@ class FileChooser(FileChooser, HasTraits):
     def value(self, value: PurePath):
         """having the setter allows users to pass a new value field to the class which also updates the 
         `selected` argument used by FileChooser"""
-        self._value = value
-        self.reset(value.parent, value.name)
+        self._value =  value
+        p = pathlib.Path(self.value)
+        if p.is_dir():
+            self.reset(self.value, None)
+        elif p.is_file():
+            self.reset(p.parent, p.name)
+        elif p.parent.is_dir():
+            self.reset(p.parent, None)
+        else:
+            raise ValueError(f'{str(p)} not a valid path or dir')
         self._apply_selection()
     
     def __init__(self, value: pathlib.Path=None, **kwargs):
