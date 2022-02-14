@@ -18,7 +18,7 @@
 # %load_ext lab_black
 
 # +
-from pathlib import Path
+import pathlib
 from wcmatch.pathlib import Path as wcPath
 from traitlets_paths import PurePath  # TODO: create conda recipe for this package
 import ipywidgets as widgets
