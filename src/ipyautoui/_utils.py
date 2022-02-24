@@ -252,6 +252,11 @@ def load_PyObj(obj: PyObj):
 def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
     """
     loads a pyobj (which must be a pydantic model) and then saves the default Json to file. 
+    this requires defaults for all pydantic attributes. 
+    
+    Todo:
+        could extend the functionality to cover models that don't have defaults
+        using [pydantic-factories](https://github.com/Goldziher/pydantic-factories)
     
     Args:
         pyobj (PyObj): definition of where to get a pydantic model
@@ -269,3 +274,54 @@ def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
     myobj = obj(**kwargs)
     myobj.file(path)
     return path
+
+
+import importlib.util
+import typing
+
+def obj_to_importstr(obj: typing.Callable):
+    """
+    given a callable callable object this will return the 
+    import string to. From the string the object can be 
+    initiated again using importlib. This is useful for 
+    defining a function or class in a json serializable manner
+    
+    Args:
+        obj: typing.Callable
+    Returns: 
+        str: import string
+        
+    Example:
+        >>> obj_from_importstr(pathlib.Path)
+        'pathlib.Path'
+    """
+    try:
+        mod = obj.__module__
+    except:
+        raise ValueError(f'{str(obj)} doesnt have a __module__ attribute.')
+    try: 
+        nm = obj.__name__
+    except:
+        raise ValueError(f'{str(obj)} doesnt have a __name__ attribute. (might be a functool.partial?)')
+
+    return mod +'.'+ nm
+
+def obj_from_importstr(importstr: str) -> typing.Type:
+    """
+    given the import string of an object this function and returns the Obj. 
+    
+    makes it easy to define class used as a string in a json
+    object and then use this class to re-initite it.
+    
+    Args:
+        import_string: == obj.__module__ + '.' + obj.__name__
+    Returns: 
+        obj
+        
+    Example:
+        >>> obj_from_importstr('pathlib.Path')
+        pathlib.Path
+    """
+    mod, nm = importstr.rsplit('.', 1)
+
+    return getattr(importlib.import_module(mod), nm)
