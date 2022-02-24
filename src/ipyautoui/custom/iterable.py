@@ -10,7 +10,7 @@
 #   kernelspec:
 #     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: conda-env-ipyautoui-xpython
+#     name: ipyautoui
 # ---
 
 # +
@@ -56,7 +56,6 @@ Example:
             return TestItem(di={"Example": 1})
 
 
-        di_arr = {
             "items": [fn_add()],
             "fn_add": fn_add,
             "maxlen": 10,
@@ -71,6 +70,7 @@ Example:
         display(arr)
 
 """
+# TODO: review: https://github.com/widgetti/react-ipywidgets - it could simplify the code required below.
 # %run __init__.py
 # %load_ext lab_black
 import ipywidgets as widgets

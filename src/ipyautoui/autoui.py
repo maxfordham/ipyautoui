@@ -10,7 +10,7 @@
 #   kernelspec:
 #     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: conda-env-ipyautoui-xpython
+#     name: ipyautoui
 # ---
 
 # +
@@ -49,20 +49,25 @@ import inspect
 from ipyautoui.displayfile import PreviewPy
 from ipyautoui.test_schema import TestAutoLogic
 
-from ipyautoui._utils import obj_from_string, display_pydantic_json, file
-#from ipyautoui.custom import Grid, FileChooser, RunName
-
-from ipyautoui._utils import obj_from_string, display_pydantic_json
+from ipyautoui._utils import (
+    obj_from_string,
+    display_pydantic_json,
+    file,
+    obj_from_importstr,
+)
 from ipyautoui.custom import Grid, FileChooser, SaveButtonBar
 
 from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
 
 from ipyautoui.constants import load_test_constants
 from ipyautoui.test_schema import TestAutoLogic
+
 # +
 def display_template_ui_model():
     from ipyautoui import test_schema
+
     display(PreviewPy(test_schema, docstring_priority=False))
+
 
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
 def recursive_search_schema(sch: typing.Dict, li: typing.List) -> typing.Dict:
@@ -297,6 +302,7 @@ def get_DatePicker(pr, rename_keys=True):
             v["default"] = datetime.strptime(v["default"], "%Y-%m-%d").date()
     return call_rename_schema_keys(date, rename_keys=rename_keys)
 
+
 def get_DatetimePicker(pr, rename_keys=True):
     pr = drop_explicit_autoui(pr)
     date = get_type(pr, "string")
@@ -304,7 +310,9 @@ def get_DatetimePicker(pr, rename_keys=True):
     for k, v in date.items():
         if "default" in v.keys():
             if type(v["default"]) == str:
-                v["default"] = datetime.strptime(v["default"], "%Y-%m-%dT%H:%M:%S.%f").date()
+                v["default"] = datetime.strptime(
+                    v["default"], "%Y-%m-%dT%H:%M:%S.%f"
+                ).date()
     return call_rename_schema_keys(date, rename_keys=rename_keys)
 
 
@@ -351,13 +359,14 @@ def get_AutoOveride(pr, rename_keys=True):
 #  -- WIDGET MAPPING ----------------------------------------
 #  -- uses filter functions to map schema objects to widgets
 def auto_overide(str_widget_type):
-    return obj_from_string(str_widget_type)
+    return obj_from_importstr(str_widget_type)
 
 
 class WidgetMapper(BaseModel):
     """defines a filter function and associated widget. the "fn_filt" is used to search the
     json schema to find appropriate objects, the objects are then passed to the "widget" for the ui
     """
+
     fn_filt: typing.Callable
     widget: typing.Callable
 
@@ -375,7 +384,9 @@ DI_WIDGETS_MAPPER = {
     ),
     "Checkbox": WidgetMapper(fn_filt=get_Checkbox, widget=widgets.Checkbox),
     "DatePicker": WidgetMapper(fn_filt=get_DatePicker, widget=widgets.DatePicker),
-    "DatetimePicker": WidgetMapper(fn_filt=get_DatetimePicker, widget=widgets.DatePicker), # TODO: udpate to DatetimePicker with ipywidgets==8
+    "DatetimePicker": WidgetMapper(
+        fn_filt=get_DatetimePicker, widget=widgets.DatePicker
+    ),  # TODO: udpate to DatetimePicker with ipywidgets==8
     "FileChooser": WidgetMapper(fn_filt=get_FileChooser, widget=FileChooser),
     "Grid": WidgetMapper(fn_filt=get_DataGrid, widget=Grid),
     "ColorPicker": WidgetMapper(fn_filt=get_ColorPicker, widget=widgets.ColorPicker),
@@ -422,7 +433,9 @@ def map_to_widget(
                 di_[k_]["autoui"] = v.widget(v_["autoui"])
     not_matched = set(di_.keys()) ^ set(li_pr)
     if len(not_matched) > 0:
-        print("the following UI items from schema not matched to a widget:") # TODO: add logging! 
+        print(
+            "the following UI items from schema not matched to a widget:"
+        )  # TODO: add logging!
         print(not_matched)
     li_ordered = [l for l in li_pr if l not in not_matched]
     di_ordered = {l: di_[l] for l in li_ordered}
@@ -452,6 +465,7 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     Returns:
         (widgets.VBox, typing.Dict): box with widgets, di of widgets
     """
+
     def _init_widget(v):
         try:
             kw = v
@@ -461,7 +475,7 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
             args = inspect.getfullargspec(cl).args
             kw = {k_: v_ for k_, v_ in v.items() if k_ in args}
             return cl(**kw)
-        
+
     di_widgets = {k: _init_widget(v) for k, v in pr.items()}
     labels = {
         k: widgets.HTML(f"<b>{v['title']}</b>, <i>{v['autoui_description']}</i>")
@@ -473,6 +487,7 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
         rows.append(widgets.HBox([v, v2]))
     ui_box.children = rows
     return ui_box, di_widgets
+
 
 class SaveControls(str, Enum):
     save_on_edit = "save_on_edit"  #  TODO: test this
@@ -494,14 +509,16 @@ def displayfile_renderer(path, renderer=None):
     if renderer is None:
         raise ValueError("renderer must not be None")
     display(renderer(path))
-    
+
+
 def get_value_trait(widget):
-    if '_value' in widget.traits().keys():
-        return widget.traits()['_value']
-    elif 'value' in widget.traits().keys():
-        return widget.traits()['value']
+    if "_value" in widget.traits().keys():
+        return widget.traits()["_value"]
+    elif "value" in widget.traits().keys():
+        return widget.traits()["value"]
     else:
-        raise ValueError('no value (or _value) trait found')
+        raise ValueError("no value (or _value) trait found")
+
 
 class AutoUi(widgets.VBox, traitlets.HasTraits):
     """AutoUi widget. generates UI form from pydantic schema. keeps the "value" field
@@ -554,7 +571,6 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
                 path = pathlib.Path('test.aui.json')
                 ui = AutoUi(pydantic_object=testui, config_autoui=config_autoui, path=path)
                 display(ui)
-                
         """
 
         self.pydantic_obj = pydantic_obj
@@ -593,7 +609,7 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
                 print(
                     f"no widget created for {k}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify"
                 )
-                            
+
     def _extend_pydantic_base_model(self):
         setattr(self.config_autoui.pydantic_model, "file", file)
 
@@ -660,7 +676,8 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
             )
             map_save_dialogue[self.config_autoui.save_controls]()
         else:
-            print("self.path == None. must be a valid path to save as json")
+            pass
+            # print("self.path == None. must be a valid path to save as json")
 
     def call_save_buttonbar(self):
         self.save_buttonbar = SaveButtonBar(
@@ -677,15 +694,20 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
 
     def _init_controls(self):
         for k, v in self.di_widgets.items():
-            if v.has_trait('value'):
-                v.observe(functools.partial(self._watch_change, key=k, watch="value"), "value")
-            elif v.has_trait('_value'):
-                v.observe(functools.partial(self._watch_change, key=k, watch="_value"), "_value")
+            if v.has_trait("value"):
+                v.observe(
+                    functools.partial(self._watch_change, key=k, watch="value"), "value"
+                )
+            elif v.has_trait("_value"):
+                v.observe(
+                    functools.partial(self._watch_change, key=k, watch="_value"),
+                    "_value",
+                )
             else:
                 pass
         if self.config_autoui.show_raw:
             self.showraw.observe(self._showraw, "value")
-            
+
     def _watch_change(self, change, key=None, watch="value"):
         setattr(self._pydantic_obj, key, getattr(self.di_widgets[key], watch))
         self.value = (
@@ -766,7 +788,6 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
                 LineGraphUi = AutoUi.create_displayfile(config_autoui)
                 user_file_renderers = {'.lg.json': line_graph_prev}
                 DisplayFiles = functools.partial(DisplayFiles, user_file_renderers=user_file_renderers)
-                
         """
         return functools.partial(
             cls.parse_file, config_autoui=config_autoui, fn_onsave=fn_onsave
@@ -813,8 +834,6 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
         self.pydantic_obj.file(path)
 
 
-
-
 # +
 # test_constants = load_test_constants()
 # path = test_constants.PATH_TEST_AUI
@@ -841,3 +860,4 @@ if __name__ == "__main__":
     )
     ui_file = TestAuiDisplayFile(test_constants.PATH_TEST_AUI)
     display(ui_file)
+

@@ -12,7 +12,7 @@
 #   kernelspec:
 #     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: conda-env-ipyautoui-xpython
+#     name: ipyautoui
 # ---
 
 # +

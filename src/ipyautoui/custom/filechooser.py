@@ -10,7 +10,7 @@
 #   kernelspec:
 #     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: conda-env-ipyautoui-xpython
+#     name: ipyautoui
 # ---
 
 """wrapper for ipyfilechooster.FileChooser"""
@@ -22,11 +22,13 @@ from traitlets import HasTraits, default, validate
 from traitlets_paths import PurePath  # TODO: create conda recipe for this package
 from ipyfilechooser import FileChooser
 
+
 def make_path(path):
     if type(path) == str:
         return pathlib.PurePath(path)
     else:
         return path
+
 
 class FileChooser(FileChooser, HasTraits):
     """inherits ipyfilechooster.FileChooser but initialises
@@ -37,25 +39,26 @@ class FileChooser(FileChooser, HasTraits):
     Reference:
         https://github.com/crahan/ipyfilechooser
     """
+
     _value = PurePath()
-    
-    @validate('_value')
+
+    @validate("_value")
     def _valid_value(self, proposal):
-        return make_path(proposal['value'])
-    
-    @default('_value')
+        return make_path(proposal["value"])
+
+    @default("_value")
     def _default_value(self):
-        return pathlib.Path('.')
-    
+        return pathlib.Path(".")
+
     @property
     def value(self):
         return self._value
-    
+
     @value.setter
     def value(self, value: PurePath):
         """having the setter allows users to pass a new value field to the class which also updates the 
         `selected` argument used by FileChooser"""
-        self._value =  value
+        self._value = value
         p = pathlib.Path(self.value)
         if p.is_dir():
             self.reset(self.value, None)
@@ -64,12 +67,12 @@ class FileChooser(FileChooser, HasTraits):
         elif p.parent.is_dir():
             self.reset(p.parent, None)
         else:
-            raise ValueError(f'{str(p)} not a valid path or dir')
+            raise ValueError(f"{str(p)} not a valid path or dir")
         self._apply_selection()
-    
-    def __init__(self, value: pathlib.Path=None, **kwargs):
+
+    def __init__(self, value: pathlib.Path = None, **kwargs):
         try:
-            kwargs.pop('title')
+            kwargs.pop("title")
         except:
             pass
         if value is None:
@@ -77,27 +80,29 @@ class FileChooser(FileChooser, HasTraits):
         else:
             value = pathlib.Path(value)
             if value.is_file():
-                if 'filename' in kwargs:
-                    del kwargs['filename']
+                if "filename" in kwargs:
+                    del kwargs["filename"]
                 super().__init__(str(value.parent), filename=value.name, **kwargs)
                 self._apply_selection()
             elif value.is_dir():
                 super().__init__(str(value), **kwargs)
             else:
-                print('path given doesnt exist')
+                print("path given doesnt exist")
                 super().__init__(str(value), **kwargs)
-        self._set_value('click')
+        self._set_value("click")
         self._init_controls()
-        
+
     def _init_controls(self):
         self._select.on_click(self._set_value)
-    
+
     def _set_value(self, onchange):
         if self.selected is not None:
             self._value = self.selected
-            
+
+
 if __name__ == "__main__":
     from ipyautoui.constants import load_test_constants
+
     test_constants = load_test_constants()
     fc = FileChooser(test_constants.PATH_TEST_AUI.parent)
     display(fc)

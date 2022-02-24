@@ -34,10 +34,11 @@ class TestAutoLogic(BaseModel):
     checkbox: bool = True
     dropdown: Gender = None
     dropdown_simple: str = Field(default ='asd', enum=['asd','asdf'])
-    combobox: str = Field(default ='asd', enum=['asd','asdf'], autoui="<class 'ipywidgets.widgets.widget_string.Combobox'>")
+    combobox: str = Field(default ='asd', enum=['asd','asdf'], autoui='ipywidgets.widgets.widget_string.Combobox')
     # selection_range_slider
     select_multiple: typing.List[Gender] = Field(default =['male','female']) # TODO: make this work. requires handling the "anyOf" JSON link
     select_multiple_simple: typing.List[str] = Field(default =['male','female'], enum=['male','female', 'other', 'not_given'])
+    select_multiple_search: typing.List[str] = Field(default =['male','female'], enum=['male','female', 'other', 'not_given'], autoui='ipyautoui.custom.multiselect_search.MultiSelectSearch')
     text: constr(min_length=0, max_length=20) = 'short text'
     text_area: constr(min_length=0, max_length=800)  = 'long text ' * 50
     date_picker: date = date.today()
@@ -46,7 +47,7 @@ class TestAutoLogic(BaseModel):
     file_chooser: pathlib.Path = pathlib.Path('.')
     array: typing.List[str] = Field(default=[], max_items=5)
     # file_upload # TODO: how best to implement this? could auto-save to another location...
-    run_name: str = Field(default='000-lean-description', autoui="<class 'ipyautoui.custom.modelrun.RunName'>", zfill=3) 
+    run_name: str = Field(default='000-lean-description', autoui='ipyautoui.custom.modelrun.RunName', zfill=3) 
     datagrid: str = Field(default=pd.DataFrame.from_dict({'test':[0,1],'df':[1,2]}).to_json(), format="DataFrame")
     nested: NestedObject = Field(default=None)
     
