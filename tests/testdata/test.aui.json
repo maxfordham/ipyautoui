@@ -24,10 +24,14 @@
         "male",
         "female"
     ],
+    "select_multiple_search": [
+        "male",
+        "female"
+    ],
     "text": "short text",
     "text_area": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ",
-    "date_picker": "2022-01-31",
-    "datetime_picker": "2022-01-31T10:41:28.043080",
+    "date_picker": "2022-02-20",
+    "datetime_picker": "2022-02-20T13:49:03.958929",
     "color_picker": "#f5f595",
     "file_chooser": ".",
     "array": [],
