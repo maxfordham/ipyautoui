@@ -13,7 +13,7 @@ dependencies:
   - jupyterlab>=3.0.14
   - xeus-python
   - ipywidgets
-  - ipysheet>=0.5.0
+#  - ipysheet>=0.5.0
   - ipyfilechooser
   - ipydatagrid
 #  - ipyrun>=v0.1.9
@@ -34,9 +34,10 @@ dependencies:
   - black
   - nb_black
   - immutables
-  - sphinx # for docs
-  - sphinx-book-theme # for docs
-  - autodoc-pydantic # for docs
+  - wcmatch
+#  - sphinx # for docs
+#  - sphinx-book-theme # for docs
+#  - autodoc-pydantic # for docs
   - pytest
   - pip
   - pip:
