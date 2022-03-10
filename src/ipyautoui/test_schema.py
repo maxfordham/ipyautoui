@@ -46,6 +46,7 @@ class TestAutoLogic(BaseModel):
     color_picker: Color = '#f5f595'
     file_chooser: pathlib.Path = pathlib.Path('.')
     array: typing.List[str] = Field(default=[], max_items=5)
+    objects_array: typing.List[NestedObject] = Field(default=[], max_items=5)
     # file_upload # TODO: how best to implement this? could auto-save to another location...
     run_name: str = Field(default='000-lean-description', autoui='ipyautoui.custom.modelrun.RunName', zfill=3) 
     datagrid: str = Field(default=pd.DataFrame.from_dict({'test':[0,1],'df':[1,2]}).to_json(), format="DataFrame")

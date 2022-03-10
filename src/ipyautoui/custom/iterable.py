@@ -10,7 +10,7 @@
 #   kernelspec:
 #     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: ipyautoui
+#     name: conda-env-ipyautoui-xpython
 # ---
 
 # +
@@ -488,7 +488,6 @@ class Array(widgets.VBox, traitlets.HasTraits):
     def _init_controls(self):
         self.toggle_button.observe(self._toggle_button, "value")
         [self._init_row_controls(key=i.key) for i in self.iterable]
-        # self._init_row_controls(item.key)  # TODO
 
     def _sort_iterable(self):
         if self.sort_on == "index":
@@ -773,3 +772,5 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     di.items = {"key1": fn_add(), "key2": fn_add()}
 # --
+
+

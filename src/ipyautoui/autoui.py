@@ -10,7 +10,7 @@
 #   kernelspec:
 #     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: ipyautoui
+#     name: conda-env-ipyautoui-xpython
 # ---
 
 # +
@@ -184,8 +184,20 @@ def get_format(pr, typ="date"):
 
 
 def get_range(pr, typ="integer"):
+    """finds numeric range within schema properties. a range in json must satisfy these criteria:
+    - check1: array length == 2
+    - check2: minimum and maximum values must be given
+    - check3: check numeric typ given (i.e. integer or number)
+    """
     array = get_type(pr, typ="array")
-    array = {k: v for k, v in array.items() if len(v["items"]) == 2}
+
+    #  check1: array length == 2
+    array = {k: v for k, v in array.items() if len(v["items"]) == 2}  
+    if len(array) == 0:
+        return {}
+    #  ^ if len(v["items"]) != 2 returns empty dict
+
+    #  check2: minimum and maximum values must be given
     tmp = {}
     for k, v in array.items():
         tmp[k] = v
@@ -193,12 +205,18 @@ def get_range(pr, typ="integer"):
             if "minimum" not in i and "maximum" not in i:
                 tmp = {}
     if len(tmp) == 0:
-        return tmp
-    else:
-        rng = {k: v for k, v in tmp.items() if v["items"][0]["type"] == typ}
-        for k, v in rng.items():
-            rng[k]["minimum"] = v["items"][0]["minimum"]
-            rng[k]["maximum"] = v["items"][0]["maximum"]
+        return {}
+    #  ^ if "minimum" and "maximum" not given returns empty dict
+
+    #  check3: check numeric typ given (i.e. integer or number)
+    rng = {k: v for k, v in tmp.items() if v["items"][0]["type"] == typ}
+    if len(rng) == 0:
+        return {}
+    #  ^ if wrong numeric type given returns empty dict
+
+    for k, v in rng.items():
+        rng[k]["minimum"] = v["items"][0]["minimum"]
+        rng[k]["maximum"] = v["items"][0]["maximum"]
     return rng
 
 
@@ -216,7 +234,6 @@ def drop_explicit_autoui(pr):
 
 def find_explicit_autoui(pr):
     return {k: v for k, v in pr.items() if "autoui" in v}
-
 
 #  ----------------------------------------------------------
 
@@ -339,15 +356,24 @@ def get_ColorPicker(pr, rename_keys=True):
 
 def get_IntRangeSlider(pr, rename_keys=True):
     pr = drop_explicit_autoui(pr)
+    pr = get_range(pr, typ="integer")
     return call_rename_schema_keys(
-        get_range(pr, typ="integer"), rename_keys=rename_keys
+        pr, rename_keys=rename_keys
     )
 
 
 def get_FloatRangeSlider(pr, rename_keys=True):
     pr = drop_explicit_autoui(pr)
-    return call_rename_schema_keys(get_range(pr, typ="number"), rename_keys=rename_keys)
+    pr = get_range(pr, typ="number")
+    return call_rename_schema_keys(pr, rename_keys=rename_keys)
 
+def get_Object(pr, rename_keys=True): # TODO: get_Object not currently in use. need to update AutoUi
+    pr = drop_explicit_autoui(pr)
+    object_ = get_type(pr, "object")
+    pr_ = list(object_.values())[0]
+    pr_ =  map_to_widget(pr_) 
+    object_["properties"] = call_rename_schema_keys(pr_, rename_keys=rename_keys)
+    return object_
 
 def get_AutoOveride(pr, rename_keys=True):
     pr = find_explicit_autoui(pr)
@@ -396,6 +422,7 @@ DI_WIDGETS_MAPPER = {
     "FloatRangeSlider": WidgetMapper(
         fn_filt=get_FloatRangeSlider, widget=widgets.FloatRangeSlider
     ),
+    #"object": WidgetMapper(fn_filt=get_Object, widget=AutoUi),
     "AutoOveride": WidgetMapper(fn_filt=get_AutoOveride, widget=auto_overide),
 }
 
@@ -453,6 +480,11 @@ if __name__ == "__main__":
     sch = test.schema()
     mapped = map_to_widget(sch)
     [print(f"{k} --> {v['autoui']}") for k, v in mapped.items()]
+    
+    
+    # testing get_Object
+    # pr = sch["properties"]
+    # get_Object(pr, rename_keys=True)
 
 
 # +
@@ -512,6 +544,7 @@ def displayfile_renderer(path, renderer=None):
 
 
 def get_value_trait(widget):
+    """looks for a value or _value trait on widget (allowing setters and getters to be used on value)"""
     if "_value" in widget.traits().keys():
         return widget.traits()["_value"]
     elif "value" in widget.traits().keys():
@@ -529,7 +562,7 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
 
     def __init__(
         self,
-        pydantic_obj: typing.Type[BaseModel],
+        pydantic_obj: typing.Type[BaseModel], # TODO: need to update to take the schema as an input to enable nested lookups / recursion
         config_autoui: AutoUiConfig = None,
         path: pathlib.Path = None,
         fn_onsave: typing.Callable = lambda: None,
@@ -550,7 +583,6 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
 
         Example:
             ::
-            
                 
                 from ipyautoui.test_schema import TestAutoLogic
                 # ^ import example schema
@@ -860,4 +892,6 @@ if __name__ == "__main__":
     )
     ui_file = TestAuiDisplayFile(test_constants.PATH_TEST_AUI)
     display(ui_file)
+
+
 
