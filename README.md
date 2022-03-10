@@ -16,6 +16,10 @@ kernelspec:
 
 wrapper that sits on top of ipywidgets and other ipy widget libraries to template / automate the creation of widget forms. Uses pydantic to create defined data-container and serialisation to JSON. Includes example patterns for adding new custom widgets.
 
+__Current Limations__: 
+
+- Doesn't support nested objects or arrays. 
+
 +++ {"tags": []}
 
 ## Create a UI object
