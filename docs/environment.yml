@@ -40,7 +40,7 @@ dependencies:
   - black
   - nb_black
   - immutables
-  - jupyterbook # for docs
+  - jupyter-book # for docs
   - sphinx # for docs
   - sphinx-book-theme # for docs
   - sphinx-autoapi
