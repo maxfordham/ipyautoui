@@ -8,7 +8,7 @@ from math import log10, floor
 import ipywidgets as widgets
 from IPython.display import display, Markdown
 import codecs
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, Field
 import typing
 import importlib.util
 import immutables
@@ -230,6 +230,7 @@ def round_sig_figs(x: float, sig_figs: int):
     else:
         return x
     
+    
 class PyObj(BaseModel):
     """a definition of a python object"""
     path: pathlib.Path
@@ -278,8 +279,8 @@ def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
 
 import importlib.util
 import typing
-
-def obj_to_importstr(obj: typing.Callable):
+# TODO: use obj_to_importstr and obj_from_importstr rather than load_PyObj
+def obj_to_importstr(obj: typing.Callable): # NOT IN USE
     """
     given a callable callable object this will return the 
     import string to. From the string the object can be 
@@ -306,7 +307,7 @@ def obj_to_importstr(obj: typing.Callable):
 
     return mod +'.'+ nm
 
-def obj_from_importstr(importstr: str) -> typing.Type:
+def obj_from_importstr(importstr: str) -> typing.Type: # NOT IN USE
     """
     given the import string of an object this function and returns the Obj. 
     
@@ -325,3 +326,53 @@ def obj_from_importstr(importstr: str) -> typing.Type:
     mod, nm = importstr.rsplit('.', 1)
 
     return getattr(importlib.import_module(mod), nm)
+
+class SerializableCallable(BaseModel): # NOT IN USE
+    callable_str: typing.Union[typing.Callable, str] = Field(..., 
+                                                             description="import string that can use importlib\
+                                                              to create a python obj. Note. if a Callable object\
+                                                              is given it will be converted into a string")                                    
+    callable_obj: typing.Union[typing.Callable, typing.Type]= Field(None, exclude=True) 
+    
+    @validator("callable_str", always=True)
+    def _callable_str(cls, v, values):
+        if type(v) != str:
+            return obj_to_importstr(v)
+        invalid = [i for i in "!@#£[]()<>|¬$%^&*,?''- "]
+        for i in invalid:
+            if i in v:
+                raise ValueError(f'callable_str = {v}. import_str must not contain spaces {i}')
+        return v
+    
+    @validator("callable_obj", always=True)
+    def _callable_obj(cls, v, values):
+        return obj_from_importstr(values["callable_str"])
+    
+def create_pydantic_json_file(pyobj: typing.Union[str, PyObj], path: pathlib.Path, **kwargs):
+    """
+    loads a pyobj (which must be a pydantic model) and then saves the default Json to file. 
+    this requires defaults for all pydantic attributes. 
+    
+    Todo:
+        could extend the functionality to cover models that don't have defaults
+        using [pydantic-factories](https://github.com/Goldziher/pydantic-factories)
+    
+    Args:
+        pyobj (SerializableCallable): definition of where to get a pydantic model
+        path (pathlib.Path): where to save the pydantic json
+        **kwargs : passed to the pydantic model upon initiation
+        
+    Returns: 
+        path
+    """
+    if type(pyobj) == str:
+        obj = SerializableCallable(pyobj).callable_obj
+    else:
+        obj = load_PyObj(pyobj)
+    assert str(type(obj)) == "<class 'pydantic.main.ModelMetaclass'>", "the python object must be a pydantic model"
+    if not hasattr(obj, "file"):
+        setattr(obj, 'file', file)
+    assert hasattr(obj, "file"), "the pydantic BaseModel must be extended to have method 'file' for writing model to json"
+    myobj = obj(**kwargs)
+    myobj.file(path)
+    return path

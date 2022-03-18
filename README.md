@@ -1,64 +1,70 @@
----
-jupytext:
-  formats: ipynb,md:myst
-  text_representation:
-    extension: .md
-    format_name: myst
-    format_version: 0.13
-    jupytext_version: 1.13.6
-kernelspec:
-  display_name: Python 3 (ipykernel)
-  language: python
-  name: python3
----
 
 # ipyautoui
 
-wrapper that sits on top of ipywidgets and other ipy widget libraries to template / automate the creation of widget forms. Uses pydantic to create defined data-container and serialisation to JSON. Includes example patterns for adding new custom widgets.
+A high-level wrapper library that sits on top of [__ipywidgets__](https://github.com/jupyter-widgets/ipywidgets) ( other ipy- widget libraries), [__pydantic__](https://github.com/samuelcolvin/pydantic/) and Jupycter rich display system to template and automate the creation of widget forms / user-interfaces. The key user-facing classes in this library are __AutoUi__ and __DisplayFiles__:
+```python
+from ipyautoui import AutoUi, DisplayFiles
+```
+
+__Note__. This package intends to be high-level and thus so it sits on top of many other pacakges and libraries. As such, it is intentionally a "heavy" package with lots of dependencies.
+
+## AutoUi
+
+- AutoUi uses [__pydantic__](https://github.com/samuelcolvin/pydantic/) to define the schema of User Input form, and then infers the widget to use based on type and user-directives
+- Within the core package there are also custom high-level widgets (e.g. Array of items), as well as integration's with other popular widget libraries (e.g. ipydatagrid, ipyfilechooser): this both adds useful functionality not provided within the lower-level widget libraries as well as providing a template for how to extend the core functionality of ipyautoui to suit more specific use-cases. 
+- ipyautoui handles observing the values of interface items, and maintains a stateful and validated `.value` parameter for the whole user input form.  
+- TODO: AutoUi also allows the user to specify the usage of [__ipyvuetify__](https://github.com/widgetti/ipyvuetify) and [__vuetify-jsonschema-form__](https://github.com/koumoul-dev/vuetify-jsonschema-form)
+    - __note__. this is the recommended approach for simple and generic input forms. Where custom UI objects are required these can be built using the ipyautoui core library. 
+
+
+```python
+from pydantic import BaseModel, Field
+from ipyautoui import AutoUi
+
+class LineGraph(BaseModel):
+    """parameters to define a simple `y=m*x + c` line graph"""
+    title: str = Field(default='line equation', description='add chart title here')
+    m: float = Field(default=2, description='gradient')
+    c: float = Field(default=5, description='intercept')
+    x_range: tuple[int, int] = Field(default=(0,5), ge=0, le=50, description='x-range for chart')
+    y_range: tuple[int, int] = Field(default=(0,5), ge=0, le=50, description='y-range for chart')
+    
+lg = LineGraph()
+ui = AutoUi(pydantic_obj=lg)
+ui
+```
+#![](images/autoui-linegraph.png)
+
+```python
+
+ui.value  # there is a `value` trait that is always kept in-sync with the widget input form
+# {'title': 'line equation',
+#  'm': 2,
+#  'c': 5,
+#  'x_range': (0, 5),
+#  'y_range': (0, 5)}
+
+#  methods / stored values
+ui.file #  file data to .json file
+ui.value #  input form value dict
+ui.pydantic_obj #  input form pydantic model (note. value is created from this on_change)
+AutoUi.create_displayfile_renderer #  creates a json-serializable pointer 
+AutoUi.parse_file #  init ui with data from .json file
+```
 
 __Current Limations__: 
 
-- Doesn't support nested objects or arrays. 
+- Doesn't support nested objects or arrays. Coming soon... 
 
-+++ {"tags": []}
+## DisplayFiles (TODO: name change to display, facilitating display of database data?)
 
-## Create a UI object
+- DisplayFiles uses Jupyter's rich display system and large ecosystem of 3rd party packages to create a simple and unified display wrapper to various filetypes.
+- The renderer for a given file is inferred from the file extension. 
+     - TODO: where the datasource is not a file, the extension is a mapping code that maps a renderer to the datastructure of the data. 
+- Custom renderer's can be 
 
-ipyautoui creates a row of widgets with a: `name`, `value` and `label`. The `value` is interpreted by the WidgetRowBase class and a widget is widget type is guess by the type of the value and the `kwargs` that can also be passed when initialising the widget.
 
-```{code-cell} ipython3
-# TODO: refer to ipyfilechooser for inspiration for README.md
-```
 
-```{code-cell} ipython3
-import sys
-sys.path.append('src')
-from ipyautoui.autoui import AutoUi
-
-?AutoUi
-```
-
-```{code-cell} ipython3
-rows = [
-    {'value': 1, 'name':'integer'},
-    {'value': 'string'}, 
-    {'value': 1, 'kwargs': {'min':0, 'max':4}}
-]
-
-aui = AutoUiBase(rows = rows)
-ui = AutoUi(aui)
-ui
-```
-
-```{code-cell} ipython3
-# AutoUi class adds the widget attribute
-# it uses traitlets to ensure that if the widget value
-# changes the ui.value attribute also changes with it
-display(ui.rows[0].widget)
-print(ui.rows[0].widget.value)
-ui.rows[0].widget.value = 2
-ui.rows[0].value
-```
 
 ## Development installation
 
@@ -68,52 +74,4 @@ For a development installation (requires JupyterLab (version >= 3), yarn, and ma
 $ git clone https://github.com/jgunstone/ipyautoui
 $ cd ipyautoui
 $ mamba env create --file environment-dev.yml
-```
-
-+++
-
-## Output / transport data from UI
-
-```{code-cell} ipython3
-## using Pydantic data serialisation amd config option introduced in v1.8.3,
-# the JSON inconpatible attributes are removed
-# when the widget is written to dict or JSON. 
-ui.dict()
-```
-
-## Reload data back into UI
-
-the `autoui_type` saves a class string defining what widget should be used. This is converted to the object using importlib.
-
-```{code-cell} ipython3
-#  importlib is used to create the widget from the `autoui_type` string characteristic
-aui = AutoUiBase(**ui.dict())
-AutoUi(aui)
-```
-
-## Create custom UI object rows
-
-This library mainly relies on ipywidgets, but other libraries can also be used. The AutoUi widget uses traitlets to watch when the `widget.value` changes, wrappers can be made around other widget libraries to allow this behaviour. 
-
-In this way pandas dataframes using ipydatagrid can also be used.
-
-(See `ipyautoui.custom_widgets` for more examples.
-
-```{code-cell} ipython3
-import pandas as pd
-rows.append(
-    {'name':'pandas', 'value': pd.DataFrame({'col1': [1, 2], 'col2': [3, 4]}), 'label': 'example of a custom widget'}
-)
-```
-
-```{code-cell} ipython3
-aui = AutoUiBase(rows = rows)
-ui = AutoUi(aui)
-ui
-```
-
-## Write to file
-
-```{code-cell} ipython3
-
 ```
