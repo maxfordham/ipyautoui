@@ -235,14 +235,11 @@ class PyObj(BaseModel):
     """a definition of a python object"""
     path: pathlib.Path
     obj_name: str
-    module_name: str = None
+    module_name: str = Field(None, description='ignore, this is overwritten by a validator')
 
     @validator("module_name", always=True)
     def _module_name(cls, v, values):
-        if v is None:
-            return values["path"].stem
-        else:
-            return v
+        return values["path"].stem
         
 def load_PyObj(obj: PyObj):
     spec = importlib.util.spec_from_file_location(obj.module_name, obj.path)
