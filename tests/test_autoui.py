@@ -4,7 +4,6 @@
 """Tests for `ipyautoui` package."""
 from pprint import pprint
 import shutil
-import pytest
 import pathlib
 
 # from src.ipyautoui.test_schema import TestSchema

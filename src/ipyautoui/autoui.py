@@ -614,7 +614,10 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
             assert self.config_autoui.pydantic_model == type(
                 self.pydantic_obj
             ), "self.config_autoui.pydantic_model != type(self.pydantic_obj)"
-        self.path = pathlib.Path(path)
+        if path is not None:
+            self.path = pathlib.Path(path)
+        else:
+            self.path = path
         self.save_on_edit = False
         self._init_ui()
 
