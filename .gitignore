@@ -79,3 +79,4 @@ target/
 /tests/filetypes/.ipynb_checkpoints
 /examples/.ipynb_checkpoints
 /junit.xml
+/docs/.ipynb_checkpoints
