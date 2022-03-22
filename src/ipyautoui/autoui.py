@@ -614,7 +614,7 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
             assert self.config_autoui.pydantic_model == type(
                 self.pydantic_obj
             ), "self.config_autoui.pydantic_model != type(self.pydantic_obj)"
-        self.path = path
+        self.path = pathlib.Path(path)
         self.save_on_edit = False
         self._init_ui()
 
@@ -796,30 +796,6 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
         Returns:
             functools.partial(cls.parse_file, config_autoui=config_autoui) (callable function)
 
-        Example:
-            ::
-            
-                # import example
-                from ipyautoui.test_schema import TestAutoLogic
-                # from ipyautoui.autoui import display_template_ui_model
-                # display_template_ui_model()
-                # ^ view python / pydantic definition for TestAutoLogic
-                # ?TestAutoLogic
-                # ^ inspect TestAutoLogic
-
-                # create AutoUi instance
-                config_autoui = AutoUiConfig(pydantic_model=TestAutoLogic, ext='.aui.json')
-                TestUi = AutoUi.create_displayfile(config_autoui)
-
-                # extend DisplayFiles
-                import functools
-                from ipyautoui.displayfile import DisplayFiles
-                def test_ui_prev(path):
-                    display(TestUi(path))
-                config_autoui = AutoUiConfig(pydantic_model=LineGraph, ext='.lg.json')
-                LineGraphUi = AutoUi.create_displayfile(config_autoui)
-                user_file_renderers = {'.lg.json': line_graph_prev}
-                DisplayFiles = functools.partial(DisplayFiles, user_file_renderers=user_file_renderers)
         """
         return functools.partial(
             cls.parse_file, config_autoui=config_autoui, fn_onsave=fn_onsave
@@ -828,7 +804,51 @@ class AutoUi(widgets.VBox, traitlets.HasTraits):
     @classmethod
     def create_displayfile_renderer(
         cls, config_autoui: AutoUiConfig, fn_onsave: typing.Callable = lambda: None
-    ):
+    )-> typing.Dict:
+        """
+        creates a configured AutoUi callable. this is used to extend ipyautoui.DisplayFiles which
+        requires a function with only a single input variable (path).
+
+        Args:
+            config_autoui (AutoUiConfig): _default = None_.
+                pydantic_model: model definition
+                widgets_mapper: maps ipywidgets to datatypes in the pydantic_model json schema
+                save_controls: enum, handles saving to file
+                ext: compound json file extension. maps type to UI reader.
+
+        Returns:
+            {ext: functools.partial(cls.parse_file, config_autoui=config_autoui)}
+            
+        Example:
+            ::
+            
+                from ipyautoui.test_schema import TestAutoLogic
+                from ipyautoui.displayfile import DisplayFiles
+                
+                # notes:
+                # -----
+                # from ipyautoui.autoui import display_template_ui_model
+                # display_template_ui_model()
+                # ^ view python / pydantic definition for TestAutoLogic
+                # ?TestAutoLogic
+                # ^ inspect TestAutoLogic
+
+                # create AutoUi instance
+                config_TestAutoLogic = AutoUiConfig(pydantic_model=TestAutoLogic, ext='.aui.json')
+                render_TestAutoLogic = AutoUi.create_displayfile(config_TestAutoLogic)
+                # display AutoUi
+                aui = AutoUi(pydantic_obj=TestAutoLogic(), path='test.aui.json', config_autoui=config_TestAutoLogic)
+                aui.file() # save a test to dir
+                
+                # create class that extends DisplayFiles
+                class TestAutoLogicDisplayFiles(DisplayFiles):
+                    def __init__(self, paths):
+                        super().__init__(paths, user_file_renderers=render_TestAutoLogic, patterns='*aui.json')
+                        
+                # check it works
+                TestAutoLogicDisplayFiles(paths=['test.aui.json'])   
+
+        """
         renderer = cls.create_displayfile(
             config_autoui=config_autoui, fn_onsave=fn_onsave
         )
