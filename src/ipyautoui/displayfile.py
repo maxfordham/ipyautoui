@@ -7,11 +7,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.6
+#       jupytext_version: 1.11.5
 #   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: ipyautoui
+#     name: python3
 # ---
 
 """
@@ -806,7 +806,6 @@ if __name__ == "__main__":
     fpth = "test_schema.py"
     d = DisplayFile(fpth, auto_open=True)
     display(d)
-# -
 
 
 # +
@@ -816,6 +815,33 @@ from traitlets import validate, HasTraits
 
 
 class DisplayFiles(HasTraits):
+    """
+    displays the contents of a file in the notebook.
+    comes with the following default renderers:
+    default_file_renderers = {
+        '.csv': csv_prev,
+        '.json': json_prev,
+        '.plotly': plotlyjson_prev,
+        '.plotly.json': plotlyjson_prev,
+        '.vg.json': vegajson_prev,
+        '.vl.json': vegalitejson_prev,
+        '.ipyui.json': ipyuijson_prev,
+        '.yaml': yaml_prev,
+        '.yml': yaml_prev,
+        '.png': img_prev,
+        '.jpg': img_prev,
+        '.jpeg': img_prev,
+        #'.obj': obj_prev, # add ipyvolume viewer? 
+        '.txt': txt_prev,
+        '.md': md_prev,
+        '.py': py_prev,
+        '.pdf': pdf_prev,
+    }
+    user_file_renderers can be passed to class provided they have the correct
+    dict format: user_file_renderers = {'.ext': myrenderer}
+    notice that the class allows for "compound" filetypes, especially useful for .json files
+    if you want to display the data in a specific way. 
+    """
 
     _paths = traitlets.List()
 
@@ -829,11 +855,22 @@ class DisplayFiles(HasTraits):
         paths: typing.List[pathlib.Path],
         default_file_renderers: Dict[str, Callable] = default_file_renderers,
         user_file_renderers: Dict[str, Callable] = None,
-        newroot=pathlib.PureWindowsPath("J:/"),
-        patterns: str = None,
+        newroot=pathlib.PureWindowsPath("J:/"), # TODO: remove this. update mf_file_utilities. define this in a config file somewhere... 
+        patterns: typing.Union[str, typing.List] = None,
         title: str = None,
         display_showhide: bool = False,
     ):
+        """
+        Args:
+            paths (typing.List[pathlib.Path]): list of paths to display
+            default_file_renderers: default renderers
+            user_file_renderers: default = {}, custom user-defined file renderers
+            newroot: passed to open_file
+            patterns: (str or list), patterns to auto-open
+            title: (str), dfeault = None, 
+            
+            
+        """
         self._init_form()
         self._init_controls()
         self.title = title
