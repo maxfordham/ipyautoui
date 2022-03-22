@@ -1,12 +1,30 @@
-
 # ipyautoui
 
-A high-level wrapper library that sits on top of [__ipywidgets__](https://github.com/jupyter-widgets/ipywidgets) ( other ipy- widget libraries), [__pydantic__](https://github.com/samuelcolvin/pydantic/) and Jupycter rich display system to template and automate the creation of widget forms / user-interfaces. The key user-facing classes in this library are __AutoUi__ and __DisplayFiles__:
+A high-level wrapper library that sits on top of [__ipywidgets__](https://github.com/jupyter-widgets/ipywidgets) (and other ipy- widget libraries), [__pydantic__](https://github.com/samuelcolvin/pydantic/) and Jupycter rich display system to template and automate the creation of widget forms / user-interfaces. The core user-facing classes in this library are __AutoUi__ and __DisplayFiles__:
 ```python
 from ipyautoui import AutoUi, DisplayFiles
 ```
+## How it works: 
 
-__Note__. This package intends to be high-level and thus so it sits on top of many other pacakges and libraries. As such, it is intentionally a "heavy" package with lots of dependencies.
+- Make a pydantic model (or json schema) that defines the UI
+- Pass the model to `AutoUi` to generate an user-interface
+- Save the UI fields to file 
+- Assign a compound-json filetype to the schema and generate `DisplayFiles` rendererer
+- Use `DisplayFiles` to display the json file using the AutoUi interface
+
+## Dependencies
+
+This package intends to be high-level, and unifies many other ipy- libraries under a simple and familliar API. 
+Core widget dependencies include: 
+- ipywidgets
+- ipydatagrid
+- ipyfilechooser
+- ipyvue
+- ipyvuetify
+- vuetify-jsonschema-form
+- Altair (for viewing `.vg.json` files)
+- Plotly (for viewing `.plotly.json` files)
+
 
 ## AutoUi
 
@@ -33,7 +51,7 @@ lg = LineGraph()
 ui = AutoUi(pydantic_obj=lg)
 ui
 ```
-#![](images/autoui-linegraph.png)
+![](images/autoui-linegraph.png)
 
 ```python
 
@@ -56,12 +74,14 @@ __Current Limations__:
 
 - Doesn't support nested objects or arrays. Coming soon... 
 
-## DisplayFiles (TODO: name change to display, facilitating display of database data?)
+## DisplayFiles 
+
+`(TODO: name change to display, facilitating display of database data?)`
 
 - DisplayFiles uses Jupyter's rich display system and large ecosystem of 3rd party packages to create a simple and unified display wrapper to various filetypes.
 - The renderer for a given file is inferred from the file extension. 
      - TODO: where the datasource is not a file, the extension is a mapping code that maps a renderer to the datastructure of the data. 
-- Custom renderer's can be 
+- Custom renderer's can be passed to `DisplayFiles` allowing it to display user-defined filetypes (or compound extension filetypes)
 
 
 
