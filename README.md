@@ -4,36 +4,19 @@ A high-level wrapper library that sits on top of [__ipywidgets__](https://github
 ```python
 from ipyautoui import AutoUi, DisplayFiles
 ```
-## How it works: 
 
-- Make a pydantic model (or json schema) that defines the UI
-- Pass the model to `AutoUi` to generate an user-interface
-- Save the UI fields to file 
-- Assign a compound-json filetype to the schema and generate `DisplayFiles` rendererer
-- Use `DisplayFiles` to display the json file using the AutoUi interface
+## Installation
 
-## Dependencies
 
-This package intends to be high-level, and unifies many other ipy- libraries under a simple and familliar API. 
-Core widget dependencies include: 
-- ipywidgets
-- ipydatagrid
-- ipyfilechooser
-- ipyvue
-- ipyvuetify
-- vuetify-jsonschema-form
-- Altair (for viewing `.vg.json` files)
-- Plotly (for viewing `.plotly.json` files)
+```
+# TODO: do this! 
 
+mamba install ipyautoui -c conda-forge  # mamba ...
+conda install ipyautoui -c conda-forge  # or conda ...
+pip install ipyautoui  # or pip ...
+```
 
 ## AutoUi
-
-- AutoUi uses [__pydantic__](https://github.com/samuelcolvin/pydantic/) to define the schema of User Input form, and then infers the widget to use based on type and user-directives
-- Within the core package there are also custom high-level widgets (e.g. Array of items), as well as integration's with other popular widget libraries (e.g. ipydatagrid, ipyfilechooser): this both adds useful functionality not provided within the lower-level widget libraries as well as providing a template for how to extend the core functionality of ipyautoui to suit more specific use-cases. 
-- ipyautoui handles observing the values of interface items, and maintains a stateful and validated `.value` parameter for the whole user input form.  
-- TODO: AutoUi also allows the user to specify the usage of [__ipyvuetify__](https://github.com/widgetti/ipyvuetify) and [__vuetify-jsonschema-form__](https://github.com/koumoul-dev/vuetify-jsonschema-form)
-    - __note__. this is the recommended approach for simple and generic input forms. Where custom UI objects are required these can be built using the ipyautoui core library. 
-
 
 ```python
 from pydantic import BaseModel, Field
@@ -74,7 +57,16 @@ __Current Limations__:
 
 - Doesn't support nested objects or arrays. Coming soon... 
 
+- AutoUi uses [__pydantic__](https://github.com/samuelcolvin/pydantic/) to define the schema of User Input form, and then infers the widget to use based on type and user-directives
+- `ipyautoui.custom.` provides useful widgets (e.g. iterable) that aren't included within the core ipywidgets library
+- ipyautoui defines a best practice for creating and integrating custom widgets, and as default includes some widgets from other opular widget libraries (e.g. ipydatagrid, ipyfilechooser). 
+- ipyautoui handles observing the values, and maintains a stateful and validated `.value` parameter for the whole user input form.  
+- TODO: AutoUi also allows the user to specify the usage of [__ipyvuetify__](https://github.com/widgetti/ipyvuetify) and [__vuetify-jsonschema-form__](https://github.com/koumoul-dev/vuetify-jsonschema-form)
+    - __note__. this is the recommended approach for simple and generic input forms. Where custom UI objects are required these can be built using the ipyautoui core library. 
+
 ## DisplayFiles 
+
+
 
 `(TODO: name change to display, facilitating display of database data?)`
 
@@ -84,6 +76,35 @@ __Current Limations__:
 - Custom renderer's can be passed to `DisplayFiles` allowing it to display user-defined filetypes (or compound extension filetypes)
 
 
+## How it works: 
+
+```mermaid
+  graph TD;
+      A-->B;
+      A-->C;
+      B-->D;
+      C-->D;
+```
+
+- Make a pydantic model (or json schema) that defines the UI
+- Pass the model to `AutoUi` to generate an user-interface
+- Save the UI fields to file 
+- Assign a compound-json filetype to the schema and generate `DisplayFiles` rendererer
+- Use `DisplayFiles` to display the json file using the AutoUi interface
+
+## Dependencies
+
+This package intends to be high-level, and unifies many other ipy- libraries under a simple and familliar API. 
+
+- [pydantic](https://github.com/samuelcolvin/pydantic/) 
+- [ipywidgets](https://github.com/jupyter-widgets/ipywidgets)
+- [ipydatagrid](https://github.com/bloomberg/ipydatagrid)
+- [ipyfilechooser](https://github.com/crahan/ipyfilechooser)
+- [ipyvue](https://github.com/widgetti/ipyvue)
+- [ipyvuetify](https://github.com/widgetti/ipyvuetify)
+- [vuetify-jsonschema-form](https://github.com/koumoul-dev/vuetify-jsonschema-form)
+- [Altair](https://github.com/altair-viz/altair) (for viewing `.vg.json` files)
+- [Plotly](https://github.com/plotly/plotly.py) (for viewing `.plotly.json` files)
 
 
 ## Development installation

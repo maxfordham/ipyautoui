@@ -40,6 +40,9 @@ sphinx:
   - 'sphinx.ext.todo'
   - 'sphinx.ext.autosummary'
   - 'autoapi.extension'
+  #- 'jupyter_sphinx'
+  #- 'nbsphinx'
+  #- 'nbsphinx_link'
   config:
     # add_module_names: False
     # autosummary_generate: True
