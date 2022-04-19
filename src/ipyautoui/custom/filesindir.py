@@ -7,11 +7,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.6
+#       jupytext_version: 1.11.5
 #   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: ipyautoui
+#     name: python3
 # ---
 
 # %run __init__.py
@@ -134,7 +134,7 @@ class MatchStrings(ListStrings):
         ]
 
 
-# +
+# -
 
 
 class FindFiles(widgets.VBox, HasTraits):
@@ -306,8 +306,6 @@ class FindFiles(widgets.VBox, HasTraits):
         self.refresh.on_click(self._refresh)
 
 
-# -
-
 if __name__ == "__main__":
 
     fdir = "../"
@@ -319,7 +317,7 @@ if __name__ == "__main__":
         patterns=patterns,
         recursive=True,
         title="<b>find files in folder</b>",
-        match_files=None,
+        # match_files=[pathlib.Path("filesindir.py"), "fileupload.py",],
     )  # , editable_fdir=True
     display(ff)
 
@@ -327,4 +325,6 @@ if __name__ == "__main__":
     ff.editable_fdir = True
 
 if __name__ == "__main__":
-    ff.editable_patterns = True
+    ff.editable_patterns = False
+
+
