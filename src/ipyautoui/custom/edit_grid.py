@@ -12,7 +12,7 @@
 #   kernelspec:
 #     display_name: Python [conda env:ipyautoui]
 #     language: python
-#     name: ipyautoui
+#     name: conda-env-ipyautoui-xpython
 # ---
 
 # +
@@ -582,16 +582,11 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             if self.data_handler is not None:
                 self.data_handler.fn_patch(self)
 
-            df = (
-                self.grid.data
-            )  # Can't assign directly to data so must assign to another variable before pushing changes through the setter.
-            for (
-                k,
-                v,
-            ) in (
-                self.base_form.to_dict.items()
-            ):  # update selected row with updated values
+            df = self.grid.data
+            # ^ Can't assign directly to data so must assign to another variable before pushing changes through the setter.
+            for k, v, in self.base_form.to_dict.items():
                 df.loc[self.selected_row, k] = v
+            # ^ update selected row with updated values
 
             self.grid.data = df  # Update data through setter
         else:  # Else, if adding values, use post
@@ -657,3 +652,15 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
     def _set_value(self):
         self.data = pd.DataFrame(self.value)
 
+
+if __name__ == "__main__":
+    #  
+    from ipyautoui.test_schema import TestAutoLogicSimple
+    cols = list(TestAutoLogicSimple().dict().keys())
+    data = list(TestAutoLogicSimple().dict().values())
+    data = [data,data]
+    df = pd.DataFrame(columns=cols, data=data)
+    display(EditGrid(TestAutoLogicSimple, df=df)) 
+    # ^ TODO: edit row not working
+    # ^ TODO: pass schema as input rather than pydantic model (then it can work as a nested object)
+    # ^ TODO: save data as list of dicts, then it can be easily serialised to json
