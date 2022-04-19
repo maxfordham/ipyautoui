@@ -49,7 +49,9 @@ class SaveButtonBar(widgets.HBox):
         self,
         save: typing.Callable = save,
         revert: typing.Callable = revert,
-        fn_onsave: typing.Callable = lambda: None,
+        fn_onsave: typing.Union[
+            typing.Callable, typing.List[typing.Callable]
+        ] = lambda: None,
     ):
         """
         UI save dialogue 
@@ -106,7 +108,12 @@ class SaveButtonBar(widgets.HBox):
             f'_changes saved: {datetime.now().strftime("%H:%M:%S")}_'
         )
         self._unsaved_changes(False)
-        self.fn_onsave()
+        if type(self.fn_onsave) == typing.Callable:
+            self.fn_onsave()
+        elif type(self.fn_onsave) == list:
+            [f() for f in self.fn_onsave]
+        else:
+            ValueError('fn_onsave must be zero-order func or list of zero-order funcs')
 
     def _revert(self, click):
         self.fn_revert()
