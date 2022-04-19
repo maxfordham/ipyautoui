@@ -10,7 +10,7 @@ from ipyautoui._utils import frozenmap
 DIR_MODULE = pathlib.Path(__file__).parent
 DIR_EXAMPLE = DIR_MODULE.parents[1] / "examples"
 
-BUTTON_WIDTH_MIN = '41px'
+BUTTON_WIDTH_MIN = '44px'
 BUTTON_WIDTH_MEDIUM = '90px'
 BUTTON_HEIGHT_MIN = '25px'
 ROW_WIDTH_MEDIUM = '120px'
