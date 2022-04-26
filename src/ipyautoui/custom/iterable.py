@@ -6,11 +6,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.6
+#       jupytext_version: 1.11.5
 #   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-ipyautoui-xpython
+#     name: python3
 # ---
 
 # +
@@ -655,7 +655,6 @@ class AutoIterable:
 
 
 # + endofcell="--"
-
 # -
 
 if __name__ == "__main__":
@@ -772,5 +771,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     di.items = {"key1": fn_add(), "key2": fn_add()}
 # --
+
+
 
 

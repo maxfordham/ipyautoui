@@ -59,6 +59,9 @@ from ipyautoui.custom import Grid, FileChooser, SaveButtonBar
 from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
 from ipyautoui.constants import load_test_constants
 from ipyautoui.test_schema import TestAutoLogic
+import immutables
+
+frozenmap = immutables.Map
 # -
 
 if __name__ == "__main__":
@@ -72,14 +75,15 @@ if __name__ == "__main__":
 
 # +
 # sch
+# -
 
-# +
 def display_template_ui_model():
     from ipyautoui import test_schema
 
     display(PreviewPy(test_schema, docstring_priority=False))
 
 
+# +
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
 def recursive_search_schema(sch: typing.Dict, li: typing.List) -> typing.Dict:
     """searches down schema tree to retrieve definitions
@@ -100,52 +104,45 @@ def recursive_search_schema(sch: typing.Dict, li: typing.List) -> typing.Dict:
         return sch[f]
 
 
-def update_property_from_definition(
-    sch: typing.Dict, item: typing.Dict, key: typing.Any
-) -> typing.Dict:
-    """attaches definition back to properties in schema
-
-    Args:
-        sch (typing.Dict): json schema
-        item (typing.Dict): definition item
-        key (typing.Any): what to search for (#ref)
-
-    Returns:
-        typing.Dict: sch
+def attach_schema_refs(schema, schema_base=None):
     """
-    k = list(item.keys())[0]
-    v = list(item.values())[0]
-
-    li_filt = v[key].split("/")[1:]
-    definition = recursive_search_schema(sch, li_filt)
-
-    di_new = {}
-    for k_, v_ in item.items():
-        di_new[k_] = definition
-
-    sch["properties"][k] = di_new[k]
-    return sch
-
-
-def update_property_definitions(sch: typing.Dict, key: str):
-    """attaches all definitions back to properties.
-    TODO - currently only looks at the first level!
-    TODO - add recursion
-
+    attachs #definitions to $refs within the main schema
+    recursive function. schema_base is constant as is used for retrieving definitions. 
+    schema is recursively edited. 
+    
     Args:
-        sch (typing.Dict): [description]
-        key (str): [description]
-
+        schema (dict): json schema
+        schema_base (dict): same as above but isn't recursively searched. leave blank 
+            and it defaults to schema
+    
     Returns:
-        [type]: [description]
+        schema (dict): with $refs removed and replaced with #defintions
+    
     """
-    li_definitions = [{k: v} for k, v in sch["properties"].items() if key in v]
-    for l in li_definitions:
-        sch = update_property_from_definition(sch, l, key)
-    return sch
+    if schema_base is None:
+        schema_base = schema
+    if type(schema) == list:
+        for n, s in enumerate(schema):
+            schema[n] = attach_schema_refs(s, schema_base=schema_base)
+    elif type(schema) == dict:
+        for k, v in schema.items():
+            if type(v) == dict:
+                if "$ref" in v:
+                    li_filt = v["$ref"].split("/")[1:]
+                    schema[k] = recursive_search_schema(schema_base, li_filt)
+                else:
+                    schema[k] = attach_schema_refs(v, schema_base=schema_base)
+            elif type(v) == list:
+                schema[k] = attach_schema_refs(v, schema_base=schema_base)
+            else:
+                pass
+    else:
+        pass
+    return schema
 
 
 #  ----------------------------------------------------------
+
 #  -- CHANGE JSON-SCHEMA KEYS TO IPYWIDGET KEYS -------------
 def update_key(key, di_map=DI_JSONSCHEMA_WIDGET_MAP):
     if key in di_map.keys():
@@ -154,8 +151,13 @@ def update_key(key, di_map=DI_JSONSCHEMA_WIDGET_MAP):
         return key
 
 
-def update_keys(di, di_map=DI_JSONSCHEMA_WIDGET_MAP):
-    return {update_key(k, di_map): v for k, v in di.items()}
+def update_keys(di, di_map=DI_JSONSCHEMA_WIDGET_MAP, ignore_description=False):
+    if ignore_description:
+        return {
+            update_key(k, di_map): v for k, v in di.items() if k != "description"
+        }  # TODO: make this work!
+    else:
+        return {update_key(k, di_map): v for k, v in di.items()}
 
 
 def add_description_field(di):
@@ -171,6 +173,13 @@ def add_description_field(di):
 
 def rename_schema_keys(di, di_map=DI_JSONSCHEMA_WIDGET_MAP):
     di = add_description_field(di)
+    rename = {}
+    for k, v in di.items():
+        if v["type"] == "object":
+            rename[k] = update_keys(v, di_map, ignore_description=True)
+        else:
+            rename[k] = update_keys(v, di_map)
+
     rename = {k: update_keys(v, di_map) for k, v in di.items()}
     return rename
 
@@ -239,8 +248,15 @@ def find_enums(pr):
     return {k: v for k, v in pr.items() if "enum" in v}
 
 
+def check_for_autoui(v):
+    try:
+        return "autoui" not in v
+    except:
+        return True
+
+
 def drop_explicit_autoui(pr):
-    return {k: v for k, v in pr.items() if "autoui" not in v}
+    return {k: v for k, v in pr.items() if check_for_autoui(v)}
 
 
 def find_explicit_autoui(pr):
@@ -378,32 +394,21 @@ def get_FloatRangeSlider(pr, rename_keys=True):
     return call_rename_schema_keys(pr, rename_keys=rename_keys)
 
 
-def get_Object(
-    pr, rename_keys=True
-):  # TODO: get_Object not currently in use. need to update AutoUi
+def get_Object(pr, rename_keys=True):
     pr = drop_explicit_autoui(pr)
     object_ = get_type(pr, "object")
-    if len(object_) > 0:
+    if len(object_) > 0:  # what is this for?
         pr_ = list(object_.values())[0]
     else:
         pr_ = []
-    pr_ = map_to_widget(pr_)
-    object_["properties"] = call_rename_schema_keys(pr_, rename_keys=rename_keys)
+
     return object_
 
 
-def get_Object(
-    pr, rename_keys=True
-):  # TODO: get_Object not currently in use. need to update AutoUi
+def get_Array(pr, rename_keys=True):
     pr = drop_explicit_autoui(pr)
-    object_ = get_type(pr, "object")
-    if len(object_) > 0:
-        pr_ = list(object_.values())[0]
-    else:
-        pr_ = []
-    # pr_ =  map_to_widget(pr_)
-    # object_["properties"] = call_rename_schema_keys(pr_, rename_keys=rename_keys)
-    return object_
+    arr = get_type(pr, "array")
+    return arr
 
 
 def get_AutoOveride(pr, rename_keys=True):
@@ -416,7 +421,18 @@ def get_AutoOveride(pr, rename_keys=True):
 #  -- WIDGET MAPPING ----------------------------------------
 #  -- uses filter functions to map schema objects to widgets
 def auto_overide(str_widget_type):
-    return obj_from_importstr(str_widget_type)
+    if type(str_widget_type) == str:
+        return obj_from_importstr(str_widget_type)
+    else:
+        return str_widget_type
+
+
+class AutoIpywidgetPlaceholder:
+    pass
+
+
+class AutoArrayPlaceholder:
+    pass
 
 
 class WidgetMapper(BaseModel):
@@ -428,34 +444,45 @@ class WidgetMapper(BaseModel):
     widget: typing.Callable
 
 
-DI_WIDGETS_MAPPER = {
-    "IntText": WidgetMapper(fn_filt=get_IntText, widget=widgets.IntText),
-    "IntSlider": WidgetMapper(fn_filt=get_IntSlider, widget=widgets.IntSlider),
-    "FloatText": WidgetMapper(fn_filt=get_FloatText, widget=widgets.FloatText),
-    "FloatSlider": WidgetMapper(fn_filt=get_FloatSlider, widget=widgets.FloatSlider),
-    "Text": WidgetMapper(fn_filt=get_Text, widget=widgets.Text),
-    "Textarea": WidgetMapper(fn_filt=get_Textarea, widget=widgets.Textarea),
-    "Dropdown": WidgetMapper(fn_filt=get_Dropdown, widget=widgets.Dropdown),
-    "SelectMultiple": WidgetMapper(
-        fn_filt=get_SelectMultiple, widget=widgets.SelectMultiple
-    ),
-    "Checkbox": WidgetMapper(fn_filt=get_Checkbox, widget=widgets.Checkbox),
-    "DatePicker": WidgetMapper(fn_filt=get_DatePicker, widget=widgets.DatePicker),
-    "DatetimePicker": WidgetMapper(
-        fn_filt=get_DatetimePicker, widget=widgets.DatePicker
-    ),  # TODO: udpate to DatetimePicker with ipywidgets==8
-    "FileChooser": WidgetMapper(fn_filt=get_FileChooser, widget=FileChooser),
-    "Grid": WidgetMapper(fn_filt=get_DataGrid, widget=Grid),
-    "ColorPicker": WidgetMapper(fn_filt=get_ColorPicker, widget=widgets.ColorPicker),
-    "IntRangeSlider": WidgetMapper(
-        fn_filt=get_IntRangeSlider, widget=widgets.IntRangeSlider
-    ),
-    "FloatRangeSlider": WidgetMapper(
-        fn_filt=get_FloatRangeSlider, widget=widgets.FloatRangeSlider
-    ),
-    # "object": WidgetMapper(fn_filt=get_Object, widget=UiFromSchema),
-    "AutoOveride": WidgetMapper(fn_filt=get_AutoOveride, widget=auto_overide),
-}
+DI_WIDGETS_MAPPER = frozenmap(
+    **{
+        "IntText": WidgetMapper(fn_filt=get_IntText, widget=widgets.IntText),
+        "IntSlider": WidgetMapper(fn_filt=get_IntSlider, widget=widgets.IntSlider),
+        "FloatText": WidgetMapper(fn_filt=get_FloatText, widget=widgets.FloatText),
+        "FloatSlider": WidgetMapper(
+            fn_filt=get_FloatSlider, widget=widgets.FloatSlider
+        ),
+        "Text": WidgetMapper(fn_filt=get_Text, widget=widgets.Text),
+        "Textarea": WidgetMapper(fn_filt=get_Textarea, widget=widgets.Textarea),
+        "Dropdown": WidgetMapper(fn_filt=get_Dropdown, widget=widgets.Dropdown),
+        "SelectMultiple": WidgetMapper(
+            fn_filt=get_SelectMultiple, widget=widgets.SelectMultiple
+        ),
+        "Checkbox": WidgetMapper(fn_filt=get_Checkbox, widget=widgets.Checkbox),
+        "DatePicker": WidgetMapper(fn_filt=get_DatePicker, widget=widgets.DatePicker),
+        "DatetimePicker": WidgetMapper(
+            fn_filt=get_DatetimePicker, widget=widgets.DatePicker
+        ),  # TODO: udpate to DatetimePicker with ipywidgets==8
+        "FileChooser": WidgetMapper(fn_filt=get_FileChooser, widget=FileChooser),
+        "Grid": WidgetMapper(fn_filt=get_DataGrid, widget=Grid),
+        "ColorPicker": WidgetMapper(
+            fn_filt=get_ColorPicker, widget=widgets.ColorPicker
+        ),
+        "AutoOveride": WidgetMapper(
+            fn_filt=get_AutoOveride, widget=auto_overide
+        ),  # TODO: this should be first...
+        "object": WidgetMapper(
+            fn_filt=get_Object, widget=AutoIpywidgetPlaceholder
+        ),  # AutoIpywidget. gets overridden by AutoIpywidget.
+        "array": WidgetMapper(fn_filt=get_Array, widget=AutoArrayPlaceholder),
+        "IntRangeSlider": WidgetMapper(
+            fn_filt=get_IntRangeSlider, widget=widgets.IntRangeSlider
+        ),
+        "FloatRangeSlider": WidgetMapper(
+            fn_filt=get_FloatRangeSlider, widget=widgets.FloatRangeSlider
+        ),
+    }
+)
 
 
 def map_to_widget(
@@ -475,21 +502,25 @@ def map_to_widget(
     """
     if di_widgets_mapper is None:
         di_widgets_mapper = DI_WIDGETS_MAPPER
+    sch = attach_schema_refs(sch, schema_base=sch)
+    if "properties" in sch.keys():
+        pr = sch["properties"]
     else:
-        di_widgets_mapper = {**DI_WIDGETS_MAPPER, **di_widgets_mapper}
-    sch = update_property_definitions(sch, "$ref")
-    pr = sch["properties"]
+        # often true when items of array
+        pr = sch
     li_pr = pr.keys()
     di_ = {}
     for k, v in di_widgets_mapper.items():
         di = v.fn_filt(pr)
+        # if "type" in di.keys():
+        #     v.widget
         for k_, v_ in di.items():
             di_[k_] = v_
             if "autoui" not in v_:
                 di_[k_]["autoui"] = v.widget
             else:
-                pass
-                #  di_[k_]["autoui"] = v.widget(v_["autoui"])  # TODO: not sure this makes sense ...
+                # pass
+                di_[k_]["autoui"] = v.widget(v_["autoui"])  # apply autooverride...
     not_matched = set(di_.keys()) ^ set(li_pr)
     if len(not_matched) > 0:
         print(
@@ -502,20 +533,38 @@ def map_to_widget(
 
 
 # -
-
-from ipyautoui.test_schema import TestObjectsAndArrays
+from ipyautoui.test_schema import TestObjects
 
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic, TestObjectsAndArrays
+    from ipyautoui.test_schema import TestAutoLogic, TestObjects, TestArrays
     from ipyautoui.constants import load_test_constants
+    from copy import copy
 
     test_constants = load_test_constants()
-    test = TestObjectsAndArrays()
-    sch = test.schema()
+    test = TestArrays()
+    sch = copy(test.schema())
 
-    key = "$ref"
-    sch = update_property_definitions(sch, key)
-    pr = map_to_widget(sch)
+    def widgets_mapper(value=None):
+        if value is None:
+            _widgets_mapper = dict(DI_WIDGETS_MAPPER)
+        autonested = functools.partial(AutoIpywidget, show_raw=False)
+        autoarray = functools.partial(AutoArray)
+        _widgets_mapper["object"].widget = autonested
+        _widgets_mapper["array"].widget = autoarray
+        return _widgets_mapper
+
+    di_widgets_mapper = widgets_mapper()
+
+    sch = attach_schema_refs(sch, schema_base=sch)
+    pr = map_to_widget(sch, di_widgets_mapper=di_widgets_mapper)
+    box, di_widgets = _init_widgets_and_rows(pr)
+    [display(v) for k, v in di_widgets.items()]
+
+if __name__ == "__main__":
+    arr = di_widgets["array_strings"]
+    AutoArray(arr.schema).items
+    arr.schema
+    arr.fn_add()
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
@@ -525,42 +574,10 @@ if __name__ == "__main__":
     test = TestAutoLogic()
     sch = test.schema()
 
-    key = "$ref"
-    sch = update_property_definitions(sch, key)
-    pr = map_to_widget(sch)
+    # key = "$ref"
+    # sch = update_property_definitions(sch, key)
+    # pr = map_to_widget(sch)
 
-
-def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)):
-    """initiates widget for from dict built from schema
-
-    Args:
-        pr (typing.Dict): schema properties - sanitised for ipywidgets
-
-    Returns:
-        (widgets.VBox, typing.Dict): box with widgets, di of widgets
-    """
-
-    def _init_widget(v):
-        try:
-            kw = v
-            return v["autoui"](**kw)
-        except:
-            cl = v["autoui"]
-            args = inspect.getfullargspec(cl).args
-            kw = {k_: v_ for k_, v_ in v.items() if k_ in args}
-            return cl(**kw)
-
-    di_widgets = {k: _init_widget(v) for k, v in pr.items()}
-    labels = {
-        k: widgets.HTML(f"<b>{v['title']}</b>, <i>{v['autoui_description']}</i>")
-        for k, v in pr.items()
-    }
-    ui_box = widgets.VBox()
-    rows = []
-    for (k, v), (k2, v2) in zip(di_widgets.items(), labels.items()):
-        rows.append(widgets.HBox([v, v2]))
-    ui_box.children = rows
-    return ui_box, di_widgets
 
 def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)):
     """initiates widget for from dict built from schema
@@ -574,18 +591,19 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
 
     def _init_widget(v):
         if v["type"] == "object":
-            # from pprint import pprint
-            # pprint(v)
             return v["autoui"](v)
-        try:
-            kw = v
-            return v["autoui"](**kw)
-        except:
-            cl = v["autoui"]
-            args = inspect.getfullargspec(cl).args
-            kw = {k_: v_ for k_, v_ in v.items() if k_ in args}
-            # print(kw)
-            return cl(**kw)
+        elif v["type"] == "array":
+            return v["autoui"](v)
+        else:
+            try:
+                kw = v
+                return v["autoui"](**kw)
+            except:
+                cl = v["autoui"]
+                args = inspect.getfullargspec(cl).args
+                kw = {k_: v_ for k_, v_ in v.items() if k_ in args}
+                # print(kw)
+                return cl(**kw)
 
     di_widgets = {k: _init_widget(v) for k, v in pr.items()}
     # return di_widgets
@@ -596,10 +614,6 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
         except:
             l = widgets.HTML("")
         labels[k] = l
-    # labels = {
-    #     k: widgets.HTML(f"<b>{v['title']}</b>, <i>{v['autoui_description']}</i>")
-    #     for k, v in
-    # }
     ui_box = widgets.VBox()
     rows = []
     for (k, v), (k2, v2) in zip(di_widgets.items(), labels.items()):
@@ -611,6 +625,10 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
 
 # +
 # handler - decides what to do given set of inputs UiFromSchema - generates ui from jsonschema
+# -
+
+from ipyautoui.custom.iterable_1 import AutoArray
+
 
 # + tags=[]
 def _get_value_trait(widget):
@@ -623,7 +641,7 @@ def _get_value_trait(widget):
         raise ValueError("no value (or _value) trait found")
 
 
-class AutoIpywidget(widgets.VBox, traitlets.HasTraits):
+class AutoIpywidget(widgets.VBox): #, traitlets.HasTraits
     _value = traitlets.Dict()
 
     @traitlets.validate("_value")
@@ -648,12 +666,23 @@ class AutoIpywidget(widgets.VBox, traitlets.HasTraits):
         widgets_mapper=None,
     ):
         self.widgets_mapper = widgets_mapper
-        if self.widgets_mapper is None:
-            self.widgets_mapper = DI_WIDGETS_MAPPER
         self.show_raw = show_raw
         self._init_ui(schema)
         if value is not None:
             self.value = value
+
+    @property
+    def widgets_mapper(self):
+        return self._widgets_mapper
+
+    @widgets_mapper.setter
+    def widgets_mapper(self, value):
+        if value is None:
+            self._widgets_mapper = dict(DI_WIDGETS_MAPPER)
+        autonested = functools.partial(AutoIpywidget, show_raw=False)
+        autoarray = AutoArray
+        self._widgets_mapper["object"].widget = autonested
+        self._widgets_mapper["array"].widget = autoarray
 
     def _init_ui(self, schema):
         self._init_schema(schema)
@@ -662,10 +691,8 @@ class AutoIpywidget(widgets.VBox, traitlets.HasTraits):
         self._init_controls()
 
     def _init_schema(self, schema):
-        key = "$ref"
-        self.sch = update_property_definitions(schema, key)
+        self.sch = attach_schema_refs(schema, schema_base=schema)
         self.pr = map_to_widget(self.sch, di_widgets_mapper=self.widgets_mapper)
-        # print(self.pr)
 
     def _update_widgets_from_value(self):
         for k, v in self.value.items():
@@ -680,7 +707,12 @@ class AutoIpywidget(widgets.VBox, traitlets.HasTraits):
 
     def _init_form(self):
         super().__init__(
-            layout=widgets.Layout(width="100%", display="flex", flex="flex-grow", border='solid LemonChiffon 2px')
+            layout=widgets.Layout(
+                width="100%",
+                display="flex",
+                flex="flex-grow",
+                border="solid LemonChiffon 2px",
+            )
         )  # main container
         self.ui_header = widgets.VBox()
         self.ui_main = widgets.VBox()
@@ -718,7 +750,6 @@ class AutoIpywidget(widgets.VBox, traitlets.HasTraits):
         titlebox_children.append(self.title)
         if "description" in self.sch.keys():
             children.append(widgets.HTML(markdown(f"{self.sch['description']}")))
-
         self.titlebox.children = titlebox_children
         self.ui_titlebox.children = children
 
@@ -773,5 +804,47 @@ if __name__ == "__main__":
     ui = AutoIpywidget(sch)
     display(ui)
 # -
+if __name__ == "__main__":
+    sch = attach_schema_refs(
+        ui.sch["properties"]["recursive_nest"]["properties"]["nested"],
+        schema_base=ui.sch["properties"]["recursive_nest"]["properties"]["nested"],
+    )
+    pr = map_to_widget(sch)
+
+    sch
+
+    sch
+
+    AutoIpywidget(schema=ui.sch["properties"]["recursive_nest"]["properties"]["nested"])
+
+    schema = {
+        "title": "NestedObject",
+        "description": "description in docstring",
+        "type": "object",
+        "properties": {
+            "string1": {
+                "title": "String1",
+                "description": "a description about my string",
+                "default": "adsf",
+                "type": "string",
+            },
+            "int_slider1": {
+                "title": "Int Slider1",
+                "default": 2,
+                "minimum": 0,
+                "maximum": 3,
+                "type": "integer",
+                "description": "",
+            },
+            "int_text1": {
+                "title": "Int Text1",
+                "default": 1,
+                "type": "integer",
+                "description": "",
+            },
+        },
+    }
+
+    AutoIpywidget(schema, show_raw=False)
 
 

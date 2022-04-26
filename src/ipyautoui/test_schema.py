@@ -55,7 +55,7 @@ class TestAutoLogicSimple(BaseModel):
     combobox: str = Field(
         default="asd",
         enum=["asd", "asdf"],
-        autoui="ipywidgets.widgets.widget_string.Combobox",
+        autoui="ipyautoui.autowidgets.Combobox",
     )
     # selection_range_slider
     text: constr(min_length=0, max_length=20) = "short text"
@@ -129,13 +129,19 @@ class TestAutoLogic(TestAutoLogicSimple):
         # arbitrary_types_allowed = True#
         
         
-class TestObjectsAndArrays(BaseModel):
+class TestObjects(BaseModel):
     string: str = Field(default="adsf", description="a description about my string")
     nested: NestedObject = Field(default=None)
     recursive_nest: RecursiveNest = Field(default=None)
-    array: typing.List[str] = Field(default=[], max_items=5)
-    objects_array: typing.List[NestedObject] = Field(default=[], max_items=5)
+
+    
+class TestArrays(BaseModel):
+    array_strings: typing.List[str] = Field(default=['f','d'], max_items=5, min_items=2)
+    array_strings1: typing.List[str] = Field(default=[], max_length=5, min_length=2)
+    array_objects: typing.List[NestedObject] = Field(default=[], max_items=5)
+    array_mixed: typing.List[typing.Union[NestedObject, str]] = Field(default=[], max_items=5)
     objects_array_styled: typing.List[NestedObject] = Field(
+        description='styled array, only works with AutoVuetify',
         default=[], 
         max_items=5, 
         x_itemTitle="titleProp", 

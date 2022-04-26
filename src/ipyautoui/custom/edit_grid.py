@@ -8,11 +8,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.6
+#       jupytext_version: 1.11.5
 #   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-ipyautoui-xpython
+#     name: python3
 # ---
 
 # +
@@ -654,13 +654,16 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
 
 if __name__ == "__main__":
-    #  
+    #
     from ipyautoui.test_schema import TestAutoLogicSimple
+
     cols = list(TestAutoLogicSimple().dict().keys())
     data = list(TestAutoLogicSimple().dict().values())
-    data = [data,data]
+    data = [data, data]
     df = pd.DataFrame(columns=cols, data=data)
-    display(EditGrid(TestAutoLogicSimple, df=df)) 
+    display(EditGrid(TestAutoLogicSimple, df=df))
     # ^ TODO: edit row not working
     # ^ TODO: pass schema as input rather than pydantic model (then it can work as a nested object)
     # ^ TODO: save data as list of dicts, then it can be easily serialised to json
+
+
