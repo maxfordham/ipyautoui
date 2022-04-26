@@ -199,7 +199,6 @@ def drop_explicit_autoui(pr):
 def find_explicit_autoui(pr):
     return {k: v for k, v in pr.items() if "autoui" in v}
 
-
 #  ----------------------------------------------------------
 
 #  -- FILTER FUNCTIONS --------------------------------------
@@ -357,8 +356,6 @@ def get_Array(pr, rename_keys=True):
 def get_AutoOveride(pr, rename_keys=True):
     pr = find_explicit_autoui(pr)
     return pr
-
-
 #  ----------------------------------------------------------
 
 #  -- WIDGET MAPPING ----------------------------------------
@@ -396,7 +393,6 @@ class WidgetMapper(BaseModel):
     """defines a filter function and associated widget. the "fn_filt" is used to search the
     json schema to find appropriate objects, the objects are then passed to the "widget" for the ui
     """
-
     fn_filt: typing.Callable
     widget: typing.Callable
 
@@ -404,7 +400,7 @@ class WidgetMapper(BaseModel):
 class WidgetCaller(BaseModel):
     schema_: typing.Dict
     autoui: typing.Callable  # TODO: change name autoui --> widget
-    value: typing.Any = None  # TODO: add functionality to add value
+    #mvalue: typing.Any = None  # TODO: add functionality to add value. (don't think this is required...)
 
 
 def widgetcaller(caller: WidgetCaller):
@@ -415,7 +411,13 @@ def widgetcaller(caller: WidgetCaller):
     Returns:
         widget of some kind
     """
+    # if type(caller.autoui) == str:  # object_from_string ?
+
     try:
+        # args = inspect.getfullargspec(cl).args
+        # kw = {k_: v_ for k_, v_ in v.items() if k_ in args}
+        # ^ do this if required (get allowed args from class)
+
         w = caller.autoui(caller.schema_)
 
     except:
@@ -472,52 +474,7 @@ DI_WIDGETS_MAPPER = frozenmap(
 )
 
 
-def map_to_widget(
-    sch: typing.Dict, di_widgets_mapper: typing.Dict = None
-) -> typing.Dict:
-    """maps the widgets to the appropriate data using the di_widgets_mapper.
-    also renames json schema keys to names that ipywidgets can understand.
-
-    Args:
-        sch (typing.Dict): [description]
-        di_widgets_mapper (typing.Dict, optional): [description]. Defaults to DI_WIDGETS_MAPPER.
-            if new mappings given they extend DI_WIDGETS_MAPPER. it is expected that renaming
-            schema keys (call_rename_schema_keys) is done in the filter function
-
-    Returns:
-        typing.Dict: a dict (same order as original) with widget type
-    """
-    if di_widgets_mapper is None:
-        di_widgets_mapper = DI_WIDGETS_MAPPER
-    sch = attach_schema_refs(sch, schema_base=sch)
-    if "properties" in sch.keys():
-        pr = sch["properties"]
-    else:
-        # often true when items of array
-        pr = sch
-    li_pr = pr.keys()
-    di_ = {}
-    for k, v in di_widgets_mapper.items():
-        di = v.fn_filt(pr)
-        for k_, v_ in di.items():
-            di_[k_] = v_
-            if "autoui" not in v_:
-                di_[k_]["autoui"] = v.widget
-            else:
-                # pass
-                di_[k_]["autoui"] = v.widget(v_["autoui"])  # apply autooverride...
-    not_matched = set(di_.keys()) ^ set(li_pr)
-    if len(not_matched) > 0:
-        print(
-            "the following UI items from schema not matched to a widget:"
-        )  # TODO: add logging!
-        print(not_matched)
-    li_ordered = [l for l in li_pr if l not in not_matched]
-    di_ordered = {l: di_[l] for l in li_ordered}
-    return di_ordered
-
-
-def map_to_widget(
+def automapschema(
     schema: typing.Dict, di_widgets_mapper: typing.Dict = None
 ) -> typing.Dict:
     """maps the widgets to the appropriate data using the di_widgets_mapper.
@@ -580,10 +537,10 @@ if __name__ == "__main__":
     # sch = deepcopy(TestAutoLogicSimple().schema())
     # sch = deepcopy(TestObjects().schema())
     sch = deepcopy(TestAutoLogic().schema())
-
-    sch = attach_schema_refs(sch, schema_base=sch)
-    pr = map_to_widget(sch)
+    pr = automapschema(sch)
 # -
 
 if __name__ == "__main__":
     display(widgets.VBox([widgetcaller(v) for k, v in pr.items()]))
+
+

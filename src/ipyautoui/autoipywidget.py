@@ -62,19 +62,8 @@ from ipyautoui.test_schema import TestAutoLogic
 import immutables
 
 frozenmap = immutables.Map
-# -
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
-    from ipyautoui.constants import load_test_constants
-
-    test_constants = load_test_constants()
-    test = TestAutoLogic()
-    sch = test.schema()
 
 
-# +
-# sch
 # -
 
 def display_template_ui_model():
@@ -84,499 +73,25 @@ def display_template_ui_model():
 
 
 # +
-#  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
-def recursive_search_schema(sch: typing.Dict, li: typing.List) -> typing.Dict:
-    """searches down schema tree to retrieve definitions
+from ipyautoui.custom.iterable_1 import AutoArray
+from ipyautoui.automapschema import automapschema, widgetcaller, DI_WIDGETS_MAPPER
 
-    Args:
-        sch (typing.Dict): json schema made from pydantic
-        li (typing.List): list of keys to search down tree
 
-    Returns:
-        typing.Dict: definition retrieved from schema
-    """
-    f = li[0]
-    if len(li) > 1:
-        li_tmp = li[1:]
-        sch_tmp = sch[f]
-        return recursive_search_schema(sch_tmp, li_tmp)
+def get_title_description_from_schema(schema):
+    if schema["type"] == "array":
+        return "", ""
+    elif schema["type"] == "object":
+        return "", ""
     else:
-        return sch[f]
-
-
-def attach_schema_refs(schema, schema_base=None):
-    """
-    attachs #definitions to $refs within the main schema
-    recursive function. schema_base is constant as is used for retrieving definitions. 
-    schema is recursively edited. 
-    
-    Args:
-        schema (dict): json schema
-        schema_base (dict): same as above but isn't recursively searched. leave blank 
-            and it defaults to schema
-    
-    Returns:
-        schema (dict): with $refs removed and replaced with #defintions
-    
-    """
-    if schema_base is None:
-        schema_base = schema
-    if type(schema) == list:
-        for n, s in enumerate(schema):
-            schema[n] = attach_schema_refs(s, schema_base=schema_base)
-    elif type(schema) == dict:
-        for k, v in schema.items():
-            if type(v) == dict:
-                if "$ref" in v:
-                    li_filt = v["$ref"].split("/")[1:]
-                    schema[k] = recursive_search_schema(schema_base, li_filt)
-                else:
-                    schema[k] = attach_schema_refs(v, schema_base=schema_base)
-            elif type(v) == list:
-                schema[k] = attach_schema_refs(v, schema_base=schema_base)
-            else:
-                pass
-    else:
-        pass
-    return schema
-
-
-#  ----------------------------------------------------------
-
-#  -- CHANGE JSON-SCHEMA KEYS TO IPYWIDGET KEYS -------------
-def update_key(key, di_map=DI_JSONSCHEMA_WIDGET_MAP):
-    if key in di_map.keys():
-        return di_map[key]
-    else:
-        return key
-
-
-def update_keys(di, di_map=DI_JSONSCHEMA_WIDGET_MAP, ignore_description=False):
-    if ignore_description:
-        return {
-            update_key(k, di_map): v for k, v in di.items() if k != "description"
-        }  # TODO: make this work!
-    else:
-        return {update_key(k, di_map): v for k, v in di.items()}
-
-
-def add_description_field(di):
-    for k, v in di.items():
-        if "description" not in v:
-            v["description"] = ""
-        # t=v['title']
-        # d=v['description']
-        # v['description'] = f"<b>{t}</b>, <i>{d}</i>"
-
-    return di
-
-
-def rename_schema_keys(di, di_map=DI_JSONSCHEMA_WIDGET_MAP):
-    di = add_description_field(di)
-    rename = {}
-    for k, v in di.items():
-        if v["type"] == "object":
-            rename[k] = update_keys(v, di_map, ignore_description=True)
+        if "title" in schema.keys():
+            t = schema["title"]
         else:
-            rename[k] = update_keys(v, di_map)
-
-    rename = {k: update_keys(v, di_map) for k, v in di.items()}
-    return rename
-
-
-def call_rename_schema_keys(di, di_map=DI_JSONSCHEMA_WIDGET_MAP, rename_keys=True):
-    if rename_keys:
-        return rename_schema_keys(di, di_map=di_map)
-    else:
-        return di
-
-
-#  ----------------------------------------------------------
-
-#  -- HELPER FUNCTIONS --------------------------------------
-def get_type(pr, typ="string"):
-    return {k: v for k, v in pr.items() if v["type"] == typ}
-
-
-def get_format(pr, typ="date"):
-    pr = {k: v for k, v in pr.items() if "format" in v}
-    return {k: v for k, v in pr.items() if v["format"] == typ}
-
-
-def get_range(pr, typ="integer"):
-    """finds numeric range within schema properties. a range in json must satisfy these criteria:
-    - check1: array length == 2
-    - check2: minimum and maximum values must be given
-    - check3: check numeric typ given (i.e. integer or number)
-    """
-    array = get_type(pr, typ="array")
-
-    #  check1: array length == 2
-    array = {k: v for k, v in array.items() if len(v["items"]) == 2}
-    if len(array) == 0:
-        return {}
-    #  ^ if len(v["items"]) != 2 returns empty dict
-
-    #  check2: minimum and maximum values must be given
-    tmp = {}
-    for k, v in array.items():
-        tmp[k] = v
-        for i in v["items"]:
-            if "minimum" not in i and "maximum" not in i:
-                tmp = {}
-    if len(tmp) == 0:
-        return {}
-    #  ^ if "minimum" and "maximum" not given returns empty dict
-
-    #  check3: check numeric typ given (i.e. integer or number)
-    rng = {k: v for k, v in tmp.items() if v["items"][0]["type"] == typ}
-    if len(rng) == 0:
-        return {}
-    #  ^ if wrong numeric type given returns empty dict
-
-    for k, v in rng.items():
-        rng[k]["minimum"] = v["items"][0]["minimum"]
-        rng[k]["maximum"] = v["items"][0]["maximum"]
-    return rng
-
-
-def drop_enums(pr):
-    return {k: v for k, v in pr.items() if "enum" not in v}
-
-
-def find_enums(pr):
-    return {k: v for k, v in pr.items() if "enum" in v}
-
-
-def check_for_autoui(v):
-    try:
-        return "autoui" not in v
-    except:
-        return True
-
-
-def drop_explicit_autoui(pr):
-    return {k: v for k, v in pr.items() if check_for_autoui(v)}
-
-
-def find_explicit_autoui(pr):
-    return {k: v for k, v in pr.items() if "autoui" in v}
-
-
-#  ----------------------------------------------------------
-
-#  -- FILTER FUNCTIONS --------------------------------------
-#  -- find relevant inputs from json-schema properties ------
-def get_IntText(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    ints = get_type(pr, typ="integer")
-    simple_ints = {
-        k: v for k, v in ints.items() if "minimum" not in v and "maximum" not in v
-    }
-    return call_rename_schema_keys(simple_ints, rename_keys=rename_keys)
-
-
-def get_IntSlider(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    ints = get_type(pr, typ="integer")
-    simple_ints = {k: v for k, v in ints.items() if "minimum" in v and "maximum" in v}
-    return call_rename_schema_keys(simple_ints, rename_keys=rename_keys)
-
-
-def get_FloatText(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    floats = get_type(pr, typ="number")
-    simple_floats = {
-        k: v for k, v in floats.items() if "minimum" not in v and "maximum" not in v
-    }
-    return call_rename_schema_keys(simple_floats, rename_keys=rename_keys)
-
-
-def get_FloatSlider(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    floats = get_type(pr, typ="number")
-    simple_floats = {
-        k: v for k, v in floats.items() if "minimum" in v and "maximum" in v
-    }
-    return call_rename_schema_keys(simple_floats, rename_keys=rename_keys)
-
-
-def get_Text(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    strings = get_type(pr)
-    short_strings = drop_enums(strings)
-    # short_strings = {k:v for k,v in strings.items() if 'maxLength' in v and v['maxLength']<200}
-    return call_rename_schema_keys(short_strings, rename_keys=rename_keys)
-
-
-def get_Textarea(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    strings = get_type(pr)
-    simple_strings = drop_enums(strings)
-    long_strings = {
-        k: v for k, v in strings.items() if "maxLength" in v and v["maxLength"] >= 200
-    }
-    return call_rename_schema_keys(long_strings, rename_keys=rename_keys)
-
-
-def get_Dropdown(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    drops = find_enums(pr)
-    drops = {k: v for k, v in drops.items() if v["type"] != "array"}
-    return call_rename_schema_keys(drops, rename_keys=rename_keys)
-
-
-def get_SelectMultiple(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    mult = find_enums(pr)
-    mult = {k: v for k, v in mult.items() if v["type"] == "array"}
-    return call_rename_schema_keys(mult, rename_keys=rename_keys)
-
-
-def get_Checkbox(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    return call_rename_schema_keys(get_type(pr, typ="boolean"), rename_keys=rename_keys)
-
-
-def get_DatePicker(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    date = get_type(pr, "string")
-    date = get_format(date)
-    for k, v in date.items():
-        if type(v["default"]) == str:
-            v["default"] = datetime.strptime(v["default"], "%Y-%m-%d").date()
-    return call_rename_schema_keys(date, rename_keys=rename_keys)
-
-
-def get_DatetimePicker(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    date = get_type(pr, "string")
-    date = get_format(date, typ="date-time")
-    for k, v in date.items():
-        if "default" in v.keys():
-            if type(v["default"]) == str:
-                v["default"] = datetime.strptime(
-                    v["default"], "%Y-%m-%dT%H:%M:%S.%f"
-                ).date()
-    return call_rename_schema_keys(date, rename_keys=rename_keys)
-
-
-def get_FileChooser(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    file = get_type(pr, "string")
-    file = get_format(file, typ="path")
-    return call_rename_schema_keys(file, rename_keys=rename_keys)
-
-
-def get_DataGrid(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    grid = get_type(pr, "string")
-    grid = get_format(grid, typ="DataFrame")
-    return call_rename_schema_keys(grid, rename_keys=rename_keys)
-
-
-def get_ColorPicker(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    color = get_type(pr, "string")
-    color = get_format(color, typ="color")
-    return call_rename_schema_keys(color, rename_keys=rename_keys)
-
-
-def get_IntRangeSlider(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    pr = get_range(pr, typ="integer")
-    return call_rename_schema_keys(pr, rename_keys=rename_keys)
-
-
-def get_FloatRangeSlider(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    pr = get_range(pr, typ="number")
-    return call_rename_schema_keys(pr, rename_keys=rename_keys)
-
-
-def get_Object(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    object_ = get_type(pr, "object")
-    if len(object_) > 0:  # what is this for?
-        pr_ = list(object_.values())[0]
-    else:
-        pr_ = []
-
-    return object_
-
-
-def get_Array(pr, rename_keys=True):
-    pr = drop_explicit_autoui(pr)
-    arr = get_type(pr, "array")
-    return arr
-
-
-def get_AutoOveride(pr, rename_keys=True):
-    pr = find_explicit_autoui(pr)
-    return call_rename_schema_keys(pr, rename_keys=rename_keys)
-
-
-#  ----------------------------------------------------------
-
-#  -- WIDGET MAPPING ----------------------------------------
-#  -- uses filter functions to map schema objects to widgets
-def auto_overide(str_widget_type):
-    if type(str_widget_type) == str:
-        return obj_from_importstr(str_widget_type)
-    else:
-        return str_widget_type
-
-
-class AutoIpywidgetPlaceholder:
-    pass
-
-
-class AutoArrayPlaceholder:
-    pass
-
-
-class WidgetMapper(BaseModel):
-    """defines a filter function and associated widget. the "fn_filt" is used to search the
-    json schema to find appropriate objects, the objects are then passed to the "widget" for the ui
-    """
-
-    fn_filt: typing.Callable
-    widget: typing.Callable
-
-
-DI_WIDGETS_MAPPER = frozenmap(
-    **{
-        "IntText": WidgetMapper(fn_filt=get_IntText, widget=widgets.IntText),
-        "IntSlider": WidgetMapper(fn_filt=get_IntSlider, widget=widgets.IntSlider),
-        "FloatText": WidgetMapper(fn_filt=get_FloatText, widget=widgets.FloatText),
-        "FloatSlider": WidgetMapper(
-            fn_filt=get_FloatSlider, widget=widgets.FloatSlider
-        ),
-        "Text": WidgetMapper(fn_filt=get_Text, widget=widgets.Text),
-        "Textarea": WidgetMapper(fn_filt=get_Textarea, widget=widgets.Textarea),
-        "Dropdown": WidgetMapper(fn_filt=get_Dropdown, widget=widgets.Dropdown),
-        "SelectMultiple": WidgetMapper(
-            fn_filt=get_SelectMultiple, widget=widgets.SelectMultiple
-        ),
-        "Checkbox": WidgetMapper(fn_filt=get_Checkbox, widget=widgets.Checkbox),
-        "DatePicker": WidgetMapper(fn_filt=get_DatePicker, widget=widgets.DatePicker),
-        "DatetimePicker": WidgetMapper(
-            fn_filt=get_DatetimePicker, widget=widgets.DatePicker
-        ),  # TODO: udpate to DatetimePicker with ipywidgets==8
-        "FileChooser": WidgetMapper(fn_filt=get_FileChooser, widget=FileChooser),
-        "Grid": WidgetMapper(fn_filt=get_DataGrid, widget=Grid),
-        "ColorPicker": WidgetMapper(
-            fn_filt=get_ColorPicker, widget=widgets.ColorPicker
-        ),
-        "AutoOveride": WidgetMapper(
-            fn_filt=get_AutoOveride, widget=auto_overide
-        ),  # TODO: this should be first...
-        "object": WidgetMapper(
-            fn_filt=get_Object, widget=AutoIpywidgetPlaceholder
-        ),  # AutoIpywidget. gets overridden by AutoIpywidget.
-        "array": WidgetMapper(fn_filt=get_Array, widget=AutoArrayPlaceholder),
-        "IntRangeSlider": WidgetMapper(
-            fn_filt=get_IntRangeSlider, widget=widgets.IntRangeSlider
-        ),
-        "FloatRangeSlider": WidgetMapper(
-            fn_filt=get_FloatRangeSlider, widget=widgets.FloatRangeSlider
-        ),
-    }
-)
-
-
-def map_to_widget(
-    sch: typing.Dict, di_widgets_mapper: typing.Dict = None
-) -> typing.Dict:
-    """maps the widgets to the appropriate data using the di_widgets_mapper.
-    also renames json schema keys to names that ipywidgets can understand.
-
-    Args:
-        sch (typing.Dict): [description]
-        di_widgets_mapper (typing.Dict, optional): [description]. Defaults to DI_WIDGETS_MAPPER.
-            if new mappings given they extend DI_WIDGETS_MAPPER. it is expected that renaming
-            schema keys (call_rename_schema_keys) is done in the filter function
-
-    Returns:
-        typing.Dict: a dict (same order as original) with widget type
-    """
-    if di_widgets_mapper is None:
-        di_widgets_mapper = DI_WIDGETS_MAPPER
-    sch = attach_schema_refs(sch, schema_base=sch)
-    if "properties" in sch.keys():
-        pr = sch["properties"]
-    else:
-        # often true when items of array
-        pr = sch
-    li_pr = pr.keys()
-    di_ = {}
-    for k, v in di_widgets_mapper.items():
-        di = v.fn_filt(pr)
-        # if "type" in di.keys():
-        #     v.widget
-        for k_, v_ in di.items():
-            di_[k_] = v_
-            if "autoui" not in v_:
-                di_[k_]["autoui"] = v.widget
-            else:
-                # pass
-                di_[k_]["autoui"] = v.widget(v_["autoui"])  # apply autooverride...
-    not_matched = set(di_.keys()) ^ set(li_pr)
-    if len(not_matched) > 0:
-        print(
-            "the following UI items from schema not matched to a widget:"
-        )  # TODO: add logging!
-        print(not_matched)
-    li_ordered = [l for l in li_pr if l not in not_matched]
-    di_ordered = {l: di_[l] for l in li_ordered}
-    return di_ordered
-
-
-# -
-from ipyautoui.test_schema import TestObjects
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic, TestObjects, TestArrays
-    from ipyautoui.constants import load_test_constants
-    from copy import copy
-
-    test_constants = load_test_constants()
-    test = TestArrays()
-    sch = copy(test.schema())
-
-    def widgets_mapper(value=None):
-        if value is None:
-            _widgets_mapper = dict(DI_WIDGETS_MAPPER)
-        autonested = functools.partial(AutoIpywidget, show_raw=False)
-        autoarray = functools.partial(AutoArray)
-        _widgets_mapper["object"].widget = autonested
-        _widgets_mapper["array"].widget = autoarray
-        return _widgets_mapper
-
-    di_widgets_mapper = widgets_mapper()
-
-    sch = attach_schema_refs(sch, schema_base=sch)
-    pr = map_to_widget(sch, di_widgets_mapper=di_widgets_mapper)
-    box, di_widgets = _init_widgets_and_rows(pr)
-    [display(v) for k, v in di_widgets.items()]
-
-if __name__ == "__main__":
-    arr = di_widgets["array_strings"]
-    AutoArray(arr.schema).items
-    arr.schema
-    arr.fn_add()
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
-    from ipyautoui.constants import load_test_constants
-
-    test_constants = load_test_constants()
-    test = TestAutoLogic()
-    sch = test.schema()
-
-    # key = "$ref"
-    # sch = update_property_definitions(sch, key)
-    # pr = map_to_widget(sch)
+            t = ""
+        if "description" in schema.keys():
+            d = schema["description"]
+        else:
+            d = ""
+        return t, d
 
 
 def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)):
@@ -588,29 +103,16 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     Returns:
         (widgets.VBox, typing.Dict): box with widgets, di of widgets
     """
-
     def _init_widget(v):
-        if v["type"] == "object":
-            return v["autoui"](v)
-        elif v["type"] == "array":
-            return v["autoui"](v)
-        else:
-            try:
-                kw = v
-                return v["autoui"](**kw)
-            except:
-                cl = v["autoui"]
-                args = inspect.getfullargspec(cl).args
-                kw = {k_: v_ for k_, v_ in v.items() if k_ in args}
-                # print(kw)
-                return cl(**kw)
+        return widgetcaller(v)
 
     di_widgets = {k: _init_widget(v) for k, v in pr.items()}
     # return di_widgets
     labels = {}
     for k, v in pr.items():
         try:
-            l = widgets.HTML(f"<b>{v['title']}</b>, <i>{v['autoui_description']}</i>")
+            t, d = get_title_description_from_schema(v.schema_)
+            l = widgets.HTML(f"<b>{t}</b>, <i>{d}</i>")
         except:
             l = widgets.HTML("")
         labels[k] = l
@@ -625,10 +127,6 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
 
 # +
 # handler - decides what to do given set of inputs UiFromSchema - generates ui from jsonschema
-# -
-
-from ipyautoui.custom.iterable_1 import AutoArray
-
 
 # + tags=[]
 def _get_value_trait(widget):
@@ -641,7 +139,7 @@ def _get_value_trait(widget):
         raise ValueError("no value (or _value) trait found")
 
 
-class AutoIpywidget(widgets.VBox): #, traitlets.HasTraits
+class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
     _value = traitlets.Dict()
 
     @traitlets.validate("_value")
@@ -691,8 +189,8 @@ class AutoIpywidget(widgets.VBox): #, traitlets.HasTraits
         self._init_controls()
 
     def _init_schema(self, schema):
-        self.sch = attach_schema_refs(schema, schema_base=schema)
-        self.pr = map_to_widget(self.sch, di_widgets_mapper=self.widgets_mapper)
+        self.sch = schema  # attach_schema_refs(schema, schema_base=schema)
+        self.pr = automapschema(self.sch, di_widgets_mapper=self.widgets_mapper)
 
     def _update_widgets_from_value(self):
         for k, v in self.value.items():
@@ -800,16 +298,23 @@ class AutoIpywidget(widgets.VBox): #, traitlets.HasTraits
             self.ui_main.children = [self.ui_box]
 
 
+# -
 if __name__ == "__main__":
+    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.constants import load_test_constants
+
+    test_constants = load_test_constants()
+    test = TestAutoLogic()
+    sch = test.schema()
     ui = AutoIpywidget(sch)
     display(ui)
-# -
+
 if __name__ == "__main__":
     sch = attach_schema_refs(
         ui.sch["properties"]["recursive_nest"]["properties"]["nested"],
         schema_base=ui.sch["properties"]["recursive_nest"]["properties"]["nested"],
     )
-    pr = map_to_widget(sch)
+    pr = automapschema(sch)
 
     sch
 
