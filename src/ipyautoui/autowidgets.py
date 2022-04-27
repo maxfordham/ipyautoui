@@ -24,6 +24,7 @@ extends standard ipywidgets to facilitate initialisation from jsonschema
 from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
 import ipywidgets as widgets
 from copy import deepcopy
+from ipyautoui._utils import obj_from_importstr
 
 #  -- CHANGE JSON-SCHEMA KEYS TO IPYWIDGET KEYS -------------
 def update_key(key, di_map=DI_JSONSCHEMA_WIDGET_MAP):
@@ -66,11 +67,15 @@ class FloatSlider(widgets.FloatSlider):
 class IntRangeSlider(widgets.IntRangeSlider):
     def __init__(self, schema):
         self.schema, self.caller = _init_autoui(schema)
+        self.caller["min"] = self.schema["items"][0]["minimum"]
+        self.caller["max"] = self.schema["items"][0]["maximum"]
         super().__init__(**self.caller)
         
 class FloatRangeSlider(widgets.FloatRangeSlider):
     def __init__(self, schema):
         self.schema, self.caller = _init_autoui(schema)
+        self.caller["min"] = self.schema["items"][0]["minimum"]
+        self.caller["max"] = self.schema["items"][0]["maximum"]
         super().__init__(**self.caller)
         
 class Text(widgets.Text):
@@ -128,4 +133,10 @@ class ColorPicker(widgets.ColorPicker):
         self.schema, self.caller = _init_autoui(schema)
         super().__init__(**self.caller)
 
-        
+def autooveride(schema):
+    aui = schema["autoui"]
+    if type(aui) == str:
+        cl = obj_from_importstr(aui)
+    else:
+        cl = aui
+    return cl(schema)
