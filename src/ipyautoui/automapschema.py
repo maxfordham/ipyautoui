@@ -199,6 +199,7 @@ def drop_explicit_autoui(pr):
 def find_explicit_autoui(pr):
     return {k: v for k, v in pr.items() if "autoui" in v}
 
+
 #  ----------------------------------------------------------
 
 #  -- FILTER FUNCTIONS --------------------------------------
@@ -356,6 +357,8 @@ def get_Array(pr, rename_keys=True):
 def get_AutoOveride(pr, rename_keys=True):
     pr = find_explicit_autoui(pr)
     return pr
+
+
 #  ----------------------------------------------------------
 
 #  -- WIDGET MAPPING ----------------------------------------
@@ -389,10 +392,22 @@ schema:
         super().__init__(value=txt)
 
 
+class AutoPlaceholder(widgets.Textarea):
+    def __init__(self, schema):
+        txt = f"""
+placeholder widget for: 
+
+schema: 
+{str(schema)}
+"""
+        super().__init__(value=txt)
+
+
 class WidgetMapper(BaseModel):
     """defines a filter function and associated widget. the "fn_filt" is used to search the
     json schema to find appropriate objects, the objects are then passed to the "widget" for the ui
     """
+
     fn_filt: typing.Callable
     widget: typing.Callable
 
@@ -400,10 +415,10 @@ class WidgetMapper(BaseModel):
 class WidgetCaller(BaseModel):
     schema_: typing.Dict
     autoui: typing.Callable  # TODO: change name autoui --> widget
-    #mvalue: typing.Any = None  # TODO: add functionality to add value. (don't think this is required...)
+    # mvalue: typing.Any = None  # TODO: add functionality to add value. (don't think this is required...)
 
 
-def widgetcaller(caller: WidgetCaller):
+def widgetcaller(caller: WidgetCaller, show_errors=True):
     """
     returns widget from widget caller object
     Args:
@@ -421,13 +436,16 @@ def widgetcaller(caller: WidgetCaller):
         w = caller.autoui(caller.schema_)
 
     except:
-        txt = f"""
-error building widget: {str(caller.autoui)}
-from schema: 
-{str(caller.schema_)}
-"""
-        # TODO: add logging
-        w = widgets.Textarea(txt)
+        if show_errors:
+            txt = f"""
+    error building widget: {str(caller.autoui)}
+    from schema: 
+    {str(caller.schema_)}
+    """
+            # TODO: add logging
+            w = widgets.Textarea(txt)
+        else:
+            return  # TODO: check this works
     return w
 
 
@@ -500,9 +518,12 @@ def automapschema(
         raise ValueError(
             'the top level "type" of the schema must be an object (note. this might be a pydantic only requirement...)'
         )
-
+    #     pr = schema["properties"]
+    # else:
+    #     pr = schema # note. this is true for items of array...
     pr = schema["properties"]
     li_pr = pr.keys()
+
     di_ = {}
     for k, v in di_widgets_mapper.items():
         di = v.fn_filt(pr)
@@ -528,6 +549,27 @@ def automapschema(
     return di_ordered
 
 
+
+
+# +
+from pydantic import Field, conint
+
+
+class TestObject(BaseModel):
+    string1: str = "as"
+
+
+class TestAutoLogicSimple(BaseModel):
+    """this is a test UI form to demonstrate how pydantic class can be used to generate an ipywidget input form. 
+    only simple datatypes used (i.e. not lists/arrays or objects)
+    """
+
+    string: str = Field(default="adsf", description="a description about my string")
+    int_slider: conint(ge=0, le=3) = 2
+    int_text: int = 1
+    sobject: TestObject = Field(default=None)
+    array: list[TestObject] = None
+
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple, TestArrays
     from ipyautoui.autoipywidget import AutoIpywidget
@@ -538,7 +580,322 @@ if __name__ == "__main__":
     # sch = deepcopy(TestObjects().schema())
     sch = deepcopy(TestAutoLogic().schema())
     pr = automapschema(sch)
+    
+if __name__ == "__main__":
+    s = TestAutoLogicSimple.schema()
+    display(s)
+
+# +
+# s = attach_schema_refs(s)
+# s
 # -
+
+DI_WIDGETS_MAPPER = frozenmap(
+    **{
+        "IntText": WidgetMapper(fn_filt=get_IntText, widget=auiwidgets.IntText),
+        "IntSlider": WidgetMapper(fn_filt=get_IntSlider, widget=auiwidgets.IntSlider),
+        "FloatText": WidgetMapper(fn_filt=get_FloatText, widget=auiwidgets.FloatText),
+        "FloatSlider": WidgetMapper(
+            fn_filt=get_FloatSlider, widget=auiwidgets.FloatSlider
+        ),
+        "IntRangeSlider": WidgetMapper(
+            fn_filt=get_IntRangeSlider, widget=auiwidgets.IntRangeSlider
+        ),
+        "FloatRangeSlider": WidgetMapper(
+            fn_filt=get_FloatRangeSlider, widget=auiwidgets.FloatRangeSlider
+        ),
+        "Text": WidgetMapper(fn_filt=get_Text, widget=auiwidgets.Text),
+        "Textarea": WidgetMapper(fn_filt=get_Textarea, widget=auiwidgets.Textarea),
+        "Dropdown": WidgetMapper(fn_filt=get_Dropdown, widget=auiwidgets.Dropdown),
+        "SelectMultiple": WidgetMapper(
+            fn_filt=get_SelectMultiple, widget=auiwidgets.SelectMultiple
+        ),
+        "Checkbox": WidgetMapper(fn_filt=get_Checkbox, widget=auiwidgets.Checkbox),
+        "DatePicker": WidgetMapper(
+            fn_filt=get_DatePicker, widget=auiwidgets.DatePicker
+        ),
+        "DatetimePicker": WidgetMapper(
+            fn_filt=get_DatetimePicker, widget=auiwidgets.DatePicker
+        ),  # TODO: udpate to DatetimePicker with ipywidgets==8
+        "FileChooser": WidgetMapper(fn_filt=get_FileChooser, widget=FileChooser),
+        "Grid": WidgetMapper(fn_filt=get_DataGrid, widget=Grid),
+        "ColorPicker": WidgetMapper(
+            fn_filt=get_ColorPicker, widget=auiwidgets.ColorPicker
+        ),
+        "AutoOveride": WidgetMapper(
+            fn_filt=get_AutoOveride, widget=auto_overide
+        ),  # TODO: this should be first...
+        "object": WidgetMapper(
+            fn_filt=get_Object, widget=AutoIpywidgetPlaceholder
+        ),  # AutoIpywidget. gets overridden by AutoIpywidget.
+        "array": WidgetMapper(fn_filt=get_Array, widget=AutoArrayPlaceholder),
+    }
+)
+
+# +
+# IntText
+# IntSlider
+# FloatText
+# FloatSlider
+# Text
+# Textarea
+# Dropdown
+# SelectMultiple
+# Checkbox
+# autooveride
+
+
+def is_IntText(di):
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "integer":
+        return False
+    if "minimum" and "maximum" in di.keys():
+        return False
+    return True
+
+
+def is_IntSlider(di):
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "integer":
+        return False
+    if "minimum" and "maximum" not in di.keys():
+        return False
+    return True
+
+
+def is_FloatText(di):
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "number":
+        return False
+    if "minimum" and "maximum" in di.keys():
+        return False
+    return True
+
+
+def is_FloatSlider(di):
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "number":
+        return False
+    if "minimum" and "maximum" not in di.keys():
+        return False
+    return True
+
+def is_range(di, is_type="integer"):
+    """finds numeric range within schema properties. a range in json must satisfy these criteria:
+    - check1: array length == 2
+    - check2: minimum and maximum values must be given
+    - check3: check numeric typ given (i.e. integer or number or numeric)
+    """
+
+    def get_type(di):
+        t = di["items"][0]["type"]
+        t1 = di["items"][0]["type"]
+        if t != t1:
+            raise ValueError("items are different types")
+        else:
+            return t
+
+    if di["type"] != "array":
+        return False
+    if not "items" in di.keys() and len(di["items"]) != 2:
+        return False
+    for i in di["items"]:
+        if "minimum" not in i and "maximum" not in i:
+            return False
+
+    #  check3: check numeric typ given (i.e. integer or number or numeric)
+    if is_type == "numeric":
+        if not get_type(di) == "integer" or get_type(di) == "number":
+            return False
+    elif is_type == "number":
+        if not get_type(di) == "number":
+            return False
+    elif is_type == "integer":
+        if not get_type(di) == "integer":
+            return False
+    else:
+        raise ValueError('is_type must be one of: "integer", "number", "numeric"')
+    return True
+
+
+def is_IntRangeSlider(di):
+    if "autoui" in di.keys():
+        return False
+    if not is_range(di, is_type="integer"):
+        return False
+    return True
+
+
+def is_FloatRangeSlider(di):
+    if "autoui" in di.keys():
+        return False
+    if not is_range(di, is_type="number"):
+        return False
+    return True
+
+
+def is_Text(di):
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "string":
+        return False
+    if "enum" in di.keys():
+        return False
+    if "maxLength" in di.keys() and di["maxLength"] >= 200:
+        return False
+    return True
+
+
+def is_Textarea(di):
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "string":
+        return False
+    if "enum" in di.keys():
+        return False
+    if "maxLength" in di.keys() and di["maxLength"] <= 200:  # i.e. == long text
+        return False
+    return True
+
+
+def is_Dropdown(di):
+    if "autoui" in di.keys():
+        return False
+    if "enum" not in di.keys():
+        return False
+    if di["type"] == "array":
+        return False
+    return True
+
+
+def is_SelectMultiple(di):
+    if "autoui" in di.keys():
+        return False
+    if "enum" not in di.keys():
+        return False
+    if di["type"] != "array":
+        return False
+    return True
+
+
+def is_Checkbox(di):
+    if "autoui" in di.keys():
+        return False
+    if di["type"] != "boolean":
+        return False
+    return True
+
+
+def is_AutoOveride(di):
+    if "autoui" not in di.keys():
+        return False
+    return True
+
+
+def is_AutoIpywidget(di):
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "object":
+        return False
+    return True
+
+
+MAP_WIDGETS = frozenmap(
+    **{
+        "AutoOveride": WidgetMapper(
+            fn_filt=is_AutoOveride, widget=auiwidgets.autooveride
+        ),
+        "IntText": WidgetMapper(fn_filt=is_IntText, widget=auiwidgets.IntText),
+        "IntSlider": WidgetMapper(fn_filt=is_IntSlider, widget=auiwidgets.IntSlider),
+        "FloatText": WidgetMapper(fn_filt=is_FloatText, widget=auiwidgets.IntText),
+        "FloatSlider": WidgetMapper(
+            fn_filt=is_FloatSlider, widget=auiwidgets.IntSlider
+        ),
+        "IntRangeSlider": WidgetMapper(
+            fn_filt=is_IntRangeSlider, widget=auiwidgets.IntRangeSlider
+        ),
+        "FloatRangeSlider": WidgetMapper(
+            fn_filt=is_FloatRangeSlider, widget=auiwidgets.FloatRangeSlider
+        ),
+        "Text": WidgetMapper(fn_filt=is_Text, widget=auiwidgets.Text),
+        "Textarea": WidgetMapper(fn_filt=is_Textarea, widget=auiwidgets.Textarea),
+        "Dropdown": WidgetMapper(fn_filt=is_Dropdown, widget=auiwidgets.Dropdown),
+        "SelectMultiple": WidgetMapper(
+            fn_filt=is_SelectMultiple, widget=auiwidgets.SelectMultiple
+        ),
+        "Checkbox": WidgetMapper(fn_filt=is_Checkbox, widget=auiwidgets.Checkbox),
+        "object": WidgetMapper(
+            fn_filt=is_AutoIpywidget, widget=AutoIpywidgetPlaceholder
+        ),
+        "array": WidgetMapper(
+            fn_filt=is_AutoIpywidget, widget=AutoArrayPlaceholder
+        ),
+    }
+)
+
+
+def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False):
+    mapped = []
+
+    # loop through widget_map to find a correct mapping...
+    for k, v in widget_map.items():
+        if v.fn_filt(di):
+            mapped.append(k)
+    if len(mapped) == 0:
+        if fail_on_error:
+            # TODO: pass error or not..
+            raise ValueError(f"widget map not found for: {di}")
+        else:
+            return WidgetCaller(schema_=di, autoui=AutoPlaceholder)
+    elif len(mapped) == 1:
+        k = mapped[0]
+        return WidgetCaller(schema_=di, autoui=widget_map[k].widget)
+    else:
+        # TODO: add logging. take last map
+        k = mapped[-1]
+        return WidgetCaller(schema_=di, autoui=widget_map[k].widget)
+
+
+def automapschema(schema, widget_map=MAP_WIDGETS):
+    schema = attach_schema_refs(schema)
+    if "type" not in schema.keys():
+        raise ValueError('"type" is a required key in schema')
+    if schema["type"] == "object":
+        # loop through keys
+        pr = schema["properties"]
+        return {k: map_widget(v, widget_map=widget_map) for k, v in pr.items()}
+    # elif schema["type"] == "array":
+    #     return map_widget(schema, widget_map=widget_map)
+    else:
+        return map_widget(schema, widget_map=widget_map)
+
+
+if __name__ == "__main__":
+    m = automapschema(
+        {
+            "title": "Int Slider",
+            "default": 2,
+            "minimum": 0,
+            "maximum": 3,
+            "type": "integer",
+        }
+    )
+    m = automapschema(s)
+    display(m)
+# -
+
+if __name__ == "__main__":
+    s = TestAutoLogic.schema()
+    # display(s)
+    m = automapschema(s)
+    display(m)
+
+if __name__ == "__main__":
+    display(widgets.VBox([widgetcaller(v) for k, v in m.items()]))
 
 if __name__ == "__main__":
     display(widgets.VBox([widgetcaller(v) for k, v in pr.items()]))
