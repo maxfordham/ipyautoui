@@ -74,7 +74,7 @@ def display_template_ui_model():
 
 # +
 from ipyautoui.custom.iterable_1 import AutoArray
-from ipyautoui.automapschema import automapschema, widgetcaller, DI_WIDGETS_MAPPER
+from ipyautoui.automapschema import automapschema, widgetcaller, MAP_WIDGETS
 
 
 def get_title_description_from_schema(schema):
@@ -103,6 +103,7 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     Returns:
         (widgets.VBox, typing.Dict): box with widgets, di of widgets
     """
+
     def _init_widget(v):
         return widgetcaller(v)
 
@@ -157,11 +158,7 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
             self._update_widgets_from_value()
 
     def __init__(
-        self,
-        schema,
-        value=None,
-        show_raw=True,  # TODO: remove this
-        widgets_mapper=None,
+        self, schema, value=None, show_raw=False, widgets_mapper=None,
     ):
         self.widgets_mapper = widgets_mapper
         self.show_raw = show_raw
@@ -176,7 +173,7 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
     @widgets_mapper.setter
     def widgets_mapper(self, value):
         if value is None:
-            self._widgets_mapper = dict(DI_WIDGETS_MAPPER)
+            self._widgets_mapper = dict(MAP_WIDGETS)
         autonested = functools.partial(AutoIpywidget, show_raw=False)
         autoarray = AutoArray
         self._widgets_mapper["object"].widget = autonested
@@ -190,7 +187,7 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
 
     def _init_schema(self, schema):
         self.sch = schema  # attach_schema_refs(schema, schema_base=schema)
-        self.pr = automapschema(self.sch, di_widgets_mapper=self.widgets_mapper)
+        self.pr = automapschema(self.sch, widget_map=self.widgets_mapper)
 
     def _update_widgets_from_value(self):
         for k, v in self.value.items():
@@ -306,50 +303,7 @@ if __name__ == "__main__":
     test_constants = load_test_constants()
     test = TestAutoLogic()
     sch = test.schema()
-    ui = AutoIpywidget(sch)
+    ui = AutoIpywidget(sch, show_raw=True)
     display(ui)
-
-if __name__ == "__main__":
-    sch = attach_schema_refs(
-        ui.sch["properties"]["recursive_nest"]["properties"]["nested"],
-        schema_base=ui.sch["properties"]["recursive_nest"]["properties"]["nested"],
-    )
-    pr = automapschema(sch)
-
-    sch
-
-    sch
-
-    AutoIpywidget(schema=ui.sch["properties"]["recursive_nest"]["properties"]["nested"])
-
-    schema = {
-        "title": "NestedObject",
-        "description": "description in docstring",
-        "type": "object",
-        "properties": {
-            "string1": {
-                "title": "String1",
-                "description": "a description about my string",
-                "default": "adsf",
-                "type": "string",
-            },
-            "int_slider1": {
-                "title": "Int Slider1",
-                "default": 2,
-                "minimum": 0,
-                "maximum": 3,
-                "type": "integer",
-                "description": "",
-            },
-            "int_text1": {
-                "title": "Int Text1",
-                "default": 1,
-                "type": "integer",
-                "description": "",
-            },
-        },
-    }
-
-    AutoIpywidget(schema, show_raw=False)
 
 
