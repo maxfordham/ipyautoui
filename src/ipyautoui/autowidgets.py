@@ -140,3 +140,19 @@ def autooveride(schema):
     else:
         cl = aui
     return cl(schema)
+
+class AutoPlaceholder(widgets.Textarea):
+    def __init__(self, schema):
+        txt = f"""
+PLACEHOLDER WIDGET 
+schema: 
+{str(schema)}
+"""
+        super().__init__(value=txt)
+
+# class AutoOveride:
+#     def __init__(self, schema):
+#         self.schema, self.caller = _init_autoui(schema)
+#         super().__init__(**self.caller)
+
+        
