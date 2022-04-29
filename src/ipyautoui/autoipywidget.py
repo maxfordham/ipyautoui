@@ -126,8 +126,25 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     return ui_box, di_widgets
 
 
-# +
-# handler - decides what to do given set of inputs UiFromSchema - generates ui from jsonschema
+# -
+
+class Auto:
+    _value = traitlets.Any()
+    ui = traitlets.Any()
+
+    def __init__(self, schema):
+        self.schema = schema
+
+    @property
+    def schema(self):
+        return self._schema
+
+    @schema.setter
+    def schema(self, value):
+        self._schema = schema
+        if hasattr(self, "di_widgets"):
+            self._update_widgets_from_value()
+
 
 # + tags=[]
 def _get_value_trait(widget):
@@ -173,11 +190,11 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
     @widgets_mapper.setter
     def widgets_mapper(self, value):
         if value is None:
-            self._widgets_mapper = dict(MAP_WIDGETS)
-        autonested = functools.partial(AutoIpywidget, show_raw=False)
-        autoarray = AutoArray
-        self._widgets_mapper["object"].widget = autonested
-        self._widgets_mapper["array"].widget = autoarray
+            self._widgets_mapper = MAP_WIDGETS  # dict(
+        # autonested = functools.partial(AutoIpywidget, show_raw=False)
+        # autoarray = AutoArray
+        # self._widgets_mapper["object"].widget = autonested
+        # self._widgets_mapper["array"].widget = autoarray
 
     def _init_ui(self, schema):
         self._init_schema(schema)
@@ -306,4 +323,12 @@ if __name__ == "__main__":
     ui = AutoIpywidget(sch, show_raw=True)
     display(ui)
 
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestArrays
+    from ipyautoui.constants import load_test_constants
 
+    test_constants = load_test_constants()
+    test = TestArrays()
+    sch = test.schema()
+    ui = AutoIpywidget(sch, show_raw=True)
+    display(ui)

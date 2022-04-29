@@ -66,8 +66,6 @@ __Current Limations__:
 
 ## DisplayFiles 
 
-
-
 `(TODO: name change to display, facilitating display of database data?)`
 
 - DisplayFiles uses Jupyter's rich display system and large ecosystem of 3rd party packages to create a simple and unified display wrapper to various filetypes.

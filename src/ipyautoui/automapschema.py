@@ -120,6 +120,9 @@ def attach_schema_refs(schema, schema_base=None):
 
 
 #  ----------------------------------------------------------
+# -
+
+
 
 # +
 # IntText
@@ -174,7 +177,7 @@ def is_FloatSlider(di):
     return True
 
 
-def is_range(di, is_type="integer"):
+def is_range(di, is_type="numeric"):
     """finds numeric range within schema properties. a range in json must satisfy these criteria:
     - check1: array length == 2
     - check2: minimum and maximum values must be given
@@ -199,8 +202,9 @@ def is_range(di, is_type="integer"):
 
     #  check3: check numeric typ given (i.e. integer or number or numeric)
     if is_type == "numeric":
-        if not get_type(di) == "integer" or get_type(di) == "number":
-            return False
+        if not get_type(di) == "integer":
+            if not get_type(di) == "number":
+                return False
     elif is_type == "number":
         if not get_type(di) == "number":
             return False
@@ -228,6 +232,30 @@ def is_FloatRangeSlider(di):
     return True
 
 
+def is_Date(di):
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "string":
+        return False
+    if not "format" in di.keys():
+        return False
+    if "format" in di.keys() and di["format"] != "date":
+        return False
+    return True
+
+
+def is_Color(di):
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "string":
+        return False
+    if not "format" in di.keys():
+        return False
+    if "format" in di.keys() and "color" not in di["format"]:
+        return False
+    return True
+
+
 def is_Text(di):
     if "autoui" in di.keys():
         return False
@@ -236,6 +264,10 @@ def is_Text(di):
     if "enum" in di.keys():
         return False
     if "maxLength" in di.keys() and di["maxLength"] >= 200:
+        return False
+    if is_Date(di):
+        return False
+    if is_Color(di):
         return False
     return True
 
@@ -247,7 +279,13 @@ def is_Textarea(di):
         return False
     if "enum" in di.keys():
         return False
+    if "maxLength" not in di.keys():
+        return False
     if "maxLength" in di.keys() and di["maxLength"] <= 200:  # i.e. == long text
+        return False
+    if is_Date(di):
+        return False
+    if is_Color(di):
         return False
     return True
 
@@ -286,11 +324,23 @@ def is_AutoOveride(di):
     return True
 
 
-def is_AutoIpywidget(di):
+def is_Object(di):
     if "autoui" in di.keys():
         return False
     if not di["type"] == "object":
         return False
+    return True
+
+
+def is_Array(di):
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "array":
+        return False
+    if is_range(di):
+        return False
+    if "enum" in di.keys():
+        return False  # as this is picked up from SelectMultiple
     return True
 
 
@@ -366,12 +416,10 @@ MAP_WIDGETS = frozenmap(
             fn_filt=is_SelectMultiple, widget=auiwidgets.SelectMultiple
         ),
         "Checkbox": WidgetMapper(fn_filt=is_Checkbox, widget=auiwidgets.Checkbox),
-        "object": WidgetMapper(
-            fn_filt=is_AutoIpywidget, widget=auiwidgets.AutoPlaceholder
-        ),
-        "array": WidgetMapper(
-            fn_filt=is_AutoIpywidget, widget=auiwidgets.AutoPlaceholder
-        ),
+        "Date": WidgetMapper(fn_filt=is_Date, widget=auiwidgets.DatePickerString),
+        "Color": WidgetMapper(fn_filt=is_Color, widget=auiwidgets.ColorPicker),
+        "object": WidgetMapper(fn_filt=is_Object, widget=auiwidgets.AutoPlaceholder),
+        "array": WidgetMapper(fn_filt=is_Array, widget=auiwidgets.AutoPlaceholder),
     }
 )
 
@@ -394,11 +442,29 @@ def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False):
         return WidgetCaller(schema_=di, autoui=widget_map[k].widget)
     else:
         # TODO: add logging. take last map
+        print(f"{di['title']}. multiple matches found. using the last one.")
+        print(mapped)
         k = mapped[-1]
         return WidgetCaller(schema_=di, autoui=widget_map[k].widget)
 
 
 def automapschema(schema, widget_map=MAP_WIDGETS):
+    from ipyautoui.custom.iterable_1 import AutoArray
+    from ipyautoui.autoipywidget import AutoIpywidget
+
+    # _ = widget_map.set("array", WidgetMapper(fn_filt=is_Array, widget=AutoArray))
+
+    with widget_map.mutate() as mm:
+        mm.set("array", WidgetMapper(fn_filt=is_Array, widget=AutoArray))
+        mm.set("object", WidgetMapper(fn_filt=is_Object, widget=AutoIpywidget))
+        _ = mm.finish()
+    # mm = widget_map.mutate()
+    # mm.set(WidgetMapper(fn_filt=is_Array, widget=AutoArray)
+    # mm.set(WidgetMapper(fn_filt=is_Array, widget=AutoIpywidget)
+    # _ = mm.finish()
+    del widget_map
+    widget_map = _
+
     schema = attach_schema_refs(schema)
     if "type" not in schema.keys():
         raise ValueError('"type" is a required key in schema')
@@ -406,11 +472,65 @@ def automapschema(schema, widget_map=MAP_WIDGETS):
         # loop through keys
         pr = schema["properties"]
         return {k: map_widget(v, widget_map=widget_map) for k, v in pr.items()}
-    # elif schema["type"] == "array":
-    #     return map_widget(schema, widget_map=widget_map)
+    elif schema["type"] == "array":
+        return map_widget(schema, widget_map=widget_map)  # TODO: check this
     else:
         return map_widget(schema, widget_map=widget_map)
 
+
+def autowidget(schema):
+    """interprets schema and returns appropriate widget"""
+    caller = automapschema(schema)
+    if type(caller) == WidgetCaller:
+        # print("type(caller) == WidgetCaller")
+        return widgetcaller(caller)
+    elif type(caller) == dict:
+        # print("type(caller) == dict")
+        return {k: widgetcaller(v) for k, v in caller.items()}
+    else:
+        raise ValueError("adsf")
+
+
+def autowidgetcaller(schema):
+    """interprets schema and returns appropriate widget"""
+    from ipyautoui.custom.iterable_1 import AutoArray
+    from ipyautoui.autoipywidget import AutoIpywidget
+
+    t = schema["type"]
+    if t == "object":
+        return AutoIpywidget(schema)
+    elif t == "array":
+        return AutoArray(schema)
+    else:
+        return autowidget(schema)
+
+
+# -
+
+if __name__ == "__main__":
+    di = {
+        "title": "Color Picker Ipywidgets",
+        "default": "#f5f595",
+        "type": "string",
+        "format": "hexcolor",
+    }
+
+    display(is_Color(di))
+
+if __name__ == "__main__":
+    di = {
+        "title": "Date Picker",
+        "default": "2022-04-28",
+        "type": "string",
+        "format": "date",
+    }
+    di_ = {
+        "title": "String",
+        "description": "a description about my string",
+        "default": "adsf",
+        "type": "string",
+    }
+    is_Text(di)
 
 if __name__ == "__main__":
     m = automapschema(
@@ -424,7 +544,49 @@ if __name__ == "__main__":
     )
 
     display(m)
-# -
+
+if __name__ == "__main__":
+    ui = widgetcaller(m)
+    display(ui)
+
+if __name__ == "__main__":
+    di = {
+        "title": "Date Picker",
+        "default": "2022-04-28",
+        "type": "string",
+        "format": "date",
+    }
+    display(is_Date(di))
+
+if __name__ == "__main__":
+    m = automapschema(
+        {
+            "title": "Array",
+            "default": ["f", "d"],
+            "maxItems": 5,
+            "type": "array",
+            "items": {"type": "string"},
+        }
+    )
+
+    display(m)
+
+if __name__ == "__main__":
+    ui = widgetcaller(m)
+    display(ui)
+
+if __name__ == "__main__":
+    w = autowidget(
+        {
+            "title": "Int Slider",
+            "default": 2,
+            "minimum": 0,
+            "maximum": 3,
+            "type": "integer",
+        }
+    )
+
+    display(w)
 
 if __name__ == "__main__":
     s = TestAutoLogic.schema()
@@ -434,5 +596,3 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     display(widgets.VBox([widgetcaller(v) for k, v in m.items()]))
-
-

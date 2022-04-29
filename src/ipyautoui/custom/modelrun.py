@@ -7,18 +7,16 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.6
+#       jupytext_version: 1.11.5
 #   kernelspec:
-#     display_name: Python [conda env:jlaunch] *
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-jlaunch-py
+#     name: python3
 # ---
 
-# +
-
+import re
 import ipywidgets as widgets
 from traitlets import HasTraits, Unicode, default, validate, TraitError
-import re
 from dataclasses import dataclass, asdict
 import typing
 
@@ -62,7 +60,7 @@ class RunNameInputs:
         self.pattern = p[:-3]
 
 
-# +
+# -
 
 class RunName(widgets.HBox, HasTraits):
     """widget for creating an modelling iteration name to a defined format from component parts
@@ -198,9 +196,6 @@ class RunName(widgets.HBox, HasTraits):
 if __name__ == "__main__":
     run = RunName(value="03-lean-description", index=3)
     display(run)
+# -
 
-# +
-
-if __name__ == "__main__":
-    run.value = "06-green-thingymabob"  # Updates app with given value
 

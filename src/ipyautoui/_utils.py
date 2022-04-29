@@ -11,6 +11,7 @@ import codecs
 from pydantic import BaseModel, validator, Field
 import typing
 import importlib.util
+import inspect
 import immutables
 frozenmap = immutables.Map
 
@@ -373,3 +374,9 @@ def create_pydantic_json_file(pyobj: typing.Union[str, PyObj], path: pathlib.Pat
     myobj = obj(**kwargs)
     myobj.file(path)
     return path
+
+def remove_non_present_kwargs(callable_: typing.Callable, di: dict):
+    """do this if required (get allowed args from callable)"""
+    args = inspect.getfullargspec(callable_).args
+    return {k_: v_ for k_, v_ in di.items() if k_ in args}
+        
