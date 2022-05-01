@@ -96,6 +96,8 @@ from ipyautoui.constants import (
     BUTTON_MIN_SIZE,
 )
 from markdown import markdown
+from ipyautoui.test_schema import TestArrays
+
 
 frozenmap = (
     immutables.Map
@@ -104,6 +106,10 @@ BOX = frozenmap({True: widgets.HBox, False: widgets.VBox})
 TOGGLE_BUTTON_KWARGS = frozenmap(
     icon="", layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
 )
+# -
+
+from ipyautoui.autowidgets import create_widget_caller
+from ipyautoui.automapschema import autowidgetcaller
 
 
 # +
@@ -175,7 +181,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
     """generic iterable. pass a list of items"""
 
     # -----------------------------------------------------------------------------------
-    value = traitlets.List()
+    _value = traitlets.List()  # TODO: change to _value and add setter and getter?
     _show_hash = traitlets.Unicode(allow_none=True)
     _add_remove_controls = traitlets.Unicode(allow_none=True)
     _sort_on = traitlets.Unicode(allow_none=True)
@@ -208,11 +214,12 @@ class Array(widgets.VBox, traitlets.HasTraits):
         return proposal
 
     def _update_value(self, onchange):
-        self.value = [a.item.value for a in self.iterable]
+        self._value = [a.item.value for a in self.iterable]
 
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
+        value: typing.List = None,
         items: typing.List = None,
         toggle=False,
         title=None,
@@ -220,24 +227,28 @@ class Array(widgets.VBox, traitlets.HasTraits):
         fn_add_dialogue: typing.Callable = None,
         fn_remove: typing.Callable = lambda: display("remove item"),
         watch_value: bool = True,
-        minlen: int = 1,
-        maxlen: int = None,
+        minlen: int = 0,
+        maxlen: int = 100,
         add_remove_controls: str = "add_remove",
         show_hash: str = "index",
         sort_on="index",
         orient_rows=True,
     ):
+        if value is not None and items is not None:
+            raise ValueError(
+                '"value" (data only) and "items" (widget objects) cannot both be specified at input. you must specify one or the other.'
+            )
         self.orient_rows = orient_rows
         self.minlen = minlen  # TODO: validation. must be > 1
-        if maxlen is None:
-            maxlen = 100
         self.maxlen = maxlen
         self.fn_add = fn_add
         self.fn_add_dialogue = fn_add_dialogue
         self.fn_remove = fn_remove
         self.watch_value = watch_value
         self.zfill = 2
-        items = self._init_items(items)
+        # if value is None and items is not None:
+
+        value, items = self._init_value(value, items)
         self.iterable = self._init_iterable(items)
         self._init_form()
         self._toggle = toggle
@@ -245,6 +256,20 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self.add_remove_controls = add_remove_controls
         self.show_hash = show_hash
         self.sort_on = sort_on
+        self._update_value("change")
+
+    def _init_value(self, value, items):
+        if value is None and items is None:
+            items = self._init_items(items)
+        elif value is None and items is not None:
+            pass
+        elif value is not None and items is None:
+            items = [self.fn_add(v) for v in value]
+        elif value is not None and items is not None:
+            raise ValueError('either "items" or "value" must be None')
+        else:
+            raise ValueError("error with _init_value")
+        return value, items
 
     def _init_iterable(self, items):
         return [
@@ -263,6 +288,17 @@ class Array(widgets.VBox, traitlets.HasTraits):
         return len(self.iterable)
 
     @property
+    def value(self):
+        return self._value
+
+    @value.setter  # TODO: this!
+    def value(self, value: typing.List):
+        self.items = [self.fn_add() for v in value]
+        for n, v in enumerate(value):
+            self.items[n].value = v
+        self._update_value("onchange")
+
+    @property
     def items(self):
         return [i.item for i in self.iterable]
 
@@ -277,10 +313,22 @@ class Array(widgets.VBox, traitlets.HasTraits):
     def iterable_keys(self):
         return [i.key for i in self.iterable]
 
+    def _add_from_zero_display(self):
+        if self.length == 0:
+            self.rows_box.children = [self.add_from_zero]
+
+    def _add_from_zero(self, on_click):
+        self.add_row()
+
     def _init_form(self):
         # init containers
         super().__init__(
-            layout=widgets.Layout(width="100%", display="flex", flex="flex-grow")
+            layout=widgets.Layout(
+                width="100%",
+                display="flex",
+                flex="flex-grow",
+                border="solid LightCyan 2px",
+            )
         )  # main container
         self.rows_box = BOX[not self.orient_rows](
             layout=widgets.Layout(width="100%", display="flex", flex="flex-grow")
@@ -291,6 +339,8 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self.toggle_button = widgets.ToggleButton(
             icon="minus", layout=dict(BUTTON_MIN_SIZE)
         )
+        self.add_from_zero = widgets.Button(**ADD_BUTTON_KWARGS)
+        self._add_from_zero_display()
         self.toggle_button.value = True
         self._refresh_children()
         self._update_rows_box()
@@ -408,6 +458,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
 
     def _update_rows_box(self):
         self.rows_box.children = [i.row for i in self.iterable]
+        self._add_from_zero_display()
 
     @property
     def add_remove_controls(self):
@@ -486,6 +537,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
             self._get_attribute(key, "item").observe(self._update_value, names="value")
 
     def _init_controls(self):
+        self.add_from_zero.on_click(self._add_from_zero)
         self.toggle_button.observe(self._toggle_button, "value")
         [self._init_row_controls(key=i.key) for i in self.iterable]
 
@@ -549,6 +601,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self._init_row_controls(item.key)  # init controls
         if self.watch_value:
             self._update_value("change")
+        self._add_from_zero_display()
 
     def _remove_rows(self, onclick, key=None):
         self.remove_row(key=key)
@@ -579,6 +632,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
             self.fn_remove(**remove_kwargs, key=key)
         except:
             self.fn_remove(**remove_kwargs)
+        self._add_from_zero_display()
 
 
 class Dictionary(Array):
@@ -590,6 +644,7 @@ class Dictionary(Array):
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
+        value: typing.Dict = None,
         items: typing.Dict = None,
         toggle=False,
         title=None,
@@ -597,7 +652,7 @@ class Dictionary(Array):
         fn_add_dialogue: typing.Callable = None,
         fn_remove: typing.Callable = lambda: display("remove item"),
         watch_value: bool = True,
-        minlen: int = 1,
+        minlen: int = 0,
         maxlen: int = None,
         add_remove_controls: str = "add_remove",
         show_hash: str = "index",
@@ -605,6 +660,7 @@ class Dictionary(Array):
         orient_rows=True,
     ):
         super().__init__(
+            value,
             items,
             toggle=toggle,
             title=title,
@@ -650,13 +706,134 @@ class Dictionary(Array):
         ]
 
 
-class AutoIterable:
-    pass  # TODO: create AutoIterable class that works with the AutoUi class for iterables
+def validate_items(sch_arr):
+    if "items" not in sch_arr.keys():
+        raise ValueError("items must be in schema keys")
+    if any(_ in sch_arr["items"].keys() for _ in ["allOf", "anyOf", "oneOf", "not"]):
+        raise ValueError(
+            'items with: "allOf, anyOf, oneOf, not" keys currently not supported'
+        )
+    return sch_arr
 
 
-# + endofcell="--"
+from ipyautoui.automapschema import autowidget
+
+
+class AutoArray(Array):
+    _schema = traitlets.Dict()
+
+    @validate("_schema")
+    def _validate_schema(self, proposal):
+        if "type" and "items" not in list(proposal.value.keys()):
+            raise ValueError(f"not valid array schema")
+            if proposal.value["type"] != "array":
+                raise ValueError(f"not valid array schema")
+            item = list(proposal.value["items"].keys())[0]
+            if item in ["oneOf", "anyOf", "allOf", "not"]:
+                raise ValueError(f"'{item}' not currently supported for array items")
+        return proposal
+
+    def __init__(
+        self,
+        schema: typing.Dict,
+        value=None,
+        toggle=False,
+        # title=None,
+        # fn_add: typing.Callable = lambda: display("add item"),
+        fn_remove: typing.Callable = lambda: display("remove item"),
+        watch_value: bool = True,
+        add_remove_controls: str = "add_remove",
+        show_hash: str = "index",
+        sort_on="index",
+        orient_rows=True,
+        fn_add_dialogue: typing.Callable = None,
+    ):
+        self.fn_add_dialogue = fn_add_dialogue
+        self.fn_remove = fn_remove
+        self._toggle = toggle
+        self.schema = schema
+        self.orient_rows = orient_rows
+        self.watch_value = watch_value
+        self.zfill = 2
+        if value is not None:
+            #     items = [
+            #         AutoIpywidget(value=v, schema=self.schema, show_raw=False)
+            #         for v in value
+            #     ]
+            # elif "default" in self.schema.keys():
+            #     items = [
+            #         AutoIpywidget(value=v, schema=self.schema["items"], show_raw=False)
+            #         for v in self.schema["default"]
+            #     ]
+            items = [autowidgetcaller(schema=self.schema) for v in value]
+        elif "default" in self.schema.keys():
+            items = [
+                autowidgetcaller(schema=self.schema["items"])
+                for v in self.schema["default"]
+            ]
+            # [display(i) for i in items]
+        else:
+            items = None
+        items = self._init_items(items)
+        self.iterable = self._init_iterable(items)
+        self._init_form()
+
+        self.add_remove_controls = add_remove_controls
+        self.show_hash = show_hash
+        self.sort_on = sort_on
+        self._update_value("change")
+
+    @property
+    def schema(self):
+        return self._schema["value"]
+
+    @schema.setter
+    def schema(self, value):
+        from ipyautoui.autoipywidget import AutoIpywidget
+
+        self._schema = value
+        self.caller = create_widget_caller(value)
+        if "title" in self.schema.keys():
+            self._title = self.schema["title"]
+        else:
+            self._title = None
+        if "minItems" in self.schema.keys():
+            self.minlen = self.schema["minItems"]
+        else:
+            self.minlen = 0
+        if "maxItems" in self.schema.keys():
+            self.maxlen = self.schema["maxItems"]
+        else:
+            self.maxlen = 100
+        self.fn_add = functools.partial(autowidgetcaller, schema=self.caller["items"])
+
+
 # -
 
+if __name__ == "__main__":
+    sch = TestArrays.schema()["properties"]["array_strings"]
+    ui = AutoArray(sch)
+    display(ui)
+
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestArrays
+    from ipyautoui.autoipywidget import AutoIpywidget
+
+    # TestArrays.schema()["properties"]  # ["array_strings"]
+
+    sch = TestArrays.schema()
+    ui = AutoIpywidget(schema=sch, show_raw=False)
+    display(ui)
+
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestArrays
+
+    sch = TestArrays.schema()
+    sch = sch["properties"]["array_strings1"]
+    ui = AutoArray(sch)
+    display(ui)
+
+# +
 if __name__ == "__main__":
     import random
     from IPython.display import Markdown
@@ -682,16 +859,30 @@ if __name__ == "__main__":
         _bool = {0: False, 1: True}
         return {words[n]: _bool[m]}
 
-    def fn_add():
-        return TestItem(di=get_di())
+    def fn_add(value=None):
+        if value is None:
+            return TestItem(di=get_di())
+        else:
+            return TestItem(di=value)
 
     class TestItem(widgets.HBox, traitlets.HasTraits):
-        value = traitlets.Dict()
+        _value = traitlets.Dict()
 
         def __init__(self, di: typing.Dict = get_di()):
-            self.value = di
+            self._value = di
             self._init_form()
             self._init_controls()
+
+        @property
+        def value(self):
+            return self._value
+
+        @value.setter
+        def value(self, value):
+            self._value = value
+            k, v = list(value.keys())[0], list(value.values())[0]
+            self._label.value = k
+            self._bool.value = v
 
         def _init_form(self):
             self._label = widgets.HTML(f"{list(self.value.keys())[0]}")
@@ -770,8 +961,39 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     di.items = {"key1": fn_add(), "key2": fn_add()}
-# --
+# -
+if __name__ == "__main__":
+    di_arr = {
+        "items": None,
+        "fn_add": fn_add,
+        "maxlen": 10,
+        "show_hash": "index",
+        #'toggle':True,
+        "title": "Array",
+        "add_remove_controls": "append_only",
+        "orient_rows": False,
+    }
+
+    arr = Array(**di_arr)
+    display(arr)
 
 
+if __name__ == "__main__":
+    di_arr = {
+        "value": [{"None": False}],
+        "fn_add": fn_add,
+        "maxlen": 10,
+        "show_hash": "index",
+        #'toggle':True,
+        "title": "Array",
+        "add_remove_controls": "append_only",
+        "orient_rows": False,
+    }
+
+    arr = Array(**di_arr)
+    display(arr)
+
+if __name__ == "__main__":
+    arr.value = [{"None": False}, {"ads": True}, {"asdf": False}]
 
 
