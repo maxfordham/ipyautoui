@@ -181,7 +181,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
     """generic iterable. pass a list of items"""
 
     # -----------------------------------------------------------------------------------
-    value = traitlets.List()  # TODO: change to _value and add setter and getter?
+    _value = traitlets.List()  # TODO: change to _value and add setter and getter?
     _show_hash = traitlets.Unicode(allow_none=True)
     _add_remove_controls = traitlets.Unicode(allow_none=True)
     _sort_on = traitlets.Unicode(allow_none=True)
@@ -212,23 +212,14 @@ class Array(widgets.VBox, traitlets.HasTraits):
                 f'{proposal} given. allowed values of sort_on are "index", "key" and None only'
             )
         return proposal
-    
-#     @value.setter  # TODO: this! 
-#     def value(self, value: typing.List):
-#         self.items = [self.fn_add(v) for v in value]
-#         self._update_value()
-
-#     @property
-#     def v(self):
-#         return self._value
 
     def _update_value(self, onchange):
-        self.value = [a.item.value for a in self.iterable]
+        self._value = [a.item.value for a in self.iterable]
 
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
-        value: typing.List=None,
+        value: typing.List = None,
         items: typing.List = None,
         toggle=False,
         title=None,
@@ -243,7 +234,10 @@ class Array(widgets.VBox, traitlets.HasTraits):
         sort_on="index",
         orient_rows=True,
     ):
-
+        if value is not None and items is not None:
+            raise ValueError(
+                '"value" (data only) and "items" (widget objects) cannot both be specified at input. you must specify one or the other.'
+            )
         self.orient_rows = orient_rows
         self.minlen = minlen  # TODO: validation. must be > 1
         self.maxlen = maxlen
@@ -252,23 +246,30 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self.fn_remove = fn_remove
         self.watch_value = watch_value
         self.zfill = 2
-        self._init_value()
+        # if value is None and items is not None:
+
+        value, items = self._init_value(value, items)
+        self.iterable = self._init_iterable(items)
         self._init_form()
         self._toggle = toggle
         self.title = title
         self.add_remove_controls = add_remove_controls
         self.show_hash = show_hash
         self.sort_on = sort_on
-        self._update_value()
-        
+        self._update_value("change")
+
     def _init_value(self, value, items):
-        if value is not None and items is not None: 
-            raise ValueError('"value" (data only) and "items" (widget objects) cannot both be specified at input. you must specify one or the other.')
-        elif value is None and items is not None:
+        if value is None and items is None:
             items = self._init_items(items)
-            self.iterable = self._init_iterable(items)
+        elif value is None and items is not None:
+            pass
         elif value is not None and items is None:
-            
+            items = [self.fn_add(v) for v in value]
+        elif value is not None and items is not None:
+            raise ValueError('either "items" or "value" must be None')
+        else:
+            raise ValueError("error with _init_value")
+        return value, items
 
     def _init_iterable(self, items):
         return [
@@ -285,6 +286,17 @@ class Array(widgets.VBox, traitlets.HasTraits):
     @property
     def length(self):
         return len(self.iterable)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter  # TODO: this!
+    def value(self, value: typing.List):
+        self.items = [self.fn_add() for v in value]
+        for n, v in enumerate(value):
+            self.items[n].value = v
+        self._update_value("onchange")
 
     @property
     def items(self):
@@ -632,6 +644,7 @@ class Dictionary(Array):
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
+        value: typing.Dict = None,
         items: typing.Dict = None,
         toggle=False,
         title=None,
@@ -647,6 +660,7 @@ class Dictionary(Array):
         orient_rows=True,
     ):
         super().__init__(
+            value,
             items,
             toggle=toggle,
             title=title,
@@ -767,6 +781,7 @@ class AutoArray(Array):
         self.add_remove_controls = add_remove_controls
         self.show_hash = show_hash
         self.sort_on = sort_on
+        self._update_value("change")
 
     @property
     def schema(self):
@@ -800,13 +815,6 @@ if __name__ == "__main__":
     ui = AutoArray(sch)
     display(ui)
 
-# +
-# ui.value
-
-# +
-# sch
-# -
-
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
     from ipyautoui.autoipywidget import AutoIpywidget
@@ -825,9 +833,7 @@ if __name__ == "__main__":
     ui = AutoArray(sch)
     display(ui)
 
-# + endofcell="--"
-# -
-
+# +
 if __name__ == "__main__":
     import random
     from IPython.display import Markdown
@@ -853,16 +859,30 @@ if __name__ == "__main__":
         _bool = {0: False, 1: True}
         return {words[n]: _bool[m]}
 
-    def fn_add():
-        return TestItem(di=get_di())
+    def fn_add(value=None):
+        if value is None:
+            return TestItem(di=get_di())
+        else:
+            return TestItem(di=value)
 
     class TestItem(widgets.HBox, traitlets.HasTraits):
-        value = traitlets.Dict()
+        _value = traitlets.Dict()
 
         def __init__(self, di: typing.Dict = get_di()):
-            self.value = di
+            self._value = di
             self._init_form()
             self._init_controls()
+
+        @property
+        def value(self):
+            return self._value
+
+        @value.setter
+        def value(self, value):
+            self._value = value
+            k, v = list(value.keys())[0], list(value.values())[0]
+            self._label.value = k
+            self._bool.value = v
 
         def _init_form(self):
             self._label = widgets.HTML(f"{list(self.value.keys())[0]}")
@@ -941,9 +961,7 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     di.items = {"key1": fn_add(), "key2": fn_add()}
-# --
-
-
+# -
 if __name__ == "__main__":
     di_arr = {
         "items": None,
@@ -959,5 +977,23 @@ if __name__ == "__main__":
     arr = Array(**di_arr)
     display(arr)
 
+
+if __name__ == "__main__":
+    di_arr = {
+        "value": [{"None": False}],
+        "fn_add": fn_add,
+        "maxlen": 10,
+        "show_hash": "index",
+        #'toggle':True,
+        "title": "Array",
+        "add_remove_controls": "append_only",
+        "orient_rows": False,
+    }
+
+    arr = Array(**di_arr)
+    display(arr)
+
+if __name__ == "__main__":
+    arr.value = [{"None": False}, {"ads": True}, {"asdf": False}]
 
 
