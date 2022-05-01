@@ -230,7 +230,7 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
         self.ui_main = widgets.VBox()
 
         self.ui_titlebox = widgets.VBox()
-        self.ui_buttonbar = widgets.HBox()
+        self.ui_buttonbar = widgets.HBox()  # whats this for?
         self.ui_header.children = [self.ui_buttonbar, self.ui_titlebox]
 
         self.ui_box, self.di_widgets = _init_widgets_and_rows(self.pr)
