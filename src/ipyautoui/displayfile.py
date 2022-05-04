@@ -443,7 +443,7 @@ def xl_prev(fpth):
         # self._open_option()
 
 
-default_file_renderers = {
+DEFAULT_FILE_RENDERERS = {
     ".csv": csv_prev,
     ".json": json_prev,
     ".plotly": plotlyjson_prev,
@@ -462,7 +462,7 @@ default_file_renderers = {
     ".pdf": pdf_prev,
 }
 
-default_file_renderers = frozenmap(**default_file_renderers)
+DEFAULT_FILE_RENDERERS = frozenmap(**DEFAULT_FILE_RENDERERS)
 
 
 # +
@@ -639,7 +639,7 @@ class UiFile:
 
 def preview_path(
     path: typing.Union[str, pathlib.Path],
-    default_file_renderers: Dict[str, Callable] = default_file_renderers,
+    default_file_renderers: Dict[str, Callable] = DEFAULT_FILE_RENDERERS,
     user_file_renderers: Dict[str, Callable] = None,
 ):
     if user_file_renderers is None:
@@ -658,7 +658,7 @@ class DisplayFile:
     """
     displays the contents of a file in the notebook.
     comes with the following default renderers:
-    default_file_renderers = {
+    DEFAULT_FILE_RENDERERS = {
         '.csv': csv_prev,
         '.json': json_prev,
         '.plotly': plotlyjson_prev,
@@ -699,7 +699,7 @@ class DisplayFile:
     def __init__(
         self,
         path: typing.Union[str, pathlib.Path],
-        default_file_renderers: Dict[str, Callable] = default_file_renderers,
+        default_file_renderers: Dict[str, Callable] = DEFAULT_FILE_RENDERERS,
         user_file_renderers: Dict[str, Callable] = None,
         newroot=pathlib.PureWindowsPath("J:/"),
         auto_open: bool = False,
@@ -707,7 +707,7 @@ class DisplayFile:
         """
         Args:
             path (str): filepath to display
-            default_file_renderers: Dict[str, Callable] = default_file_renderers
+            default_file_renderers: Dict[str, Callable] = DEFAULT_FILE_RENDERERS
                 the class
                 
         Usage:
@@ -818,7 +818,7 @@ class DisplayFiles(HasTraits):
     """
     displays the contents of a file in the notebook.
     comes with the following default renderers:
-    default_file_renderers = {
+    DEFAULT_FILE_RENDERERS = {
         '.csv': csv_prev,
         '.json': json_prev,
         '.plotly': plotlyjson_prev,
@@ -853,7 +853,7 @@ class DisplayFiles(HasTraits):
     def __init__(
         self,
         paths: typing.List[pathlib.Path],
-        default_file_renderers: Dict[str, Callable] = default_file_renderers,
+        default_file_renderers: Dict[str, Callable] = DEFAULT_FILE_RENDERERS,
         user_file_renderers: Dict[str, Callable] = None,
         newroot=pathlib.PureWindowsPath("J:/"), # TODO: remove this. update mf_file_utilities. define this in a config file somewhere... 
         patterns: typing.Union[str, typing.List] = None,
@@ -1011,7 +1011,7 @@ if __name__ == "__main__":
     # functions_list
     # class_list
     # -
-    from constants import load_test_constants
+    from ipyautoui.constants import load_test_constants
 
     DIR_FILETYPES = load_test_constants().DIR_FILETYPES
 
@@ -1106,4 +1106,6 @@ if __name__ == "__main__":
         path=tests_constants.PATH_TEST_AUI, user_file_renderers=user_file_renderers
     )
     display(test_ui)
+
+
 

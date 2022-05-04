@@ -46,7 +46,6 @@ from enum import Enum
 import inspect
 
 from ipyautoui.displayfile import PreviewPy
-from ipyautoui.test_schema import TestAutoLogic
 import ipyautoui.autowidgets as auiwidgets
 
 from ipyautoui._utils import (
@@ -55,10 +54,11 @@ from ipyautoui._utils import (
     file,
     obj_from_importstr,
 )
-from ipyautoui.custom import Grid, FileChooser, SaveButtonBar
 from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
 from ipyautoui.constants import load_test_constants
 import numbers
+
+# TODO: add doctest
 
 frozenmap = immutables.Map
 # +
@@ -138,6 +138,12 @@ def attach_schema_refs(schema, schema_base=None):
 
 
 def is_IntText(di):
+    """
+    >>> is_IntText({'title': 'Int Text', 'default': 1, 'type': 'integer'})
+    True
+    >>> is_IntText({'title': 'Int Text', 'default': 1, 'type': 'number'})
+    False
+    """
     if "autoui" in di.keys():
         return False
     if not di["type"] == "integer":
@@ -449,7 +455,7 @@ def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False):
 
 
 def automapschema(schema, widget_map=MAP_WIDGETS):
-    from ipyautoui.custom.iterable_1 import AutoArray
+    from ipyautoui.custom.iterable import AutoArray
     from ipyautoui.autoipywidget import AutoIpywidget
 
     # _ = widget_map.set("array", WidgetMapper(fn_filt=is_Array, widget=AutoArray))
@@ -493,7 +499,7 @@ def autowidget(schema):
 
 def autowidgetcaller(schema):
     """interprets schema and returns appropriate widget"""
-    from ipyautoui.custom.iterable_1 import AutoArray
+    from ipyautoui.custom.iterable import AutoArray
     from ipyautoui.autoipywidget import AutoIpywidget
 
     t = schema["type"]
@@ -508,6 +514,7 @@ def autowidgetcaller(schema):
 # -
 
 if __name__ == "__main__":
+    from ipyautoui.test_schema import TestAutoLogic
     di = {
         "title": "Color Picker Ipywidgets",
         "default": "#f5f595",

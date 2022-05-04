@@ -40,6 +40,7 @@ sphinx:
   - 'sphinx.ext.todo'
   - 'sphinx.ext.autosummary'
   - 'autoapi.extension'
+  - 'sphinxcontrib.mermaid'
   #- 'jupyter_sphinx'
   #- 'nbsphinx'
   #- 'nbsphinx_link'

@@ -96,8 +96,7 @@ from ipyautoui.constants import (
     BUTTON_MIN_SIZE,
 )
 from markdown import markdown
-from ipyautoui.test_schema import TestArrays
-
+from ipyautoui.automapschema import autowidget
 
 frozenmap = (
     immutables.Map
@@ -716,7 +715,7 @@ def validate_items(sch_arr):
     return sch_arr
 
 
-from ipyautoui.automapschema import autowidget
+
 
 
 class AutoArray(Array):
@@ -811,6 +810,7 @@ class AutoArray(Array):
 # -
 
 if __name__ == "__main__":
+    from ipyautoui.test_schema import TestArrays
     sch = TestArrays.schema()["properties"]["array_strings"]
     ui = AutoArray(sch)
     display(ui)

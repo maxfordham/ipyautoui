@@ -15,6 +15,7 @@
 import EasyMDE from 'easymde/dist/easymde.min.js'
 import 'easymde/dist/easymde.min.css'
 global.EasyMDE = EasyMDE
+// ^ this isn't working
 
 module.exports = {
     async created() {

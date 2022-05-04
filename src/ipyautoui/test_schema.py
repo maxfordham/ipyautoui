@@ -9,7 +9,7 @@ from datetime import datetime, date
 import pathlib
 import pandas as pd
 from pathlib import PurePosixPath
-from ipyautoui.custom import RunName
+from ipyautoui.custom.modelrun import RunName
 
 
 class Gender(str, Enum):
@@ -58,8 +58,8 @@ class TestAutoLogicSimple(BaseModel):
 class TestTypesWithComplexSerialisation(BaseModel):
     """all of these types need to be serialised to json and parsed back to objects upon reading..."""
     file_chooser: pathlib.Path = pathlib.Path(".") # TODO: serialisation / parsing round trip not working...
-    date_picker: date = date.today() # TODO: serialisation / parsing round trip not working...
-    datetime_picker: datetime = datetime.now() #TODO: update with ipywidgets-v8
+    date_picker: typing.Optional[date] = date.today() # TODO: serialisation / parsing round trip not working...
+    datetime_picker: typing.Optional[datetime] = datetime.now() #TODO: update with ipywidgets-v8
     color_picker_ipywidgets: Color = "#f5f595"
 
 class TestAutoLogic(TestAutoLogicSimple):

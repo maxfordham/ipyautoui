@@ -53,10 +53,6 @@ AutoUi.create_displayfile_renderer #  creates a json-serializable pointer
 AutoUi.parse_file #  init ui with data from .json file
 ```
 
-__Current Limations__: 
-
-- Doesn't support nested objects or arrays. Coming soon... 
-
 - AutoUi uses [__pydantic__](https://github.com/samuelcolvin/pydantic/) to define the schema of User Input form, and then infers the widget to use based on type and user-directives
 - `ipyautoui.custom.` provides useful widgets (e.g. iterable) that aren't included within the core ipywidgets library
 - ipyautoui defines a best practice for creating and integrating custom widgets, and as default includes some widgets from other opular widget libraries (e.g. ipydatagrid, ipyfilechooser). 

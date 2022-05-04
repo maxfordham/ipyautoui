@@ -25,7 +25,6 @@ import traitlets
 
 ipyvue.watch(".")
 
-
 class AutoVjsf(v.VuetifyTemplate):
     template_file = "vjsf.vue"
     vjsf_loaded = traitlets.Bool(False).tag(sync=True)
@@ -36,10 +35,16 @@ class AutoVjsf(v.VuetifyTemplate):
 
 # -
 
+class AutoVjsf1(AutoVjsf):
+    pass
+
+
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
 
     test = TestAutoLogic()
     sch = test.schema()
-    ui = AutoVjsf(schema=sch)
+    ui = AutoVjsf1(schema=sch)
     display(ui)
+
+

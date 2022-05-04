@@ -54,6 +54,7 @@ from ipyautoui._utils import (
     display_pydantic_json,
     file,
     obj_from_importstr,
+    display_python_string,
 )
 from ipyautoui.custom import Grid, FileChooser, SaveButtonBar
 from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
@@ -68,12 +69,11 @@ frozenmap = immutables.Map
 
 def display_template_ui_model():
     from ipyautoui import test_schema
-
     display(PreviewPy(test_schema, docstring_priority=False))
 
 
 # +
-from ipyautoui.custom.iterable_1 import AutoArray
+from ipyautoui.custom.iterable import AutoArray
 from ipyautoui.automapschema import automapschema, widgetcaller, MAP_WIDGETS
 
 
@@ -146,6 +146,10 @@ class Auto:
             self._update_widgets_from_value()
 
 
+class TitleAndToggle(HasTraits):
+    show_raw = traitlets.Bool(default=True)
+
+
 # + tags=[]
 def _get_value_trait(widget):
     """looks for a value or _value trait on widget (allowing setters and getters to be used on value)"""
@@ -170,6 +174,7 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
 
     @value.setter
     def value(self, value):
+        """this is for setting the value via the API"""
         self._value = value
         if hasattr(self, "di_widgets"):
             self._update_widgets_from_value()
@@ -190,11 +195,7 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
     @widgets_mapper.setter
     def widgets_mapper(self, value):
         if value is None:
-            self._widgets_mapper = MAP_WIDGETS  # dict(
-        # autonested = functools.partial(AutoIpywidget, show_raw=False)
-        # autoarray = AutoArray
-        # self._widgets_mapper["object"].widget = autonested
-        # self._widgets_mapper["array"].widget = autoarray
+            self._widgets_mapper = MAP_WIDGETS  # TODO: maybe this should be a dict
 
     def _init_ui(self, schema):
         self._init_schema(schema)
@@ -230,15 +231,13 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
         self.ui_main = widgets.VBox()
 
         self.ui_titlebox = widgets.VBox()
-        self.ui_buttonbar = widgets.HBox()  # whats this for?
-        self.ui_header.children = [self.ui_buttonbar, self.ui_titlebox]
+        self.ui_header.children = [self.ui_titlebox]
 
         self.ui_box, self.di_widgets = _init_widgets_and_rows(self.pr)
         self._value = self.di_widgets_value
         self.ui_main.children = [self.ui_box]
         self.children = [self.ui_header, self.ui_main]
         self._update_widgets_from_value()
-        # display(self.ui_main)
 
     @property
     def di_widgets_value(self):
@@ -289,7 +288,11 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
             self.showraw.observe(self._showraw, "value")
 
     def _watch_change(self, change, key=None, watch="value"):
-        self._value[key] = getattr(self.di_widgets[key], watch)
+        tmp = self._value.copy()
+        tmp[key] = getattr(self.di_widgets[key], watch)
+        self._value = tmp
+        #  note. it is required to .copy the _value and then set it again
+        #        otherwise traitlets doesn't register the change.
 
     def _showraw(self, onchange):
         if self.showraw.value:
@@ -297,14 +300,7 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
             self.showraw.icon = "user-edit"
             out = widgets.Output()
             with out:
-                display(
-                    Markdown(
-                        "\n```Python\n"
-                        + "#  raw json data of the user input form"
-                        + "\n```"
-                    )
-                )
-                display(self.value)
+                display(display_python_string(json.dumps(self.value, indent=4)))
             self.ui_main.children = [out]
         else:
             self.showraw.tooltip = "show raw data"
@@ -332,3 +328,5 @@ if __name__ == "__main__":
     sch = test.schema()
     ui = AutoIpywidget(sch, show_raw=True)
     display(ui)
+
+

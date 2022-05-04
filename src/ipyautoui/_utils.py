@@ -136,7 +136,6 @@ def del_matching(df, string):
     df = del_cols(df, matching)
     return df
 
-#  from mf_modules.jupyter_formatting import md_fromfile, display_python_file
 #  ------------------------------------------------------------------------------------------------
 def md_fromfile(fpth):
     """
@@ -157,6 +156,9 @@ def md_fromfile(fpth):
     all_of_it = file.read() # read all lines at once
     file.close() # close the file
     display(Markdown(all_of_it))
+    
+def display_python_string(string):
+    return Markdown("\n```Python\n" + string + "\n```")
 
 def display_python_file(fpth):
     """
@@ -165,7 +167,7 @@ def display_python_file(fpth):
     """
     with open(fpth, 'r') as myfile:
         data = myfile.read()
-    return Markdown("\n```Python\n" + data + "\n```")
+    display_python_string(string)
 
 
 def read_txt(fpth,encoding='utf-8',delim=None,read_lines=True):

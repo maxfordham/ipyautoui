@@ -47,6 +47,7 @@ dependencies:
   - sphinx-autoapi
   - autodoc-pydantic # for docs
   - nbsphinx-link
+  - sphinxcontrib-mermaid
   - pytest
   - pip
   - pip:
