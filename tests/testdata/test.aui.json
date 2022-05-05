@@ -1,6 +1,6 @@
 {
     "string": "adsf",
-    "int_slider": 2,
+    "int_slider": 1,
     "int_text": 1,
     "int_range_slider": [
         0,
@@ -21,7 +21,7 @@
     "complex_serialisation": {
         "file_chooser": ".",
         "date_picker": null,
-        "datetime_picker": "2022-05-01T14:15:31.083581",
+        "datetime_picker": "2022-05-05T15:21:57.271559",
         "color_picker_ipywidgets": "#f5f595"
     },
     "select_multiple_non_constrained": [

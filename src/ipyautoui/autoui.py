@@ -30,11 +30,12 @@ Example:
 """
 # %run __init__.py
 # #%load_ext lab_black
+import logging
 import pathlib
 import functools
 import pandas as pd
 import ipywidgets as widgets
-from IPython.display import display, Markdown
+from IPython.display import display, Markdown, clear_output
 from datetime import datetime, date
 from dataclasses import dataclass
 from pydantic import BaseModel, Field
@@ -53,10 +54,10 @@ from ipyautoui._utils import (
     display_pydantic_json,
     file,
     obj_from_importstr,
+    display_python_string
 )
 from ipyautoui.custom import Grid, FileChooser, SaveButtonBar
-from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
-from ipyautoui.constants import load_test_constants
+from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN, load_test_constants
 from ipyautoui.autoipywidget import AutoIpywidget
 from ipyautoui.autovjsf import AutoVjsf
 
@@ -126,10 +127,20 @@ def jsonschema_to_pydantic(
 ) -> typing.Type[BaseModel]:
     pass  # TODO: https://github.com/samuelcolvin/pydantic/issues/1638
 
+def get_schema_title(schema):
+    
+    if type(schema) != dict:
+        schema = schema.schema()
+    if "title" in schema.keys():
+        return schema["title"]
+    else:
+        return ""
 
 class AutoUiCommonMethods(traitlets.HasTraits):
     save_controls = traitlets.UseEnum(SaveControls) # default is save_on_edit
     path = traitlets_paths.Path(allow_none=True)
+    show_raw = traitlets.Bool(default_value=True)
+    show_description = traitlets.Bool(default_value=True)
     
     @traitlets.validate('path')
     def _path(self, proposal):
@@ -146,11 +157,89 @@ class AutoUiCommonMethods(traitlets.HasTraits):
             )
             map_save_dialogue[proposal['value']]()
         else:
-            pass
-            print("self.path == None. must be a valid path to save as json")
+            logging.info('self.path == None. must be a valid path to save as json')
             
         return proposal['value']
     
+    def _init_AutoUiCommonMethods(self):
+        self._init_autoui_form()
+        self._init_showraw_controls()
+    
+    def _init_autoui_form(self):
+        self._init_titlebox()
+        self._init_showraw()
+        li = list(self.children) 
+        li = [self.vbx_header] +  li + [self.vbx_raw]
+        self.children = li
+        
+    def _init_showraw(self):
+        self.vbx_raw = widgets.VBox()
+        self.out_raw = widgets.Output()
+        self.vbx_raw.children = [self.out_raw]
+        
+    def _init_titlebox(self):
+        # init containers
+        self.vbx_header = widgets.VBox() #  overall header container
+        self.hbx_savecontrols = widgets.HBox() #  with save controls
+        self.hbx_title_toggle = widgets.HBox() #  with show_raw toggle and title
+        self.hbx_description = widgets.HBox() #  with description
+        self.vbx_header.children = [self.hbx_savecontrols, self.hbx_title_toggle, self.hbx_description]
+        
+        # init content
+        self.title = widgets.HTML(f"<big><b>{self.sch['title']}</b></big>")
+        self.showraw = widgets.ToggleButton(
+            icon="code",
+            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            tooltip="show raw data",
+            style={"font_weight": "bold", "button_color": None},
+        )
+        self._update_show_raw()
+        self.description = widgets.HTML()
+        self._init_description()
+        
+        # fill containers
+        self.hbx_title_toggle.children = [self.showraw, self.title]
+        self.hbx_description.children = [self.description]
+
+        
+    def _init_description(self):
+        if "description" in self.sch.keys():
+            self.description.value = markdown(f"{self.sch['description']}")
+        if self.show_description:
+            self.description.layout.display = ""
+        else:
+            self.description.layout.display = "None"
+            
+    def _update_show_raw(self):
+        if self.show_raw:
+            self.showraw.layout.display = ""
+        else:
+            self.showraw.layout.display = "None"
+            
+    def _init_showraw_controls(self):
+        self.showraw.observe(self._showraw, "value")
+
+    def _showraw(self, onchange):
+        if self.showraw.value:
+            self.showraw.tooltip = "show user interface"
+            self.showraw.icon = "user-edit"
+            self.show_raw()
+        else:
+            self.showraw.tooltip = "show raw data"
+            self.showraw.icon = "code"
+            self.show_ui()
+
+    def show_raw(self):
+        self.ui_main.layout.display = "None"
+        self.vbx_raw.layout.display = ""
+        with self.out_raw:
+            clear_output()
+            display(display_python_string(json.dumps(self.value, indent=4)))
+        
+    def show_ui(self):
+        self.ui_main.layout.display = ""
+        self.vbx_raw.layout.display = "None"
+
     def _get_path(self, path=None):
         if path is None:
             if self.path is not None:
@@ -162,11 +251,21 @@ class AutoUiCommonMethods(traitlets.HasTraits):
             return path
 
     def _get_value(self, value, path):
-        if value is None:
-            if path is None:
-                return None
-            else:
-                value = self.parse_file(path).dict()
+        # handle inputs
+        if value is None and path is None: 
+            # value reverts to schema defaults
+            return None
+        elif value is None and path is not None and path.is_file() == True: 
+            # load value from path
+            return self.parse_file()
+        elif value is None and path is not None and path.is_file() == False: 
+            # value reverts to schema defaults
+            return None
+        elif value is not None:
+            # value reverts to given value
+            return value
+        else:
+            raise ValueError('_get_value error...?')
 
     def file(self, path=None):
         p = self._get_path(path=path)
@@ -174,42 +273,80 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         # m.file(p)
 
     def parse_file(self, path=None):
+        if self.path is not None and self.path.is_file():
+            return parse_json_file(self.path)
+        else:
+            raise ValueError('self.path is not None and self.path.is_file() == False')
+        
+    def load_file(self, path=None):
         p = self._get_path(path=path)
         self.value = parse_json_file(p)
-        self.save_buttonbar._unsaved_changes(False)
+        try: 
+            self.save_buttonbar._unsaved_changes(False)
+        except:
+            pass
+        
 
-    # @staticmethod
-    # def autoui_from_file(
-    #     schema: typing.Union[typing.Type[BaseModel], dict],
-    #     path: pathlib.Path,
-    #     save_controls: SaveControls = SaveControls.save_buttonbar,
-    #     show_raw: bool = True,  # TODO: move this out of autoipywidget
-    #     ext: str = ".json",  # create custom compound extension type
-    #     fn_onsave: typing.Union[
-    #         typing.Callable, typing.List[typing.Callable]
-    #     ] = lambda: None,
-    # ):
-    #     ext = path.suffixes.join(".")
-    #     return AutoUi(
-    #         schema,
-    #         path=path,
-    #         save_controls=save_controls,
-    #         show_raw=show_raw,  # TODO: move this out of autoipywidget
-    #         ext=ext,  # create custom compound extension type
-    #         fn_onsave=fn_onsave,
-    #     )
+    @classmethod
+    def create_autoui_renderer(
+        cls,
+        schema: typing.Union[typing.Type[BaseModel], dict],
+        save_controls: SaveControls = SaveControls.save_buttonbar,
+        show_raw: bool = True,
+        fn_onsave: typing.Union[
+            typing.Callable, typing.List[typing.Callable]
+        ] = lambda: None,
+    ):
+        #ext = path.suffixes.join(".")
+        docstring = f"AutoRenderer for {get_schema_title(schema)}"
+        class AutoRenderer(cls):
+            def __init__(self, path: pathlib.Path):
+                f"""{docstring}"""
+                super().__init__(
+                    schema,
+                    path=path,
+                    save_controls=save_controls,
+                    show_raw=show_raw,
+                    fn_onsave=fn_onsave)
+        return AutoRenderer
+    
+    @classmethod
+    def create_displayfile_map(
+        cls,
+        schema: typing.Union[typing.Type[BaseModel], dict],
+        ext='.json', 
+        save_controls: SaveControls = SaveControls.save_buttonbar,
+        show_raw: bool = True,
+        fn_onsave: typing.Union[
+            typing.Callable, typing.List[typing.Callable]
+        ] = lambda: None,
+    ):
+        AutoRenderer = cls.create_autoui_renderer(
+                    schema,
+                    save_controls=save_controls,
+                    show_raw=show_raw,
+                    fn_onsave=fn_onsave)
+        docstring = f"AutoRenderer for {get_schema_title(schema)}"
+        def autoui_prev(fpth):
+            f"""
+            pass the fpth of an autoui file and display
+            {docstring}
+            """
+            p = AutoRenderer(fpth)
+            display(p)
+            
+        return {ext:autoui_prev}
 
     def _revert(self):  # TODO: check this!
         assert self.path is not None, f"self.path = {self.path}. must not be None"
-        self.value = self.parse_file(self.path)
+        self.load_file(self.path)
+        self.save_buttonbar._unsaved_changes(False)
 
     def call_save_buttonbar(self):
         self.save_buttonbar = SaveButtonBar(
             save=self.file, revert=self._revert, fn_onsave=self.fn_onsave,
         )
-        li = list(self.children) 
-        li = [self.save_buttonbar] +  li
-        self.children = li
+        self.hbx_savecontrols.children = [self.save_buttonbar]
         self.fn_onvaluechange = functools.partial(self.save_buttonbar._unsaved_changes, True)
         self.save_buttonbar._unsaved_changes(False)
         self.observe(self.call_unsaved_changes, "_value")
@@ -222,26 +359,6 @@ class AutoUiCommonMethods(traitlets.HasTraits):
     
     def call_disable_edits(self):
         pass #TODO - call_disable_edits
-
-    def _showraw(self, onchange):
-        if self.showraw.value:
-            self.showraw.tooltip = "show user interface"
-            self.showraw.icon = "user-edit"
-            out = widgets.Output()
-            with out:
-                display(
-                    Markdown(
-                        "\n```Python\n"
-                        + "#  raw json data of the user input form"
-                        + "\n```"
-                    )
-                )
-                display(display_pydantic_json(self.pydantic_obj))
-            self.ui_main.children = [out]
-        else:
-            self.showraw.tooltip = "show raw data"
-            self.showraw.icon = "code"
-            self.ui_main.children = [self.ui_box]
 
     def _init_model_schema(self, schema):
         if type(schema) == dict:
@@ -269,19 +386,20 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
         
         # accept schema or pydantic schema
         self.model, schema  = self._init_model_schema(schema)
-
+        self.value = self._get_value(value, self.path)
+        
         # list of actions to be called on save
         self.fn_onsave = fn_onsave
-
+        
         # init app
-        super().__init__(
-            schema=schema, value=value, widgets_mapper=None, show_raw=show_raw,
-        )
+        super().__init__(schema=schema, value=self.value, widgets_mapper=None)
+        self._init_AutoUiCommonMethods()
         self.save_controls = save_controls
+        #
         
 
 
-# + active=""
+# + tags=[] active=""
 # if __name__ == "__main__":
 #     aui.path = pathlib.Path('test1.json')
 #     aui.value ={'string': 'shit',
@@ -319,43 +437,74 @@ if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
 
     sch = TestAutoLogic.schema()
+    aui = AutoUi(TestAutoLogic, path="test.json", show_raw=True)
+    display(aui)
+
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestAutoLogic
+
+    sch = TestAutoLogic.schema()
     aui = AutoUi(sch, path="test.json", show_raw=True)
     display(aui)
 
-TestAutoLogic.schema()['title']
-
-
-
-
-
-
-
+if __name__ == "__main__":
+    #Renderer = AutoUi.create_autoui_renderer(sch)
+    Renderer = AutoUi.create_autoui_renderer(TestAutoLogic)
+    display(Renderer(path="test.json"))
 
 
 class AutoVuetify(widgets.VBox, AutoUiCommonMethods):
-    value = traitlets.Dict()
+    _value = traitlets.Dict()
     def __init__(self, 
                  schema, 
-                 path='test_vuetify.json',
+                 value=None,
+                 path=None,
                  fn_onsave=None,
+                 show_raw=True,
                  save_controls: SaveControls = SaveControls.save_buttonbar,
                 ):
         super().__init__()
+        self.show_raw = show_raw
+        self.show_description = False
         self.path=path
+        value = self._get_value(value, self.path)
         # list of actions to be called on save
         self.fn_onsave = fn_onsave
-        self.vui = AutoVjsf(schema=schema)
-        self.children = [self.vui]
+        self.vui = AutoVjsf(schema=schema, value=value)
+        self._value = self.vui.value
+        self.vbx_raw = widgets.HBox()
+        self._init_AutoUiCommonMethods()
+        self._init_vui_form()
         self._init_controls()
         self.save_controls = save_controls
+        
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, value):
+        # TODO: add validation
+        self._value = value
+        self.vui.value = self._value
+        
+    def _init_vui_form(self):
+        self.ui_main = widgets.VBox()
+        self.ui_main.children = [self.vui]
+        li = list(self.children) 
+        li.append(self.ui_main)
+        self.children = li
         
     def _init_controls(self):
         self.vui.observe(self.update_value, 'value')
         
     def update_value(self, on_change):
-        self.value = self.vui.value
+        self._value = self.vui.value
         
-    
+    @property    
+    def sch(self):
+        return self.vui.schema
+        
     
     # def __init__(
     #     self,
@@ -374,8 +523,11 @@ class AutoVuetify(widgets.VBox, AutoUiCommonMethods):
 
 if __name__ == "__main__":
     vui = AutoVuetify(schema=TestAutoLogic.schema(), path='test_vuetify.json')
-    #vui.file()
     display(vui)
+
+if __name__ == "__main__":
+    Renderer = AutoVuetify.create_autoui_renderer(sch)
+    display(Renderer(path="test.json"))
 
 if __name__ == "__main__":
 
@@ -392,7 +544,7 @@ if __name__ == "__main__":
         )
 
     aui = AutoUi(AnalysisPaths, show_raw=True)
-    aui
+    display(aui)
 
 if __name__ == "__main__":
 

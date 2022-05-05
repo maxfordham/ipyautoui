@@ -167,7 +167,7 @@ def display_python_file(fpth):
     """
     with open(fpth, 'r') as myfile:
         data = myfile.read()
-    display_python_string(string)
+    display_python_string(data)
 
 
 def read_txt(fpth,encoding='utf-8',delim=None,read_lines=True):

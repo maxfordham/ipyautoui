@@ -74,6 +74,7 @@ from ipyautoui._utils import (
     del_matching,
     md_fromfile,
     display_python_file,
+    display_python_string,
     read_json,
     read_yaml,
     read_txt,
@@ -191,26 +192,6 @@ def xlsxtemplated_display(li):
 
 #  string = 'ProjectNo'
 #  mdheader(di)
-
-
-# -
-
-
-def display_button_styles():
-    """displays default ipywidget button styles"""
-    styles = ["primary", "success", "info", "warning", "danger"]
-    for s in styles:
-        b = widgets.ToggleButton(description=s, button_style=s)
-        t = _markdown(
-            '```widgets.ToggleButton(description="{}", button_style="{}")```'.format(
-                s, s
-            )
-        )
-        display(widgets.HBox([b, t]))
-
-
-if __name__ == "__main__":
-    display_button_styles()
 
 
 # +
@@ -393,14 +374,20 @@ def plotlyjson_prev(fpth):
 
 
 def json_prev(fpth):
-    """preview json (doens't work in Voila)"""
-    display(JSON(read_json(fpth)))
+    """preview json"""
+    data = read_json(fpth)
+    string = json.dumps(data, sort_keys=False, indent=4)
+    # display(JSON(data)) #  TODO: display JSON doesn't work with Voila? review in future.
+    display(display_python_string(string))
 
 
 def yaml_prev(fpth):
-    """preview yaml (doens't work in Voila)"""
+    """preview yaml"""
     data = read_yaml(fpth)
-    display(JSON(data))
+    string = json.dumps(data, sort_keys=False, indent=4)
+    # display(JSON(data)) #  TODO: display JSON doesn't work with Voila? review in future.
+    display(display_python_string(string))
+    
 
 
 def img_prev(fpth):
@@ -880,6 +867,29 @@ class DisplayFiles(HasTraits):
         self.user_file_renderers = user_file_renderers
         self.paths = paths
         self.display_showhide = display_showhide
+        
+    @staticmethod
+    def create_displayfiles_renderer(
+        paths: typing.List[pathlib.Path],
+        default_file_renderers: Dict[str, Callable] = DEFAULT_FILE_RENDERERS,
+        user_file_renderers: Dict[str, Callable] = None,
+        newroot=pathlib.PureWindowsPath("J:/"), # TODO: remove this. update mf_file_utilities. define this in a config file somewhere... 
+        patterns: typing.Union[str, typing.List] = None,
+        title: str = None,
+        display_showhide: bool = False,
+    ):
+        class DisplayFilesZeroArg(DisplayFiles):
+            def __init__(self):
+                """creates a zero-argument displayfile callable"""
+                super().__init__(
+                    paths=paths,
+                    default_file_renderers=default_file_renderers,
+                    user_file_renderers=user_file_renderers,
+                    newroot=newroot, # TODO: remove this. update mf_file_utilities. define this in a config file somewhere... 
+                    patterns=patterns,
+                    title=title,
+                    display_showhide=display_showhide)
+        return DisplayFilesZeroArg
 
     @property
     def title(self):
@@ -1077,17 +1087,21 @@ if __name__ == "__main__":
     p1._update_files()
 
 if __name__ == "__main__":
+    Renderer = DisplayFiles.create_displayfiles_renderer(paths=fpths)
+    display(Renderer())
+
+if __name__ == "__main__":
     display(Markdown("### Example7"))
     display(Markdown("""extend standard supported filetypes"""))
     # import
     from ipyautoui.test_schema import TestAutoLogic
-    from ipyautoui.autoui import AutoUi, AutoUiConfig
+    from ipyautoui.autoui import AutoUi#, AutoUiConfig
     from ipyautoui.constants import load_test_constants
 
     tests_constants = load_test_constants()
-    config_ui = AutoUiConfig(ext=".aui.json", pydantic_model=TestAutoLogic)
+    #config_ui = AutoUiConfig(ext=".aui.json", pydantic_model=TestAutoLogic)
 
-    user_file_renderers = AutoUi.create_displayfile_renderer(config_autoui=config_ui)
+    user_file_renderers = AutoUi.create_displayfile_map(ext=".aui.json", schema=TestAutoLogic)
 
     # TestUiDisplay = AutoUi.create_displayfile(config_autoui=config_ui)
     # def test_ui_prev(fpth):
@@ -1098,14 +1112,3 @@ if __name__ == "__main__":
     )
 
     display(test_ui)
-
-if __name__ == "__main__":
-    config_ui = AutoUiConfig(ext=".aui.json", pydantic_model=TestAutoLogic)
-    user_file_renderers = AutoUi.create_displayfile_renderer(config_autoui=config_ui)
-    test_ui = DisplayFile(
-        path=tests_constants.PATH_TEST_AUI, user_file_renderers=user_file_renderers
-    )
-    display(test_ui)
-
-
-

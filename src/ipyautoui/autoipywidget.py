@@ -69,6 +69,7 @@ frozenmap = immutables.Map
 
 def display_template_ui_model():
     from ipyautoui import test_schema
+
     display(PreviewPy(test_schema, docstring_priority=False))
 
 
@@ -126,30 +127,6 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     return ui_box, di_widgets
 
 
-# -
-
-class Auto:
-    _value = traitlets.Any()
-    ui = traitlets.Any()
-
-    def __init__(self, schema):
-        self.schema = schema
-
-    @property
-    def schema(self):
-        return self._schema
-
-    @schema.setter
-    def schema(self, value):
-        self._schema = schema
-        if hasattr(self, "di_widgets"):
-            self._update_widgets_from_value()
-
-
-class TitleAndToggle(HasTraits):
-    show_raw = traitlets.Bool(default=True)
-
-
 # + tags=[]
 def _get_value_trait(widget):
     """looks for a value or _value trait on widget (allowing setters and getters to be used on value)"""
@@ -162,7 +139,7 @@ def _get_value_trait(widget):
 
 
 class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
-    _value = traitlets.Dict()
+    _value = traitlets.Dict(allow_none=True)
 
     @traitlets.validate("_value")
     def _valid_value(self, proposal):
@@ -180,10 +157,9 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
             self._update_widgets_from_value()
 
     def __init__(
-        self, schema, value=None, show_raw=False, widgets_mapper=None,
+        self, schema, value=None, widgets_mapper=None,
     ):
         self.widgets_mapper = widgets_mapper
-        self.show_raw = show_raw
         self._init_ui(schema)
         if value is not None:
             self.value = value
@@ -200,7 +176,7 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
     def _init_ui(self, schema):
         self._init_schema(schema)
         self._init_form()
-        self._init_titlebox()
+        # self._init_titlebox()
         self._init_controls()
 
     def _init_schema(self, schema):
@@ -227,42 +203,29 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
                 border="solid LemonChiffon 2px",
             )
         )  # main container
-        self.ui_header = widgets.VBox()
+        #         self.ui_header = widgets.VBox()
+        #         self.ui_main = widgets.VBox()
+
+        #         self.ui_titlebox = widgets.VBox()
+        #         self.ui_header.children = [self.ui_titlebox]
+
+        #         self.ui_box, self.di_widgets = _init_widgets_and_rows(self.pr)
+        #         self._value = self.di_widgets_value
+        #         self.ui_main.children = [self.ui_box]
+        #         self.children = [self.ui_header, self.ui_main]
+        #         self._update_widgets_from_value()
         self.ui_main = widgets.VBox()
-
-        self.ui_titlebox = widgets.VBox()
-        self.ui_header.children = [self.ui_titlebox]
-
-        self.ui_box, self.di_widgets = _init_widgets_and_rows(self.pr)
+        self.ui_widgets, self.di_widgets = _init_widgets_and_rows(self.pr)
+        self.ui_main.children = [
+            self.ui_widgets
+        ]  # note. box in box to allow for ui_main to be swapped to raw
         self._value = self.di_widgets_value
-        self.ui_main.children = [self.ui_box]
-        self.children = [self.ui_header, self.ui_main]
+        self.children = [self.ui_main]
         self._update_widgets_from_value()
 
     @property
     def di_widgets_value(self):
         return {k: v.value for k, v in self.di_widgets.items()}
-
-    def _init_titlebox(self):
-        children = []
-        titlebox_children = []
-        self.titlebox = widgets.HBox()
-        children.append(self.titlebox)
-
-        if self.show_raw:
-            self.showraw = widgets.ToggleButton(
-                icon="code",
-                layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
-                tooltip="show raw data",
-                style={"font_weight": "bold", "button_color": None},
-            )
-            titlebox_children.append(self.showraw)
-        self.title = widgets.HTML(f"<big><b>{self.sch['title']}</b></big>")
-        titlebox_children.append(self.title)
-        if "description" in self.sch.keys():
-            children.append(widgets.HTML(markdown(f"{self.sch['description']}")))
-        self.titlebox.children = titlebox_children
-        self.ui_titlebox.children = children
 
     def disable_edits(self):
         for k, v in self.di_widgets.items():
@@ -284,8 +247,8 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
                 )
             else:
                 pass
-        if self.show_raw:
-            self.showraw.observe(self._showraw, "value")
+        # if self.show_raw:
+        #     self.showraw.observe(self._showraw, "value")
 
     def _watch_change(self, change, key=None, watch="value"):
         tmp = self._value.copy()
@@ -293,19 +256,6 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
         self._value = tmp
         #  note. it is required to .copy the _value and then set it again
         #        otherwise traitlets doesn't register the change.
-
-    def _showraw(self, onchange):
-        if self.showraw.value:
-            self.showraw.tooltip = "show user interface"
-            self.showraw.icon = "user-edit"
-            out = widgets.Output()
-            with out:
-                display(display_python_string(json.dumps(self.value, indent=4)))
-            self.ui_main.children = [out]
-        else:
-            self.showraw.tooltip = "show raw data"
-            self.showraw.icon = "code"
-            self.ui_main.children = [self.ui_box]
 
 
 # -
@@ -316,7 +266,7 @@ if __name__ == "__main__":
     test_constants = load_test_constants()
     test = TestAutoLogic()
     sch = test.schema()
-    ui = AutoIpywidget(sch, show_raw=True)
+    ui = AutoIpywidget(sch)
     display(ui)
 
 if __name__ == "__main__":
@@ -326,7 +276,9 @@ if __name__ == "__main__":
     test_constants = load_test_constants()
     test = TestArrays()
     sch = test.schema()
-    ui = AutoIpywidget(sch, show_raw=True)
+    ui = AutoIpywidget(sch)
     display(ui)
+
+
 
 
