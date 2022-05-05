@@ -6,11 +6,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.6
+#       jupytext_version: 1.11.5
 #   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: ipyautoui
+#     name: python3
 # ---
 
 """
@@ -24,12 +24,14 @@ Reference:
 # %run ../__init__.py
 import sys
 import ipywidgets as widgets
+import traitlets
 import requests
 import random
 
 
 # +
 class MultiSelectSearch(widgets.VBox):
+    _value=traitlets.List(default_value=[])
     """
     multi-checkbox select widget with search 
     
@@ -51,6 +53,14 @@ class MultiSelectSearch(widgets.VBox):
         self.out = widgets.interactive_output(self.f, self.options_dict)
         children = [self.ui, self.out]
         self.children = children
+        
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, value):
+        self._value = value
 
     def f(self, **args):
         self.value = [key for key, value in args.items() if value]
@@ -145,6 +155,3 @@ Abel
 
     m = MultiSelectSearch(options=descriptions)
     display(m)
-
-# -
-
