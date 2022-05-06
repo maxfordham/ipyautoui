@@ -2,13 +2,13 @@
 import pathlib
 
 from ipydatagrid import TextRenderer, Expr, VegaExpr
-
 from ipyautoui._utils import frozenmap
 # https://www.python.org/dev/peps/pep-0603/
 # https://github.com/MagicStack/immutables
 # ^
 DIR_MODULE = pathlib.Path(__file__).parent
 DIR_EXAMPLE = DIR_MODULE.parents[1] / "examples"
+PATH_VJSF_TEMPLATE = DIR_MODULE / 'vjsf.vue'
 
 BUTTON_WIDTH_MIN = '44px'
 BUTTON_WIDTH_MEDIUM = '90px'
@@ -144,7 +144,10 @@ def load_test_constants():
     test_constants = SourceFileLoader("constants", str(path_testing_constants)).load_module()
     return test_constants
 
-
+def display_template_ui_model():
+    from ipyautoui import test_schema
+    from ipyautoui.displayfile import PreviewPy
+    display(PreviewPy(test_schema, docstring_priority=False))
+    
 def DISPLAY_AUTOUI_EXAMPLE():
-    from ipyautoui.autoui import display_template_ui_model
     display_template_ui_model()

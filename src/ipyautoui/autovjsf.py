@@ -22,11 +22,12 @@ import ipywidgets as widgets
 import ipyvue
 import ipyvuetify as v
 import traitlets
+from ipyautoui.constants import PATH_VJSF_TEMPLATE
 
 ipyvue.watch(".")
 
 class AutoVjsf(v.VuetifyTemplate):
-    template_file = "vjsf.vue"
+    template_file = str(PATH_VJSF_TEMPLATE)
     vjsf_loaded = traitlets.Bool(False).tag(sync=True)
     value = traitlets.Dict(default_value={}).tag(sync=True)
     schema = traitlets.Dict().tag(sync=True)

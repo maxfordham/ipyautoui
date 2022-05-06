@@ -157,20 +157,45 @@ def md_fromfile(fpth):
     file.close() # close the file
     display(Markdown(all_of_it))
     
-def display_python_string(string):
-    return Markdown("\n```Python\n" + string + "\n```")
+def display_python_string(string, show=True, return_str=False, myst_format=False):
+    if myst_format:
+        s = "\n```{code-cell} ipython3\n" + string + "\n```"
+    else:
+        s = "\n```python\n" + string + "\n```"
+    if show: 
+        display(Markdown(s))
+    if return_str:
+        return s
 
-def display_python_file(fpth):
+def display_python_file(fpth, show=True, return_str=False):
     """
     pass the fpth of a python file and get a
     rendered view of the code.
     """
     with open(fpth, 'r') as myfile:
         data = myfile.read()
-    display_python_string(data)
+    s= display_python_string(data, show=False, return_str=True)
+    if show: 
+        display(Markdown(s))
+    if return_str:
+        return s
+    
+def display_python_module(mod, show=True, return_str=False):
+    """
+    pass the fpth of a python file and get a
+    rendered view of the code.
+    """
+    if str(type(mod)) != "<class 'module'>":
+        raise ValueError('input must be a python module')
+    fpth = mod.__file__
+    s= display_python_file(fpth, show=False, return_str=True)
+    if show: 
+        display(Markdown(s))
+    if return_str:
+        return s
 
 
-def read_txt(fpth,encoding='utf-8',delim=None,read_lines=True):
+def read_txt(fpth,encoding='utf-8', delim=None, read_lines=True):
     '''
     read a .txt file
     

@@ -35,7 +35,7 @@ Example:
 
 """
 # %run __init__.py
-# TODO: update displayfile_definitions based on the extra work done... 
+# TODO: update displayfile_definitions based on the extra work done...
 # +
 import pathlib
 from wcmatch.pathlib import Path as wcPath
@@ -93,6 +93,8 @@ from ipyautoui.constants import (
     KWARGS_COLLAPSE_ALL_FILES,
     KWARGS_HOME_DISPLAY_FILES,
 )
+
+# -
 
 
 # +
@@ -253,7 +255,7 @@ class PreviewPy:
     docstring with a toggle option to view the code
 
     Args:
-        
+
     """
 
     def __init__(self, module, preview_script=True, docstring_priority=True):
@@ -315,7 +317,7 @@ class PreviewPy:
         with self.out:
             clear_output()
             if self.show_me_the_code.value:
-                display(display_python_file(self.fpth))
+                display_python_file(self.fpth)
             else:
                 self._show_docstring()
 
@@ -331,6 +333,13 @@ if __name__ == "__main__":
     display(PreviewPy(fpth))
 
 # +
+# TODO: make less file specific...
+# i.e.
+# if type(fpth) == typing.Callable:
+#     data = fpth()
+# else:
+#     # handle reading from file
+#     pass
 
 
 def pdf_prev(fpth):
@@ -387,12 +396,13 @@ def yaml_prev(fpth):
     string = json.dumps(data, sort_keys=False, indent=4)
     # display(JSON(data)) #  TODO: display JSON doesn't work with Voila? review in future.
     display(display_python_string(string))
-    
 
 
 def img_prev(fpth):
     """preview image (png, jpg)"""
-    display(Image(fpth))
+    with open("img.png", "rb") as image:
+        data = image.read()
+    display(Image(data))
 
 
 def md_prev(fpth):
@@ -430,26 +440,34 @@ def xl_prev(fpth):
         # self._open_option()
 
 
-DEFAULT_FILE_RENDERERS = {
-    ".csv": csv_prev,
-    ".json": json_prev,
-    ".plotly": plotlyjson_prev,
-    ".plotly.json": plotlyjson_prev,
-    ".vg.json": vegajson_prev,
-    ".vl.json": vegalitejson_prev,
-    ".yaml": yaml_prev,
-    ".yml": yaml_prev,
-    ".png": img_prev,
-    ".jpg": img_prev,
-    ".jpeg": img_prev,
-    #'.obj': obj_prev, # add ipyvolume viewer?
-    ".txt": txt_prev,
-    ".md": md_prev,
-    ".py": py_prev,
-    ".pdf": pdf_prev,
-}
+# from pydantic import BaseModel
 
-DEFAULT_FILE_RENDERERS = frozenmap(**DEFAULT_FILE_RENDERERS)
+
+# class DisplayObject(BaseModel):
+#     ext: str
+#     getdata: typing.Callable
+
+
+DEFAULT_FILE_RENDERERS = frozenmap(
+    **{
+        ".csv": csv_prev,
+        ".json": json_prev,
+        ".plotly": plotlyjson_prev,
+        ".plotly.json": plotlyjson_prev,
+        ".vg.json": vegajson_prev,
+        ".vl.json": vegalitejson_prev,
+        ".yaml": yaml_prev,
+        ".yml": yaml_prev,
+        ".png": img_prev,
+        ".jpg": img_prev,
+        ".jpeg": img_prev,
+        #'.obj': obj_prev, # add ipyvolume viewer?
+        ".txt": txt_prev,
+        ".md": md_prev,
+        ".py": py_prev,
+        ".pdf": pdf_prev,
+    }
+)
 
 
 # +
@@ -476,7 +494,7 @@ class SIZE_UNIT(enum.Enum):
 
 
 def convert_unit(size_in_bytes, unit):
-    """ Convert the size from bytes to other units like KB, MB or GB"""
+    """Convert the size from bytes to other units like KB, MB or GB"""
     if unit == SIZE_UNIT.KB:
         return size_in_bytes / 1024
     elif unit == SIZE_UNIT.MB:
@@ -492,7 +510,7 @@ def format_number(number, sigfigs=3):
 
 
 def get_file_size(path: pathlib.Path, size_type=SIZE_UNIT.MB, sigfigs=3):
-    """ Get file in size in given unit like KB, MB or GB"""
+    """Get file in size in given unit like KB, MB or GB"""
     if path.is_file():
         return format_number(convert_unit(path.stat().st_size, size_type))
     else:
@@ -540,10 +558,10 @@ def open_ui(fpth: str):
     """
     creates open file and open folder buttons
     fpth used for building tooltip
-    
+
     Args:
         fpth
-    
+
     Returns:
         openpreview
         openfile
@@ -658,7 +676,7 @@ class DisplayFile:
         '.png': img_prev,
         '.jpg': img_prev,
         '.jpeg': img_prev,
-        #'.obj': obj_prev, # add ipyvolume viewer? 
+        #'.obj': obj_prev, # add ipyvolume viewer?
         '.txt': txt_prev,
         '.md': md_prev,
         '.py': py_prev,
@@ -667,11 +685,11 @@ class DisplayFile:
     user_file_renderers can be passed to class provided they have the correct
     dict format: user_file_renderers = {'.ext': myrenderer}
     notice that the class allows for "compound" filetypes, especially useful for .json files
-    if you want to display the data in a specific way. 
-    
+    if you want to display the data in a specific way.
+
     How to extend:
-    
-    if you want to update the class definition for a compound filetype that you have created, 
+
+    if you want to update the class definition for a compound filetype that you have created,
     you can do so using functools as follows::
 
         DisplayFile('default_config.test.yaml').preview_fpth()  # '.test.yaml' ext doesn't exist so renderer defaults to .yaml
@@ -696,11 +714,11 @@ class DisplayFile:
             path (str): filepath to display
             default_file_renderers: Dict[str, Callable] = DEFAULT_FILE_RENDERERS
                 the class
-                
+
         Usage:
             fpth = 'default_config.yaml'
             DisplayFile(fpth).preview_fpth()
-        
+
         """
         self.ui_file = UiFile(path)
         self.fdir = self.ui_file.path.parent
@@ -818,7 +836,7 @@ class DisplayFiles(HasTraits):
         '.png': img_prev,
         '.jpg': img_prev,
         '.jpeg': img_prev,
-        #'.obj': obj_prev, # add ipyvolume viewer? 
+        #'.obj': obj_prev, # add ipyvolume viewer?
         '.txt': txt_prev,
         '.md': md_prev,
         '.py': py_prev,
@@ -827,7 +845,7 @@ class DisplayFiles(HasTraits):
     user_file_renderers can be passed to class provided they have the correct
     dict format: user_file_renderers = {'.ext': myrenderer}
     notice that the class allows for "compound" filetypes, especially useful for .json files
-    if you want to display the data in a specific way. 
+    if you want to display the data in a specific way.
     """
 
     _paths = traitlets.List()
@@ -842,7 +860,9 @@ class DisplayFiles(HasTraits):
         paths: typing.List[pathlib.Path],
         default_file_renderers: Dict[str, Callable] = DEFAULT_FILE_RENDERERS,
         user_file_renderers: Dict[str, Callable] = None,
-        newroot=pathlib.PureWindowsPath("J:/"), # TODO: remove this. update mf_file_utilities. define this in a config file somewhere... 
+        newroot=pathlib.PureWindowsPath(
+            "J:/"
+        ),  # TODO: remove this. update mf_file_utilities. define this in a config file somewhere...
         patterns: typing.Union[str, typing.List] = None,
         title: str = None,
         display_showhide: bool = False,
@@ -854,9 +874,9 @@ class DisplayFiles(HasTraits):
             user_file_renderers: default = {}, custom user-defined file renderers
             newroot: passed to open_file
             patterns: (str or list), patterns to auto-open
-            title: (str), dfeault = None, 
-            
-            
+            title: (str), dfeault = None,
+
+
         """
         self._init_form()
         self._init_controls()
@@ -867,13 +887,15 @@ class DisplayFiles(HasTraits):
         self.user_file_renderers = user_file_renderers
         self.paths = paths
         self.display_showhide = display_showhide
-        
+
     @staticmethod
     def create_displayfiles_renderer(
         paths: typing.List[pathlib.Path],
         default_file_renderers: Dict[str, Callable] = DEFAULT_FILE_RENDERERS,
         user_file_renderers: Dict[str, Callable] = None,
-        newroot=pathlib.PureWindowsPath("J:/"), # TODO: remove this. update mf_file_utilities. define this in a config file somewhere... 
+        newroot=pathlib.PureWindowsPath(
+            "J:/"
+        ),  # TODO: remove this. update mf_file_utilities. define this in a config file somewhere...
         patterns: typing.Union[str, typing.List] = None,
         title: str = None,
         display_showhide: bool = False,
@@ -885,10 +907,12 @@ class DisplayFiles(HasTraits):
                     paths=paths,
                     default_file_renderers=default_file_renderers,
                     user_file_renderers=user_file_renderers,
-                    newroot=newroot, # TODO: remove this. update mf_file_utilities. define this in a config file somewhere... 
+                    newroot=newroot,  # TODO: remove this. update mf_file_utilities. define this in a config file somewhere...
                     patterns=patterns,
                     title=title,
-                    display_showhide=display_showhide)
+                    display_showhide=display_showhide,
+                )
+
         return DisplayFilesZeroArg
 
     @property
@@ -1095,13 +1119,15 @@ if __name__ == "__main__":
     display(Markdown("""extend standard supported filetypes"""))
     # import
     from ipyautoui.test_schema import TestAutoLogic
-    from ipyautoui.autoui import AutoUi#, AutoUiConfig
+    from ipyautoui.autoui import AutoUi  # , AutoUiConfig
     from ipyautoui.constants import load_test_constants
 
     tests_constants = load_test_constants()
-    #config_ui = AutoUiConfig(ext=".aui.json", pydantic_model=TestAutoLogic)
+    # config_ui = AutoUiConfig(ext=".aui.json", pydantic_model=TestAutoLogic)
 
-    user_file_renderers = AutoUi.create_displayfile_map(ext=".aui.json", schema=TestAutoLogic)
+    user_file_renderers = AutoUi.create_displayfile_map(
+        ext=".aui.json", schema=TestAutoLogic
+    )
 
     # TestUiDisplay = AutoUi.create_displayfile(config_autoui=config_ui)
     # def test_ui_prev(fpth):

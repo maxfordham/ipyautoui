@@ -65,14 +65,6 @@ import immutables
 frozenmap = immutables.Map
 
 
-# -
-
-def display_template_ui_model():
-    from ipyautoui import test_schema
-
-    display(PreviewPy(test_schema, docstring_priority=False))
-
-
 # +
 from ipyautoui.custom.iterable import AutoArray
 from ipyautoui.automapschema import automapschema, widgetcaller, MAP_WIDGETS
@@ -139,6 +131,7 @@ def _get_value_trait(widget):
 
 
 class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
+    """creates an ipywidgets form from a json-schema or pydantic model"""
     _value = traitlets.Dict(allow_none=True)
 
     @traitlets.validate("_value")
@@ -247,13 +240,13 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
                 )
             else:
                 pass
-        # if self.show_raw:
-        #     self.showraw.observe(self._showraw, "value")
 
     def _watch_change(self, change, key=None, watch="value"):
-        tmp = self._value.copy()
-        tmp[key] = getattr(self.di_widgets[key], watch)
-        self._value = tmp
+        # tmp = self._value.copy()
+        # tmp[key] = getattr(self.di_widgets[key], watch)
+        # self._value = tmp
+        
+        self._value = self.di_widgets_value
         #  note. it is required to .copy the _value and then set it again
         #        otherwise traitlets doesn't register the change.
 
