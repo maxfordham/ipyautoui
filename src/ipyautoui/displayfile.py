@@ -72,7 +72,7 @@ except:
 from ipyautoui.mydocstring_display import display_module_docstring
 from ipyautoui._utils import (
     del_matching,
-    md_fromfile,
+    # md_fromfile,
     display_python_file,
     display_python_string,
     read_json,
@@ -93,8 +93,6 @@ from ipyautoui.constants import (
     KWARGS_COLLAPSE_ALL_FILES,
     KWARGS_HOME_DISPLAY_FILES,
 )
-
-# -
 
 
 # +
@@ -199,7 +197,7 @@ def xlsxtemplated_display(li):
 # +
 def get_ext(fpth):
     """get file extension including compound json files"""
-    return "".join(pathlib.Path(fpth).suffixes)
+    return "".join(pathlib.Path(fpth).suffixes).lower()
 
 
 def Vega(spec):
@@ -333,111 +331,188 @@ if __name__ == "__main__":
     display(PreviewPy(fpth))
 
 # +
-# TODO: make less file specific...
-# i.e.
-# if type(fpth) == typing.Callable:
-#     data = fpth()
-# else:
-#     # handle reading from file
-#     pass
 
 
-def pdf_prev(fpth):
-    display(IFrame(fpth, width=1000, height=600))
+class AutoDisplayCommon:
+    def _init_(self, fpth, display=True):
+        self.fpth = fpth
+        self.get_data()  # if fpth callable: fpth(); else parse_file
+        self.build_ui()
+        if display:
+            self.display()
+
+    def get_data(self):
+        if type(self.fpth) == typing.Callable:
+            self.data = self.fpth()
+        else:
+            self.parse_file()
+
+    def display(self):
+        display(self.ui)
+
+    def parse_file(self):
+        self.data = None
+
+    def build_ui(self):
+        self.ui = None
 
 
-def csv_prev(fpth):
-    """
-    previes dataframe using the awesome ipydatagrid
+class AutoPdf(AutoDisplayCommon):
+    def __init__(self, fpth: typing.Union[pathlib.Path, typing.Callable]):
+        self._init_(fpth, display=display)
 
-    Reference:
-        ipydatagrid
-    """
-    data = del_matching(pd.read_csv(fpth), "Unnamed")
-    try:
-        g = default_grid(data)
-        display(g)
-    except:
-        display(data.style)
+    def build_ui(self):
+        self.ui = IFrame(self.fpth, width=1000, height=600)
 
 
-def vegajson_prev(fpth):  # TODO: not working. fix!
-    """display a plotly json file"""
-    with open(fpth, "r", encoding="utf8") as f:
-        json_file = json.load(f)
-    display(Vega(json_file))
+class AutoCsv(AutoDisplayCommon):
+    def __init__(self, fpth: typing.Union[pathlib.Path, typing.Callable], display=True):
+        self._init_(fpth, display=display)
+
+    def parse_file(self):
+        self.data = del_matching(pd.read_csv(self.fpth), "Unnamed")
+
+    def build_ui(self):
+        self.ui = default_grid(self.data)
 
 
-def vegalitejson_prev(fpth):  # TODO: not working. fix!
-    """display a plotly json file"""
-    with open(fpth, "r", encoding="utf8") as f:
-        json_file = json.load(f)
-    display(VegaLite(json_file))
+class AutoVega(AutoDisplayCommon):
+    def __init__(self, fpth: typing.Union[pathlib.Path, typing.Callable], display=True):
+        self._init_(fpth, display=display)
+
+    def parse_file(self):
+        with open(self.fpth, "r", encoding="utf8") as f:
+            self.data = json.load(f)
+
+    def build_ui(self):
+        self.ui = Vega(self.data)
 
 
-def plotlyjson_prev(fpth):
-    """display a plotly json file"""
-    if type(fpth) is not str:
-        fpth = str(fpth)
-    display(pio.read_json(fpth))
+class AutoVegaLite(AutoVega):
+    def __init__(self, fpth: typing.Union[pathlib.Path, typing.Callable], display=True):
+        super().__init__(self, fpth, display=display)
+
+    def build_ui(self):
+        self.ui = VegaLite(self.data)
 
 
-def json_prev(fpth):
-    """preview json"""
-    data = read_json(fpth)
-    string = json.dumps(data, sort_keys=False, indent=4)
-    # display(JSON(data)) #  TODO: display JSON doesn't work with Voila? review in future.
-    display(display_python_string(string))
+class AutoPlotly(AutoDisplayCommon):
+    def __init__(self, fpth: typing.Union[pathlib.Path, typing.Callable], display=True):
+        self._init_(fpth, display=display)
+
+    def parse_file(self):
+        self.data = pathlib.Path(self.fpth).read_text()
+
+    def build_ui(self):
+        self.ui = pio.from_json(self.data)
 
 
-def yaml_prev(fpth):
-    """preview yaml"""
-    data = read_yaml(fpth)
-    string = json.dumps(data, sort_keys=False, indent=4)
-    # display(JSON(data)) #  TODO: display JSON doesn't work with Voila? review in future.
-    display(display_python_string(string))
+class AutoJson(AutoDisplayCommon):
+    def __init__(self, fpth: typing.Union[pathlib.Path, typing.Callable], display=True):
+        self._init_(fpth, display=display)
 
+    # def parse_file(self):
+    #     self.data = json.loads(pathlib.Path(self.fpth).read_text())
 
-def img_prev(fpth):
-    """preview image (png, jpg)"""
-    with open("img.png", "rb") as image:
-        data = image.read()
-    display(Image(data))
+    # def build_ui(self):
+    #     string = json.dumps(self.data, sort_keys=False, indent=4)
+    #     self.ui = Markdown(display_python_string(string, show=False, return_str=True))
 
+    def parse_file(self):
+        self.data = pathlib.Path(self.fpth).read_text()  #  read_yaml(self.fpth)
 
-def md_prev(fpth):
-    """preview markdown"""
-    display(
-        Markdown(
-            "`IMAGES WON'T DISPLAY UNLESS THE MARKDOWN FILE IS IN THE SAME FOLDER AS THIS JUPYTER NOTEBOOK`"
+    def build_ui(self):
+        self.ui = Markdown(
+            f"""
+```json
+{self.data}
+```
+"""
         )
-    )
-    md_fromfile(fpth)
 
 
-def py_prev(fpth):
+class AutoYaml(AutoDisplayCommon):
+    def __init__(self, fpth: typing.Union[pathlib.Path, typing.Callable], display=True):
+        self._init_(fpth, display=display)
+
+    def parse_file(self):
+        self.data = pathlib.Path(self.fpth).read_text()  #  read_yaml(self.fpth)
+
+    def build_ui(self):
+        self.ui = Markdown(
+            f"""
+```yaml
+{self.data}
+```
+"""
+        )
+
+
+class AutoImage(AutoDisplayCommon):
+    def __init__(self, fpth: typing.Union[pathlib.Path, typing.Callable], display=True):
+        self._init_(fpth, display=display)
+
+    def parse_file(self):
+        with open(self.fpth, "rb") as image:
+            self.data = image.read()
+
+    def build_ui(self):
+        self.ui = Image(self.data)
+
+
+class AutoMarkdown(AutoDisplayCommon):
     """
-    pass the fpth of a python file and get a
-    rendered view of the code.
+    read an md file and display in jupyter notebook
+
+    Note:
+        the markdown content (e.g. images) needs to be pathed relative to the jupyter notebook
+        that you're displaying from rather than the to the markdown file that you're displaying.
+        this can be confusing!
+
+    Args:
+        fpth:
+
+    Returns:
+        displays in IPython notebook
     """
-    p = PreviewPy(fpth)
-    display(p)
+
+    def __init__(self, fpth: typing.Union[pathlib.Path, typing.Callable], display=True):
+        self._init_(fpth, display=display)
+
+    def parse_file(self):
+        file = open(self.fpth, mode="r", encoding="utf-8")  # Open a file: file
+        self.data = file.read()  # read all lines at once
+        file.close()  # close the file
+
+    def build_ui(self):
+        self.ui = Markdown(self.data)
+
+    def display(self):
+        display(
+            Markdown(
+                "`IMAGES WON'T DISPLAY UNLESS THE MARKDOWN FILE IS IN THE SAME FOLDER AS THIS JUPYTER NOTEBOOK`"
+            )
+        )
+        display(self.ui)
 
 
-def txt_prev(fpth):
-    """preview txt file"""
-    display(Markdown("```{}```".format(read_txt(fpth, read_lines=False))))
+class AutoPython(AutoDisplayCommon):
+    def __init__(self, fpth: typing.Union[pathlib.Path, typing.Callable], display=True):
+        self._init_(fpth, display=display)
+
+    def build_ui(self):
+        self.ui = PreviewPy(fpth)
 
 
-def xl_prev(fpth):
-    """display excel. if xlsxtemplated display as Grid, otherwise as _open_option"""
-    li = from_excel(fpth)
-    if li is not None:
-        xlsxtemplated_display(li)
-        return True
-    else:
-        return False
-        # self._open_option()
+class AutoText(AutoDisplayCommon):
+    def __init__(self, fpth: typing.Union[pathlib.Path, typing.Callable], display=True):
+        self._init_(fpth, display=display)
+
+    def parse_file(self):
+        self.data = read_txt(self.fpth, read_lines=False)
+
+    def build_ui(self):
+        self.ui = Markdown("```{}```".format(self.data))
 
 
 # from pydantic import BaseModel
@@ -450,22 +525,22 @@ def xl_prev(fpth):
 
 DEFAULT_FILE_RENDERERS = frozenmap(
     **{
-        ".csv": csv_prev,
-        ".json": json_prev,
-        ".plotly": plotlyjson_prev,
-        ".plotly.json": plotlyjson_prev,
-        ".vg.json": vegajson_prev,
-        ".vl.json": vegalitejson_prev,
-        ".yaml": yaml_prev,
-        ".yml": yaml_prev,
-        ".png": img_prev,
-        ".jpg": img_prev,
-        ".jpeg": img_prev,
+        ".csv": AutoCsv,  # csv_prev,
+        ".json": AutoJson,  # json_prev,
+        ".plotly": AutoPlotly,  # plotlyjson_prev,
+        ".plotly.json": AutoPlotly,  # plotlyjson_prev,
+        ".vg.json": AutoVega,  # vegajson_prev,
+        ".vl.json": AutoVegaLite,  # vegalitejson_prev,
+        ".yaml": AutoYaml,  # yaml_prev,
+        ".yml": AutoYaml,  # yaml_prev,
+        ".png": AutoImage,  # img_prev,
+        ".jpg": AutoImage,  # img_prev,
+        ".jpeg": AutoImage,  # img_prev,
         #'.obj': obj_prev, # add ipyvolume viewer?
-        ".txt": txt_prev,
-        ".md": md_prev,
-        ".py": py_prev,
-        ".pdf": pdf_prev,
+        ".txt": AutoText,  # txt_prev,
+        ".md": AutoMarkdown,  # AutoMarkdown,
+        ".py": AutoPython,  # py_prev,
+        ".pdf": AutoPdf,  # pdf_prev,
     }
 )
 
@@ -732,6 +807,18 @@ class DisplayFile:
         self._init_controls()
         if auto_open:
             self.ui_file.openpreview.value = True
+
+    @classmethod
+    def from_function_call(
+        cls,
+        ext: str,
+        fn_getdata: typing.Callable,
+        default_file_renderers: Dict[str, Callable] = DEFAULT_FILE_RENDERERS,
+        user_file_renderers: Dict[str, Callable] = None,
+        newroot=pathlib.PureWindowsPath("J:/"),
+        auto_open: bool = False,
+    ):
+        pass
 
     @property
     def path(self):
