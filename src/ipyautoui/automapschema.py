@@ -275,6 +275,8 @@ def is_Text(di):
         return False
     if is_Color(di):
         return False
+    if is_Markdown(di):
+        return False
     return True
 
 
@@ -288,6 +290,24 @@ def is_Textarea(di):
     if "maxLength" not in di.keys():
         return False
     if "maxLength" in di.keys() and di["maxLength"] <= 200:  # i.e. == long text
+        return False
+    if is_Date(di):
+        return False
+    if is_Color(di):
+        return False
+    if is_Markdown(di):
+        return False
+    return True
+
+
+def is_Markdown(di):
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "string":
+        return False
+    if not "format" in di.keys():
+        return False
+    if "format" in di.keys() and "markdown" != di["format"]:
         return False
     if is_Date(di):
         return False
@@ -417,6 +437,7 @@ MAP_WIDGETS = frozenmap(
         ),
         "Text": WidgetMapper(fn_filt=is_Text, widget=auiwidgets.Text),
         "Textarea": WidgetMapper(fn_filt=is_Textarea, widget=auiwidgets.Textarea),
+        "Markdown": WidgetMapper(fn_filt=is_Markdown, widget=auiwidgets.AutoMarkdown),
         "Dropdown": WidgetMapper(fn_filt=is_Dropdown, widget=auiwidgets.Dropdown),
         "SelectMultiple": WidgetMapper(
             fn_filt=is_SelectMultiple, widget=auiwidgets.SelectMultiple
@@ -515,6 +536,7 @@ def autowidgetcaller(schema):
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
+
     di = {
         "title": "Color Picker Ipywidgets",
         "default": "#f5f595",
@@ -523,6 +545,25 @@ if __name__ == "__main__":
     }
 
     display(is_Color(di))
+
+# +
+# auiwidgets.AutoMarkdown(TestAutoLogic.schema()["properties"]["markdown"])
+# -
+
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestAutoLogic
+
+    di = TestAutoLogic.schema()["properties"]["markdown"]
+    di_ = TestAutoLogic.schema()["properties"]["text_area"]
+    print("test markdown - ")
+    print(is_Markdown(di))
+    print(is_Text(di))
+    print(is_Textarea(di))
+    print("----------------")
+    print("test Textarea - ")
+    print(is_Markdown(di_))
+    print(is_Text(di_))
+    print(is_Textarea(di_))
 
 if __name__ == "__main__":
     di = {

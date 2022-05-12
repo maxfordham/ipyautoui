@@ -453,10 +453,10 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
 # -
 
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
 
-    sch = TestAutoLogic.schema()
-    aui = AutoUi(TestAutoLogic, path="test.json", show_raw=False)
+    sch = TestAutoLogicSimple.schema()
+    aui = AutoUi(TestAutoLogicSimple, path="test.json", show_raw=False)
     display(aui)
 
 if __name__ == "__main__":
@@ -578,5 +578,3 @@ if __name__ == "__main__":
     )
     ui_file = TestAuiDisplayFile(test_constants.PATH_TEST_AUI)
     display(ui_file)
-
-

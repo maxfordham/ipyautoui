@@ -10,7 +10,7 @@ import pathlib
 import pandas as pd
 from pathlib import PurePosixPath
 from ipyautoui.custom.modelrun import RunName
-
+from ipyautoui.custom.markdown_widget import EXAMPLE_MARKDOWN
 
 class Gender(str, Enum):
     male = "male"
@@ -52,7 +52,8 @@ class TestAutoLogicSimple(BaseModel):
         autoui="ipyautoui.autowidgets.Combobox",
     )
     text: constr(min_length=0, max_length=20) = "short text"
-    text_area: constr(min_length=0, max_length=800) = Field("long text " * 50,description='long text field')
+    text_area: constr(min_length=0, max_length=800) = Field("long text " * 50, description='long text field')
+    markdown: str = Field(EXAMPLE_MARKDOWN, description='markdown widget!', format="markdown")
     #file_chooser: pathlib.Path = pathlib.Path(".") # TODO: serialisation / parsing round trip not working...
     
 class TestTypesWithComplexSerialisation(BaseModel):

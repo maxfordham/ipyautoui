@@ -26,7 +26,7 @@ import ipywidgets as widgets
 import traitlets
 from copy import deepcopy
 from ipyautoui._utils import obj_from_importstr
-from ipyautoui.custom import modelrun
+from ipyautoui.custom import modelrun, markdown_widget
 from ipyautoui._utils import remove_non_present_kwargs
 from datetime import datetime
 
@@ -273,6 +273,12 @@ class RunName(modelrun.RunName):
     def __init__(self, schema):
         self.schema =schema
         self.caller = create_widget_caller(schema, calling=modelrun.RunName)
+        super().__init__(**self.caller)
+        
+class AutoMarkdown(markdown_widget.MarkdownWidget):
+    def __init__(self, schema):
+        self.schema =schema
+        self.caller = create_widget_caller(schema, calling=markdown_widget.MarkdownWidget)
         super().__init__(**self.caller)
 
 # class AutoOveride:
