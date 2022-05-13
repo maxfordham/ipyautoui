@@ -76,24 +76,25 @@ KWARGS_DATAGRID_DEFAULT = frozenmap(
 )
 
 TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT = 'solid yellow 2px'
-
+OPEN_BN_COLOR = 'white'
 KWARGS_OPENPREVIEW = frozenmap(
         icon='eye', 
         layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
         tooltip='preview file',
-        style={'font_weight': 'bold','button_color':None}
+        #button_style="warning", #"primary", "success", "info", "warning", "danger"
+        style={'font_weight': 'bold'} #,'button_color':OPEN_BN_COLOR
 )
 KWARGS_OPENFILE = frozenmap(
         icon='fa-file', 
         layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
         tooltip='open file with system software',
-        style={'font_weight': 'bold','button_color':None}
+        style={'font_weight': 'bold','button_color':OPEN_BN_COLOR}
 )
 KWARGS_OPENFOLDER = frozenmap(
         icon='fa-folder', 
         layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
         tooltip='open folder in file-browser',
-        style={'font_weight': 'bold','button_color':None}
+        style={'font_weight': 'bold','button_color':OPEN_BN_COLOR}
 )
 KWARGS_DISPLAY_ALL_FILES = frozenmap(
     icon="plus",
