@@ -1,4 +1,4 @@
-name: ipyautoui
+name: ipyautoui-dev
 # channels priority
 # see https://bioconda.github.io/
 # conda-forge has highest prioriy
@@ -46,3 +46,5 @@ dependencies:
 #  - xlsxtemplater 
 #  - mf_file_utilities 
 #  - mfom
+variables:
+  PYTHONPATH: /mnt/c/engDev/git_mf/ipyautoui/src

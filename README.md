@@ -1,8 +1,8 @@
 # ipyautoui
 
-A high-level wrapper library that sits on top of [__ipywidgets__](https://github.com/jupyter-widgets/ipywidgets) (and other ipy- widget libraries), [__pydantic__](https://github.com/samuelcolvin/pydantic/) and Jupycter rich display system to template and automate the creation of widget forms / user-interfaces. The core user-facing classes in this library are __AutoUi__ and __DisplayFiles__:
+A high-level wrapper library that sits on top of [__ipywidgets__](https://github.com/jupyter-widgets/ipywidgets) (and other ipy- widget libraries), [__pydantic__](https://github.com/samuelcolvin/pydantic/) and Jupycter rich display system to template and automate the creation of widget forms / user-interfaces. The core user-facing classes in this library are __AutoUi__ and __AutoDisplay__:
 ```python
-from ipyautoui import AutoUi, DisplayFiles
+from ipyautoui import AutoUi, AutoDisplay
 ```
 
 ## Installation
@@ -81,14 +81,14 @@ when you're using pydantic to make the schema, "-" cannot be used field names, b
 The main benefit of AutoUi (and main reason for continuing to develop it), as it is simple to create custom renderers for parts of the json-schema, facilitating the specific 
 requires of a custom project. See [custom-renderers](custom-renderers.ipynb).
 
-## DisplayFiles 
+## AutoDisplay 
 
 `(TODO: name change to display, facilitating display of database data?)`
 
-- DisplayFiles uses Jupyter's rich display system and large ecosystem of 3rd party packages to create a simple and unified display wrapper to various filetypes.
+- AutoDisplay uses Jupyter's rich display system and large ecosystem of 3rd party packages to create a simple and unified display wrapper to various filetypes.
 - The renderer for a given file is inferred from the file extension. 
      - TODO: where the datasource is not a file, the extension is a mapping code that maps a renderer to the datastructure of the data. 
-- Custom renderer's can be passed to `DisplayFiles` allowing it to display user-defined filetypes (or compound extension filetypes)
+- Custom renderer's can be passed to `AutoDisplay` allowing it to display user-defined filetypes (or compound extension filetypes)
 
 
 ## How it works: 
@@ -104,8 +104,8 @@ requires of a custom project. See [custom-renderers](custom-renderers.ipynb).
 - Make a pydantic model (or json schema) that defines the UI
 - Pass the model to `AutoUi` to generate an user-interface
 - Save the UI fields to file 
-- Assign a compound-json filetype to the schema and generate `DisplayFiles` rendererer
-- Use `DisplayFiles` to display the json file using the AutoUi interface
+- Assign a compound-json filetype to the schema and generate `AutoDisplay` rendererer
+- Use `AutoDisplay` to display the json file using the AutoUi interface
 
 ## Dependencies
 
@@ -131,6 +131,10 @@ For a development installation (requires JupyterLab (version >= 3), yarn, and ma
 ```
 $ git clone https://github.com/jgunstone/ipyautoui
 $ cd ipyautoui
+
+# edit the PYTHONPATH variable in the following files:
+# - /.vscode/dev.env
+# - environment-dev.yml
 $ mamba env create --file environment-dev.yml
 ```
 

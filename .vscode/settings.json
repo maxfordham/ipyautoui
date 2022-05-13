@@ -2,4 +2,6 @@
     "python.testing.pytestArgs": [],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
+    "python.envFile": "${workspaceFolder}/.vscode/dev.env",
+    "python.linting.enabled": true
 }
