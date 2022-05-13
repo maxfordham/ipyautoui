@@ -351,7 +351,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
             p = AutoRenderer(fpth)
             display(p)
             
-        return {ext:autoui_prev}
+        return {ext: autoui_prev}
 
     def _revert(self):  # TODO: check this!
         assert self.path is not None, f"self.path = {self.path}. must not be None"
@@ -418,38 +418,6 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
         
 
 
-# + tags=[] active=""
-# if __name__ == "__main__":
-#     aui.path = pathlib.Path('test1.json')
-#     aui.value ={'string': 'shit',
-#      'int_slider': 2,
-#      'int_text': 1,
-#      'int_range_slider': (0, 3),
-#      'float_slider': 2,
-#      'float_text': 2,
-#      'float_range_slider': (0.0, 2.2),
-#      'checkbox': True,
-#      'dropdown': 'male',
-#      'dropdown_simple': 'asd',
-#      'combobox': 'asd',
-#      'text': 'short text',
-#      'text_area': 'long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ',
-#      'complex_serialisation': {'file_chooser': '.',
-#       'date_picker': None,
-#       'datetime_picker': '2022-05-01T15:00:33.692421',
-#       'color_picker_ipywidgets': '#f5f595'},
-#      'select_multiple_non_constrained': ['male', 'male'],
-#      'select_multiple_from_list': ('male', 'female'),
-#      'select_multiple_search': [],
-#      'array': [],
-#      'objects_array': [],
-#      'run_name': '000-lean-description',
-#      'datagrid': '{"test":{"0":0,"1":1},"df":{"0":1,"1":2}}',
-#      'nested': {'string1': 'adsf', 'int_slider1': 2, 'int_text1': 1},
-#      'recursive_nest': {'string1': 'adsf',
-#       'int_slider1': 2,
-#       'int_text1': 1,
-#       'nested': {'string1': 'adsf', 'int_slider1': 2, 'int_text1': 1}}}
 # -
 
 if __name__ == "__main__":
@@ -459,11 +427,14 @@ if __name__ == "__main__":
     aui = AutoUi(TestAutoLogicSimple, path="test.json", show_raw=False)
     display(aui)
 
+# + tags=[]
 if __name__ == "__main__":
     #Renderer = AutoUi.create_autoui_renderer(sch)
-    Renderer = AutoUi.create_autoui_renderer(TestAutoLogic, path="test.json",show_raw = False)
-    display(Renderer())
+    Renderer = AutoUi.create_autoui_renderer(TestAutoLogic, path="test.json", show_raw = False)
+    display(Renderer(path="test1.json"))
 
+
+# -
 
 class AutoVuetify(widgets.VBox, AutoUiCommonMethods):
     _value = traitlets.Dict()
@@ -490,6 +461,8 @@ class AutoVuetify(widgets.VBox, AutoUiCommonMethods):
         self._init_vui_form()
         self._init_controls()
         self.save_controls = save_controls
+        self.save_buttonbar._unsaved_changes(False)  # TODO: not sure why this is required
+
         
     @property
     def value(self):
