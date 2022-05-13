@@ -17,9 +17,13 @@ frozenmap = immutables.Map
 
 try: 
     from mf_file_utilities import go as open_file
+    from mf_file_utilities.applauncher_wrapper import make_new_path
 except:
     def open_file(path):
         subprocess.call(['open', path])
+        
+    def make_new_path(path, *args, **kwargs):
+        return path
 
 # ------------------------------
 def str_presenter(dumper, data):
@@ -137,25 +141,7 @@ def del_matching(df, string):
     return df
 
 #  ------------------------------------------------------------------------------------------------
-def md_fromfile(fpth):
-    """
-    read an md file and display in jupyter notebook
 
-    Note:
-        the markdown content (e.g. images) needs to be pathed relative to the jupyter notebook 
-        that you're displaying from rather than the to the markdown file that you're displaying. 
-        this can be confusing! 
-        
-    Args:
-        fpth:
-
-    Returns:
-        displays in IPython notebook
-    """
-    file = open(fpth,mode='r',encoding='utf-8') # Open a file: file
-    all_of_it = file.read() # read all lines at once
-    file.close() # close the file
-    display(Markdown(all_of_it))
     
 def display_python_string(string, show=True, return_str=False, myst_format=False):
     if myst_format:
@@ -407,3 +393,15 @@ def remove_non_present_kwargs(callable_: typing.Callable, di: dict):
     args = inspect.getfullargspec(callable_).args
     return {k_: v_ for k_, v_ in di.items() if k_ in args}
         
+    
+def get_ext(fpth):
+    """get file extension including compound json files"""
+    return "".join(pathlib.Path(fpth).suffixes).lower()
+
+def st_mtime_string(path):
+    """st_mtime_string for a given path"""
+    try:
+        t = path.stat().st_mtime
+        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+    except:
+        return "####-##-## ##:##:##"
