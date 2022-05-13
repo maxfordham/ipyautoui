@@ -36,10 +36,6 @@ class AutoVjsf(v.VuetifyTemplate):
 
 # -
 
-class AutoVjsf1(AutoVjsf):
-    pass
-
-
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
 
