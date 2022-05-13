@@ -31,6 +31,11 @@ class RecursiveNest(BaseModel):
     int_text1: int = 1
     nested: NestedObject = Field(default=None) 
     
+STR_MARKDOWN = """
+See details here: [__commonmark__](https://commonmark.org/help/)
+
+or press the question mark button. 
+"""
 class TestAutoLogicSimple(BaseModel):
     """this is a test UI form to demonstrate how pydantic class can be used to generate an ipywidget input form. 
     only simple datatypes used (i.e. not lists/arrays or objects)
@@ -53,7 +58,7 @@ class TestAutoLogicSimple(BaseModel):
     )
     text: constr(min_length=0, max_length=20) = "short text"
     text_area: constr(min_length=0, max_length=800) = Field("long text " * 50, description='long text field')
-    markdown: str = Field(EXAMPLE_MARKDOWN, description='markdown widget!', format="markdown")
+    markdown: str = Field(STR_MARKDOWN, description='markdown widget!', format="markdown")
     #file_chooser: pathlib.Path = pathlib.Path(".") # TODO: serialisation / parsing round trip not working...
     
 class TestTypesWithComplexSerialisation(BaseModel):
