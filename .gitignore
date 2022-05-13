@@ -80,3 +80,6 @@ target/
 /examples/.ipynb_checkpoints
 /junit.xml
 /docs/.ipynb_checkpoints
+/.virtual_documents
+/.ipynb_checkpoints
+/.pytest_cache
