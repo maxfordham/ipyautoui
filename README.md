@@ -7,9 +7,9 @@ from ipyautoui import AutoUi, DisplayFiles
 
 ## Installation
 
-
 ```
 # TODO: do this! 
+# TODO: consider having 2stage installation, specifying the installation of vuetify stuff... 
 
 mamba install ipyautoui -c conda-forge  # mamba ...
 conda install ipyautoui -c conda-forge  # or conda ...
@@ -57,8 +57,29 @@ AutoUi.parse_file #  init ui with data from .json file
 - `ipyautoui.custom.` provides useful widgets (e.g. iterable) that aren't included within the core ipywidgets library
 - ipyautoui defines a best practice for creating and integrating custom widgets, and as default includes some widgets from other opular widget libraries (e.g. ipydatagrid, ipyfilechooser). 
 - ipyautoui handles observing the values, and maintains a stateful and validated `.value` parameter for the whole user input form.  
-- TODO: AutoUi also allows the user to specify the usage of [__ipyvuetify__](https://github.com/widgetti/ipyvuetify) and [__vuetify-jsonschema-form__](https://github.com/koumoul-dev/vuetify-jsonschema-form)
+- TODO: AutoUi also allows the user to specify the usage of [__ipyvuetify__](https://github.com/widgetti/ipyvuetify) and 
     - __note__. this is the recommended approach for simple and generic input forms. Where custom UI objects are required these can be built using the ipyautoui core library. 
+    
+## AutoVuetify
+
+`AutoVuetify` works in exactly the same way as `AutoUi`, but instead of using `ipywidgets` to render the JSON schema it uses [ipyvuetify](https://github.com/widgetti/ipyvuetify) and [vuetify-jsonschema-form](https://github.com/koumoul-dev/vuetify-jsonschema-form).
+
+## Should I use AutoUi or AutoVuetify?
+
+### AutoVuetify
+
+The excellent documentation for [__vuetify-jsonschema-form__](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/) can be used to create your schema. Anything possible
+in vjsf is therefore possible using AutoVuetify (TODO: implement markdown editor). This has a much more complete coverage of the json-schema specification, as well as the added
+benefit of out-the-box support of mobile applications. It falls down if you want to specify custom renderer objects. 
+
+```{note}
+when you're using pydantic to make the schema, "-" cannot be used field names, but requires them (e.g. "x-display"), use "x_display" instead and AutoVuetify does the conversion). 
+```
+
+### AutoUi
+
+The main benefit of AutoUi (and main reason for continuing to develop it), as it is simple to create custom renderers for parts of the json-schema, facilitating the specific 
+requires of a custom project. See [custom-renderers](custom-renderers.ipynb).
 
 ## DisplayFiles 
 
@@ -100,6 +121,8 @@ This package intends to be high-level, and unifies many other ipy- libraries und
 - [Altair](https://github.com/altair-viz/altair) (for viewing `.vg.json` files)
 - [Plotly](https://github.com/plotly/plotly.py) (for viewing `.plotly.json` files)
 
+It is obviously wholly dependent on the excellent json-schema specification:
+- [json-schema](https://json-schema.org/)
 
 ## Development installation
 
@@ -110,3 +133,8 @@ $ git clone https://github.com/jgunstone/ipyautoui
 $ cd ipyautoui
 $ mamba env create --file environment-dev.yml
 ```
+
+## Contributions 
+
+AutoVuetify is a very thin wrapper where ipyvuetify and vuetify-jsonschema-form are doing all the work. 
+Many thanks to @mariobuikhuizen for providing me with the [boiler-plate code](https://github.com/widgetti/ipyvuetify/issues/182).

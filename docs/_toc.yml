@@ -4,7 +4,9 @@
 format: jb-book
 root: intro
 chapters:
-- file: markdown
-- file: notebooks
-- file: tutorial-autoui
+- file: autoui
+- file: autovuetify
+- file: autodisplay
+- file: custom-renderers
+- file: custom-renderers-2
 - file: api

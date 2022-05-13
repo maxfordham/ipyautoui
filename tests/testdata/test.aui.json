@@ -1,6 +1,6 @@
 {
     "string": "adsf",
-    "int_slider": 1,
+    "int_slider": 2,
     "int_text": 1,
     "int_range_slider": [
         0,
@@ -18,10 +18,11 @@
     "combobox": "asd",
     "text": "short text",
     "text_area": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ",
+    "markdown": "See details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. ",
     "complex_serialisation": {
         "file_chooser": ".",
         "date_picker": null,
-        "datetime_picker": "2022-05-05T15:21:57.271559",
+        "datetime_picker": "2022-05-06T08:25:58.468332",
         "color_picker_ipywidgets": "#f5f595"
     },
     "select_multiple_non_constrained": [
