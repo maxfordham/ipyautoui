@@ -323,7 +323,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         return AutoRenderer
 
     @classmethod
-    def create_displayfile_map(
+    def create_autodisplay_map(
         cls,
         schema: typing.Union[typing.Type[BaseModel], dict],
         ext=".json",
@@ -438,6 +438,7 @@ if __name__ == "__main__":
 
 class AutoVuetify(widgets.VBox, AutoUiCommonMethods):
     _value = traitlets.Dict()
+    """create a vuetify form using ipyvuetify using VJSF """
 
     def __init__(
         self,
@@ -456,16 +457,19 @@ class AutoVuetify(widgets.VBox, AutoUiCommonMethods):
         value = self._get_value(value, self.path)
         # list of actions to be called on save
         self.fn_onsave = fn_onsave
-        self.vui = AutoVjsf(schema=schema, value=value)
+        if value is None:
+            self.vui = AutoVjsf(schema=schema)
+        else:
+            self.vui = AutoVjsf(schema=schema, value=value)
         self._value = self.vui.value
         self.vbx_raw = widgets.HBox()
         self._init_AutoUiCommonMethods()
         self._init_vui_form()
         self._init_controls()
         self.save_controls = save_controls
-        self.save_buttonbar._unsaved_changes(
-            False
-        )  # TODO: not sure why this is required
+        # self.save_buttonbar._unsaved_changes(
+        #     False
+        # )  # TODO: not sure why this is required
 
     @property
     def value(self):
@@ -491,23 +495,8 @@ class AutoVuetify(widgets.VBox, AutoUiCommonMethods):
         self._value = self.vui.value
 
     @property
-    def sch(self):
+    def sch(self):  # TODO: change to schema
         return self.vui.schema
-
-    # def __init__(
-    #     self,
-    #     schema: typing.Union[typing.Type[BaseModel], dict],
-    #     value: dict = None,
-    #     path: pathlib.Path = None,
-    #     save_controls: SaveControls = SaveControls.save_buttonbar,
-    #     show_raw: bool = True,  # TODO: move this out of autoipywidget
-    #     ext: str = ".json",  # create custom compound extension type
-    #     fn_onsave: typing.Union[
-    #         typing.Callable, typing.List[typing.Callable]
-    #     ] = lambda: None,
-    #     validate_onchange=True,
-    # ):
-    #     pass
 
 
 if __name__ == "__main__":
@@ -535,22 +524,3 @@ if __name__ == "__main__":
     aui = AutoUi(AnalysisPaths, show_raw=True)
     display(aui)
 
-if __name__ == "__main__":
-
-    test_constants = load_test_constants()
-    test = TestAutoLogic()
-
-    ui = AutoUi(test)
-    display(ui)
-    display(Markdown("# test write to file"))
-    ui.file(test_constants.PATH_TEST_AUI)
-    print(
-        f"test_constants.PATH_TEST_AUI.is_file() == {test_constants.PATH_TEST_AUI.is_file()} == {str(test_constants.PATH_TEST_AUI)}"
-    )
-    display(Markdown("# test create displayfile widget"))
-    config_autoui = AutoUiConfig(pydantic_model=TestAutoLogic)
-    TestAuiDisplayFile = AutoUi.create_displayfile(
-        config_autoui=config_autoui, fn_onsave=lambda: print("done")
-    )
-    ui_file = TestAuiDisplayFile(test_constants.PATH_TEST_AUI)
-    display(ui_file)

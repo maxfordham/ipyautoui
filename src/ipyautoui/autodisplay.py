@@ -79,6 +79,7 @@ except:
 
 # -
 
+
 def merge_file_renderers(merge_renderers, default_renderers=DEFAULT_FILE_RENDERERS):
     ext_map = {**dict(default_renderers), **merge_renderers}
     return frozenmap(**ext_map)
@@ -552,7 +553,7 @@ class AutoDisplay(traitlets.HasTraits):
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
-    from ipyautoui.autoui import AutoUi  # , AutoUiConfig
+    from ipyautoui.autoui import AutoUi
     from ipyautoui.constants import load_test_constants
 
     tests_constants = load_test_constants()
@@ -566,7 +567,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
 
-    user_file_renderers = AutoUi.create_displayfile_map(
+    user_file_renderers = AutoUi.create_autodisplay_map(
         ext=".aui.json", schema=TestAutoLogic
     )
 
