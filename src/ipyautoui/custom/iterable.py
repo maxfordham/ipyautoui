@@ -739,7 +739,7 @@ class AutoArray(Array):
         toggle=False,
         # title=None,
         # fn_add: typing.Callable = lambda: display("add item"),
-        fn_remove: typing.Callable = lambda: display("remove item"),
+        fn_remove: typing.Callable = lambda: None, #display("remove item"),
         watch_value: bool = True,
         add_remove_controls: str = "add_remove",
         show_hash: str = "index",
