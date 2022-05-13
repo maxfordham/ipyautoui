@@ -14,7 +14,7 @@
 # ---
 
 # +
-# TODO: add ipyvuetify-jsonschema to this repo
+
 """autoui is used to automatically create ipywidget user input (UI) form from a pydantic schema.
 
 This module maps the pydantic fields to appropriate widgets based on type to display the data in the UI.
@@ -30,14 +30,14 @@ Example:
 """
 # %run __init__.py
 # %load_ext lab_black
-import pathlib
+
 import functools
 import ipywidgets as widgets
 from IPython.display import display
 import traitlets
 import typing
 from ipyautoui.constants import load_test_constants
-from ipyautoui.custom.iterable import AutoArray
+#  from ipyautoui.custom.iterable import AutoArray
 from ipyautoui.automapschema import automapschema, widgetcaller, MAP_WIDGETS
 import immutables
 
@@ -127,10 +127,7 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
             self._update_widgets_from_value()
 
     def __init__(
-        self,
-        schema,
-        value=None,
-        widgets_mapper=None,
+        self, schema, value=None, widgets_mapper=None,
     ):
         self.widgets_mapper = widgets_mapper
         self._init_ui(schema)

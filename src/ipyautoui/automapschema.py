@@ -20,11 +20,8 @@ import typing
 from pydantic import BaseModel
 from ipywidgets import widgets
 import ipywidgets as widgets
-from IPython.display import display
 import ipyautoui.autowidgets as auiwidgets
 from ipyautoui._utils import frozenmap
-
-# TODO: add doctest
 
 # +
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
