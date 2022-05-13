@@ -30,40 +30,23 @@ Example:
         fpths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
 
         # single file
-        d = DisplayFile(fpths[7])
+        d = AutoDisplay(fpths)
         display(d)
 
 """
 # %run __init__.py
 # %load_ext lab_black
-# TODO: update displayfile_definitions based on the extra work done...
 # +
-import pathlib
-from wcmatch.pathlib import Path as wcPath
 import os
-import subprocess
 import pathlib
 import pandas as pd
-import numpy as np
-from IPython.display import display, JSON, Markdown, HTML, IFrame, clear_output, Image
-import time
-from markdown import markdown
-import copy
-from dataclasses import dataclass, asdict, field
-from typing import List, Dict, Callable, Type
-import typing
-import enum
-import getpass
+from IPython.display import display, Markdown, IFrame, clear_output, Image
 import json
-import immutables
-
 import ipydatagrid as ipg
 import ipywidgets as widgets
-from halo import HaloNotebook
 import plotly.io as pio
 
 #  from mf library
-
 try:
     from xlsxtemplater import from_excel
 except:
@@ -71,34 +54,9 @@ except:
 
 #  local imports
 from ipyautoui.mydocstring_display import display_module_docstring
-from ipyautoui._utils import (
-    del_matching,
-    # md_fromfile,
-    display_python_file,
-    display_python_string,
-    read_json,
-    read_yaml,
-    read_txt,
-    open_file,
-    frozenmap,
-    get_ext,
-    st_mtime_string,
-)
+from ipyautoui._utils import del_matching, display_python_file, frozenmap
+from ipyautoui.constants import BUTTON_WIDTH_MIN
 
-# from ipyrun._runconfig import Output, Outputs, File
-from ipyautoui.constants import (
-    BUTTON_WIDTH_MIN,
-    BUTTON_HEIGHT_MIN,
-    KWARGS_OPENPREVIEW,
-    KWARGS_OPENFILE,
-    KWARGS_OPENFOLDER,
-    KWARGS_DISPLAY_ALL_FILES,
-    KWARGS_COLLAPSE_ALL_FILES,
-    KWARGS_HOME_DISPLAY_FILES,
-)
-from pydantic import BaseModel, validator, HttpUrl
-import datetime
-import functools
 # -
 
 
@@ -231,7 +189,7 @@ def Vega(spec):
     bundle = {}
     bundle["application/vnd.vega.v5+json"] = spec
     display(bundle, raw=True)
-    #return bundle
+    # return bundle
 
 
 def VegaLite(spec):
@@ -242,7 +200,7 @@ def VegaLite(spec):
     bundle = {}
     bundle["application/vnd.vegalite.v4+json"] = spec
     display(bundle, raw=True)
-    #return bundle
+    # return bundle
 
 
 def preview_vega(path):
@@ -286,6 +244,7 @@ WARNING: `IMAGES WON'T DISPLAY UNLESS THE MARKDOWN FILE IS IN THE SAME FOLDER AS
 {pathlib.Path(path).read_text()}
 """
     )
+
 
 def preview_pdf(path):
     return IFrame(path, width=1000, height=600)
