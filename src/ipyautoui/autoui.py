@@ -48,7 +48,6 @@ import typing
 from enum import Enum
 import inspect
 
-from ipyautoui.autodisplay import PreviewPy
 from ipyautoui._utils import (
     obj_from_string,
     display_pydantic_json,

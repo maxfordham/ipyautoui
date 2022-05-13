@@ -16,51 +16,16 @@
 # +
 # %run __init__.py
 # %load_ext lab_black
-
-from ipyautoui.test_schema import TestAutoLogic, TestObjects, TestArrays
-from ipyautoui.constants import load_test_constants
 import typing
-from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
-from copy import deepcopy
 from pydantic import BaseModel
 from ipywidgets import widgets
-
-test_constants = load_test_constants()
-test = TestAutoLogic()
-
-# +
-import pathlib
-import functools
-import pandas as pd
 import ipywidgets as widgets
-from IPython.display import display, Markdown
-from datetime import datetime, date
-from dataclasses import dataclass
-from pydantic import BaseModel
-from markdown import markdown
-import immutables
-import json
-import traitlets
-import typing
-from enum import Enum
-import inspect
-
-from ipyautoui.autodisplay import PreviewPy
+from IPython.display import display
 import ipyautoui.autowidgets as auiwidgets
-
-from ipyautoui._utils import (
-    obj_from_string,
-    display_pydantic_json,
-    file,
-    obj_from_importstr,
-)
-from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
-from ipyautoui.constants import load_test_constants
-import numbers
+from ipyautoui._utils import frozenmap
 
 # TODO: add doctest
 
-frozenmap = immutables.Map
 # +
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
 def recursive_search_schema(sch: typing.Dict, li: typing.List) -> typing.Dict:
@@ -85,17 +50,17 @@ def recursive_search_schema(sch: typing.Dict, li: typing.List) -> typing.Dict:
 def attach_schema_refs(schema, schema_base=None):
     """
     attachs #definitions to $refs within the main schema
-    recursive function. schema_base is constant as is used for retrieving definitions. 
-    schema is recursively edited. 
-    
+    recursive function. schema_base is constant as is used for retrieving definitions.
+    schema is recursively edited.
+
     Args:
         schema (dict): json schema
-        schema_base (dict): same as above but isn't recursively searched. leave blank 
+        schema_base (dict): same as above but isn't recursively searched. leave blank
             and it defaults to schema
-    
+
     Returns:
         schema (dict): with $refs removed and replaced with #defintions
-    
+
     """
     if schema_base is None:
         schema_base = schema
@@ -123,7 +88,6 @@ def attach_schema_refs(schema, schema_base=None):
 # -
 
 
-
 # +
 # IntText
 # IntSlider
@@ -137,12 +101,14 @@ def attach_schema_refs(schema, schema_base=None):
 # autooveride
 
 
-def is_IntText(di):
+def is_IntText(di: dict) -> bool:
     """
-    >>> is_IntText({'title': 'Int Text', 'default': 1, 'type': 'integer'})
-    True
-    >>> is_IntText({'title': 'Int Text', 'default': 1, 'type': 'number'})
-    False
+
+    Example:
+        >>> is_IntText({'title': 'Int Text', 'default': 1, 'type': 'integer'})
+        True
+        >>> is_IntText({'title': 'Int Text', 'default': 1, 'type': 'number'})
+        False
     """
     if "autoui" in di.keys():
         return False
@@ -153,7 +119,7 @@ def is_IntText(di):
     return True
 
 
-def is_IntSlider(di):
+def is_IntSlider(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if not di["type"] == "integer":
@@ -163,7 +129,7 @@ def is_IntSlider(di):
     return True
 
 
-def is_FloatText(di):
+def is_FloatText(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if not di["type"] == "number":
@@ -173,7 +139,7 @@ def is_FloatText(di):
     return True
 
 
-def is_FloatSlider(di):
+def is_FloatSlider(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if not di["type"] == "number":
@@ -222,7 +188,7 @@ def is_range(di, is_type="numeric"):
     return True
 
 
-def is_IntRangeSlider(di):
+def is_IntRangeSlider(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if not is_range(di, is_type="integer"):
@@ -230,7 +196,7 @@ def is_IntRangeSlider(di):
     return True
 
 
-def is_FloatRangeSlider(di):
+def is_FloatRangeSlider(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if not is_range(di, is_type="number"):
@@ -238,7 +204,16 @@ def is_FloatRangeSlider(di):
     return True
 
 
-def is_Date(di):
+def is_Date(di: dict) -> bool:
+    """
+    Example:
+        >>> di = {"title": "Date Picker", "default": "2022-04-28", "type": "string", "format": "date"}
+        >>> is_Date(di)
+        True
+        >>> di = {"title": "Date Picker", "default": "2022-04-28", "type": "string", "format": "date"}
+        >>> is_Text(di)
+        False
+    """
     if "autoui" in di.keys():
         return False
     if not di["type"] == "string":
@@ -250,7 +225,20 @@ def is_Date(di):
     return True
 
 
-def is_Color(di):
+def is_Color(di: dict) -> bool:
+    """check if schema object is a color
+
+    Args:
+        di (dict): schema object
+
+    Returns:
+        bool: is the object a color
+
+    Example:
+        >>> di = {"title": "Color Picker Ipywidgets", "default": "#f5f595","type": "string", "format": "hexcolor"}
+        >>> is_Color(di)
+        True
+    """
     if "autoui" in di.keys():
         return False
     if not di["type"] == "string":
@@ -262,7 +250,7 @@ def is_Color(di):
     return True
 
 
-def is_Text(di):
+def is_Text(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if not di["type"] == "string":
@@ -280,7 +268,7 @@ def is_Text(di):
     return True
 
 
-def is_Textarea(di):
+def is_Textarea(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if not di["type"] == "string":
@@ -300,7 +288,7 @@ def is_Textarea(di):
     return True
 
 
-def is_Markdown(di):
+def is_Markdown(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if not di["type"] == "string":
@@ -316,7 +304,7 @@ def is_Markdown(di):
     return True
 
 
-def is_Dropdown(di):
+def is_Dropdown(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if "enum" not in di.keys():
@@ -326,7 +314,7 @@ def is_Dropdown(di):
     return True
 
 
-def is_SelectMultiple(di):
+def is_SelectMultiple(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if "enum" not in di.keys():
@@ -336,7 +324,7 @@ def is_SelectMultiple(di):
     return True
 
 
-def is_Checkbox(di):
+def is_Checkbox(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if di["type"] != "boolean":
@@ -344,13 +332,13 @@ def is_Checkbox(di):
     return True
 
 
-def is_AutoOveride(di):
+def is_AutoOveride(di: dict) -> bool:
     if "autoui" not in di.keys():
         return False
     return True
 
 
-def is_Object(di):
+def is_Object(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if not di["type"] == "object":
@@ -358,7 +346,7 @@ def is_Object(di):
     return True
 
 
-def is_Array(di):
+def is_Array(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
     if not di["type"] == "array":
@@ -475,7 +463,7 @@ def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False):
         return WidgetCaller(schema_=di, autoui=widget_map[k].widget)
 
 
-def automapschema(schema, widget_map=MAP_WIDGETS):
+def automapschema(schema: dict, widget_map: frozenmap = MAP_WIDGETS) -> WidgetCaller:
     from ipyautoui.custom.iterable import AutoArray
     from ipyautoui.autoipywidget import AutoIpywidget
 
@@ -532,115 +520,7 @@ def autowidgetcaller(schema):
         return autowidget(schema)
 
 
-# -
-
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
+    import doctest
 
-    di = {
-        "title": "Color Picker Ipywidgets",
-        "default": "#f5f595",
-        "type": "string",
-        "format": "hexcolor",
-    }
-
-    display(is_Color(di))
-
-# +
-# auiwidgets.AutoMarkdown(TestAutoLogic.schema()["properties"]["markdown"])
-# -
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
-
-    di = TestAutoLogic.schema()["properties"]["markdown"]
-    di_ = TestAutoLogic.schema()["properties"]["text_area"]
-    print("test markdown - ")
-    print(is_Markdown(di))
-    print(is_Text(di))
-    print(is_Textarea(di))
-    print("----------------")
-    print("test Textarea - ")
-    print(is_Markdown(di_))
-    print(is_Text(di_))
-    print(is_Textarea(di_))
-
-if __name__ == "__main__":
-    di = {
-        "title": "Date Picker",
-        "default": "2022-04-28",
-        "type": "string",
-        "format": "date",
-    }
-    di_ = {
-        "title": "String",
-        "description": "a description about my string",
-        "default": "adsf",
-        "type": "string",
-    }
-    is_Text(di)
-
-if __name__ == "__main__":
-    m = automapschema(
-        {
-            "title": "Int Slider",
-            "default": 2,
-            "minimum": 0,
-            "maximum": 3,
-            "type": "integer",
-        }
-    )
-
-    display(m)
-
-if __name__ == "__main__":
-    ui = widgetcaller(m)
-    display(ui)
-
-if __name__ == "__main__":
-    di = {
-        "title": "Date Picker",
-        "default": "2022-04-28",
-        "type": "string",
-        "format": "date",
-    }
-    display(is_Date(di))
-
-if __name__ == "__main__":
-    m = automapschema(
-        {
-            "title": "Array",
-            "default": ["f", "d"],
-            "maxItems": 5,
-            "type": "array",
-            "items": {"type": "string"},
-        }
-    )
-
-    display(m)
-
-if __name__ == "__main__":
-    ui = widgetcaller(m)
-    display(ui)
-
-if __name__ == "__main__":
-    w = autowidget(
-        {
-            "title": "Int Slider",
-            "default": 2,
-            "minimum": 0,
-            "maximum": 3,
-            "type": "integer",
-        }
-    )
-
-    display(w)
-
-if __name__ == "__main__":
-    s = TestAutoLogic.schema()
-    # display(s)
-    m = automapschema(s)
-    display(m)
-
-if __name__ == "__main__":
-    display(widgets.VBox([widgetcaller(v) for k, v in m.items()]))
+    doctest.testmod()

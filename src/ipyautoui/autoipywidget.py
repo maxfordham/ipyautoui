@@ -32,42 +32,18 @@ Example:
 # %load_ext lab_black
 import pathlib
 import functools
-import pandas as pd
 import ipywidgets as widgets
-from IPython.display import display, Markdown
-from datetime import datetime, date
-from dataclasses import dataclass
-from pydantic import BaseModel
-from markdown import markdown
-import immutables
-import json
+from IPython.display import display
 import traitlets
 import typing
-from enum import Enum
-import inspect
-
-from ipyautoui.autodisplay import PreviewPy
-from ipyautoui.test_schema import TestAutoLogic
-
-from ipyautoui._utils import (
-    obj_from_string,
-    display_pydantic_json,
-    file,
-    obj_from_importstr,
-    display_python_string,
-)
-from ipyautoui.custom import Grid, FileChooser, SaveButtonBar
-from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
 from ipyautoui.constants import load_test_constants
-from ipyautoui.test_schema import TestAutoLogic
+from ipyautoui.custom.iterable import AutoArray
+from ipyautoui.automapschema import automapschema, widgetcaller, MAP_WIDGETS
 import immutables
 
 frozenmap = immutables.Map
 
-
 # +
-from ipyautoui.custom.iterable import AutoArray
-from ipyautoui.automapschema import automapschema, widgetcaller, MAP_WIDGETS
 
 
 def get_title_description_from_schema(schema):
@@ -132,6 +108,7 @@ def _get_value_trait(widget):
 
 class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
     """creates an ipywidgets form from a json-schema or pydantic model"""
+
     _value = traitlets.Dict(allow_none=True)
 
     @traitlets.validate("_value")
@@ -150,7 +127,10 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
             self._update_widgets_from_value()
 
     def __init__(
-        self, schema, value=None, widgets_mapper=None,
+        self,
+        schema,
+        value=None,
+        widgets_mapper=None,
     ):
         self.widgets_mapper = widgets_mapper
         self._init_ui(schema)
@@ -245,7 +225,7 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
         # tmp = self._value.copy()
         # tmp[key] = getattr(self.di_widgets[key], watch)
         # self._value = tmp
-        
+
         self._value = self.di_widgets_value
         #  note. it is required to .copy the _value and then set it again
         #        otherwise traitlets doesn't register the change.
@@ -271,7 +251,3 @@ if __name__ == "__main__":
     sch = test.schema()
     ui = AutoIpywidget(sch)
     display(ui)
-
-
-
-

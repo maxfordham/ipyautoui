@@ -25,4 +25,4 @@ sys.path.append(str(pathlib.Path(__file__).parents[1]))
 # #  ^ for dev only. TODO: comment out at build time
 
 from ipyautoui.autoui import AutoUi, AutoVuetify  # , AutoUiConfig
-from ipyautoui.autodisplay import DisplayFiles  # TODO: rename to AutoDisplay
+from ipyautoui.autodisplay import AutoDisplay  # TODO: rename to AutoDisplay

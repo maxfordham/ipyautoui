@@ -39,56 +39,29 @@ Example:
 # TODO: update displayfile_definitions based on the extra work done...
 # +
 import pathlib
+import functools
 from wcmatch.pathlib import Path as wcPath
-import os
-import subprocess
-import pathlib
-import pandas as pd
-import numpy as np
-from IPython.display import display, JSON, Markdown, HTML, IFrame, clear_output, Image
+from IPython.display import (
+    display,
+    clear_output,
+)  # , Image JSON, Markdown, HTML, IFrame,
 import time
-from markdown import markdown
-import copy
-from dataclasses import dataclass, asdict, field
-from typing import List, Dict, Callable, Type
 import typing
-import enum
-import getpass
-import json
-import immutables
-
-import ipydatagrid as ipg
 import ipywidgets as widgets
-from halo import HaloNotebook
-import plotly.io as pio
-
-#  from mf library
-
-try:
-    from xlsxtemplater import from_excel
-except:
-    pass
+import traitlets
+from pydantic import BaseModel, validator, HttpUrl
 
 #  local imports
-from ipyautoui.mydocstring_display import display_module_docstring
+from ipyautoui.displayfile_renderers import DEFAULT_FILE_RENDERERS
 from ipyautoui._utils import (
-    del_matching,
-    # md_fromfile,
-    display_python_file,
-    display_python_string,
-    read_json,
-    read_yaml,
-    read_txt,
     open_file,
     make_new_path,
     frozenmap,
     get_ext,
     st_mtime_string,
 )
-
-# from ipyrun._runconfig import Output, Outputs, File
 from ipyautoui.constants import (
-    BUTTON_WIDTH_MIN,
+    #  BUTTON_WIDTH_MIN,
     BUTTON_HEIGHT_MIN,
     KWARGS_OPENPREVIEW,
     KWARGS_OPENFILE,
@@ -97,15 +70,12 @@ from ipyautoui.constants import (
     KWARGS_COLLAPSE_ALL_FILES,
     KWARGS_HOME_DISPLAY_FILES,
 )
-from pydantic import BaseModel, validator, HttpUrl
-import datetime
-import functools
-from ipyautoui.displayfile_renderers import DEFAULT_FILE_RENDERERS
 
-from traitlets import observe
-from traitlets import HasTraits, validate
-import traitlets
-
+#  from mf library
+try:
+    from xlsxtemplater import from_excel
+except:
+    pass
 
 # -
 
@@ -215,7 +185,7 @@ class DisplayObject(widgets.VBox):
         self._init_form()
         self._init_controls()
 
-    @observe("auto_open")
+    @traitlets.observe("auto_open")
     def _observe_auto_open(self, change):
         if change["new"]:
             self.openpreview.value = True
@@ -362,7 +332,8 @@ if __name__ == "__main__":
 
 # -
 
-class AutoDisplay(HasTraits):
+
+class AutoDisplay(traitlets.HasTraits):
     """
     displays the contents of a file in the notebook.
     comes with the following default renderers:
@@ -406,8 +377,8 @@ class AutoDisplay(HasTraits):
         display_showhide: bool = True,
     ):
         """
-        
-        
+
+
         Args:
             paths (typing.List[pathlib.Path]): list of paths to display
             default_file_renderers: default renderers
