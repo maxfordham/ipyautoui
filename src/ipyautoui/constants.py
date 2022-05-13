@@ -147,7 +147,7 @@ def load_test_constants():
 
 def display_template_ui_model():
     from ipyautoui import test_schema
-    from ipyautoui.displayfile import PreviewPy
+    from ipyautoui.autodisplay import PreviewPy
     display(PreviewPy(test_schema, docstring_priority=False))
     
 def DISPLAY_AUTOUI_EXAMPLE():

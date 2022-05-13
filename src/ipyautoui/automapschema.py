@@ -45,7 +45,7 @@ import typing
 from enum import Enum
 import inspect
 
-from ipyautoui.displayfile import PreviewPy
+from ipyautoui.autodisplay import PreviewPy
 import ipyautoui.autowidgets as auiwidgets
 
 from ipyautoui._utils import (

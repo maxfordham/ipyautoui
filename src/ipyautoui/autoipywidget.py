@@ -46,7 +46,7 @@ import typing
 from enum import Enum
 import inspect
 
-from ipyautoui.displayfile import PreviewPy
+from ipyautoui.autodisplay import PreviewPy
 from ipyautoui.test_schema import TestAutoLogic
 
 from ipyautoui._utils import (
