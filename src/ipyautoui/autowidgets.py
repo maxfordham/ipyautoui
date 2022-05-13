@@ -21,7 +21,7 @@
 extends standard ipywidgets to facilitate initialisation from jsonschema
 """
 
-from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
+from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP
 import ipywidgets as widgets
 import traitlets
 from copy import deepcopy
@@ -37,8 +37,10 @@ def update_key(key, di_map=DI_JSONSCHEMA_WIDGET_MAP):
     else:
         return key
 
+
 def update_keys(di, di_map=DI_JSONSCHEMA_WIDGET_MAP):
     return {update_key(k, di_map): v for k, v in di.items()}
+
 
 def create_widget_caller(schema, calling=None):
     """
@@ -70,93 +72,106 @@ def create_widget_caller(schema, calling=None):
     caller = update_keys(schema)
     caller = {k: v for k, v in caller.items() if k != "description"}
     caller = {k: v for k, v in caller.items() if k != "title"}
-    if calling is not None: 
+    if calling is not None:
         caller = remove_non_present_kwargs(calling, caller)
     return caller
 
-    
+
 class IntText(widgets.IntText):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
 
+
 class IntSlider(widgets.IntSlider):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
-        
+
+
 class FloatText(widgets.FloatText):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
-        
+
+
 class FloatSlider(widgets.FloatSlider):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
-        
+
+
 class IntRangeSlider(widgets.IntRangeSlider):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         self.caller["min"] = self.schema["items"][0]["minimum"]
         self.caller["max"] = self.schema["items"][0]["maximum"]
         super().__init__(**self.caller)
-        
+
+
 class FloatRangeSlider(widgets.FloatRangeSlider):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         self.caller["min"] = self.schema["items"][0]["minimum"]
         self.caller["max"] = self.schema["items"][0]["maximum"]
         super().__init__(**self.caller)
-        
+
+
 class Text(widgets.Text):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
-        
+
+
 class Textarea(widgets.Textarea):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
-        
+
+
 class Combobox(widgets.Combobox):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
-        
+
+
 class Dropdown(widgets.Dropdown):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
-        
+
+
 class SelectMultiple(widgets.SelectMultiple):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
-        
+
+
 class Checkbox(widgets.Checkbox):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
-        
+
+
 class ColorPicker(widgets.ColorPicker):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
-        
+
+
 class DatePickerString(widgets.HBox, traitlets.HasTraits):
     _value = traitlets.Unicode(allow_none=True, default_value=None)
 
@@ -226,30 +241,33 @@ class DatePickerString(widgets.HBox, traitlets.HasTraits):
 
     def _update_change(self, on_change):
         self._value = self._get_value()
-        
+
+
 # class DatetimePicker(widgets.DatetimePicker):
 #     def __init__(self, schema):
-#         self.schema = schema 
+#         self.schema = schema
 #         self.caller = create_widget_caller(schema)
 #         super().__init__(**self.caller)
-        
+
 # class FileChooser(widgets.FileChooser):
 #     def __init__(self, schema):
-#         self.schema = schema 
+#         self.schema = schema
 #         self.caller = create_widget_caller(schema)
 #         super().__init__(**self.caller)
-        
+
 # class Grid(widgets.Grid):
 #     def __init__(self, schema):
-#         self.schema = schema 
+#         self.schema = schema
 #         self.caller = create_widget_caller(schema)
 #         super().__init__(**self.caller)
-        
+
+
 class ColorPicker(widgets.ColorPicker):
     def __init__(self, schema):
-        self.schema = schema 
+        self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
+
 
 def autooveride(schema):
     aui = schema["autoui"]
@@ -259,6 +277,7 @@ def autooveride(schema):
         cl = aui
     return cl(schema)
 
+
 class AutoPlaceholder(widgets.Textarea):
     def __init__(self, schema):
         txt = f"""
@@ -267,23 +286,26 @@ schema:
 {str(schema)}
 """
         super().__init__(value=txt)
-        
+
 
 class RunName(modelrun.RunName):
     def __init__(self, schema):
-        self.schema =schema
+        self.schema = schema
         self.caller = create_widget_caller(schema, calling=modelrun.RunName)
         super().__init__(**self.caller)
-        
+
+
 class AutoMarkdown(markdown_widget.MarkdownWidget):
     def __init__(self, schema):
-        self.schema =schema
-        self.caller = create_widget_caller(schema, calling=markdown_widget.MarkdownWidget)
+        self.schema = schema
+        self.caller = create_widget_caller(
+            schema, calling=markdown_widget.MarkdownWidget
+        )
         super().__init__(**self.caller)
+
 
 # class AutoOveride:
 #     def __init__(self, schema):
 #         self.schema = schema self.caller = create_widget_caller(schema)
 #         super().__init__(**self.caller)
 
-        
