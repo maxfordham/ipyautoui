@@ -17,8 +17,6 @@
 # %run __init__.py
 # %load_ext lab_black
 
-# uncomment next lines to enable hot reloading of vue template(s). (needs the watchdog package)
-
 import ipyvuetify as v
 import traitlets
 import ipywidgets as widgets
@@ -27,7 +25,7 @@ from ipyautoui.constants import PATH_VJSF_TEMPLATE
 from ipyautoui.autoui import AutoUiCommonMethods, SaveControls
 
 # import ipyvue
-# ipyvue.watch(".")  # for hot-reloading. currently not in use. requires watchdog
+# ipyvue.watch(PATH_VJSF_TEMPLATE.parent)  # for hot-reloading. currently not in use. requires watchdog
 
 
 class Vjsf(v.VuetifyTemplate):
