@@ -60,20 +60,20 @@ AutoUi.parse_file #  init ui with data from .json file
 - TODO: AutoUi also allows the user to specify the usage of [__ipyvuetify__](https://github.com/widgetti/ipyvuetify) and 
     - __note__. this is the recommended approach for simple and generic input forms. Where custom UI objects are required these can be built using the ipyautoui core library. 
     
-## AutoVuetify
+## AutoVjsf
 
-`AutoVuetify` works in exactly the same way as `AutoUi`, but instead of using `ipywidgets` to render the JSON schema it uses [ipyvuetify](https://github.com/widgetti/ipyvuetify) and [vuetify-jsonschema-form](https://github.com/koumoul-dev/vuetify-jsonschema-form).
+`AutoVjsf` works in exactly the same way as `AutoUi`, but instead of using `ipywidgets` to render the JSON schema it uses [ipyvuetify](https://github.com/widgetti/ipyvuetify) and [vuetify-jsonschema-form](https://github.com/koumoul-dev/vuetify-jsonschema-form).
 
-## Should I use AutoUi or AutoVuetify?
+## Should I use AutoUi or AutoVjsf?
 
-### AutoVuetify
+### AutoVjsf
 
 The excellent documentation for [__vuetify-jsonschema-form__](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/) can be used to create your schema. Anything possible
-in vjsf is therefore possible using AutoVuetify (TODO: implement markdown editor). This has a much more complete coverage of the json-schema specification, as well as the added
+in vjsf is therefore possible using AutoVjsf (TODO: implement markdown editor). This has a much more complete coverage of the json-schema specification, as well as the added
 benefit of out-the-box support of mobile applications. It falls down if you want to specify custom renderer objects. 
 
 ```{note}
-when you're using pydantic to make the schema, "-" cannot be used field names, but requires them (e.g. "x-display"), use "x_display" instead and AutoVuetify does the conversion). 
+when you're using pydantic to make the schema, "-" cannot be used field names, but requires them (e.g. "x-display"), use "x_display" instead and AutoVjsf does the conversion). 
 ```
 
 ### AutoUi
@@ -140,5 +140,5 @@ $ mamba env create --file environment-dev.yml
 
 ## Contributions 
 
-AutoVuetify is a very thin wrapper where ipyvuetify and vuetify-jsonschema-form are doing all the work. 
+AutoVjsf is a very thin wrapper where ipyvuetify and vuetify-jsonschema-form are doing all the work. 
 Many thanks to @mariobuikhuizen for providing me with the [boiler-plate code](https://github.com/widgetti/ipyvuetify/issues/182).

@@ -140,7 +140,7 @@ class TestArrays(BaseModel):
 
 class TestVjsf(BaseModel):
     objects_array_styled: typing.List[NestedObject] = Field(
-        description="styled array, only works with AutoVuetify",
+        description="styled array, only works with AutoVjsf",
         default=[],
         max_items=5,
         x_itemTitle="titleProp",

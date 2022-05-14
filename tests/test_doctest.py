@@ -1,6 +1,6 @@
 from .constants import DIR_DOCS, DIR_PACKAGE
 import subprocess
-from ipyautoui import AutoUi, AutoDisplay, AutoVuetify, automapschema
+from ipyautoui import AutoUi, AutoDisplay, AutoVjsf, automapschema
 
 path = automapschema.__file__
 

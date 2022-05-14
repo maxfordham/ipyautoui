@@ -11,7 +11,7 @@ import pathlib
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
 from .example_objects import ExampleSchema
-from ipyautoui import AutoUi, AutoDisplay, AutoVuetify
+from ipyautoui import AutoUi, AutoDisplay, AutoVjsf
 
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
