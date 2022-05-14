@@ -43,7 +43,6 @@ napoleon_use_admonition_for_references = False
 napoleon_use_ivar = True
 napoleon_use_param = True
 napoleon_use_rtype = True
-nb_custom_formats = {'.myst.md': ['jupytext.reads', {'fmt': 'myst.md'}]}
 nb_output_stderr = 'show'
 numfig = True
 panels_add_bootstrap_css = False

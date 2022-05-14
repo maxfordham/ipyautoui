@@ -8,5 +8,4 @@ chapters:
 - file: autovuetify
 - file: autodisplay
 - file: custom-renderers
-- file: custom-renderers-2
 - file: api
