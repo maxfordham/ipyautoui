@@ -77,6 +77,7 @@ try:
 except:
     pass
 
+
 # -
 
 
@@ -326,7 +327,7 @@ if __name__ == "__main__":
     d = DisplayObject.from_path(
         path,
         newroot=pathlib.PureWindowsPath("C:\engDev\git_mf\ipyautoui\src\ipyautoui"),
-        auto_open=False,
+        # auto_open=False,
     )
     display(d)
 
@@ -413,6 +414,9 @@ class AutoDisplay(traitlets.HasTraits):
             file_renderers = merge_file_renderers(file_renderers)
         else:
             file_renderers = DEFAULT_FILE_RENDERERS
+        if not isinstance(paths, list):
+            paths = [pathlib.Path(paths)]
+
         display_objects_actions = [
             DisplayFromPath(
                 path=path, newroot=newroot, map_file_renderers=file_renderers
@@ -444,6 +448,8 @@ class AutoDisplay(traitlets.HasTraits):
 
     @display_showhide.setter
     def display_showhide(self, value):
+        if hasattr(self, "display_objects") and len(self.display_objects) == 1: 
+            value = False
         self._display_showhide = value
         if self.display_showhide:
             self.box_showhide.children = [
@@ -456,6 +462,7 @@ class AutoDisplay(traitlets.HasTraits):
             ]
         else:
             self.box_showhide.children = []
+
 
     @property
     def paths(self):
@@ -543,6 +550,14 @@ class AutoDisplay(traitlets.HasTraits):
     def _update_files(self):
         [d._update_file() for d in self.display_objects]
 
+if __name__ == "__main__":
+    path = pathlib.Path("pdf.pdf")
+    d = AutoDisplay.from_paths(
+        path,
+        newroot=pathlib.PureWindowsPath("C:\engDev\git_mf\ipyautoui\src\ipyautoui"),
+        # auto_open=False,
+    )
+    display(d)
 
 # +
 # TODO: render markdown to html using pandoc and rebase relative paths - https://github.com/jgm/pandoc/issues/3752
@@ -578,3 +593,5 @@ if __name__ == "__main__":
     )
 
     display(test_ui)
+
+

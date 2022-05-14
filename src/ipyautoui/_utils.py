@@ -13,31 +13,43 @@ import typing
 import importlib.util
 import inspect
 import immutables
+
 frozenmap = immutables.Map
 
-try: 
+try:
     from mf_file_utilities import go as open_file
     from mf_file_utilities.applauncher_wrapper import make_new_path
 except:
+
     def open_file(path):
-        subprocess.call(['open', path])
-        
+        import subprocess
+
+        subprocess.call(["open", path])
+
     def make_new_path(path, *args, **kwargs):
         return path
+
 
 # ------------------------------
 def str_presenter(dumper, data):
     """configures yaml for dumping multiline strings
     Ref: https://stackoverflow.com/questions/8640959/how-can-i-control-what-scalar-form-pyyaml-uses-for-my-data"""
     if len(data.splitlines()) > 1:  # check for multiline string
-        return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
-    return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data)
+
+
 yaml.add_representer(str, str_presenter)
-yaml.representer.SafeRepresenter.add_representer(str, str_presenter) # to use with safe_dum
+yaml.representer.SafeRepresenter.add_representer(
+    str, str_presenter
+)  # to use with safe_dum
 # ------------------------------
 # ^ configures yaml for pretty dumping of multiline strings
 
-def display_pydantic_json(pydantic_obj: typing.Type[BaseModel], as_yaml=False, sort_keys=False):
+
+def display_pydantic_json(
+    pydantic_obj: typing.Type[BaseModel], as_yaml=False, sort_keys=False
+):
     parsed = json.loads(pydantic_obj.json())
     if as_yaml:
         s = yaml.dump(parsed, indent=2, sort_keys=sort_keys)  # , sort_keys=True)
@@ -46,16 +58,17 @@ def display_pydantic_json(pydantic_obj: typing.Type[BaseModel], as_yaml=False, s
         s = json.dumps(parsed, indent=2, sort_keys=sort_keys)  # , sort_keys=True)
         return Markdown("\n```Python\n" + s + "\n```")
 
-def _markdown(value='_Markdown_',
-              **kwargs):
+
+def _markdown(value="_Markdown_", **kwargs):
     """
     a simple template for markdown text input that templates required input
     fields. additional user defined fields can be added as kwargs
     """
     _kwargs = {}
-    _kwargs['value'] = markdown(value)  # required field
+    _kwargs["value"] = markdown(value)  # required field
     _kwargs.update(kwargs)  # user overides
     return widgets.HTML(**_kwargs)
+
 
 def obj_from_string(class_type_string: str) -> Type:
     """
@@ -74,20 +87,21 @@ def obj_from_string(class_type_string: str) -> Type:
     Example:
         
     """
-    
+
     def find(s, ch):
         return [i for i, ltr in enumerate(s) if ltr == ch]
-    
+
     cl = class_type_string
     ind = find(cl, "'")
-    nm  = cl[ind[0]+1:ind[1]]
-    nms =  nm.split('.')
+    nm = cl[ind[0] + 1 : ind[1]]
+    nms = nm.split(".")
     clss = nms[-1:][0]
-    mod = '.'.join(nms[:-1])
+    mod = ".".join(nms[:-1])
     return getattr(importlib.import_module(mod), clss)
 
-def write_json(data, fpth='data.json', sort_keys=True, indent=4):
-    '''
+
+def write_json(data, fpth="data.json", sort_keys=True, indent=4):
+    """
     write output to json file
     Args:
         data
@@ -100,20 +114,22 @@ def write_json(data, fpth='data.json', sort_keys=True, indent=4):
         f = open(fpth,"w")
         f.write(out)
         f.close()
-    '''
-    out=json.dumps(data, sort_keys=sort_keys, indent=indent)
-    f = open(fpth,"w")
+    """
+    out = json.dumps(data, sort_keys=sort_keys, indent=indent)
+    f = open(fpth, "w")
     f.write(out)
     f.close()
     return fpth
 
-def read_json(fpth, encoding='utf8'):
-    '''
+
+def read_json(fpth, encoding="utf8"):
+    """
     read info in a .json file
-    '''
-    with open(fpth, 'r', encoding=encoding) as f:
+    """
+    with open(fpth, "r", encoding=encoding) as f:
         json_file = json.loads(f.read())
     return json_file
+
 
 def del_cols(df, cols):
     """delete a pandas column if it is in
@@ -122,13 +138,13 @@ def del_cols(df, cols):
         try:
             del df[cols]
         except:
-            print(cols + ' is not in column index')
+            print(cols + " is not in column index")
     else:
         for col in cols:
             try:
                 del df[col]
             except:
-                print(col + ' is not in column index')
+                print(col + " is not in column index")
     return df
 
 
@@ -140,49 +156,52 @@ def del_matching(df, string):
     df = del_cols(df, matching)
     return df
 
+
 #  ------------------------------------------------------------------------------------------------
 
-    
+
 def display_python_string(string, show=True, return_str=False, myst_format=False):
     if myst_format:
         s = "\n```{code-cell} ipython3\n" + string + "\n```"
     else:
         s = "\n```python\n" + string + "\n```"
-    if show: 
+    if show:
         display(Markdown(s))
     if return_str:
         return s
+
 
 def display_python_file(fpth, show=True, return_str=False):
     """
     pass the fpth of a python file and get a
     rendered view of the code.
     """
-    with open(fpth, 'r') as myfile:
+    with open(fpth, "r") as myfile:
         data = myfile.read()
-    s= display_python_string(data, show=False, return_str=True)
-    if show: 
+    s = display_python_string(data, show=False, return_str=True)
+    if show:
         display(Markdown(s))
     if return_str:
         return s
-    
+
+
 def display_python_module(mod, show=True, return_str=False):
     """
     pass the fpth of a python file and get a
     rendered view of the code.
     """
     if str(type(mod)) != "<class 'module'>":
-        raise ValueError('input must be a python module')
+        raise ValueError("input must be a python module")
     fpth = mod.__file__
-    s= display_python_file(fpth, show=False, return_str=True)
-    if show: 
+    s = display_python_file(fpth, show=False, return_str=True)
+    if show:
         display(Markdown(s))
     if return_str:
         return s
 
 
-def read_txt(fpth,encoding='utf-8', delim=None, read_lines=True):
-    '''
+def read_txt(fpth, encoding="utf-8", delim=None, read_lines=True):
+    """
     read a .txt file
     
     Args:
@@ -193,22 +212,23 @@ def read_txt(fpth,encoding='utf-8', delim=None, read_lines=True):
             '\t', ','
         read_lines(bool): readlines or whole string (delim may not work if read_lines==False
 
-    '''
+    """
     with codecs.open(fpth, encoding=encoding) as f:
-        if read_lines==True:
+        if read_lines == True:
             content = f.readlines()
         else:
             content = f.read()
     f.close()
-    if delim!=None:
+    if delim != None:
         li = []
         for n in range(0, len(content)):
             li.append(content[n].split(delim))
         return li
     else:
         return content
-    
-def read_yaml(fpth, encoding='utf8'):
+
+
+def read_yaml(fpth, encoding="utf8"):
     """
     read yaml file.
 
@@ -221,7 +241,8 @@ def read_yaml(fpth, encoding='utf8'):
             print(exc)
     return data
 
-def file(self:Type[BaseModel], path: pathlib.Path, **json_kwargs):
+
+def file(self: Type[BaseModel], path: pathlib.Path, **json_kwargs):
     """
     this is a method that is added to the pydantic BaseModel within AutoUi using
     "setattr".
@@ -236,30 +257,36 @@ def file(self:Type[BaseModel], path: pathlib.Path, **json_kwargs):
     if "indent" not in json_kwargs.keys():
         json_kwargs.update({"indent": 4})
     path.write_text(self.json(**json_kwargs), encoding="utf-8")
-    
+
+
 def round_sig_figs(x: float, sig_figs: int):
     if x > 0:
         sig = sig_figs
-        return round(x, sig-int(floor(log10(abs(x))))-1)
+        return round(x, sig - int(floor(log10(abs(x)))) - 1)
     else:
         return x
-    
-    
+
+
 class PyObj(BaseModel):
     """a definition of a python object"""
+
     path: pathlib.Path
     obj_name: str
-    module_name: str = Field(None, description='ignore, this is overwritten by a validator')
+    module_name: str = Field(
+        None, description="ignore, this is overwritten by a validator"
+    )
 
     @validator("module_name", always=True)
     def _module_name(cls, v, values):
         return values["path"].stem
-        
+
+
 def load_PyObj(obj: PyObj):
     spec = importlib.util.spec_from_file_location(obj.module_name, obj.path)
     foo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(foo)
     return getattr(foo, obj.obj_name)
+
 
 def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
     """
@@ -279,10 +306,14 @@ def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
         path
     """
     obj = load_PyObj(pyobj)
-    assert str(type(obj)) == "<class 'pydantic.main.ModelMetaclass'>", "the python object must be a pydantic model"
+    assert (
+        str(type(obj)) == "<class 'pydantic.main.ModelMetaclass'>"
+    ), "the python object must be a pydantic model"
     if not hasattr(obj, "file"):
-        setattr(obj, 'file', file)
-    assert hasattr(obj, "file"), "the pydantic BaseModel must be extended to have method 'file' for writing model to json"
+        setattr(obj, "file", file)
+    assert hasattr(
+        obj, "file"
+    ), "the pydantic BaseModel must be extended to have method 'file' for writing model to json"
     myobj = obj(**kwargs)
     myobj.file(path)
     return path
@@ -290,8 +321,9 @@ def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
 
 import importlib.util
 import typing
+
 # TODO: use obj_to_importstr and obj_from_importstr rather than load_PyObj
-def obj_to_importstr(obj: typing.Callable): # NOT IN USE
+def obj_to_importstr(obj: typing.Callable):  # NOT IN USE
     """
     given a callable callable object this will return the 
     import string to. From the string the object can be 
@@ -310,15 +342,18 @@ def obj_to_importstr(obj: typing.Callable): # NOT IN USE
     try:
         mod = obj.__module__
     except:
-        raise ValueError(f'{str(obj)} doesnt have a __module__ attribute.')
-    try: 
+        raise ValueError(f"{str(obj)} doesnt have a __module__ attribute.")
+    try:
         nm = obj.__name__
     except:
-        raise ValueError(f'{str(obj)} doesnt have a __name__ attribute. (might be a functool.partial?)')
+        raise ValueError(
+            f"{str(obj)} doesnt have a __name__ attribute. (might be a functool.partial?)"
+        )
 
-    return mod +'.'+ nm
+    return mod + "." + nm
 
-def obj_from_importstr(importstr: str) -> typing.Type: # NOT IN USE
+
+def obj_from_importstr(importstr: str) -> typing.Type:  # NOT IN USE
     """
     given the import string of an object this function and returns the Obj. 
     
@@ -334,17 +369,20 @@ def obj_from_importstr(importstr: str) -> typing.Type: # NOT IN USE
         >>> obj_from_importstr('pathlib.Path')
         pathlib.Path
     """
-    mod, nm = importstr.rsplit('.', 1)
+    mod, nm = importstr.rsplit(".", 1)
 
     return getattr(importlib.import_module(mod), nm)
 
-class SerializableCallable(BaseModel): # NOT IN USE
-    callable_str: typing.Union[typing.Callable, str] = Field(..., 
-                                                             description="import string that can use importlib\
+
+class SerializableCallable(BaseModel):  # NOT IN USE
+    callable_str: typing.Union[typing.Callable, str] = Field(
+        ...,
+        description="import string that can use importlib\
                                                               to create a python obj. Note. if a Callable object\
-                                                              is given it will be converted into a string")                                    
-    callable_obj: typing.Union[typing.Callable, typing.Type]= Field(None, exclude=True) 
-    
+                                                              is given it will be converted into a string",
+    )
+    callable_obj: typing.Union[typing.Callable, typing.Type] = Field(None, exclude=True)
+
     @validator("callable_str", always=True)
     def _callable_str(cls, v, values):
         if type(v) != str:
@@ -352,14 +390,19 @@ class SerializableCallable(BaseModel): # NOT IN USE
         invalid = [i for i in "!@#£[]()<>|¬$%^&*,?''- "]
         for i in invalid:
             if i in v:
-                raise ValueError(f'callable_str = {v}. import_str must not contain spaces {i}')
+                raise ValueError(
+                    f"callable_str = {v}. import_str must not contain spaces {i}"
+                )
         return v
-    
+
     @validator("callable_obj", always=True)
     def _callable_obj(cls, v, values):
         return obj_from_importstr(values["callable_str"])
-    
-def create_pydantic_json_file(pyobj: typing.Union[str, PyObj], path: pathlib.Path, **kwargs):
+
+
+def create_pydantic_json_file(
+    pyobj: typing.Union[str, PyObj], path: pathlib.Path, **kwargs
+):
     """
     loads a pyobj (which must be a pydantic model) and then saves the default Json to file. 
     this requires defaults for all pydantic attributes. 
@@ -380,23 +423,29 @@ def create_pydantic_json_file(pyobj: typing.Union[str, PyObj], path: pathlib.Pat
         obj = SerializableCallable(pyobj).callable_obj
     else:
         obj = load_PyObj(pyobj)
-    assert str(type(obj)) == "<class 'pydantic.main.ModelMetaclass'>", "the python object must be a pydantic model"
+    assert (
+        str(type(obj)) == "<class 'pydantic.main.ModelMetaclass'>"
+    ), "the python object must be a pydantic model"
     if not hasattr(obj, "file"):
-        setattr(obj, 'file', file)
-    assert hasattr(obj, "file"), "the pydantic BaseModel must be extended to have method 'file' for writing model to json"
+        setattr(obj, "file", file)
+    assert hasattr(
+        obj, "file"
+    ), "the pydantic BaseModel must be extended to have method 'file' for writing model to json"
     myobj = obj(**kwargs)
     myobj.file(path)
     return path
+
 
 def remove_non_present_kwargs(callable_: typing.Callable, di: dict):
     """do this if required (get allowed args from callable)"""
     args = inspect.getfullargspec(callable_).args
     return {k_: v_ for k_, v_ in di.items() if k_ in args}
-        
-    
+
+
 def get_ext(fpth):
     """get file extension including compound json files"""
     return "".join(pathlib.Path(fpth).suffixes).lower()
+
 
 def st_mtime_string(path):
     """st_mtime_string for a given path"""

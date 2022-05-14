@@ -19,7 +19,7 @@ displayfile is used to display certain types of files.
 The module lets us preview a file, open a file, and open its directory.
 
 Example:
-    ::#
+    ::
 
         from ipyautoui.constants import load_test_constants
         from ipyautoui.displayfile import DisplayFile, Markdown
@@ -66,9 +66,6 @@ class PreviewPython:
     pass the class either a filepath or an imported
     module and get a display output of the modules
     docstring with a toggle option to view the code
-
-    Args:
-
     """
 
     def __init__(self, module, preview_script=True, docstring_priority=True):

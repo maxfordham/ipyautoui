@@ -565,7 +565,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
 
     def add_row(self, key=None, new_key=None, add_kwargs=None, item=None):
         """add row to array after key. if key=None then append to end"""
-        if len(self.iterable) >= self.maxlen:
+        if self.maxlen is not None and len(self.iterable) >= self.maxlen:
             print("len(self.iterable) >= self.maxlen")
             return None
 
@@ -715,9 +715,6 @@ def validate_items(sch_arr):
     return sch_arr
 
 
-
-
-
 class AutoArray(Array):
     _schema = traitlets.Dict()
 
@@ -739,7 +736,7 @@ class AutoArray(Array):
         toggle=False,
         # title=None,
         # fn_add: typing.Callable = lambda: display("add item"),
-        fn_remove: typing.Callable = lambda: None, #display("remove item"),
+        fn_remove: typing.Callable = lambda: None,  # display("remove item"),
         watch_value: bool = True,
         add_remove_controls: str = "add_remove",
         show_hash: str = "index",
@@ -811,6 +808,7 @@ class AutoArray(Array):
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
+
     sch = TestArrays.schema()["properties"]["array_strings"]
     ui = AutoArray(sch)
     display(ui)
@@ -995,5 +993,4 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     arr.value = [{"None": False}, {"ads": True}, {"asdf": False}]
-
 

@@ -40,7 +40,7 @@ from pydantic import BaseModel, Field
 from ipyautoui._utils import obj_from_string, display_pydantic_json, round_sig_figs
 
 # from ipyautoui.displayfile import AutoDisplay
-from ipyautoui import AutoUi, AutoUiConfig
+from ipyautoui import AutoUi
 
 from ipyautoui.constants import (
     BUTTON_WIDTH_MIN,
@@ -70,7 +70,10 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
         self.fn_revert = revert
         self.fn_onsave = fn_onsave
         self.pydantic_model = pydantic_model
-        self.conf = AutoUiConfig(pydantic_model=pydantic_model, show_raw=False)
+        self.conf = {
+            "pydantic_model": pydantic_model,
+            "show_raw": False,
+        }  # TODO: this won't work. fix it!
         self.out = widgets.Output()
         self._init_form()
         self._init_controls()
@@ -78,8 +81,7 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
     def _init_form(self):
         super().__init__()  # main container
         self.auto_ui = AutoUi(
-            pydantic_obj=self.pydantic_model(),
-            config_autoui=self.conf,
+            pydantic_obj=self.pydantic_model(), config_autoui=self.conf,
         )
         self.save_button_bar = SaveButtonBar(
             save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
@@ -271,11 +273,7 @@ if __name__ == "__main__":
         print("BACK")
 
     button_bar = ButtonBar(
-        add=add,
-        edit=edit,
-        copy=copy,
-        delete=delete,
-        backward=backward,
+        add=add, edit=edit, copy=copy, delete=delete, backward=backward,
     )
 
     display(button_bar)
@@ -362,8 +360,7 @@ class GridWrapper(DataGrid):
             if "format" in v
         }
         text_renderer_date_time_format = TextRenderer(
-            format="%Y-%m-%d %H:%M:%S",
-            format_type="time",
+            format="%Y-%m-%d %H:%M:%S", format_type="time",
         )
         return {k: text_renderer_date_time_format for k, v in date_time_fields.items()}
 
@@ -429,11 +426,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self._edit_bool = False  # Initially define edit mode to be false
 
     def _init_form(
-        self,
-        df,
-        kwargs_datagrid_default,
-        kwargs_datagrid_update,
-        ignore_cols,
+        self, df, kwargs_datagrid_default, kwargs_datagrid_update, ignore_cols,
     ):
         super().__init__()  # main container
         self.button_bar = ButtonBar(
@@ -594,10 +587,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
             df = self.grid.data
             # ^ Can't assign directly to data so must assign to another variable before pushing changes through the setter.
-            for (
-                k,
-                v,
-            ) in self.base_form.to_dict.items():
+            for (k, v,) in self.base_form.to_dict.items():
                 df.loc[self.selected_row, k] = v
             # ^ update selected row with updated values
 
