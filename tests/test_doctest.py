@@ -7,4 +7,5 @@ path = automapschema.__file__
 
 class TestDocTests:
     def test_automapschema(self):
-        subprocess.call(f"python -m doctest -v {path}", shell=True)
+        complete = subprocess.call(f"python -m doctest -v {path}", shell=True)
+        assert complete == 0
