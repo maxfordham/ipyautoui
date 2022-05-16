@@ -668,3 +668,14 @@ if __name__ == "__main__":
     # ^ TODO: edit row not working
     # ^ TODO: pass schema as input rather than pydantic model (then it can work as a nested object)
     # ^ TODO: save data as list of dicts, then it can be easily serialised to json
+
+if __name__ == "__main__":
+    # TODO:  ipyautoui should know to use edit grid with this... 
+    
+    class DataFrameCols(BaseModel):
+        string: str = 'string'
+        integer: int = 1
+        floater: float = 1.5
+
+    class TestDataFrame(BaseModel):
+        dataframe: typing.List[DataFrameCols] = Field(..., format='dataframe')
