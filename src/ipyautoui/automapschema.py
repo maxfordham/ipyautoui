@@ -354,6 +354,17 @@ def is_Array(di: dict) -> bool:
         return False  # as this is picked up from SelectMultiple
     return True
 
+# def is_Dataframe(di: dict) -> bool:
+#     if "autoui" in di.keys():
+#         return False
+#     if not di["type"] == "array":
+#         return False
+#     if is_range(di):
+#         return False
+#     if "enum" in di.keys():
+#         return False  # as this is picked up from SelectMultiple
+#     return True
+
 
 class WidgetMapper(BaseModel):
     """defines a filter function and associated widget. the "fn_filt" is used to search the
