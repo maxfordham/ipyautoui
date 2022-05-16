@@ -284,21 +284,13 @@ class GridWrapper(DataGrid):
         self,
         schema: typing.Union[typing.Type[BaseModel], dict],
         value: dict = None,
-        # pydantic_model: typing.Type[BaseModel],
-        # df: pd.DataFrame = None,
         kwargs_datagrid_default: frozenmap = frozenmap(),
         kwargs_datagrid_update: frozenmap = frozenmap(),
         ignore_cols: list = [],
     ):
         # accept schema or pydantic schema
         self.model, schema = self._init_model_schema(schema)
-        if type(schema) == dict:
-            col_class_name = schema["properties"]["dataframe"]["items"]["$ref"].replace(
-                "#/definitions/", ""
-            )  # Getting column class name
-            self.di_cols = schema["definitions"][col_class_name][
-                "properties"
-            ]  # Getting dict of columns and and default data
+        self.di_cols_properties = schema  # Obtain each column's properties
 
         # Put all objects in datagrid belonging to that particular model
         if value is None:
@@ -306,7 +298,7 @@ class GridWrapper(DataGrid):
                 li_default_value = [
                     {
                         col_name: col_data["default"]
-                        for col_name, col_data in self.di_cols.items()
+                        for col_name, col_data in self.di_cols_properties
                     }
                 ]  # default value
                 df = pd.DataFrame.from_dict(li_default_value)
@@ -317,12 +309,6 @@ class GridWrapper(DataGrid):
                 )  # TODO: If schema is pydantic model instead of dict?
         else:
             df = pd.DataFrame.from_dict([val.dict() for val in value])
-
-        # TODO: _get_di_col_properties
-        if type(schema) == dict:
-            self.di_cols_properties = self.di_cols.items()
-        elif type(schema) == typing.Type[BaseModel]:
-            self.di_cols_properties = self.model().schema()["properties"].items()
 
         self._check_data(
             df, ignore_cols
@@ -351,6 +337,23 @@ class GridWrapper(DataGrid):
             self._set_column_widths()
         if self.aui_sig_figs and self.data.empty is False:
             self._round_sig_figs()  # Rounds any specified fields in schema
+
+    @property
+    def di_cols_properties(self):
+        return self._di_col_properties
+
+    @di_cols_properties.setter
+    def di_cols_properties(self, value):
+        if type(value) == dict:
+            col_class_name = schema["properties"]["dataframe"]["items"]["$ref"].replace(
+                "#/definitions/", ""
+            )  # Getting column class name
+            self.di_cols = schema["definitions"][col_class_name][
+                "properties"
+            ]  # Getting dict of columns and and default data
+            self._di_col_properties = self.di_cols.items()
+        elif type(value) == typing.Type[BaseModel]:
+            self._di_col_properties = self.model().schema()["properties"].items()
 
     @property
     def kwargs_datagrid_update(self):
