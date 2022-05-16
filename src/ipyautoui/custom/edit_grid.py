@@ -61,7 +61,7 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
 
     def __init__(
         self,
-        pydantic_model: typing.Type[BaseModel],
+        schema: typing.Union[typing.Type[BaseModel], dict],
         save: typing.Callable,
         revert: typing.Callable,
         fn_onsave: typing.Callable = lambda: None,
@@ -69,20 +69,22 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
         self.fn_save = save
         self.fn_revert = revert
         self.fn_onsave = fn_onsave
-        self.pydantic_model = pydantic_model
-        self.conf = {
-            "pydantic_model": pydantic_model,
-            "show_raw": False,
-        }  # TODO: this won't work. fix it!
+        self.model, schema = self._init_model_schema(schema)
         self.out = widgets.Output()
-        self._init_form()
+        self._init_form(schema)
         self._init_controls()
 
-    def _init_form(self):
+    def _init_model_schema(self, schema):
+        if type(schema) == dict:
+            model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
+        else:
+            model = schema  # the "model" passed is a pydantic model
+            schema = model.schema()
+        return model, schema
+
+    def _init_form(self, schema):
         super().__init__()  # main container
-        self.auto_ui = AutoUi(
-            pydantic_obj=self.pydantic_model(), config_autoui=self.conf,
-        )
+        self.auto_ui = AutoUi(schema=schema, show_raw=True)
         self.save_button_bar = SaveButtonBar(
             save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
         )
@@ -129,6 +131,22 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
     def _set_value(self):
         self.auto_ui.pydantic_obj = self.pydantic_model(**self.value)
         self.save_button_bar._unsaved_changes(False)
+
+
+if __name__ == "__main__":
+
+    class TestModel(BaseModel):
+        string: str = Field("string", title="Important String")
+        integer: int = Field(40, title="Integer of somesort")
+
+    def test_save():
+        print("Saved.")
+
+    def test_revert():
+        print("Reverted.")
+
+    baseform = BaseForm(schema=TestModel.schema(), save=test_save, revert=test_revert)
+    display(baseform)
 
 
 class ButtonBar(widgets.HBox):
@@ -482,20 +500,21 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     def __init__(
         self,
-        pydantic_model: typing.Type[BaseModel],
-        df: pd.DataFrame = None,
+        schema: typing.Union[typing.Type[BaseModel], dict],
+        value: dict = None,
         data_handler: typing.Type[BaseModel] = None,
         kwargs_datagrid_default: frozenmap = {},
         kwargs_datagrid_update: frozenmap = {},
         ignore_cols: list = [],
     ):
+        self.model, schema = self._init_model_schema(schema)
         self.data_handler = data_handler
         if self.data_handler is not None:
             df = pd.DataFrame(self.data_handler.fn_get_all_data(self))
-        self.pydantic_model = pydantic_model
         self.out = widgets.Output()
         self._init_form(
-            df=df,
+            value=value,
+            schema=schema,
             kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
             ignore_cols=ignore_cols,
@@ -503,8 +522,21 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self._init_controls()
         self._edit_bool = False  # Initially define edit mode to be false
 
+    def _init_model_schema(self, schema):
+        if type(schema) == dict:
+            model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
+        else:
+            model = schema  # the "model" passed is a pydantic model
+            schema = model.schema()
+        return model, schema
+
     def _init_form(
-        self, df, kwargs_datagrid_default, kwargs_datagrid_update, ignore_cols,
+        self,
+        value,
+        schema,
+        kwargs_datagrid_default,
+        kwargs_datagrid_update,
+        ignore_cols,
     ):
         super().__init__()  # main container
         self.button_bar = ButtonBar(
@@ -516,8 +548,8 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             show_message=False,
         )
         self.grid = GridWrapper(
-            pydantic_model=self.pydantic_model,
-            df=df,
+            schema=schema,
+            value=value,
             kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
             ignore_cols=ignore_cols,
