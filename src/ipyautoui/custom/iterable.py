@@ -820,7 +820,7 @@ if __name__ == "__main__":
     # TestArrays.schema()["properties"]  # ["array_strings"]
 
     sch = TestArrays.schema()
-    ui = AutoIpywidget(schema=sch, show_raw=False)
+    ui = AutoIpywidget(schema=sch)
     display(ui)
 
 if __name__ == "__main__":
