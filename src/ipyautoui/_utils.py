@@ -16,6 +16,9 @@ import immutables
 
 frozenmap = immutables.Map
 
+def make_new_path(path, *args, **kwargs):
+    return path
+
 try:
     from mf_file_utilities import go as open_file
     from mf_file_utilities.applauncher_wrapper import make_new_path
@@ -26,8 +29,7 @@ except:
 
         subprocess.call(["open", path])
 
-    def make_new_path(path, *args, **kwargs):
-        return path
+
 
 
 # ------------------------------
