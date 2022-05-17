@@ -263,23 +263,9 @@ class ButtonBar(widgets.HBox):
 
     def _copy(self, onchange):
         self._reset_message()
-        # if self.copy.value:
-        #     if self.add.value:
-        #         self.add.value = False
-        #     if self.edit.value:
-        #         self.edit.value = False
-        #     self.copy.tooltip = "Go back to table"
-        #     self.copy.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
         self.fn_copy()
         if self.show_message:
             self.message.value = markdown("  📝 _Copying Value_ ")
-        # else:
-        #     self._reset_message()
-        #     self.copy.tooltip = "copy"
-        #     self.copy.layout.border = None
-        #     self.copy.icon = "copy"
-        #     self.copy.button_style = "primary"
-        #     self.fn_backward()
 
     def _delete(self, click):
         self._reset_message()
@@ -580,7 +566,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             self.button_bar.add.value
         ):  # When on add and then select row, we are essentially copying so set copy button to True.
             self.button_bar.add.value = False
-            self.button_bar.copy.value = True
 
     @property
     def data(self):
@@ -648,7 +633,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         try:
             selected_rows = self.grid.selected_rows_
             if selected_rows == set():
-                print("no rows")
                 self.button_bar.message.value = markdown(
                     "  👇 _Please select a row from the table!_ "
                 )
@@ -662,9 +646,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 # TODO: Duplicate from _save, can make more concise.
                 if self.data_handler is not None:
                     self.data_handler.fn_post(self)
-
-                if not self.grid._data["data"]:  # If no data in grid
-                    self.grid.data = df_objs
                 else:
                     # Concat new row with existing grid data
                     self.grid.data = pd.concat(
@@ -675,7 +656,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 self._edit_bool = False  # Want to add the values
         except Exception as e:
             print(e)
-            self.button_bar.copy.value = False
             self.button_bar.message.value = markdown(
                 "  👇 _Please select a row from the table!_ "
             )
@@ -734,14 +714,16 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         else:  # Else, if adding values, use post
             if self.data_handler is not None:
                 self.data_handler.fn_post(self)
-
+            
+            df = pd.DataFrame([self.baseform.value])
             if not self.grid._data["data"]:  # If no data in grid
-                self.grid.data = pd.DataFrame.to_dict([self.baseform.value])
+                self.grid.data = df
             else:
                 # Append new row onto data frame and set to grid's data.
-                self.grid.data = self.grid.data.append(
-                    self.baseform.value, ignore_index=True
-                )
+                self.grid.data = pd.concat(self.grid.data + df, ignore_index=True)
+                # self.grid.data.append(
+                #     self.baseform.value, ignore_index=True
+                # )
 
     def _onsave(self):
         self._display_grid()
@@ -762,18 +744,14 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self.baseform.autoui.value = self.initial_value
 
     def _set_toggle_buttons_to_false(self):
-        if self.button_bar.copy.value is True:
-            self.button_bar.copy.value = False
-        elif self.button_bar.add.value is True:
+        if self.button_bar.add.value is True:
             self.button_bar.add.value = False
         elif self.button_bar.edit.value is True:
             self.button_bar.edit.value = False
 
     def _display_grid(self):
         if (
-            self.button_bar.edit.value
-            or self.button_bar.add.value
-            or self.button_bar.copy.value
+            self.button_bar.edit.value or self.button_bar.add.value
         ):  # Don't remove display of base form if already showing when going from edit to add (or vice versa).
             pass
         else:
