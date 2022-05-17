@@ -4,16 +4,16 @@
 #     formats: py:light
 #     text_representation:
 #       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.13.6
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.13.8
 #   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: ipyautoui
+#     name: python3
 # ---
 
-# %%
+# +
 # %run __init__.py
 # %load_ext lab_black
 
@@ -35,7 +35,7 @@ from enum import Enum
 from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
 
 
-# %%
+# +
 def save():
     print("save")
 
@@ -113,7 +113,7 @@ class SaveButtonBar(widgets.HBox):
         elif type(self.fn_onsave) == list:
             [f() for f in self.fn_onsave]
         else:
-            ValueError('fn_onsave must be zero-order func or list of zero-order funcs')
+            ValueError("fn_onsave must be zero-order func or list of zero-order funcs")
 
     def _revert(self, click):
         self.fn_revert()
@@ -121,6 +121,7 @@ class SaveButtonBar(widgets.HBox):
         self._unsaved_changes(False)
 
     def _unsaved_changes(self, istrue: bool):
+        self.unsaved_changes.value = istrue
         if istrue:
             self.unsaved_changes.button_style = "danger"
             self.unsaved_changes.icon = "circle"
@@ -131,9 +132,10 @@ class SaveButtonBar(widgets.HBox):
             self.tooltip = "SAFE: no changes have been made since the last save"
 
 
-# %%
+# -
+
 if __name__ == "__main__":
     save_button_bar = SaveButtonBar()
     display(save_button_bar)
 
-# %%
+

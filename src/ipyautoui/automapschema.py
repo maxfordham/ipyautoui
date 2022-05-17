@@ -106,6 +106,8 @@ def is_IntText(di: dict) -> bool:
         True
         >>> is_IntText({'title': 'Int Text', 'default': 1, 'type': 'number'})
         False
+        >>> is_IntText({'title': 'floater', 'default': 1.33, 'type': 'number'})
+        False
     """
     if "autoui" in di.keys():
         return False
@@ -127,6 +129,11 @@ def is_IntSlider(di: dict) -> bool:
 
 
 def is_FloatText(di: dict) -> bool:
+    """
+    Example:
+        >>> is_FloatText({'title': 'floater', 'default': 1.33, 'type': 'number'})
+        True
+    """
     if "autoui" in di.keys():
         return False
     if not di["type"] == "number":
@@ -352,6 +359,8 @@ def is_Array(di: dict) -> bool:
         return False
     if "enum" in di.keys():
         return False  # as this is picked up from SelectMultiple
+    # if is_Dataframe(di):
+    #     return False
     return True
 
 # def is_Dataframe(di: dict) -> bool:
@@ -443,6 +452,7 @@ MAP_WIDGETS = frozenmap(
         "Color": WidgetMapper(fn_filt=is_Color, widget=auiwidgets.ColorPicker),
         "object": WidgetMapper(fn_filt=is_Object, widget=auiwidgets.AutoPlaceholder),
         "array": WidgetMapper(fn_filt=is_Array, widget=auiwidgets.AutoPlaceholder),
+        # "dataframe": WidgetMapper(fn_filt=is_Dataframe, widget=auiwidgets.EditGrid),
     }
 )
 

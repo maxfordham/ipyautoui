@@ -16,6 +16,7 @@ dependencies:
 #  - ipysheet>=0.5.0
   - ipyfilechooser
   - ipydatagrid
+  - ipyvuetify
 #  - ipyrun>=v0.1.9
   - voila>=0.2.11
   - plotly
