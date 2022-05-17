@@ -86,7 +86,7 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
 
     def _init_form(self, schema):
         super().__init__()  # main container
-        self.autoui = AutoUi(schema=schema, show_raw=True)
+        self.autoui = AutoUi(schema=schema, show_raw=False)
         self.save_button_bar = SaveButtonBar(
             save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
         )
@@ -320,7 +320,9 @@ class GridWrapper(DataGrid):
         if value is None:
             li_default_value = [
                 {
-                    col_name: col_data["default"]
+                    col_name: (
+                        col_data["default"] if "default" in col_data.keys() else None
+                    )
                     for col_name, col_data in self.di_cols_properties.items()
                 }
             ]  # default value
@@ -329,9 +331,7 @@ class GridWrapper(DataGrid):
         else:
             df = pd.DataFrame.from_dict([val.dict() for val in value])
 
-        self._check_data(
-            df, ignore_cols
-        )  # Checking data frame
+        self._check_data(df, ignore_cols)  # Checking data frame
 
         self.kwargs_datagrid_default = kwargs_datagrid_default
         self._init_form(df)
@@ -556,10 +556,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
     def _update_baseform(self, onchange):
         if self.baseform.layout.display == "block":
             self.baseform.value = self.di_row
-        # if (
-        #     self.button_bar.add.value
-        # ):  # When on add and then select row, we are essentially copying so set copy button to True.
-        #     self.button_bar.add.value = False
 
     @property
     def data(self):
@@ -611,6 +607,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     def _edit(self):
         try:
+            self._check_one_row_selected()
             di_obj = self.di_row
             self.initial_value = di_obj
             self.baseform.value = di_obj  # Set values in fields
@@ -635,9 +632,9 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                     self.data.to_dict(orient="records")[i]
                     for i in sorted([i for i in selected_rows])
                 ]
+                print(li_objs)
                 df_objs = pd.DataFrame(li_objs)
 
-                # TODO: Duplicate from _save, can make more concise.
                 if self.data_handler is not None:
                     self.data_handler.fn_post(self)
                 else:
@@ -649,7 +646,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 self.button_bar.message.value = markdown("  📝 _Copied Data_ ")
                 self._edit_bool = False  # Want to add the values
         except Exception as e:
-            print(e)
             self.button_bar.message.value = markdown(
                 "  👇 _Please select a row from the table!_ "
             )
@@ -683,15 +679,10 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             pass
 
     def _check_one_row_selected(self):
-        if len(self.grid.selected_rows) > 1:
+        if len(self.grid.selected_rows_) > 1:
             raise Exception(
-                markdown("  👇 _Please only select one row from the table!_")
+                markdown("  👇 _Please only select ONLY one row from the table!_")
             )
-        for r_select in self.grid.selected_rows:
-            if r_select["r1"] < r_select["r2"]:
-                raise Exception(
-                    markdown("  👇 _Please only select one row from the table!_")
-                )
 
     def _save(self):
         if self._edit_bool:  # If editing then use patch
