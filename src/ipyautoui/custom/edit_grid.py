@@ -331,7 +331,7 @@ class GridWrapper(DataGrid):
 
         self._check_data(
             df, ignore_cols
-        )  # Checking data frame satisfies pydantic model
+        )  # Checking data frame
 
         self.kwargs_datagrid_default = kwargs_datagrid_default
         self._init_form(df)
@@ -392,7 +392,7 @@ class GridWrapper(DataGrid):
             col_name: col_data["aui_column_width"]
             for col_name, col_data in self.di_cols_properties.items()
             if "aui_column_width" in col_data
-        }  # Obtaining column widths from pydantic schema object
+        }  # Obtaining column widths from schema object
         return self._aui_column_widths
 
     @property
@@ -421,11 +421,11 @@ class GridWrapper(DataGrid):
         self.column_widths = self.aui_column_widths  # Set column widths for data grid.
 
     def _check_data(self, df, ignore_cols):
-        """Checking column names in produced data frame match those within the pydantic model."""
+        """Checking column names in produced data frame match those within the schema."""
         columns = [column for column in df.columns if column not in ignore_cols]
         if not collections.Counter(columns) == collections.Counter(self.column_names):
             raise Exception(
-                f"Pydantic model fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.column_names))}"
+                f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.column_names))}"
             )
 
     @property
@@ -440,11 +440,6 @@ class GridWrapper(DataGrid):
                 for i in range(r1, r2 + 1):
                     self._selected_rows_.add(i)
         return self._selected_rows_
-
-    @classmethod
-    def from_dict(cls, model, li, ignore_cols=[]):
-        df = pd.DataFrame(li)
-        return cls(model=model, df=df, ignore_cols=ignore_cols)
 
 
 if __name__ == "__main__":
@@ -464,7 +459,6 @@ if __name__ == "__main__":
 
     grid = GridWrapper(schema=schema)
     display(grid)
-    # TODO: Test with pydantic model also
 
 if __name__ == "__main__":
     value = [
@@ -788,7 +782,5 @@ if __name__ == "__main__":
     ]
     editgrid = EditGrid(schema=schema)
     display(editgrid)
-
-editgrid.di_row
 
 
