@@ -511,8 +511,8 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             kwargs_datagrid_update=kwargs_datagrid_update,
             ignore_cols=ignore_cols,
         )
-        # self._init_controls()
-        # self._edit_bool = False  # Initially define edit mode to be false
+        self._init_controls()
+        self._edit_bool = False  # Initially define edit mode to be false
 
     def _init_model_schema(self, schema):
         if type(schema) == dict:
@@ -562,10 +562,10 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
     def _update_baseform(self, onchange):
         if self.baseform.layout.display == "block":
             self.baseform.value = self.di_row
-        if (
-            self.button_bar.add.value
-        ):  # When on add and then select row, we are essentially copying so set copy button to True.
-            self.button_bar.add.value = False
+        # if (
+        #     self.button_bar.add.value
+        # ):  # When on add and then select row, we are essentially copying so set copy button to True.
+        #     self.button_bar.add.value = False
 
     @property
     def data(self):
@@ -714,13 +714,13 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         else:  # Else, if adding values, use post
             if self.data_handler is not None:
                 self.data_handler.fn_post(self)
-            
+
             df = pd.DataFrame([self.baseform.value])
             if not self.grid._data["data"]:  # If no data in grid
                 self.grid.data = df
             else:
                 # Append new row onto data frame and set to grid's data.
-                self.grid.data = pd.concat(self.grid.data + df, ignore_index=True)
+                self.grid.data = pd.concat([self.grid.data, df], ignore_index=True)
                 # self.grid.data.append(
                 #     self.baseform.value, ignore_index=True
                 # )
@@ -789,8 +789,6 @@ if __name__ == "__main__":
     editgrid = EditGrid(schema=schema)
     display(editgrid)
 
-set_rows_selected
-
-editgrid.grid.selected_rows
+editgrid.di_row
 
 
