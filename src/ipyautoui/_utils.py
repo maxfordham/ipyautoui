@@ -13,7 +13,7 @@ import typing
 import importlib.util
 import inspect
 import immutables
-
+import getpass
 frozenmap = immutables.Map
 
 def make_new_path(path, *args, **kwargs):
@@ -30,6 +30,11 @@ except:
         subprocess.call(["open", path])
 
 
+def getuser():
+    try: 
+        return os.environ['JUPYTERHUB_USER']
+    except:
+        return getpass.getuser()
 
 
 # ------------------------------
@@ -456,3 +461,5 @@ def st_mtime_string(path):
         return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
     except:
         return "####-##-## ##:##:##"
+
+
