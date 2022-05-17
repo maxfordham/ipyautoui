@@ -352,6 +352,8 @@ def is_Array(di: dict) -> bool:
         return False
     if "enum" in di.keys():
         return False  # as this is picked up from SelectMultiple
+    # if is_Dataframe(di):
+    #     return False
     return True
 
 # def is_Dataframe(di: dict) -> bool:
@@ -443,6 +445,7 @@ MAP_WIDGETS = frozenmap(
         "Color": WidgetMapper(fn_filt=is_Color, widget=auiwidgets.ColorPicker),
         "object": WidgetMapper(fn_filt=is_Object, widget=auiwidgets.AutoPlaceholder),
         "array": WidgetMapper(fn_filt=is_Array, widget=auiwidgets.AutoPlaceholder),
+        # "dataframe": WidgetMapper(fn_filt=is_Dataframe, widget=auiwidgets.EditGrid),
     }
 )
 
