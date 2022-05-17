@@ -74,7 +74,7 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
         self.model, schema = self._init_model_schema(schema)
         self.out = widgets.Output()
         self._init_form(schema)
-        # self._init_controls()
+        self._init_controls()
 
     def _init_model_schema(self, schema):
         if type(schema) == dict:
@@ -86,19 +86,22 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
 
     def _init_form(self, schema):
         super().__init__()  # main container
-        self.auto_ui = AutoUi(schema=schema, show_raw=True)
+        self.autoui = AutoUi(schema=schema, show_raw=True)
         self.save_button_bar = SaveButtonBar(
             save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
         )
-        # pydantic_model_name = spaces_before_capitals(
-        #     type(self.pydantic_model()).__name__
-        # )
-        # self.title = widgets.HTML(markdown(f"# _{pydantic_model_name} Menu_"))
         self.title = widgets.HTML()
-        self.children = [self.title, self.save_button_bar, self.auto_ui]
+        self.children = [self.title, self.save_button_bar, self.autoui]
+        self.save_button_bar._unsaved_changes(False)
+        self.value = self.autoui.value
 
     def _init_controls(self):
-        for k, v in self.auto_ui.di_widgets.items():
+        for (
+            k,
+            v,
+        ) in (
+            self.autoui.di_widgets.items()
+        ):  # Continuously check if any field value has changed in autoui
             if v.has_trait("value"):
                 v.observe(
                     functools.partial(self._watch_change, key=k, watch="value"), "value"
@@ -108,12 +111,6 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
                     functools.partial(self._watch_change, key=k, watch="_value"),
                     "_value",
                 )
-
-    @property
-    def to_dict(self):
-        """JSON serialisation occurs and produces dictionary."""
-        # return self.auto_ui.pydantic_obj.dict(by_alias=True)
-        return json.loads(self.auto_ui.pydantic_obj.json(by_alias=True))
 
     @property
     def value(self):
@@ -127,12 +124,11 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
         self._set_value()
 
     def _watch_change(self, change, key=None, watch="value"):
-        if hasattr(self, "save_button_bar"):
-            self.save_button_bar._unsaved_changes(True)
+        self.value = self.autoui.value
+        self.save_button_bar._unsaved_changes(True)
 
     def _set_value(self):
-        self.auto_ui.pydantic_obj = self.pydantic_model(**self.value)
-        self.save_button_bar._unsaved_changes(False)
+        self.autoui.value = self.value
 
 
 if __name__ == "__main__":
@@ -169,6 +165,10 @@ if __name__ == "__main__":
     # display(autoui)
     baseform = BaseForm(schema=schema, save=test_save, revert=test_revert)
     display(baseform)
+
+if __name__ == "__main__":
+    di = {"string": "update", "integer": 10, "floater": 3.123, "something_else": 444}
+    baseform.value = di
 
 
 class ButtonBar(widgets.HBox):
@@ -496,7 +496,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     def __init__(
         self,
-        schema: typing.Union[typing.Type[BaseModel], dict],
+        schema: dict,
         value: dict = None,
         data_handler: typing.Type[BaseModel] = None,
         kwargs_datagrid_default: frozenmap = {},
@@ -556,12 +556,12 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self.base_form = BaseForm(
             schema=schema, save=self._save, revert=self._revert, fn_onsave=self._onsave,
         )
-        # self.base_form.title.value = ""
-        # self.button_bar.layout = widgets.Layout(padding="0px 20px")
-        # self.base_form.save_button_bar.layout = widgets.Layout(padding="0px 20px")
-        # self.base_form.layout = widgets.Layout(padding="0px 0px 40px 0px")
-        # self.children = [self.button_bar, self.base_form, self.grid]
-        # self.base_form.layout.display = "none"  # Hide base form menu
+        self.base_form.title.value = ""
+        self.button_bar.layout = widgets.Layout(padding="0px 20px")
+        self.base_form.save_button_bar.layout = widgets.Layout(padding="0px 20px")
+        self.base_form.layout = widgets.Layout(padding="0px 0px 40px 0px")
+        self.children = [self.button_bar, self.base_form, self.grid]
+        self.base_form.layout.display = "none"  # Hide base form menu
 
     def _init_controls(self):
         self.grid.observe(self._update_baseform, "selections")
@@ -764,27 +764,22 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self.data = pd.DataFrame(self.value)
 
 
-# +
-class DataFrameCols(BaseModel):
-    string: str = Field("string", aui_column_width=100)
-    integer: int = Field(1, aui_column_width=80)
-    floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
-    something_else: float = Field(324, aui_column_width=100)
-
-
-class TestDataFrame(BaseModel):
-    dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
-
-
-# -
-
-tdf = TestDataFrame(dataframe=[DataFrameCols(), DataFrameCols()])
-tdf.schema()
-
 if __name__ == "__main__":
-    schema = TestDataFrame.schema()
-    # value = [DataFrameCols(), DataFrameCols(floater=2131)]
-    grid = EditGrid(schema=schema)
+
+    class DataFrameCols(BaseModel):
+        string: str = Field("string", aui_column_width=100)
+        integer: int = Field(1, aui_column_width=80)
+        floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
+        something_else: float = Field(324, aui_column_width=100)
+
+    class TestDataFrame(BaseModel):
+        dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
+
+    schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"][
+        "items"
+    ]
+    editgrid = EditGrid(schema=schema)
+    display(editgrid)
 
 if __name__ == "__main__":
     #
