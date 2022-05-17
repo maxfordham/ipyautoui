@@ -106,6 +106,8 @@ def is_IntText(di: dict) -> bool:
         True
         >>> is_IntText({'title': 'Int Text', 'default': 1, 'type': 'number'})
         False
+        >>> is_IntText({'title': 'floater', 'default': 1.33, 'type': 'number'})
+        False
     """
     if "autoui" in di.keys():
         return False
@@ -127,6 +129,11 @@ def is_IntSlider(di: dict) -> bool:
 
 
 def is_FloatText(di: dict) -> bool:
+    """
+    Example:
+        >>> is_FloatText({'title': 'floater', 'default': 1.33, 'type': 'number'})
+        True
+    """
     if "autoui" in di.keys():
         return False
     if not di["type"] == "number":
