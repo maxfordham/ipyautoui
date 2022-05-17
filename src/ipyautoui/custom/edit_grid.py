@@ -203,7 +203,7 @@ class ButtonBar(widgets.HBox):
             button_style="warning",
             layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.copy = widgets.ToggleButton(
+        self.copy = widgets.Button(
             icon="copy",
             button_style="primary",
             layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
@@ -221,7 +221,8 @@ class ButtonBar(widgets.HBox):
     def _init_controls(self):
         self.add.observe(self._add, "value")
         self.edit.observe(self._edit, "value")
-        self.copy.observe(self._copy, "value")
+        # self.copy.observe(self._copy, "value")
+        self.copy.on_click(self._copy)
         self.delete.on_click(self._delete)
 
     def _add(self, onchange):
@@ -229,8 +230,6 @@ class ButtonBar(widgets.HBox):
         if self.add.value:
             if self.edit.value:
                 self.edit.value = False  # If Edit button already clicked on and add is then clicked on then, trigger toggle for Edit button.
-            elif self.copy.value:
-                self.copy.value = False  # Similar as above but for copy button
             self.add.tooltip = "Go back to table"
             self.add.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
             self.fn_add()
@@ -249,8 +248,6 @@ class ButtonBar(widgets.HBox):
         if self.edit.value:
             if self.add.value:
                 self.add.value = False
-            elif self.copy.value:
-                self.copy.value = False
             self.edit.tooltip = "Go back to table"
             self.edit.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
             self.fn_edit()
@@ -266,23 +263,23 @@ class ButtonBar(widgets.HBox):
 
     def _copy(self, onchange):
         self._reset_message()
-        if self.copy.value:
-            if self.add.value:
-                self.add.value = False
-            if self.edit.value:
-                self.edit.value = False
-            self.copy.tooltip = "Go back to table"
-            self.copy.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
-            self.fn_copy()
-            if self.show_message:
-                self.message.value = markdown("  📝 _Copying Value_ ")
-        else:
-            self._reset_message()
-            self.copy.tooltip = "copy"
-            self.copy.layout.border = None
-            self.copy.icon = "copy"
-            self.copy.button_style = "primary"
-            self.fn_backward()
+        # if self.copy.value:
+        #     if self.add.value:
+        #         self.add.value = False
+        #     if self.edit.value:
+        #         self.edit.value = False
+        #     self.copy.tooltip = "Go back to table"
+        #     self.copy.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
+        self.fn_copy()
+        if self.show_message:
+            self.message.value = markdown("  📝 _Copying Value_ ")
+        # else:
+        #     self._reset_message()
+        #     self.copy.tooltip = "copy"
+        #     self.copy.layout.border = None
+        #     self.copy.icon = "copy"
+        #     self.copy.button_style = "primary"
+        #     self.fn_backward()
 
     def _delete(self, click):
         self._reset_message()
@@ -303,7 +300,7 @@ if __name__ == "__main__":
         print("EDIT")
 
     def copy():
-        print("EDIT")
+        print("COPY")
 
     def delete():
         print("DELETE")
@@ -445,6 +442,19 @@ class GridWrapper(DataGrid):
                 f"Pydantic model fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.column_names))}"
             )
 
+    @property
+    def selected_rows_(self):
+        self._selected_rows_ = set()
+        for di in self.selected_rows:
+            r1 = di["r1"]
+            r2 = di["r2"]
+            if r1 == r2:
+                self._selected_rows_.add(r1)
+            else:
+                for i in range(r1, r2 + 1):
+                    self._selected_rows_.add(i)
+        return self._selected_rows_
+
     @classmethod
     def from_dict(cls, model, li, ignore_cols=[]):
         df = pd.DataFrame(li)
@@ -452,6 +462,7 @@ class GridWrapper(DataGrid):
 
 
 if __name__ == "__main__":
+
     class DataFrameCols(BaseModel):
         string: str = Field("string", aui_column_width=100)
         integer: int = Field(1, aui_column_width=80)
@@ -635,15 +646,38 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     def _copy(self):
         try:
-            di_obj = self.di_row
-            self.baseform.value = di_obj  # Set values in fields
-            self._display_baseform()
-            self.button_bar.message.value = markdown("  📝 _Copying Value_ ")
-            self._edit_bool = False  # Want to add the values
+            selected_rows = self.grid.selected_rows_
+            if selected_rows == set():
+                print("no rows")
+                self.button_bar.message.value = markdown(
+                    "  👇 _Please select a row from the table!_ "
+                )
+            else:
+                li_objs = [
+                    self.data.to_dict(orient="records")[i]
+                    for i in sorted([i for i in selected_rows])
+                ]
+                df_objs = pd.DataFrame(li_objs)
+
+                # TODO: Duplicate from _save, can make more concise.
+                if self.data_handler is not None:
+                    self.data_handler.fn_post(self)
+
+                if not self.grid._data["data"]:  # If no data in grid
+                    self.grid.data = df_objs
+                else:
+                    # Concat new row with existing grid data
+                    self.grid.data = pd.concat(
+                        [self.grid.data, df_objs], ignore_index=True
+                    )
+
+                self.button_bar.message.value = markdown("  📝 _Copied Data_ ")
+                self._edit_bool = False  # Want to add the values
         except Exception as e:
+            print(e)
             self.button_bar.copy.value = False
             self.button_bar.message.value = markdown(
-                "  👇 _Please select one row from the table!_ "
+                "  👇 _Please select a row from the table!_ "
             )
 
     def _delete(self):
@@ -777,17 +811,8 @@ if __name__ == "__main__":
     editgrid = EditGrid(schema=schema)
     display(editgrid)
 
-if __name__ == "__main__":
-    #
-    from ipyautoui.test_schema import TestAutoLogicSimple
+set_rows_selected
 
-    cols = list(TestAutoLogicSimple().dict().keys())
-    data = list(TestAutoLogicSimple().dict().values())
-    data = [data, data]
-    df = pd.DataFrame(columns=cols, data=data)
-    display(EditGrid(TestAutoLogicSimple, df=df))
-    # ^ TODO: edit row not working
-    # ^ TODO: pass schema as input rather than pydantic model (then it can work as a nested object)
-    # ^ TODO: save data as list of dicts, then it can be easily serialised to json
+editgrid.grid.selected_rows
 
 
