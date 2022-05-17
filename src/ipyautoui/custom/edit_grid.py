@@ -602,7 +602,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             self._display_baseform()
             self.button_bar.message.value = markdown("  ➕ _Adding Value_ ")
         except Exception as e:
-            print(e)
             self.button_bar.message.value = markdown("  ☠️ _Failed to add_")
 
     def _edit(self):
@@ -632,7 +631,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                     self.data.to_dict(orient="records")[i]
                     for i in sorted([i for i in selected_rows])
                 ]
-                print(li_objs)
                 df_objs = pd.DataFrame(li_objs)
 
                 if self.data_handler is not None:
