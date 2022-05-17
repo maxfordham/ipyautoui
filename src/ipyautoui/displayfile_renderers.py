@@ -249,21 +249,25 @@ def preview_pdf(path):
 
 DEFAULT_FILE_RENDERERS = frozenmap(
     **{
-        ".csv": preview_csv,  # preview_csv,
-        ".json": preview_json,  # json_prev,
-        ".plotly": preview_plotly,  # plotlyjson_prev,
-        ".plotly.json": preview_plotly,  # plotlyjson_prev,
-        ".vg.json": preview_vega,  # vegajson_prev,
-        ".vl.json": preview_vegalite,  # vegalitejson_prev,
-        ".yaml": preview_yaml,  # yaml_prev,
-        ".yml": preview_yaml,  # yaml_prev,
-        ".png": preview_image,  # img_prev,
-        ".jpg": preview_image,  # img_prev,
-        ".jpeg": preview_image,  # img_prev,
+        ".csv": preview_csv,
+        ".json": preview_json,
+        ".plotly": preview_plotly, 
+        ".plotly.json": preview_plotly,
+        ".vg.json": preview_vega,
+        ".vl.json": preview_vegalite,
+        ".yaml": preview_yaml,
+        ".yml": preview_yaml, 
+        ".png": preview_image, 
+        ".jpg": preview_image, 
+        ".jpeg": preview_image,
         #'.obj': obj_prev, # add ipyvolume viewer?
-        ".txt": preview_text,  # txt_prev,
-        ".md": preview_markdown,  # AutoMarkdown,
-        ".py": PreviewPython,  # py_prev,
-        ".pdf": preview_pdf,  # pdf_prev,
+        ".txt": preview_text,  
+        ".bat": preview_text,  
+        ".rst": preview_text, 
+        "": preview_text,  
+        ".toml": preview_text,  # TODO: add toml viewer?
+        ".md": preview_markdown, 
+        ".py": PreviewPython,
+        ".pdf": preview_pdf,
     }
 )
