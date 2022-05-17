@@ -198,7 +198,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
     )  # TODO: validator not getting called when this is changed once the class has been instantiated
     def _validate_add_remove_controls(self, proposal):
         print(proposal.value)
-        if proposal.value not in ["add_remove", "append_only", "remove_only", None]:
+        if proposal.value not in ["add_remove", "append_only", "remove_only", None]:  # TODO: put this in an enum... 
             raise ValueError(
                 f'{proposal} given. allowed values of _add_remove_controls are "add_remove", "append_only", "remove_only", None only'
             )
@@ -313,8 +313,12 @@ class Array(widgets.VBox, traitlets.HasTraits):
         return [i.key for i in self.iterable]
 
     def _add_from_zero_display(self):
-        if self.length == 0:
+        if self.length == 0 and self.add_remove_controls != 'remove_only':
             self.rows_box.children = [self.add_from_zero]
+        elif self.length == 0 and self.add_remove_controls == 'remove_only':
+            self.rows_box.children = []
+        else:
+            pass
 
     def _add_from_zero(self, on_click):
         self.add_row()
@@ -339,7 +343,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
             icon="minus", layout=dict(BUTTON_MIN_SIZE)
         )
         self.add_from_zero = widgets.Button(**ADD_BUTTON_KWARGS)
-        self._add_from_zero_display()
+        #self._add_from_zero_display()
         self.toggle_button.value = True
         self._refresh_children()
         self._update_rows_box()
@@ -370,7 +374,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
             ]
             [
                 setattr(self.iterable[0].remove, k, v)
-                for k, v in BLANK_BUTTON_KWARGS.items()
+                for k, v in REMOVE_BUTTON_KWARGS.items()
             ]
         else:
             pass
@@ -471,6 +475,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self._add_remove_controls = value
         self._update_buttonbars()
         self._init_controls()
+        self._add_from_zero_display()
 
     @property
     def show_hash(self):
