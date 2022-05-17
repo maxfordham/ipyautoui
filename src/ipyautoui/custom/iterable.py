@@ -133,7 +133,7 @@ class IterableItem(BaseModel):
     @validator("add", always=True)
     def _add(cls, v, values):
         if v is None:
-            return widgets.Button(layout=dict(BUTTON_MIN_SIZE))
+            return widgets.ToggleButton(layout=dict(BUTTON_MIN_SIZE))
         else:
             return v
 
@@ -214,7 +214,6 @@ class Array(widgets.VBox, traitlets.HasTraits):
 
     def _update_value(self, onchange):
         self._value = [a.item.value for a in self.iterable]
-
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
@@ -225,6 +224,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         fn_add: typing.Callable = lambda: display("add item"),
         fn_add_dialogue: typing.Callable = None,
         fn_remove: typing.Callable = lambda: display("remove item"),
+        #fn_remove_dialogue: typing.Callable = lambda: display(f"are you sure you want to remove {item}"), #TODO
         watch_value: bool = True,
         minlen: int = 0,
         maxlen: int = 100,

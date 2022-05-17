@@ -77,7 +77,7 @@ def create_widget_caller(schema, calling=None):
     return caller
 
 
-class IntText(widgets.IntText):
+class IntText(widgets.IntText): # TODO: add value to these as arg?
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
