@@ -501,9 +501,11 @@ def automapschema(schema: dict, widget_map: frozenmap = MAP_WIDGETS) -> WidgetCa
         return map_widget(schema, widget_map=widget_map)
 
 
-def autowidget(schema):
+def autowidget(schema, value=None):
     """interprets schema and returns appropriate widget"""
     caller = automapschema(schema)
+    if value is not None:
+        caller['value'] = value
     if type(caller) == WidgetCaller:
         # print("type(caller) == WidgetCaller")
         return widgetcaller(caller)
@@ -514,18 +516,18 @@ def autowidget(schema):
         raise ValueError("adsf")
 
 
-def autowidgetcaller(schema):
+def autowidgetcaller(schema, value=None):
     """interprets schema and returns appropriate widget"""
     from ipyautoui.custom.iterable import AutoArray
     from ipyautoui.autoipywidget import AutoIpywidget
 
     t = schema["type"]
     if t == "object":
-        return AutoIpywidget(schema)
+        return AutoIpywidget(schema, value=value)
     elif t == "array":
-        return AutoArray(schema)
+        return AutoArray(schema, value=value)
     else:
-        return autowidget(schema)
+        return autowidget(schema, value=value)
 
 
 if __name__ == "__main__":
