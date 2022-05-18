@@ -475,6 +475,9 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         )
         self._init_controls()
         self._edit_bool = False  # Initially define edit mode to be false
+        self.df_empty = self.grid.data.drop(
+            self.grid.data.index
+        )  # Empty dataframe to revert to when everything is deleted
 
     def _init_model_schema(self, schema):
         if type(schema) == dict:
@@ -590,6 +593,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
                 self.button_bar.message.value = markdown("  📝 _Copied Data_ ")
                 self._edit_bool = False  # Want to add the values
+            self.value = self.grid.data.to_dict(orient="records")
         except Exception as e:
             self.button_bar.message.value = markdown(
                 "  👇 _Please select a row from the table!_ "
@@ -616,6 +620,10 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 self.button_bar.message.value = markdown("  🗑️ _Deleted Row_ ")
                 if self.grid._data["data"]:  # If data in grid
                     self.grid._round_sig_figs()
+                    self.value = self.grid.data.to_dict(orient="records")
+                else:
+                    self.value = []
+
             else:
                 self.button_bar.message.value = markdown(
                     "  👇 _Please select one row from the table!_"
@@ -703,8 +711,12 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
     @value.setter
     def value(self, value):
         if value is not None:
-            self._value = value
-            self.grid.data = pd.DataFrame(self._value)
+            if not self.grid._data["data"]:
+                self._value = []
+                self.grid.data = self.df_empty
+            else:
+                self._value = value
+                self.grid.data = pd.DataFrame(self._value)
 
     @property
     def di_row(self):
