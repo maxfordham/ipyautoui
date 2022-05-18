@@ -575,7 +575,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 )
             else:
                 li_objs = [
-                    self.data.to_dict(orient="records")[i]
+                    self.grid.data.to_dict(orient="records")[i]
                     for i in sorted([i for i in selected_rows])
                 ]
                 df_objs = pd.DataFrame(li_objs)
@@ -651,6 +651,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             else:
                 # Append new row onto data frame and set to grid's data.
                 self.grid.data = pd.concat([self.grid.data, df], ignore_index=True)
+        self.value = self.grid.data.to_dict(orient="records")
 
     def _onsave(self):
         self._display_grid()
@@ -695,17 +696,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         if self.grid._data["data"]:  # If data in grid
             self.grid._round_sig_figs()
 
-    def _set_value(self):
-        self.data = pd.DataFrame(self.value)
-
-    @property
-    def data(self):
-        return self.grid.data
-
-    @data.setter
-    def data(self, value):
-        self.grid.data = value
-
     @property
     def value(self):
         return self._value
@@ -714,7 +704,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
     def value(self, value):
         if value is not None:
             self._value = value
-        self._set_value()
+            self.grid.data = pd.DataFrame(self._value)
 
     @property
     def di_row(self):
@@ -748,10 +738,18 @@ if __name__ == "__main__":
     editgrid = EditGrid(schema=schema)
     display(editgrid)
 
-editgrid.baseform.autowidget
-
-editgrid.grid.data.to_dict(orient="records")
-
-editgrid.value
+if __name__ == "__main__":
+    editgrid.value = [
+        {
+            "string": "important string",
+            "integer": 1,
+            "floater": 3.14,
+            "something_else": 324,
+        },
+        {"string": "update", "integer": 4, "floater": 3.12344, "something_else": 123},
+        {"string": "evening", "integer": 5, "floater": 3.14, "something_else": 235},
+        {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
+        {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
+    ]
 
 
