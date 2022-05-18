@@ -93,7 +93,7 @@ class SaveButtonBar(widgets.HBox):
             tooltip="show raw text data",
             style={"font_weight": "bold", "button_color": None},
         )
-        self.message = widgets.HTML("a message")
+        self.message = widgets.HTML("")
         children = [self.unsaved_changes, self.revert, self.save]
         children.append(self.message)
         self.children = children

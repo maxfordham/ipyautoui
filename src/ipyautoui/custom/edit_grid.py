@@ -39,6 +39,7 @@ from ipydatagrid import DataGrid, TextRenderer, BarRenderer, Expr, VegaExpr
 from pydantic import BaseModel, Field
 from ipyautoui._utils import obj_from_string, display_pydantic_json, round_sig_figs
 from ipyautoui.automapschema import attach_schema_refs
+from ipyautoui.autoipywidget import AutoIpywidget
 
 # from ipyautoui.displayfile import AutoDisplay
 from ipyautoui import AutoUi
@@ -57,9 +58,6 @@ frozenmap = immutables.Map
 
 
 class BaseForm(widgets.VBox, traitlets.HasTraits):
-
-    _value = traitlets.Dict()
-
     def __init__(
         self,
         save: typing.Callable,
@@ -86,49 +84,20 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
 
     def _init_form(self, schema):
         super().__init__()  # main container
-        self.autoui = AutoUi(schema=schema, show_raw=True)
+        self.autowidget = AutoIpywidget(schema=schema)
         self.save_button_bar = SaveButtonBar(
             save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
         )
         self.title = widgets.HTML()
-        self.children = [self.title, self.save_button_bar, self.autoui]
+        self.children = [self.title, self.save_button_bar, self.autowidget]
         self.save_button_bar._unsaved_changes(False)
-        self.value = self.autoui.value
+        self.value = self.autowidget.value
 
     def _init_controls(self):
-        for (
-            k,
-            v,
-        ) in (
-            self.autoui.di_widgets.items()
-        ):  # Continuously check if any field value has changed in autoui
-            if v.has_trait("value"):
-                v.observe(
-                    functools.partial(self._watch_change, key=k, watch="value"), "value"
-                )
-            elif v.has_trait("_value"):
-                v.observe(
-                    functools.partial(self._watch_change, key=k, watch="_value"),
-                    "_value",
-                )
+        self.autowidget.observe(self._watch_change, "_value")
 
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        """The setter allows a user to pass a new value field to the class."""
-        if value is not None:
-            self._value = value
-        self._set_value()
-
-    def _watch_change(self, change, key=None, watch="value"):
-        self.value = self.autoui.value
+    def _watch_change(self, change):
         self.save_button_bar._unsaved_changes(True)
-
-    def _set_value(self):
-        self.autoui.value = self.value
 
 
 if __name__ == "__main__":
@@ -167,7 +136,7 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     di = {"string": "update", "integer": 10, "floater": 3.123, "something_else": 444}
-    baseform.value = di
+    baseform.autowidget.value = di
 
 
 class ButtonBar(widgets.HBox):
@@ -203,7 +172,7 @@ class ButtonBar(widgets.HBox):
             button_style="warning",
             layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.copy = widgets.ToggleButton(
+        self.copy = widgets.Button(
             icon="copy",
             button_style="primary",
             layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
@@ -221,7 +190,7 @@ class ButtonBar(widgets.HBox):
     def _init_controls(self):
         self.add.observe(self._add, "value")
         self.edit.observe(self._edit, "value")
-        self.copy.observe(self._copy, "value")
+        self.copy.on_click(self._copy)
         self.delete.on_click(self._delete)
 
     def _add(self, onchange):
@@ -229,8 +198,6 @@ class ButtonBar(widgets.HBox):
         if self.add.value:
             if self.edit.value:
                 self.edit.value = False  # If Edit button already clicked on and add is then clicked on then, trigger toggle for Edit button.
-            elif self.copy.value:
-                self.copy.value = False  # Similar as above but for copy button
             self.add.tooltip = "Go back to table"
             self.add.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
             self.fn_add()
@@ -249,8 +216,6 @@ class ButtonBar(widgets.HBox):
         if self.edit.value:
             if self.add.value:
                 self.add.value = False
-            elif self.copy.value:
-                self.copy.value = False
             self.edit.tooltip = "Go back to table"
             self.edit.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
             self.fn_edit()
@@ -266,23 +231,9 @@ class ButtonBar(widgets.HBox):
 
     def _copy(self, onchange):
         self._reset_message()
-        if self.copy.value:
-            if self.add.value:
-                self.add.value = False
-            if self.edit.value:
-                self.edit.value = False
-            self.copy.tooltip = "Go back to table"
-            self.copy.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
-            self.fn_copy()
-            if self.show_message:
-                self.message.value = markdown("  📝 _Copying Value_ ")
-        else:
-            self._reset_message()
-            self.copy.tooltip = "copy"
-            self.copy.layout.border = None
-            self.copy.icon = "copy"
-            self.copy.button_style = "primary"
-            self.fn_backward()
+        self.fn_copy()
+        if self.show_message:
+            self.message.value = markdown("  📝 _Copying Value_ ")
 
     def _delete(self, click):
         self._reset_message()
@@ -303,7 +254,7 @@ if __name__ == "__main__":
         print("EDIT")
 
     def copy():
-        print("EDIT")
+        print("COPY")
 
     def delete():
         print("DELETE")
@@ -337,7 +288,9 @@ class GridWrapper(DataGrid):
         if value is None:
             li_default_value = [
                 {
-                    col_name: col_data["default"]
+                    col_name: (
+                        col_data["default"] if "default" in col_data.keys() else None
+                    )
                     for col_name, col_data in self.di_cols_properties.items()
                 }
             ]  # default value
@@ -346,9 +299,7 @@ class GridWrapper(DataGrid):
         else:
             df = pd.DataFrame.from_dict([val.dict() for val in value])
 
-        self._check_data(
-            df, ignore_cols
-        )  # Checking data frame satisfies pydantic model
+        self._check_data(df, ignore_cols)  # Checking data frame
 
         self.kwargs_datagrid_default = kwargs_datagrid_default
         self._init_form(df)
@@ -373,6 +324,23 @@ class GridWrapper(DataGrid):
             self._set_column_widths()
         if self.aui_sig_figs and self.data.empty is False:
             self._round_sig_figs()  # Rounds any specified fields in schema
+
+    def _round_sig_figs(self):
+        df = self.data
+        for k, v in self.aui_sig_figs.items():
+            df.loc[:, k] = df.loc[:, k].apply(lambda x: round_sig_figs(x, sig_figs=v))
+        self.data = df  # Update data through setter
+
+    def _set_column_widths(self):
+        self.column_widths = self.aui_column_widths  # Set column widths for data grid.
+
+    def _check_data(self, df, ignore_cols):
+        """Checking column names in produced data frame match those within the schema."""
+        columns = [column for column in df.columns if column not in ignore_cols]
+        if not collections.Counter(columns) == collections.Counter(self.column_names):
+            raise Exception(
+                f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.column_names))}"
+            )
 
     @property
     def kwargs_datagrid_update(self):
@@ -409,7 +377,7 @@ class GridWrapper(DataGrid):
             col_name: col_data["aui_column_width"]
             for col_name, col_data in self.di_cols_properties.items()
             if "aui_column_width" in col_data
-        }  # Obtaining column widths from pydantic schema object
+        }  # Obtaining column widths from schema object
         return self._aui_column_widths
 
     @property
@@ -428,30 +396,22 @@ class GridWrapper(DataGrid):
     def column_names(self):
         return [col_name for col_name, col_data in self.di_cols_properties.items()]
 
-    def _round_sig_figs(self):
-        df = self.data
-        for k, v in self.aui_sig_figs.items():
-            df.loc[:, k] = df.loc[:, k].apply(lambda x: round_sig_figs(x, sig_figs=v))
-        self.data = df  # Update data through setter
-
-    def _set_column_widths(self):
-        self.column_widths = self.aui_column_widths  # Set column widths for data grid.
-
-    def _check_data(self, df, ignore_cols):
-        """Checking column names in produced data frame match those within the pydantic model."""
-        columns = [column for column in df.columns if column not in ignore_cols]
-        if not collections.Counter(columns) == collections.Counter(self.column_names):
-            raise Exception(
-                f"Pydantic model fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.column_names))}"
-            )
-
-    @classmethod
-    def from_dict(cls, model, li, ignore_cols=[]):
-        df = pd.DataFrame(li)
-        return cls(model=model, df=df, ignore_cols=ignore_cols)
+    @property
+    def selected_rows_(self):
+        self._selected_rows_ = set()
+        for di in self.selected_rows:
+            r1 = di["r1"]
+            r2 = di["r2"]
+            if r1 == r2:
+                self._selected_rows_.add(r1)
+            else:
+                for i in range(r1, r2 + 1):
+                    self._selected_rows_.add(i)
+        return self._selected_rows_
 
 
 if __name__ == "__main__":
+
     class DataFrameCols(BaseModel):
         string: str = Field("string", aui_column_width=100)
         integer: int = Field(1, aui_column_width=80)
@@ -467,7 +427,6 @@ if __name__ == "__main__":
 
     grid = GridWrapper(schema=schema)
     display(grid)
-    # TODO: Test with pydantic model also
 
 if __name__ == "__main__":
     value = [
@@ -514,8 +473,11 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             kwargs_datagrid_update=kwargs_datagrid_update,
             ignore_cols=ignore_cols,
         )
-        # self._init_controls()
-        # self._edit_bool = False  # Initially define edit mode to be false
+        self._init_controls()
+        self._edit_bool = False  # Initially define edit mode to be false
+        self.df_empty = self.grid.data.drop(
+            self.grid.data.index
+        )  # Empty dataframe to revert to when everything is deleted
 
     def _init_model_schema(self, schema):
         if type(schema) == dict:
@@ -563,45 +525,12 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self.grid.observe(self._update_baseform, "selections")
 
     def _update_baseform(self, onchange):
-        if self.baseform.layout.display == "block":
-            self.baseform.value = self.di_row
         if (
-            self.button_bar.add.value
-        ):  # When on add and then select row, we are essentially copying so set copy button to True.
-            self.button_bar.add.value = False
-            self.button_bar.copy.value = True
-
-    @property
-    def data(self):
-        return self.grid.data
-
-    @data.setter
-    def data(self, value):
-        self.grid.data = value
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        if value is not None:
-            self._value = value
-        self._set_value()
-
-    @property
-    def di_row(self):
-        try:
-            self._check_one_row_selected()  # Performing checks to see if only one row is selected
-            self.selected_row = self.grid.selected_rows[0][
-                "r1"
-            ]  # Only one row selected during editing
-            di_obj = self.grid.data.to_dict(orient="records")[
-                self.selected_row
-            ]  # obtaining object selected to put into base form
-            return di_obj
-        except Exception as e:
-            self.button_bar.message.value = markdown(f"_{e}_")
+            len(self.grid.selected_rows_) == 1
+            and self.baseform.layout.display == "block"
+        ):
+            self.baseform.autowidget.value = self.di_row
+            self.baseform.save_button_bar._unsaved_changes(False)
 
     def _add(self):
         try:
@@ -612,7 +541,10 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 for col_name, col_data in self.schema["properties"].items()
             }
             self.initial_value = di_default_value
-            self.baseform.value = di_default_value
+            self.baseform.autowidget.value = di_default_value
+            self.baseform.save_button_bar._unsaved_changes(
+                False
+            )  # Set unsaved changes button back to False
             self._display_baseform()
             self.button_bar.message.value = markdown("  ➕ _Adding Value_ ")
         except Exception as e:
@@ -621,9 +553,13 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     def _edit(self):
         try:
+            self._check_one_row_selected()
             di_obj = self.di_row
             self.initial_value = di_obj
-            self.baseform.value = di_obj  # Set values in fields
+            self.baseform.autowidget.value = di_obj  # Set values in fields
+            self.baseform.save_button_bar._unsaved_changes(
+                False
+            )  # Set unsaved changes button back to False
             self._display_baseform()
             self.button_bar.message.value = markdown("  ✏️ _Editing Value_ ")
             self._edit_bool = True  # Editing mode is True
@@ -635,15 +571,32 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     def _copy(self):
         try:
-            di_obj = self.di_row
-            self.baseform.value = di_obj  # Set values in fields
-            self._display_baseform()
-            self.button_bar.message.value = markdown("  📝 _Copying Value_ ")
-            self._edit_bool = False  # Want to add the values
+            selected_rows = self.grid.selected_rows_
+            if selected_rows == set():
+                self.button_bar.message.value = markdown(
+                    "  👇 _Please select a row from the table!_ "
+                )
+            else:
+                li_objs = [
+                    self.grid.data.to_dict(orient="records")[i]
+                    for i in sorted([i for i in selected_rows])
+                ]
+                df_objs = pd.DataFrame(li_objs)
+
+                if self.data_handler is not None:
+                    self.data_handler.fn_post(self)
+                else:
+                    # Concat new row with existing grid data
+                    self.grid.data = pd.concat(
+                        [self.grid.data, df_objs], ignore_index=True
+                    )
+
+                self.button_bar.message.value = markdown("  📝 _Copied Data_ ")
+                self._edit_bool = False  # Want to add the values
+            self.value = self.grid.data.to_dict(orient="records")
         except Exception as e:
-            self.button_bar.copy.value = False
             self.button_bar.message.value = markdown(
-                "  👇 _Please select one row from the table!_ "
+                "  👇 _Please select a row from the table!_ "
             )
 
     def _delete(self):
@@ -667,6 +620,10 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 self.button_bar.message.value = markdown("  🗑️ _Deleted Row_ ")
                 if self.grid._data["data"]:  # If data in grid
                     self.grid._round_sig_figs()
+                    self.value = self.grid.data.to_dict(orient="records")
+                else:
+                    self.value = []
+
             else:
                 self.button_bar.message.value = markdown(
                     "  👇 _Please select one row from the table!_"
@@ -675,15 +632,10 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             pass
 
     def _check_one_row_selected(self):
-        if len(self.grid.selected_rows) > 1:
+        if len(self.grid.selected_rows_) > 1:
             raise Exception(
-                markdown("  👇 _Please only select one row from the table!_")
+                markdown("  👇 _Please only select ONLY one row from the table!_")
             )
-        for r_select in self.grid.selected_rows:
-            if r_select["r1"] < r_select["r2"]:
-                raise Exception(
-                    markdown("  👇 _Please only select one row from the table!_")
-                )
 
     def _save(self):
         if self._edit_bool:  # If editing then use patch
@@ -692,7 +644,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
             df = self.grid.data
             # ^ Can't assign directly to data so must assign to another variable before pushing changes through the setter.
-            for (k, v,) in self.baseform.value.items():
+            for (k, v,) in self.baseform.autowidget.value.items():
                 df.loc[self.selected_row, k] = v
             # ^ update selected row with updated values
 
@@ -701,13 +653,13 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             if self.data_handler is not None:
                 self.data_handler.fn_post(self)
 
+            df = pd.DataFrame([self.baseform.autowidget.value])
             if not self.grid._data["data"]:  # If no data in grid
-                self.grid.data = pd.DataFrame.to_dict([self.baseform.value])
+                self.grid.data = df
             else:
                 # Append new row onto data frame and set to grid's data.
-                self.grid.data = self.grid.data.append(
-                    self.baseform.value, ignore_index=True
-                )
+                self.grid.data = pd.concat([self.grid.data, df], ignore_index=True)
+        self.value = self.grid.data.to_dict(orient="records")
 
     def _onsave(self):
         self._display_grid()
@@ -725,21 +677,17 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self._display_grid()
 
     def _revert(self):
-        self.baseform.autoui.value = self.initial_value
+        self.baseform.autowidget.value = self.initial_value
 
     def _set_toggle_buttons_to_false(self):
-        if self.button_bar.copy.value is True:
-            self.button_bar.copy.value = False
-        elif self.button_bar.add.value is True:
+        if self.button_bar.add.value is True:
             self.button_bar.add.value = False
         elif self.button_bar.edit.value is True:
             self.button_bar.edit.value = False
 
     def _display_grid(self):
         if (
-            self.button_bar.edit.value
-            or self.button_bar.add.value
-            or self.button_bar.copy.value
+            self.button_bar.edit.value or self.button_bar.add.value
         ):  # Don't remove display of base form if already showing when going from edit to add (or vice versa).
             pass
         else:
@@ -756,8 +704,33 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         if self.grid._data["data"]:  # If data in grid
             self.grid._round_sig_figs()
 
-    def _set_value(self):
-        self.data = pd.DataFrame(self.value)
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if value is not None:
+            if not self.grid._data["data"]:
+                self._value = []
+                self.grid.data = self.df_empty
+            else:
+                self._value = value
+                self.grid.data = pd.DataFrame(self._value)
+
+    @property
+    def di_row(self):
+        try:
+            self._check_one_row_selected()  # Performing checks to see if only one row is selected
+            self.selected_row = self.grid.selected_rows[0][
+                "r1"
+            ]  # Only one row selected during editing
+            di_obj = self.grid.data.to_dict(orient="records")[
+                self.selected_row
+            ]  # obtaining object selected to put into base form
+            return di_obj
+        except Exception as e:
+            self.button_bar.message.value = markdown(f"_{e}_")
 
 
 if __name__ == "__main__":
@@ -778,16 +751,17 @@ if __name__ == "__main__":
     display(editgrid)
 
 if __name__ == "__main__":
-    #
-    from ipyautoui.test_schema import TestAutoLogicSimple
-
-    cols = list(TestAutoLogicSimple().dict().keys())
-    data = list(TestAutoLogicSimple().dict().values())
-    data = [data, data]
-    df = pd.DataFrame(columns=cols, data=data)
-    display(EditGrid(TestAutoLogicSimple, df=df))
-    # ^ TODO: edit row not working
-    # ^ TODO: pass schema as input rather than pydantic model (then it can work as a nested object)
-    # ^ TODO: save data as list of dicts, then it can be easily serialised to json
+    editgrid.value = [
+        {
+            "string": "important string",
+            "integer": 1,
+            "floater": 3.14,
+            "something_else": 324,
+        },
+        {"string": "update", "integer": 4, "floater": 3.12344, "something_else": 123},
+        {"string": "evening", "integer": 5, "floater": 3.14, "something_else": 235},
+        {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
+        {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
+    ]
 
 
