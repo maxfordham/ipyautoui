@@ -39,6 +39,7 @@ from ipydatagrid import DataGrid, TextRenderer, BarRenderer, Expr, VegaExpr
 from pydantic import BaseModel, Field
 from ipyautoui._utils import obj_from_string, display_pydantic_json, round_sig_figs
 from ipyautoui.automapschema import attach_schema_refs
+from ipyautoui.autoipywidget import AutoIpywidget
 
 # from ipyautoui.displayfile import AutoDisplay
 from ipyautoui import AutoUi
@@ -86,49 +87,20 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
 
     def _init_form(self, schema):
         super().__init__()  # main container
-        self.autoui = AutoUi(schema=schema, show_raw=False)
+        self.autowidget = AutoIpywidget(schema=schema)
         self.save_button_bar = SaveButtonBar(
             save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
         )
         self.title = widgets.HTML()
-        self.children = [self.title, self.save_button_bar, self.autoui]
+        self.children = [self.title, self.save_button_bar, self.autowidget]
         self.save_button_bar._unsaved_changes(False)
-        self.value = self.autoui.value
+        self.value = self.autowidget.value
 
     def _init_controls(self):
-        for (
-            k,
-            v,
-        ) in (
-            self.autoui.di_widgets.items()
-        ):  # Continuously check if any field value has changed in autoui
-            if v.has_trait("value"):
-                v.observe(
-                    functools.partial(self._watch_change, key=k, watch="value"), "value"
-                )
-            elif v.has_trait("_value"):
-                v.observe(
-                    functools.partial(self._watch_change, key=k, watch="_value"),
-                    "_value",
-                )
+        self.autowidget.observe(self._watch_change, "_value")
 
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        """The setter allows a user to pass a new value field to the class."""
-        if value is not None:
-            self._value = value
-        self._set_value()
-
-    def _watch_change(self, change, key=None, watch="value"):
-        self.value = self.autoui.value
+    def _watch_change(self, change):
         self.save_button_bar._unsaved_changes(True)
-
-    def _set_value(self):
-        self.autoui.value = self.value
 
 
 if __name__ == "__main__":
@@ -167,7 +139,7 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     di = {"string": "update", "integer": 10, "floater": 3.123, "something_else": 444}
-    baseform.value = di
+    baseform.autowidget.value = di
 
 
 class ButtonBar(widgets.HBox):
@@ -221,7 +193,6 @@ class ButtonBar(widgets.HBox):
     def _init_controls(self):
         self.add.observe(self._add, "value")
         self.edit.observe(self._edit, "value")
-        # self.copy.observe(self._copy, "value")
         self.copy.on_click(self._copy)
         self.delete.on_click(self._delete)
 
@@ -554,8 +525,9 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self.grid.observe(self._update_baseform, "selections")
 
     def _update_baseform(self, onchange):
+        self.baseform.save_button_bar._unsaved_changes(False)
         if self.baseform.layout.display == "block":
-            self.baseform.value = self.di_row
+            self.baseform.autowidget.value = self.di_row
 
     @property
     def data(self):
@@ -598,7 +570,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 for col_name, col_data in self.schema["properties"].items()
             }
             self.initial_value = di_default_value
-            self.baseform.value = di_default_value
+            self.baseform.autowidget.value = di_default_value
             self._display_baseform()
             self.button_bar.message.value = markdown("  ➕ _Adding Value_ ")
         except Exception as e:
@@ -609,7 +581,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             self._check_one_row_selected()
             di_obj = self.di_row
             self.initial_value = di_obj
-            self.baseform.value = di_obj  # Set values in fields
+            self.baseform.autowidget.value = di_obj  # Set values in fields
             self._display_baseform()
             self.button_bar.message.value = markdown("  ✏️ _Editing Value_ ")
             self._edit_bool = True  # Editing mode is True
@@ -689,7 +661,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
             df = self.grid.data
             # ^ Can't assign directly to data so must assign to another variable before pushing changes through the setter.
-            for (k, v,) in self.baseform.value.items():
+            for (k, v,) in self.baseform.autowidget.value.items():
                 df.loc[self.selected_row, k] = v
             # ^ update selected row with updated values
 
@@ -698,14 +670,14 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             if self.data_handler is not None:
                 self.data_handler.fn_post(self)
 
-            df = pd.DataFrame([self.baseform.value])
+            df = pd.DataFrame([self.baseform.autowidget.value])
             if not self.grid._data["data"]:  # If no data in grid
                 self.grid.data = df
             else:
                 # Append new row onto data frame and set to grid's data.
                 self.grid.data = pd.concat([self.grid.data, df], ignore_index=True)
                 # self.grid.data.append(
-                #     self.baseform.value, ignore_index=True
+                #     self.baseform.autowidget.value, ignore_index=True
                 # )
 
     def _onsave(self):
@@ -724,7 +696,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self._display_grid()
 
     def _revert(self):
-        self.baseform.autoui.value = self.initial_value
+        self.baseform.autowidget.value = self.initial_value
 
     def _set_toggle_buttons_to_false(self):
         if self.button_bar.add.value is True:
@@ -771,5 +743,9 @@ if __name__ == "__main__":
     ]
     editgrid = EditGrid(schema=schema)
     display(editgrid)
+
+editgrid.grid.data.to_dict(orient="records")
+
+editgrid.value
 
 
