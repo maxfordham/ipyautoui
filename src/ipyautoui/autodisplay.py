@@ -175,11 +175,12 @@ class DisplayObject(widgets.VBox):
     auto_open = traitlets.Bool(default_value=False)
 
     def __init__(
-        self, display_actions: typing.Type[DisplayObjectActions], auto_open=False
+        self, display_actions: typing.Type[DisplayObjectActions], auto_open=False, open_controls=True
     ):
         self.display_actions = display_actions
         self._init()
         self.auto_open = auto_open
+        self.open_controls = open_controls
         # make_new_path
 
     def _init(self):
@@ -201,6 +202,7 @@ class DisplayObject(widgets.VBox):
         newroot=pathlib.PureWindowsPath("J:/"),
         file_renderers=None,
         auto_open=False,
+        open_controls=True
     ):
         if file_renderers is not None:
             file_renderers = merge_file_renderers(file_renderers)
@@ -209,7 +211,7 @@ class DisplayObject(widgets.VBox):
         display_actions = DisplayFromPath(
             path=path, newroot=newroot, map_file_renderers=file_renderers
         )
-        return cls(display_actions, auto_open=auto_open)
+        return cls(display_actions, auto_open=auto_open, open_controls=open_controls)
 
     # TODO: create a from_request classmethod
     @classmethod
@@ -244,7 +246,7 @@ class DisplayObject(widgets.VBox):
         self.out = widgets.Output()
 
         self.bx_bar = widgets.HBox()
-        if isinstance(self.display_actions.path, pathlib.PurePath):
+        if isinstance(self.display_actions.path, pathlib.PurePath) and self.open_controls:
             children = [
                 self.exists,
                 self.openpreview,
