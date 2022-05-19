@@ -77,6 +77,7 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
         return aumap.widgetcaller(v)
 
     di_widgets = {k: _init_widget(v) for k, v in pr.items()}
+    
     # return di_widgets
     labels = {}
     for k, v in pr.items():
@@ -89,6 +90,7 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     ui_box = widgets.VBox()
     rows = []
     for (k, v), (k2, v2) in zip(di_widgets.items(), labels.items()):
+        v.layout = {"width": "70%"}  # Setting width of ui object
         rows.append(widgets.HBox([v, v2]))
     ui_box.children = rows
     # ui_box.layout = {'border': 'solid yellow'}
