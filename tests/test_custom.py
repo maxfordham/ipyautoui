@@ -5,7 +5,7 @@ import pytest
 
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
-from .example_objects import fn_add, get_descriptions, ExampleSchema
+from .example_objects import fn_add, get_descriptions, ExampleSchema, ExampleDataFrameSchema
 from ipyautoui.custom import (
     Array,
     Dictionary,
@@ -16,6 +16,7 @@ from ipyautoui.custom import (
 )
 from ipyautoui.custom.modelrun import RunName
 from ipyautoui.custom.edit_grid import BaseForm, GridWrapper, EditGrid, ButtonBar
+from ipyautoui.automapschema import attach_schema_refs
 
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
@@ -24,6 +25,7 @@ shutil.rmtree(
     DIR_TEST_DATA
 )  #  remove previous data. this allows tests to check if files exist.
 
+dataframe_schema = attach_schema_refs(ExampleDataFrameSchema.schema())["properties"]["dataframe"]
 
 class TestCustom:
     def test_iterables_array(self):
@@ -112,8 +114,9 @@ class TestCustom:
         base_form.value = di_eg_unit
 
     def test_grid_wrapper(self):
-        grid = GridWrapper(schema=ExampleSchema,)
+        
+        grid = GridWrapper(schema=dataframe_schema,)
 
     def test_edit_grid(self):
-        grid = EditGrid(schema=ExampleSchema,)
+        grid = EditGrid(schema=dataframe_schema,)
 
