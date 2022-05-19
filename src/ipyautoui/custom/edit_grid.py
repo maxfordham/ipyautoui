@@ -21,35 +21,26 @@
 # %run ../__init__.py
 # %load_ext lab_black
 
-import sys
-import pathlib
-import json
-import requests
 import traitlets
-import functools
 import typing
 import collections
-from copy import deepcopy
 
 import immutables
 import pandas as pd
 import ipywidgets as widgets
 from markdown import markdown
-from ipydatagrid import DataGrid, TextRenderer, BarRenderer, Expr, VegaExpr
+from ipydatagrid import DataGrid, TextRenderer
 from pydantic import BaseModel, Field
-from ipyautoui._utils import obj_from_string, display_pydantic_json, round_sig_figs
-from ipyautoui.automapschema import attach_schema_refs
-from ipyautoui.autoipywidget import AutoIpywidget
-
-# from ipyautoui.displayfile import AutoDisplay
-from ipyautoui import AutoUi
+from ipyautoui._utils import round_sig_figs
+import ipyautoui.autoipywidget as aui
+import ipyautoui.custom.save_button_bar as sb
 
 from ipyautoui.constants import (
     BUTTON_WIDTH_MIN,
     TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT,
     KWARGS_DATAGRID_DEFAULT,
 )
-from ipyautoui.custom import SaveButtonBar
+
 
 frozenmap = immutables.Map
 
@@ -84,8 +75,8 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
 
     def _init_form(self, schema):
         super().__init__()  # main container
-        self.autowidget = AutoIpywidget(schema=schema)
-        self.save_button_bar = SaveButtonBar(
+        self.autowidget = aui.AutoIpywidget(schema=schema)
+        self.save_button_bar = sb.SaveButtonBar(
             save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
         )
         self.title = widgets.HTML()
@@ -101,6 +92,7 @@ class BaseForm(widgets.VBox, traitlets.HasTraits):
 
 
 if __name__ == "__main__":
+    from ipyautoui.automapschema import attach_schema_refs
 
     class TestModel(BaseModel):
         string: str = Field("string", title="Important String")
@@ -131,6 +123,7 @@ if __name__ == "__main__":
     schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"][
         "items"
     ]
+
     baseform = BaseForm(schema=schema, save=test_save, revert=test_revert)
     display(baseform)
 
@@ -280,12 +273,12 @@ class GridWrapper(DataGrid):
     ):
         # accept schema or pydantic schema
         self.model, schema = self._init_model_schema(schema)
-        self.di_cols_properties = schema[
+        self.di_cols_properties = schema["items"][
             "properties"
         ]  # Obtain each column's properties
 
         # Put all objects in datagrid belonging to that particular model
-        if value is None:
+        if value is None or value == []:
             li_default_value = [
                 {
                     col_name: (
@@ -295,9 +288,16 @@ class GridWrapper(DataGrid):
                 }
             ]  # default value
             df = pd.DataFrame.from_dict(li_default_value)
+            df = df.drop(
+                df.index
+            )  # Empty dataframe to revert to when everything is deleted
+            self.df_empty = df
 
         else:
             df = pd.DataFrame.from_dict([val.dict() for val in value])
+            self.df_empty = df.drop(
+                df.index
+            )  # Empty dataframe to revert to when everything is deleted
 
         self._check_data(df, ignore_cols)  # Checking data frame
 
@@ -322,7 +322,7 @@ class GridWrapper(DataGrid):
         )  # main container
         if self.aui_column_widths:
             self._set_column_widths()
-        if self.aui_sig_figs and self.data.empty is False:
+        if self.aui_sig_figs and self._data["data"] != []:
             self._round_sig_figs()  # Rounds any specified fields in schema
 
     def _round_sig_figs(self):
@@ -421,9 +421,7 @@ if __name__ == "__main__":
     class TestDataFrame(BaseModel):
         dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
 
-    schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"][
-        "items"
-    ]
+    schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
 
     grid = GridWrapper(schema=schema)
     display(grid)
@@ -475,9 +473,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         )
         self._init_controls()
         self._edit_bool = False  # Initially define edit mode to be false
-        self.df_empty = self.grid.data.drop(
-            self.grid.data.index
-        )  # Empty dataframe to revert to when everything is deleted
 
     def _init_model_schema(self, schema):
         if type(schema) == dict:
@@ -512,7 +507,10 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             ignore_cols=ignore_cols,
         )
         self.baseform = BaseForm(
-            schema=schema, save=self._save, revert=self._revert, fn_onsave=self._onsave,
+            schema=self.schema["items"],
+            save=self._save,
+            revert=self._revert,
+            fn_onsave=self._onsave,
         )
         self.baseform.title.value = ""
         self.button_bar.layout = widgets.Layout(padding="0px 20px")
@@ -538,7 +536,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             self.grid.clear_selection()  # Clear selection of data grid. We don't want to replace an existing value by accident.
             di_default_value = {
                 col_name: col_data["default"]
-                for col_name, col_data in self.schema["properties"].items()
+                for col_name, col_data in self.schema["items"]["properties"].items()
             }
             self.initial_value = di_default_value
             self.baseform.autowidget.value = di_default_value
@@ -548,7 +546,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             self._display_baseform()
             self.button_bar.message.value = markdown("  ➕ _Adding Value_ ")
         except Exception as e:
-            print(e)
             self.button_bar.message.value = markdown("  ☠️ _Failed to add_")
 
     def _edit(self):
@@ -710,13 +707,12 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     @value.setter
     def value(self, value):
-        if value is not None:
-            if not self.grid._data["data"]:
-                self._value = []
-                self.grid.data = self.df_empty
-            else:
-                self._value = value
-                self.grid.data = pd.DataFrame(self._value)
+        if value == []:
+            self._value = []
+            self.grid.data = self.grid.df_empty
+        else:
+            self._value = value
+            self.grid.data = pd.DataFrame(self._value)
 
     @property
     def di_row(self):
@@ -742,11 +738,12 @@ if __name__ == "__main__":
         something_else: float = Field(324, aui_column_width=100)
 
     class TestDataFrame(BaseModel):
-        dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
+        dataframe: typing.List[DataFrameCols] = Field(
+            default_factory=lambda: [], format="dataframe"
+        )
 
-    schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"][
-        "items"
-    ]
+    schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
+
     editgrid = EditGrid(schema=schema)
     display(editgrid)
 
