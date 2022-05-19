@@ -278,7 +278,7 @@ class GridWrapper(DataGrid):
         ]  # Obtain each column's properties
 
         # Put all objects in datagrid belonging to that particular model
-        if value is None:
+        if value is None or value == []:
             li_default_value = [
                 {
                     col_name: (
@@ -288,9 +288,16 @@ class GridWrapper(DataGrid):
                 }
             ]  # default value
             df = pd.DataFrame.from_dict(li_default_value)
+            df = df.drop(
+                df.index
+            )  # Empty dataframe to revert to when everything is deleted
+            self.df_empty = df
 
         else:
             df = pd.DataFrame.from_dict([val.dict() for val in value])
+            self.df_empty = df.drop(
+                df.index
+            )  # Empty dataframe to revert to when everything is deleted
 
         self._check_data(df, ignore_cols)  # Checking data frame
 
@@ -315,7 +322,7 @@ class GridWrapper(DataGrid):
         )  # main container
         if self.aui_column_widths:
             self._set_column_widths()
-        if self.aui_sig_figs and self.data.empty is False:
+        if self.aui_sig_figs and self._data["data"] != []:
             self._round_sig_figs()  # Rounds any specified fields in schema
 
     def _round_sig_figs(self):
@@ -466,9 +473,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         )
         self._init_controls()
         self._edit_bool = False  # Initially define edit mode to be false
-        self.df_empty = self.grid.data.drop(
-            self.grid.data.index
-        )  # Empty dataframe to revert to when everything is deleted
 
     def _init_model_schema(self, schema):
         if type(schema) == dict:
@@ -703,13 +707,12 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     @value.setter
     def value(self, value):
-        if value is not None:
-            if not self.grid._data["data"]:
-                self._value = []
-                self.grid.data = self.df_empty
-            else:
-                self._value = value
-                self.grid.data = pd.DataFrame(self._value)
+        if value == []:
+            self._value = []
+            self.grid.data = self.grid.df_empty
+        else:
+            self._value = value
+            self.grid.data = pd.DataFrame(self._value)
 
     @property
     def di_row(self):
@@ -735,7 +738,9 @@ if __name__ == "__main__":
         something_else: float = Field(324, aui_column_width=100)
 
     class TestDataFrame(BaseModel):
-        dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
+        dataframe: typing.List[DataFrameCols] = Field(
+            default_factory=lambda: [], format="dataframe"
+        )
 
     schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
 
