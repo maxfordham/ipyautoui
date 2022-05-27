@@ -44,6 +44,13 @@ DASH_BUTTON_KWARGS = frozenmap(
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     disabled=True
 )
+LOAD_BUTTON_KWARGS = frozenmap(
+    icon="upload",
+    #style={"button_color":"white"},
+    button_style="info",
+    layout={"width": BUTTON_WIDTH_MIN},
+    disabled=False
+)
 # ---------------------------
 ADD_BUTTON_KWARGS = frozenmap(
     icon="plus",
@@ -67,6 +74,7 @@ BLANK_BUTTON_KWARGS = frozenmap(
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     disabled=True
 )
+
 
 KWARGS_DATAGRID_DEFAULT = frozenmap(
     header_renderer = TextRenderer(
