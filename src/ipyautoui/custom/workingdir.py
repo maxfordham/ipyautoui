@@ -144,6 +144,7 @@ def get_user():
     else:
         return getuser()
 
+
 def get_working_dirs(path=FPTH_WORKING_DIRS):
     """loads working dir from folder"""
     if path.exists():
@@ -152,27 +153,6 @@ def get_working_dirs(path=FPTH_WORKING_DIRS):
         wdirs = WorkingDirs()
         wdirs.file(path)
     return wdirs
-
-
-def add_working_dir(
-    wdir: typing.Union[dict, WorkingDir], 
-    path: pathlib.Path = FPTH_WORKING_DIRS,
-    dir_model
-):
-    """add a working directory to global json log"""
-    if isinstance(wdir, dict):
-        wdir = WorkingDir(**wdir)
-    wdirs = get_working_dirs(path=path).dict()
-    now_usage = [Usage(user=get_user(), timestamp=datetime.now()).dict()]
-    if wdir.key in wdirs["dirs"].keys():
-        past_usage = wdirs["dirs"][wdir.key]["usage"]
-    else:
-        wdirs["dirs"][wdir.key] = wdir.dict()
-        past_usage = []
-    usage = past_usage + now_usage
-    wdirs["dirs"][wdir.key]["usage"] = usage
-    WorkingDirs(**wdirs).file(path)
-    return None
 
 
 # + tags=[]
@@ -220,6 +200,27 @@ class AnalysisDir(BaseModel):
         return values["fdir"] / "99_Outputs"
 
 
+def add_working_dir(
+    wdir: typing.Union[dict, WorkingDir],
+    # dir_model=AnalysisDir,
+    path: pathlib.Path = FPTH_WORKING_DIRS,
+):
+    """add a working directory to global json log"""
+    if isinstance(wdir, dict):
+        wdir = WorkingDir(**wdir)
+    wdirs = get_working_dirs(path=path).dict()
+    now_usage = [Usage(user=get_user(), timestamp=datetime.now()).dict()]
+    if wdir.key in wdirs["dirs"].keys():
+        past_usage = wdirs["dirs"][wdir.key]["usage"]
+    else:
+        wdirs["dirs"][wdir.key] = wdir.dict()
+        past_usage = []
+    usage = past_usage + now_usage
+    wdirs["dirs"][wdir.key]["usage"] = usage
+    WorkingDirs(**wdirs).file(path)
+    return None
+
+
 def is_templated_dir(adir: typing.Type[BaseModel]):
     for k, v in adir.dict().items():
         if not v.exists():
@@ -260,7 +261,7 @@ check if you want to add analysis here."""
         if display_message:
             display(
                 Markdown(
-                    f"""👍 dir does not currently exist created here:  
+                    f"""👍 dir does not currently exist here:  
 `{adir.fdir}`  
 it will be created on load."""
                 )
@@ -300,13 +301,13 @@ class WorkingDirsUi(widgets.VBox):
     )
     process_subtype = widgets.Dropdown(
         value="wufi",
-        options=ProcessSubType._member_names_,
+        options=list(ProcessSubType._value2member_map_.keys()),
         # disabled=True,
         layout={"width": "80px"},
     )
     riba_stage = widgets.Dropdown(
-        value="stage1",
-        options=RibaStages._member_names_,
+        value="Stage1",
+        options=list(RibaStages._value2member_map_.keys()),
         # disabled=True,
         layout={"width": "80px"},
     )
@@ -328,6 +329,7 @@ class WorkingDirsUi(widgets.VBox):
             process_type=self.process_type.value,
             process_subtype=self.process_subtype.value,
             riba_stage=RibaStages(self.riba_stage.value),
+            dir_model=obj_to_importstr(self.model_dirs),
         ).dict()
 
     @property
@@ -379,7 +381,7 @@ class WorkingDirsUi(widgets.VBox):
                     )
         else:
             raise ValueError("fn_onload must be a Callable or list of Callables")
-        
+
         self._fn_onload = value
 
     @property
