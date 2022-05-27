@@ -54,7 +54,7 @@ class TestAutoLogicSimple(BaseModel):
     int_text: int = 1
     int_range_slider: tuple[int, int] = Field(default=(0, 3), ge=0, le=4)  # check
     float_slider: float = Field(default=2.2, ge=0, le=3)
-    float_text: float = 2.2
+    float_text: float = 2.2 # TODO: AutoUi not discriminating int and float
     float_range_slider: tuple[float, float] = Field(default=(0, 2.2), ge=0, le=3.5)
     checkbox: bool = True
     dropdown: Gender = None
