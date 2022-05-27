@@ -62,7 +62,7 @@ class RunNameInputs:
 
 # -
 
-class RunName(widgets.HBox, HasTraits):
+class RunName(widgets.HBox):
     """widget for creating an modelling iteration name to a defined format from component parts
     
     Example:
@@ -196,6 +196,3 @@ class RunName(widgets.HBox, HasTraits):
 if __name__ == "__main__":
     run = RunName(value="03-lean-description", index=3)
     display(run)
-# -
-
-
