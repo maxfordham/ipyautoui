@@ -27,6 +27,8 @@ Example:
         from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
         DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
 """
+# TODO: add title and description to nested sections of the UI
+# TODO: make layout of name, widget, description configurable...
 # %run __init__.py
 # #%load_ext lab_black
 import logging
@@ -88,17 +90,21 @@ def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
 
 
 # +
-def file_json(value, path, **json_kwargs):
-    """write json to file"""
-    if "indent" not in json_kwargs.keys():
-        json_kwargs.update({"indent": 4})
-    path.write_text(json.dumps(value, **json_kwargs), encoding="utf-8")
+# def file_json(value, path, **json_kwargs):
+#     """write json to file"""
+#     if "indent" not in json_kwargs.keys():
+#         json_kwargs.update({"indent": 4})
+#     path.write_text(json.dumps(value, **json_kwargs), encoding="utf-8")
 
-
-def parse_json_file(path: pathlib.Path):
+def parse_json_file(path: pathlib.Path, model=None):
     """read json from file"""
     p = pathlib.Path(path)
-    return json.loads(p.read_text())
+    if model is not None:
+        return json.loads(model.parse_file(p).json())
+    else:
+        return json.loads(p.read_text())
+# -
+
 
 
 # +
@@ -156,6 +162,13 @@ class AutoUiCommonMethods(traitlets.HasTraits):
             logging.info("self.path == None. must be a valid path to save as json")
 
         return proposal["value"]
+    
+    @property
+    def json(self):
+        if self.model is not None:
+            return self.model(**self.value).json(indent=4)
+        else:
+            return json.dumps(self.value, indent=4) 
 
     def _init_AutoUiCommonMethods(self):
         self._init_autoui_form()
@@ -233,7 +246,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
             self.vbx_raw.layout.display = ""
             with self.out_raw:
                 clear_output()
-                display_python_string(json.dumps(self.value, indent=4))
+                display_python_string(self.json) #json.dumps(self.value, indent=4)
         else:
             self.bn_showraw.tooltip = "show raw data"
             self.bn_showraw.icon = "code"
@@ -276,18 +289,17 @@ class AutoUiCommonMethods(traitlets.HasTraits):
 
     def file(self, path=None):
         p = self._get_path(path=path)
-        file_json(self.value, p)
-        # m.file(p)
+        p.write_text(self.json, encoding="utf-8")
 
     def parse_file(self, path=None):
         if self.path is not None and self.path.is_file():
-            return parse_json_file(self.path)
+            return parse_json_file(self.path, model=self.model)
         else:
             raise ValueError("self.path is not None and self.path.is_file() == False")
 
     def load_file(self, path=None):
         p = self._get_path(path=path)
-        self.value = parse_json_file(p)
+        self.value = parse_json_file(p, model=self.model)
         try:
             self.save_buttonbar._unsaved_changes(False)
         except:
@@ -339,15 +351,15 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         )
         docstring = f"AutoRenderer for {get_schema_title(schema)}"
 
-        def autoui_prev(fpth):
-            f"""
-            pass the fpth of an autoui file and display
-            {docstring}
-            """
-            p = AutoRenderer(fpth)
-            display(p)
+        # def autoui_prev(fpth):
+        #     f"""
+        #     pass the fpth of an autoui file and display
+        #     {docstring}
+        #     """
+        #     p = AutoRenderer(fpth)
+        #     display(p)
 
-        return {ext: autoui_prev}
+        return {ext: AutoRenderer}
 
     def _revert(self):  # TODO: check this!
         assert self.path is not None, f"self.path = {self.path}. must not be None"
@@ -379,7 +391,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
             model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
         else:
             model = schema  # the "model" passed is a pydantic model
-            schema = model.schema()
+            schema = model.schema(by_alias=False)
         return model, schema
 
 
@@ -422,7 +434,7 @@ if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
 
     sch = TestAutoLogicSimple.schema()
-    aui = AutoUi(TestAutoLogicSimple, path="test.json", show_raw=False)
+    aui = AutoUi(TestAutoLogicSimple, path="test.json", show_raw=False, fn_onsave=lambda: print('test onsave'))
     display(aui)
 
 # + tags=[]
@@ -453,4 +465,6 @@ if __name__ == "__main__":
 
     aui = AutoUi(AnalysisPaths, show_raw=True)
     display(aui)
+
+
 
