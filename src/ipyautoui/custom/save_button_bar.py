@@ -108,9 +108,9 @@ class SaveButtonBar(widgets.HBox):
             f'_changes saved: {datetime.now().strftime("%H:%M:%S")}_'
         )
         self._unsaved_changes(False)
-        if type(self.fn_onsave) == typing.Callable:
+        if isinstance(self.fn_onsave, typing.Callable):
             self.fn_onsave()
-        elif type(self.fn_onsave) == list:
+        elif isinstance(self.fn_onsave, list):
             [f() for f in self.fn_onsave]
         else:
             ValueError('fn_onsave must be zero-order func or list of zero-order funcs')
