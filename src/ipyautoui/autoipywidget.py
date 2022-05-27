@@ -30,7 +30,7 @@ Example:
 """
 # %run __init__.py
 # %load_ext lab_black
-
+import logging
 import functools
 import ipywidgets as widgets
 from IPython.display import display
@@ -160,9 +160,12 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
                     v = _get_value_trait(self.di_widgets[k]).default()
                 self.di_widgets[k].value = v
             else:
-                print(
-                    f"no widget created for {k}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify"
-                )
+                logging.info(f"no widget created for {k}, with value {str(v)}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify")
+                # TODO: something weird is going on here...
+                # print(
+                #     f"no widget created for {k}, with value {str(v)}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify"
+                # )
+                # print('ffs - _update_widgets_from_value')
 
     def _init_form(self):
         super().__init__(
