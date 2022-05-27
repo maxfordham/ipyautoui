@@ -175,12 +175,15 @@ class DisplayObject(widgets.VBox):
     auto_open = traitlets.Bool(default_value=False)
 
     def __init__(
-        self, display_actions: typing.Type[DisplayObjectActions], auto_open=False, open_controls=True
+        self,
+        display_actions: typing.Type[DisplayObjectActions],
+        auto_open=False,
+        open_controls=True,
     ):
         self.display_actions = display_actions
+        self.open_controls = open_controls
         self._init()
         self.auto_open = auto_open
-        self.open_controls = open_controls
         # make_new_path
 
     def _init(self):
@@ -202,7 +205,7 @@ class DisplayObject(widgets.VBox):
         newroot=pathlib.PureWindowsPath("J:/"),
         file_renderers=None,
         auto_open=False,
-        open_controls=True
+        open_controls=True,
     ):
         if file_renderers is not None:
             file_renderers = merge_file_renderers(file_renderers)
@@ -246,7 +249,10 @@ class DisplayObject(widgets.VBox):
         self.out = widgets.Output()
 
         self.bx_bar = widgets.HBox()
-        if isinstance(self.display_actions.path, pathlib.PurePath) and self.open_controls:
+        if (
+            isinstance(self.display_actions.path, pathlib.PurePath)
+            and self.open_controls
+        ):
             children = [
                 self.exists,
                 self.openpreview,
@@ -450,7 +456,7 @@ class AutoDisplay(traitlets.HasTraits):
 
     @display_showhide.setter
     def display_showhide(self, value):
-        if hasattr(self, "display_objects") and len(self.display_objects) == 1: 
+        if hasattr(self, "display_objects") and len(self.display_objects) == 1:
             value = False
         self._display_showhide = value
         if self.display_showhide:
@@ -464,7 +470,6 @@ class AutoDisplay(traitlets.HasTraits):
             ]
         else:
             self.box_showhide.children = []
-
 
     @property
     def paths(self):
@@ -552,6 +557,7 @@ class AutoDisplay(traitlets.HasTraits):
     def _update_files(self):
         [d._update_file() for d in self.display_objects]
 
+
 if __name__ == "__main__":
     path = pathlib.Path("pdf.pdf")
     d = AutoDisplay.from_paths(
@@ -595,5 +601,7 @@ if __name__ == "__main__":
     )
 
     display(test_ui)
+
+
 
 
