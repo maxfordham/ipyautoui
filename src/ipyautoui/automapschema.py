@@ -106,6 +106,8 @@ def is_IntText(di: dict) -> bool:
         True
         >>> is_IntText({'title': 'Int Text', 'default': 1, 'type': 'number'})
         False
+        >>> is_IntText({'title': 'floater', 'default': 1.33, 'type': 'number'})
+        False
     """
     if "autoui" in di.keys():
         return False
@@ -127,6 +129,11 @@ def is_IntSlider(di: dict) -> bool:
 
 
 def is_FloatText(di: dict) -> bool:
+    """
+    Example:
+        >>> is_FloatText({'title': 'floater', 'default': 1.33, 'type': 'number'})
+        True
+    """
     if "autoui" in di.keys():
         return False
     if not di["type"] == "number":
@@ -352,19 +359,18 @@ def is_Array(di: dict) -> bool:
         return False
     if "enum" in di.keys():
         return False  # as this is picked up from SelectMultiple
+    if is_DataFrame(di):
+        return False
     return True
 
-# def is_Dataframe(di: dict) -> bool:
-#     if "autoui" in di.keys():
-#         return False
-#     if not di["type"] == "array":
-#         return False
-#     if is_range(di):
-#         return False
-#     if "enum" in di.keys():
-#         return False  # as this is picked up from SelectMultiple
-#     return True
-
+def is_DataFrame(di: dict) -> bool:
+    if "format" in di.keys():
+        if di["format"] == "DataFrame":
+            return True
+        else:
+            return False
+    else:
+        return False
 
 class WidgetMapper(BaseModel):
     """defines a filter function and associated widget. the "fn_filt" is used to search the
@@ -443,6 +449,7 @@ MAP_WIDGETS = frozenmap(
         "Color": WidgetMapper(fn_filt=is_Color, widget=auiwidgets.ColorPicker),
         "object": WidgetMapper(fn_filt=is_Object, widget=auiwidgets.AutoPlaceholder),
         "array": WidgetMapper(fn_filt=is_Array, widget=auiwidgets.AutoPlaceholder),
+        "DataFrame": WidgetMapper(fn_filt=is_DataFrame, widget=auiwidgets.AutoPlaceholder),
     }
 )
 
@@ -472,13 +479,18 @@ def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False):
 
 
 def automapschema(schema: dict, widget_map: frozenmap = MAP_WIDGETS) -> WidgetCaller:
+    # By placing the import in this function we avoid a circular import.
     from ipyautoui.custom.iterable import AutoArray
     from ipyautoui.autoipywidget import AutoIpywidget
+    from ipyautoui.custom.edit_grid import EditGrid
 
     # _ = widget_map.set("array", WidgetMapper(fn_filt=is_Array, widget=AutoArray))
 
     with widget_map.mutate() as mm:
         mm.set("array", WidgetMapper(fn_filt=is_Array, widget=AutoArray))
+        mm.set(
+            "DataFrame", WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid)
+        )  
         mm.set("object", WidgetMapper(fn_filt=is_Object, widget=AutoIpywidget))
         _ = mm.finish()
     # mm = widget_map.mutate()

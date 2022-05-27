@@ -5,7 +5,7 @@ import pytest
 
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
-from .example_objects import fn_add, get_descriptions, ExampleSchema
+from .example_objects import fn_add, get_descriptions, ExampleSchema, ExampleDataFrameSchema
 from ipyautoui.custom import (
     Array,
     Dictionary,
@@ -16,6 +16,7 @@ from ipyautoui.custom import (
 )
 from ipyautoui.custom.modelrun import RunName
 from ipyautoui.custom.edit_grid import BaseForm, GridWrapper, EditGrid, ButtonBar
+from ipyautoui.automapschema import attach_schema_refs
 
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
@@ -24,6 +25,7 @@ shutil.rmtree(
     DIR_TEST_DATA
 )  #  remove previous data. this allows tests to check if files exist.
 
+dataframe_schema = attach_schema_refs(ExampleDataFrameSchema.schema())["properties"]["dataframe"]
 
 class TestCustom:
     def test_iterables_array(self):
@@ -91,53 +93,30 @@ class TestCustom:
 
 
 # TODO: update EditGrid and associated tests
+    def test_base_form(self):
+        def save():
+            print("SAVE")
 
-# def test_base_form(self):
-#     def save():
-#         print("SAVE")
+        def revert():
+            print("REVERT")
 
-#     def revert():
-#         print("REVERT")
+        baseform = BaseForm(schema=ExampleSchema, save=save, revert=revert)
 
-#     # Testing with UnitsBase
-#     base_form = BaseForm(ExampleSchema, save=save, revert=revert)
+    def test_base_form_set_value(self):
+        def save():
+            print("SAVE")
 
-# def test_base_form_set_value(self):
-#     di_eg_unit = {"string": "Updated value"}
+        def revert():
+            print("REVERT")
 
-#     def save():
-#         print("SAVE")
+        base_form = BaseForm(schema=ExampleSchema, save=save, revert=revert)
+        di_eg_unit = {"text": "update"}
+        base_form.value = di_eg_unit
 
-#     def revert():
-#         print("REVERT")
+    def test_grid_wrapper(self):
+        
+        grid = GridWrapper(schema=dataframe_schema,)
 
-#     # Testing with UnitsBase
-#     base_form = BaseForm(ExampleSchema, save=save, revert=revert)
-#     base_form.value = di_eg_unit
-
-# def test_grid_wrapper(self):
-#     grid = GridWrapper(ExampleSchema,)
-
-# def test_grid_wrapper_from_dict_method(self):
-#     # Testing class method "from_dict"
-#     di_eg_unit = {"text": "Updated value"}
-#     li_dict = [di_eg_unit for i in range(3)]
-#     GridWrapper.from_dict(
-#         pydantic_model=ExampleSchema, li=li_dict,
-#     )
-
-# def test_grid_wrapper_pydantic_model_check(self): # TODO: Fix this
-#     li_incorrect_dict = [{
-#     'WRONG COLUMN': 'Test',
-#     }]
-#     exc_info = "Exception: Pydantic model fields and data fields do not match. Rejected Columns: ['WRONG COLUMN']"
-#     try:
-#         GridWrapper.from_dict(ExampleSchema, li_incorrect_dict)
-#     except Exception as e:
-#         print(f"Exception: {e}")
-
-#     assert e == exc_info
-
-# def test_edit_grid(self):
-#     grid = EditGrid(pydantic_model=ExampleSchema,)
+    def test_edit_grid(self):
+        grid = EditGrid(schema=dataframe_schema,)
 

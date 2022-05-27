@@ -38,7 +38,7 @@ import traitlets
 import typing
 from ipyautoui.constants import load_test_constants
 #  from ipyautoui.custom.iterable import AutoArray
-from ipyautoui.automapschema import automapschema, widgetcaller, MAP_WIDGETS
+import ipyautoui.automapschema as aumap
 import immutables
 
 frozenmap = immutables.Map
@@ -74,9 +74,10 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     """
 
     def _init_widget(v):
-        return widgetcaller(v)
+        return aumap.widgetcaller(v)
 
     di_widgets = {k: _init_widget(v) for k, v in pr.items()}
+    
     # return di_widgets
     labels = {}
     for k, v in pr.items():
@@ -89,6 +90,7 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     ui_box = widgets.VBox()
     rows = []
     for (k, v), (k2, v2) in zip(di_widgets.items(), labels.items()):
+        v.layout = {"width": "70%"}  # Setting width of ui object
         rows.append(widgets.HBox([v, v2]))
     ui_box.children = rows
     # ui_box.layout = {'border': 'solid yellow'}
@@ -141,7 +143,7 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
     @widgets_mapper.setter
     def widgets_mapper(self, value):
         if value is None:
-            self._widgets_mapper = MAP_WIDGETS  # TODO: maybe this should be a dict
+            self._widgets_mapper = aumap.MAP_WIDGETS  # TODO: maybe this should be a dict
 
     def _init_ui(self, schema):
         self._init_schema(schema)
@@ -151,7 +153,7 @@ class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
 
     def _init_schema(self, schema):
         self.sch = schema  # attach_schema_refs(schema, schema_base=schema)
-        self.pr = automapschema(self.sch, widget_map=self.widgets_mapper)
+        self.pr = aumap.automapschema(self.sch, widget_map=self.widgets_mapper)
 
     def _update_widgets_from_value(self):
         for k, v in self.value.items():
