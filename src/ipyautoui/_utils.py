@@ -14,6 +14,9 @@ import importlib.util
 import inspect
 import immutables
 import getpass
+import importlib.util
+import typing
+
 frozenmap = immutables.Map
 
 def make_new_path(path, *args, **kwargs):
@@ -324,10 +327,6 @@ def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
     myobj = obj(**kwargs)
     myobj.file(path)
     return path
-
-
-import importlib.util
-import typing
 
 # TODO: use obj_to_importstr and obj_from_importstr rather than load_PyObj
 def obj_to_importstr(obj: typing.Callable):  # NOT IN USE
