@@ -133,7 +133,7 @@ class IterableItem(BaseModel):
     @validator("add", always=True)
     def _add(cls, v, values):
         if v is None:
-            return widgets.ToggleButton(layout=dict(BUTTON_MIN_SIZE))
+            return widgets.Button(layout=dict(BUTTON_MIN_SIZE))
         else:
             return v
 
@@ -154,7 +154,7 @@ class IterableItem(BaseModel):
     @validator("item", always=True)
     def _item(cls, v, values):
         if v is None:
-            return widgets.Button(description="placeholder item")
+            return widgets.ToggleButton(description="placeholder item")
         else:
             return v
 
@@ -313,7 +313,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         return [i.key for i in self.iterable]
 
     def _add_from_zero_display(self):
-        if self.length == 0 and self.add_remove_controls != 'remove_only':
+        if self.length == 0 and self.add_remove_controls != 'remove_only' and self.add_remove_controls is not None:
             self.rows_box.children = [self.add_from_zero]
         elif self.length == 0 and self.add_remove_controls == 'remove_only':
             self.rows_box.children = []
