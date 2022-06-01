@@ -51,17 +51,16 @@ logging.basicConfig(
     level=logging.WARNING
 )  # All events at or above debug level will get logged
 logging.debug("This will get logged")  # Sent to the console
-# -
 
+# +
 FDIR_PROJECTS_ROOT = pathlib.Path("/home/jovyan/jobs")
-# PROJECTS = [
-#     int(p.stem.replace("J", "").replace("j", ""))
-#     for p in list(pathlib.Path(FDIR_PROJECTS_ROOT).glob(pattern="*"))
-# ]
-PROJECTS = [p.stem for p in list(pathlib.Path(FDIR_PROJECTS_ROOT).glob(pattern="*"))]
 FPTH_WORKING_DIRS = (
     FDIR_PROJECTS_ROOT / "J4321" / "Data" / "working_dirs" / "working_dirs.json"
 )
+
+
+def get_projects():
+    return [p.stem for p in list(pathlib.Path(FDIR_PROJECTS_ROOT).glob(pattern="*"))]
 
 
 # +
@@ -103,7 +102,6 @@ class WorkingDir(BaseModel):
     def _fdir(cls, v, values):
         return (
             FDIR_PROJECTS_ROOT
-            # / ("J" + str(values["project_number"]))
             / values["project_number"]
             / values["process_type"]
             / values["process_subtype"]
@@ -154,6 +152,8 @@ def get_working_dirs(path=FPTH_WORKING_DIRS):
         wdirs.file(path)
     return wdirs
 
+
+# get_working_dirs()
 
 # + tags=[]
 class AnalysisDir(BaseModel):
@@ -208,7 +208,7 @@ def add_working_dir(
     """add a working directory to global json log"""
     if isinstance(wdir, dict):
         wdir = WorkingDir(**wdir)
-    wdirs = get_working_dirs(path=path).dict()
+    wdirs = get_working_dirs(path=path).dict(by_alias=False)
     now_usage = [Usage(user=get_user(), timestamp=datetime.now()).dict()]
     if wdir.key in wdirs["dirs"].keys():
         past_usage = wdirs["dirs"][wdir.key]["usage"]
@@ -231,7 +231,8 @@ def is_templated_dir(adir: typing.Type[BaseModel]):
 
 def make_dirs(adir):
     for k, v in adir.dict().items():
-        v.mkdir(parents=True, exist_ok=True)
+        if isinstance(v, pathlib.Path):
+            v.mkdir(parents=True, exist_ok=True)
     return adir
 
 
@@ -286,13 +287,14 @@ def create_folder_structure(value, model_dirs=AnalysisDir):
 
 
 # +
-class WorkingDirsUi(widgets.VBox):
+class WorkingDirsUi(widgets.HBox):
     value = traitlets.Dict()
     setup = widgets.ToggleButton(icon="ellipsis-v", layout={"width": BUTTON_WIDTH_MIN})
     load = widgets.Button(**LOAD_BUTTON_KWARGS)
     project_number = widgets.Combobox(
-        value="J5001", ensure_option=True, options=PROJECTS, layout={"width": "80px"}
+        value="J5001", ensure_option=True, layout={"width": "80px"}
     )
+    projects = traitlets.List(default_value=[])
     process_type = widgets.Dropdown(
         value="Calcs",
         options=["Calcs", "Schedule"],
@@ -315,6 +317,10 @@ class WorkingDirsUi(widgets.VBox):
     fdir_win = widgets.HTML()
     fdir_win_proposed = widgets.HTML()
 
+    @traitlets.observe("projects")
+    def _projects(self, change):
+        self.project_number.options = self.projects
+
     @traitlets.observe("value")
     def _observe_value_key(self, change):
         self.key.value = self.value["key"]
@@ -330,7 +336,7 @@ class WorkingDirsUi(widgets.VBox):
             process_subtype=self.process_subtype.value,
             riba_stage=RibaStages(self.riba_stage.value),
             dir_model=obj_to_importstr(self.model_dirs),
-        ).dict()
+        ).dict(by_alias=False)
 
     @property
     def fdir_windows(self):
@@ -338,28 +344,50 @@ class WorkingDirsUi(widgets.VBox):
 
     def __init__(
         self,
-        fn_onload: typing.Union[typing.Callable, typing.List] = [
-            add_working_dir,
-            create_folder_structure,
-        ],
+        fn_onload: typing.Union[typing.Callable, typing.List] = lambda: print(
+            "fn_onload"
+        ),
         model_dirs: typing.Type[BaseModel] = AnalysisDir,
         fix_attributes={},
+        projects=get_projects(),
+        fdir_projects_root=FDIR_PROJECTS_ROOT,
+        fpth_working_dirs=FPTH_WORKING_DIRS,
     ):
+        self.projects = projects
+        self.fdir_projects_root = fdir_projects_root
+        self.fpth_working_dirs = fpth_working_dirs
         self.model_dirs = model_dirs
         self.fn_onload = fn_onload
-        super().__init__(layout={"align-content": "flex-end"})
-        self.out = widgets.Output()
+        super().__init__(
+            layout=widgets.Layout(justify_content="flex-end")
+        )  # layout={"align-content": "flex-end"}
+        self.vbx_main = widgets.VBox()
+        self.out = widgets.Output(
+            layout=widgets.Layout(justify_content="flex-end", align_content="flex-end")
+        )
         self.hbx_select = widgets.HBox(
-            layout=widgets.Layout(justify_content="flex-end")
+            layout=widgets.Layout(justify_content="flex-end", align_content="flex-end")
         )
-        self.hbx_summary = widgets.HBox(
-            layout=widgets.Layout(justify_content="flex-end")
-        )
-        self.hbx_message = widgets.HBox(
-            layout=widgets.Layout(justify_content="flex-end")
-        )
-        self.hbx_summary.children = [self.fdir_win, self.setup]
-        self.children = [self.hbx_summary, self.hbx_select, self.hbx_message]
+        #     layout=widgets.Layout(justify_content="flex-end")
+        # )
+        # self.hbx_summary = widgets.HBox(
+        #     layout=widgets.Layout(justify_content="flex-end")
+        # )
+        # self.hbx_message = widgets.HBox(
+        #     layout=widgets.Layout(justify_content="flex-end")
+        # )
+        # self.hbx_summary.children = [self.fdir_win, self.setup]
+        # self.children = [self.hbx_summary, self.hbx_select, self.hbx_message]
+        self.hbx_select.children = [
+            self.project_number,
+            self.process_type,
+            self.process_subtype,
+            self.riba_stage,
+            self.fdir_win_proposed,
+            self.load,
+        ]
+        self.vbx_main.children =[self.hbx_select, self.out]
+        self.children = [self.vbx_main]
         self._init_controls()
         self.update_from_ui(None)
         self._update_fdir_win()
@@ -371,6 +399,7 @@ class WorkingDirsUi(widgets.VBox):
 
     @fn_onload.setter
     def fn_onload(self, value):
+
         if isinstance(value, typing.Callable):
             value = [value]
         elif isinstance(value, typing.List):
@@ -382,7 +411,7 @@ class WorkingDirsUi(widgets.VBox):
         else:
             raise ValueError("fn_onload must be a Callable or list of Callables")
 
-        self._fn_onload = value
+        self._fn_onload = [add_working_dir, create_folder_structure,] + value
 
     @property
     def fix_attributes(self):
@@ -406,23 +435,23 @@ class WorkingDirsUi(widgets.VBox):
         self.process_type.observe(self.update_from_ui, "value")
         self.process_subtype.observe(self.update_from_ui, "value")
         self.riba_stage.observe(self.update_from_ui, "value")
-        self.setup.observe(self._setup, "value")
+        # self.setup.observe(self._setup, "value")
         self.load.on_click(self._load)
 
-    def _setup(self, onchange):
-        if self.setup.value:
-            self.hbx_select.children = [
-                self.project_number,
-                self.process_type,
-                self.process_subtype,
-                self.riba_stage,
-                self.fdir_win_proposed,
-                self.load,
-            ]
-            self.hbx_message.children = [self.out]
-        else:
-            self.hbx_select.children = []
-            self.hbx_message.children = []
+    # def _setup(self, onchange):
+    #     if self.setup.value:
+    # self.hbx_select.children = [
+    #     self.project_number,
+    #     self.process_type,
+    #     self.process_subtype,
+    #     self.riba_stage,
+    #     self.fdir_win_proposed,
+    #     self.load,
+    # ]
+    #         self.hbx_message.children = [self.out]
+    #     else:
+    #         self.hbx_select.children = []
+    #         self.hbx_message.children = []
 
     def _update_fdir_win(self):
         self.fdir_win.value = f"<b>{self.fdir_windows}</b>"
@@ -446,3 +475,12 @@ if __name__ == "__main__":
     fix_attributes = {"process_type": "Calcs", "process_subtype": "wufi"}
     wdir = WorkingDirsUi(fix_attributes=fix_attributes)
     display(wdir)
+# -
+widgets.HBox(
+    [widgets.Button(), widgets.HTML("aasdf")],
+    layout=widgets.Layout(justify_content="flex-end"),  # , align_content="flex-end"
+)
+
+widgets.HTML("aasdf", layout=widgets.Layout(justify_content="flex-end"))
+
+
