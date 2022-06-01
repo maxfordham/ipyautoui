@@ -425,7 +425,17 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
         super().__init__(schema=schema, value=self.value, widgets_mapper=None)
         self._init_AutoUiCommonMethods()
         self.save_controls = save_controls
-        #
+        self._update_fileupload_fdir()
+
+    def _update_fileupload_fdir(self):
+        from ipyautoui.custom.fileupload import FileUploadToDir
+        for k, v in self.di_widgets.items():
+            #if isinstance(v, FileUploadToDir):
+            if "FileUploadToDir" in str(type(v)) and self.path is not None:
+                path = self.path.parent / "data"
+                path.mkdir(exist_ok=True)
+                self.di_widgets[k].fdir = str(path)
+        
 
 
 # -

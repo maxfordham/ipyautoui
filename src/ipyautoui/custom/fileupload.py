@@ -99,6 +99,7 @@ def read_file_upload_item(di: dict, fdir=pathlib.Path("."), added_by=None):
     f = File(**_)
     return f
 
+
 def add_files(upld_value, fdir=pathlib.Path(".")):
     if not pathlib.Path(fdir).exists():
         pathlib.Path(fdir).mkdir(exist_ok=True)
@@ -112,7 +113,7 @@ def add_files(upld_value, fdir=pathlib.Path(".")):
 
 class FileUploadToDir(widgets.VBox):
     _value = traitlets.Dict(default_value={})
-    fdir = traitlets.Unicode()
+    _fdir = traitlets.Unicode()
 
     def __init__(
         self,
@@ -131,8 +132,12 @@ class FileUploadToDir(widgets.VBox):
         path.unlink()
 
     @property
-    def value(self):
-        return self._value
+    def fdir(self):
+        return self._fdir
+
+    @fdir.setter
+    def fdir(self, value):
+        self._fdir = value
 
     @staticmethod
     def convert_to_dict(item):
@@ -141,12 +146,16 @@ class FileUploadToDir(widgets.VBox):
         else:
             return item
 
+    @property
+    def value(self):
+        return self._value
+
     @value.setter
     def value(self, value):
         value = {k: self.convert_to_dict(v) for k, v in value.items()}
-        for k, v in value.items():
-            if v["fdir"] != self.fdir:
-                raise ValueError(f"fdir for {k} != {self.fdir}")
+        # for k, v in value.items():
+        #     if v["fdir"] != self.fdir:
+        #         raise ValueError(f"fdir for {k} != {self.fdir}")
         self.arr_files.items = {}
         self.add_files(value)
         self._arr_files("change")
@@ -155,16 +164,21 @@ class FileUploadToDir(widgets.VBox):
         super().__init__()
         self.hbx_buttons = widgets.HBox()
         self.upld = widgets.FileUpload(multiple=True)
-        self.text = widgets.HTML(markdown(f"`{self.fdir}`"))
+        self.text = widgets.HTML()
         self.hbx_buttons.children = [self.upld, self.text]
         self.arr_files = Dictionary(
             add_remove_controls="remove_only", show_hash=None, fn_remove=self.fn_remove
         )
         self.children = [self.hbx_buttons, self.arr_files]
+        self._update_text("change")
 
     def _init_controls(self):
         self.upld.observe(self._upld, names="value")
         self.arr_files.observe(self._arr_files, names="value")
+        self.observe(self._update_text, names="_fdir")
+
+    def _update_text(self, onchange):
+        self.text.value = markdown(f"`{self.fdir}`")
 
     def _arr_files(self, onchange):
         self._value = self.arr_files.value
@@ -195,35 +209,37 @@ if __name__ == "__main__":
             autoui="__main__.FileUploadToDir", maximumItems=1, minimumItems=0
         )
 
-    aui = AutoUi(schema=Ui)
+    aui = AutoUi(schema=Ui, path="test.aui.json")
     display(aui)
 
-if __name__ == "__main__":
-    aui.value = {
-        "name": "file collection",
-        "description": "about stuff",
-        "files": {
-            "make.bat": {
-                "name": "make.bat",
-                "type": "",
-                "last_modified": "2022-03-23T15:27:13.536000",
-                "size": 896,
-                "fdir": ".",
-                "path": "make.bat",
-                "caption": None,
-                "added_by": None,
-            },
-            "Makefile": {
-                "name": "Makefile",
-                "type": "",
-                "last_modified": "2022-03-23T15:27:13.518000",
-                "size": 654,
-                "fdir": ".",
-                "path": "Makefile",
-                "caption": None,
-                "added_by": None,
-            },
-        },
-    }
+# + active=""
+# if __name__ == "__main__":
+#     aui.value = {
+#         "name": "file collection",
+#         "description": "about stuff",
+#         "files": {
+#             "make.bat": {
+#                 "name": "make.bat",
+#                 "type": "",
+#                 "last_modified": "2022-03-23T15:27:13.536000",
+#                 "size": 896,
+#                 "fdir": ".",
+#                 "path": "make.bat",
+#                 "caption": None,
+#                 "added_by": None,
+#             },
+#             "Makefile": {
+#                 "name": "Makefile",
+#                 "type": "",
+#                 "last_modified": "2022-03-23T15:27:13.518000",
+#                 "size": 654,
+#                 "fdir": ".",
+#                 "path": "Makefile",
+#                 "caption": None,
+#                 "added_by": None,
+#             },
+#         },
+#     }
+# -
 
 
