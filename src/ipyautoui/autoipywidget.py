@@ -108,7 +108,7 @@ def _get_value_trait(widget):
         raise ValueError("no value (or _value) trait found")
 
 
-class AutoIpywidget(widgets.VBox):  # , traitlets.HasTraits
+class AutoIpywidget(widgets.VBox): 
     """creates an ipywidgets form from a json-schema or pydantic model"""
 
     _value = traitlets.Dict(allow_none=True)

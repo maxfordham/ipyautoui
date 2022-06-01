@@ -44,7 +44,8 @@ from wcmatch.pathlib import Path as wcPath
 from IPython.display import (
     display,
     clear_output,
-)  # , Image JSON, Markdown, HTML, IFrame,
+    Markdown
+)  # , Image JSON, HTML, IFrame,
 import time
 import typing
 import ipywidgets as widgets
@@ -296,8 +297,12 @@ open folder:
             self.children = [self.bx_bar, self.bx_out]
             self.openpreview.icon = "eye-slash"
             self.out.layout.display = ""
+            
             with self.out:
-                display(self.display_actions.renderer())
+                if hasattr(self.display_actions, "path") and self.display_actions.path.is_file():
+                    display(self.display_actions.renderer())
+                else:
+                    display(Markdown('file does not exist'))
         else:
             self.children = [self.bx_bar]
             self.openpreview.icon = "eye"
