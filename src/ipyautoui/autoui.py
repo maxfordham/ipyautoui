@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.5
+#       jupytext_version: 1.13.8
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -89,14 +89,6 @@ def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
     return obj
 
 
-# +
-# def file_json(value, path, **json_kwargs):
-#     """write json to file"""
-#     if "indent" not in json_kwargs.keys():
-#         json_kwargs.update({"indent": 4})
-#     path.write_text(json.dumps(value, **json_kwargs), encoding="utf-8")
-
-
 def parse_json_file(path: pathlib.Path, model=None):
     """read json from file"""
     p = pathlib.Path(path)
@@ -104,9 +96,6 @@ def parse_json_file(path: pathlib.Path, model=None):
         return json.loads(model.parse_file(p).json())
     else:
         return json.loads(p.read_text())
-
-
-# -
 
 
 # +

@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.5
+#       jupytext_version: 1.13.8
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -44,7 +44,7 @@ from wcmatch.pathlib import Path as wcPath
 from IPython.display import (
     display,
     clear_output,
-    Markdown
+    Markdown,
 )  # , Image JSON, HTML, IFrame,
 import time
 import typing
@@ -297,12 +297,15 @@ open folder:
             self.children = [self.bx_bar, self.bx_out]
             self.openpreview.icon = "eye-slash"
             self.out.layout.display = ""
-            
+
             with self.out:
-                if hasattr(self.display_actions, "path") and self.display_actions.path.is_file():
+                if (
+                    hasattr(self.display_actions, "path")
+                    and self.display_actions.path.is_file()
+                ):
                     display(self.display_actions.renderer())
                 else:
-                    display(Markdown('file does not exist'))
+                    display(Markdown("file does not exist"))
         else:
             self.children = [self.bx_bar]
             self.openpreview.icon = "eye"
@@ -606,7 +609,3 @@ if __name__ == "__main__":
     )
 
     display(test_ui)
-
-
-
-

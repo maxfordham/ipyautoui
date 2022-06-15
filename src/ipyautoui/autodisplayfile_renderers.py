@@ -188,9 +188,9 @@ def preview_plotly(path):
     # For illustrative purposes.
     package_name = "plotly"
     if check_installed(package_name):
-        return widgets.HTML(package_name + " is not installed")
-    else:
         return pio.read_json(path)
+    else:
+        return widgets.HTML(package_name + " is not installed")
 
 
 def Vega(spec):

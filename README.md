@@ -8,8 +8,7 @@ from ipyautoui import AutoUi, AutoDisplay
 ## Installation
 
 ```
-# TODO: do this! 
-# TODO: consider having 2stage installation, specifying the installation of vuetify stuff... 
+# TODO: do this!
 
 mamba install ipyautoui -c conda-forge  # mamba ...
 conda install ipyautoui -c conda-forge  # or conda ...
@@ -115,13 +114,11 @@ This package intends to be high-level, and unifies many other ipy- libraries und
 - [ipywidgets](https://github.com/jupyter-widgets/ipywidgets)
 - [ipydatagrid](https://github.com/bloomberg/ipydatagrid)
 - [ipyfilechooser](https://github.com/crahan/ipyfilechooser)
-- [ipyvue](https://github.com/widgetti/ipyvue)
 - [ipyvuetify](https://github.com/widgetti/ipyvuetify)
 - [vuetify-jsonschema-form](https://github.com/koumoul-dev/vuetify-jsonschema-form)
-- [Altair](https://github.com/altair-viz/altair) (for viewing `.vg.json` files)
-- [Plotly](https://github.com/plotly/plotly.py) (for viewing `.plotly.json` files)
+- [Plotly](https://github.com/plotly/plotly.py) (for viewing `.plotly.json` files. note. this needs to be added by the user)
 
-It is obviously wholly dependent on the excellent json-schema specification:
+It is also obviously wholly dependent on the excellent json-schema specification:
 - [json-schema](https://json-schema.org/)
 
 ## Development installation
