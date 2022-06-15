@@ -72,7 +72,9 @@ in vjsf is therefore possible using AutoVjsf (TODO: implement markdown editor). 
 benefit of out-the-box support of mobile applications. It falls down if you want to specify custom renderer objects. 
 
 ```{note}
-when you're using pydantic to make the schema, "-" cannot be used field names, but requires them (e.g. "x-display"), use "x_display" instead and AutoVjsf does the conversion). 
+when you're using pydantic to make the schema, "-" cannot be used field names, 
+but vuetify-jsonschema-form requires them (e.g. "x-display");
+use "x_display" instead and AutoVjsf does the conversion). 
 ```
 
 ### AutoUi
