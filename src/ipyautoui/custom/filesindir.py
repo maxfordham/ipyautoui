@@ -34,6 +34,7 @@ from ipyautoui.basemodel import BaseModel
 from pydantic import validator, Field
 
 from ipyautoui.custom import FileChooser
+from ipyautoui.custom.iterable import Array
 from ipyautoui.constants import (
     BUTTON_WIDTH_MIN,
     TRUE_BUTTON_KWARGS,
