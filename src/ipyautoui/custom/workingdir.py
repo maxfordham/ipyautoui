@@ -20,8 +20,8 @@ a UI element that loads a folder for data caching, whilst storing a record of fo
 
 # %run __init__.py
 # %load_ext lab_black
-# -
 
+# +
 from pydantic import BaseModel, validator, Field
 from ipyautoui.constants import LOAD_BUTTON_KWARGS, BUTTON_MIN_SIZE, BUTTON_WIDTH_MIN
 from IPython.display import clear_output, Markdown
@@ -30,7 +30,7 @@ import shutil
 import traitlets_paths
 import ipywidgets as widgets
 import traitlets
-from mf_file_utilities.applauncher_wrapper import get_fpth_win
+
 from getpass import getuser
 import os
 from halo import HaloNotebook
@@ -43,6 +43,11 @@ import zipfile
 import logging
 import seedir
 from ipyautoui._utils import obj_to_importstr
+
+try:
+    from mf_file_utilities.applauncher_wrapper import get_fpth_win
+except:
+    get_fpth_win = lambda v: v
 
 # +
 setattr(BaseModel, "file", file)
@@ -75,10 +80,10 @@ class RibaStages(str, Enum):
 
 
 class ProcessSubType(str, Enum):
-    wufi = "wufi"
-    tm52 = "tm52"
-    tm54 = "tm54"
-    tm59 = "tm59"
+    wufi = "WUFI"
+    tm52 = "TM52"
+    tm54 = "TM54"
+    tm59 = "TM59"
     compliance = "compliance"
     compliance_london_plan = "compliance_london_plan"
 
@@ -236,14 +241,18 @@ def make_dirs(adir):
     return adir
 
 
-def return_fdir_status(adir, display_message=True):
+def return_fdir_status(adir, display_message=True, map_dir=True):
     """checks if a dir is already an analysis dir or not"""
+    if map_dir:
+        fdir = get_fpth_win(adir.fdir)
+    else:
+        fdir = adir.fdir
     if is_templated_dir(adir):
         if display_message:
             display(
                 Markdown(
                     f"""👍 analysis dir already exists here:  
-`{adir.fdir}`  
+`{fdir}`  
 it will launch on load."""
                 )
             )
@@ -253,7 +262,7 @@ it will launch on load."""
             display(
                 Markdown(
                     f"""⚠️ dir that doensn't match the template already exists here:  
-`{adir.fdir}`  
+`{fdir}`  
 check if you want to add analysis here."""
                 )
             )
@@ -263,13 +272,13 @@ check if you want to add analysis here."""
             display(
                 Markdown(
                     f"""👍 dir does not currently exist here:  
-`{adir.fdir}`  
+`{fdir}`  
 it will be created on load."""
                 )
             )
         return "dir_not_exists"
     else:
-        raise ValueError(f"return_fdir_status {adir.fdir} error")
+        raise ValueError(f"return_fdir_status {fdir} error")
 
 
 def create_folder_structure(value, model_dirs=AnalysisDir):
@@ -288,6 +297,9 @@ def create_folder_structure(value, model_dirs=AnalysisDir):
 
 # +
 class WorkingDirsUi(widgets.HBox):
+    """
+    a programmable UI object to load new working directories for ipyrun.runshell # TODO: move to ipyrun
+    """
     value = traitlets.Dict()
     setup = widgets.ToggleButton(icon="ellipsis-v", layout={"width": BUTTON_WIDTH_MIN})
     load = widgets.Button(**LOAD_BUTTON_KWARGS)
@@ -302,7 +314,7 @@ class WorkingDirsUi(widgets.HBox):
         layout={"width": "80px"},
     )
     process_subtype = widgets.Dropdown(
-        value="wufi",
+        value="WUFI",
         options=list(ProcessSubType._value2member_map_.keys()),
         # disabled=True,
         layout={"width": "80px"},
@@ -310,7 +322,6 @@ class WorkingDirsUi(widgets.HBox):
     riba_stage = widgets.Dropdown(
         value="Stage1",
         options=list(RibaStages._value2member_map_.keys()),
-        # disabled=True,
         layout={"width": "80px"},
     )
     key = widgets.HTML()
@@ -327,7 +338,7 @@ class WorkingDirsUi(widgets.HBox):
 
     @traitlets.observe("value")
     def _observe_value_fdir_win_proposed(self, change):
-        self.fdir_win_proposed.value = f"<i>{self.fdir_windows}</i>"
+        self.fdir_win_proposed.value = f"<i>{self.fdir_display}</i>"
 
     def _update_value(self):
         return WorkingDir(
@@ -339,28 +350,31 @@ class WorkingDirsUi(widgets.HBox):
         ).dict(by_alias=False)
 
     @property
-    def fdir_windows(self):
+    def fdir_display(self):
         return get_fpth_win(self.value["fdir"])
 
     def __init__(
         self,
-        fn_onload: typing.Union[typing.Callable, typing.List] = lambda: print(
+        fn_onload: typing.Union[typing.Callable, typing.List] = lambda value: print(
             "fn_onload"
         ),
         model_dirs: typing.Type[BaseModel] = AnalysisDir,
         fix_attributes={},
-        projects=get_projects(),
+        projects=None,
         fdir_projects_root=FDIR_PROJECTS_ROOT,
         fpth_working_dirs=FPTH_WORKING_DIRS,
     ):
-        self.projects = projects
+        if projects is None:
+            self.projects = get_projects()
+        else:
+            self.projects = projects
         self.fdir_projects_root = fdir_projects_root
         self.fpth_working_dirs = fpth_working_dirs
         self.model_dirs = model_dirs
         self.fn_onload = fn_onload
         super().__init__(
             layout=widgets.Layout(justify_content="flex-end")
-        )  # layout={"align-content": "flex-end"}
+        )
         self.vbx_main = widgets.VBox()
         self.out = widgets.Output(
             layout=widgets.Layout(justify_content="flex-end", align_content="flex-end")
@@ -368,16 +382,6 @@ class WorkingDirsUi(widgets.HBox):
         self.hbx_select = widgets.HBox(
             layout=widgets.Layout(justify_content="flex-end", align_content="flex-end")
         )
-        #     layout=widgets.Layout(justify_content="flex-end")
-        # )
-        # self.hbx_summary = widgets.HBox(
-        #     layout=widgets.Layout(justify_content="flex-end")
-        # )
-        # self.hbx_message = widgets.HBox(
-        #     layout=widgets.Layout(justify_content="flex-end")
-        # )
-        # self.hbx_summary.children = [self.fdir_win, self.setup]
-        # self.children = [self.hbx_summary, self.hbx_select, self.hbx_message]
         self.hbx_select.children = [
             self.project_number,
             self.process_type,
@@ -386,7 +390,7 @@ class WorkingDirsUi(widgets.HBox):
             self.fdir_win_proposed,
             self.load,
         ]
-        self.vbx_main.children =[self.hbx_select, self.out]
+        self.vbx_main.children = [self.hbx_select, self.out]
         self.children = [self.vbx_main]
         self._init_controls()
         self.update_from_ui(None)
@@ -411,7 +415,7 @@ class WorkingDirsUi(widgets.HBox):
         else:
             raise ValueError("fn_onload must be a Callable or list of Callables")
 
-        self._fn_onload = [add_working_dir, create_folder_structure,] + value
+        self._fn_onload = [add_working_dir, create_folder_structure] + value
 
     @property
     def fix_attributes(self):
@@ -435,26 +439,10 @@ class WorkingDirsUi(widgets.HBox):
         self.process_type.observe(self.update_from_ui, "value")
         self.process_subtype.observe(self.update_from_ui, "value")
         self.riba_stage.observe(self.update_from_ui, "value")
-        # self.setup.observe(self._setup, "value")
         self.load.on_click(self._load)
 
-    # def _setup(self, onchange):
-    #     if self.setup.value:
-    # self.hbx_select.children = [
-    #     self.project_number,
-    #     self.process_type,
-    #     self.process_subtype,
-    #     self.riba_stage,
-    #     self.fdir_win_proposed,
-    #     self.load,
-    # ]
-    #         self.hbx_message.children = [self.out]
-    #     else:
-    #         self.hbx_select.children = []
-    #         self.hbx_message.children = []
-
     def _update_fdir_win(self):
-        self.fdir_win.value = f"<b>{self.fdir_windows}</b>"
+        self.fdir_win.value = f"<b>{self.fdir_display}</b>"
 
     def _load(self, onchange):
         self.hbx_select.children = []
@@ -463,7 +451,6 @@ class WorkingDirsUi(widgets.HBox):
             spinner = HaloNotebook(text="Loading", spinner="dots")
             spinner.start()
             li = [f(self.value) for f in self.fn_onload]
-            # [print(l) for l in li if isinstance(l, typing.Callable)]
             logging.info("this is a loggging message")
             spinner.stop()
             self.setup.value = False
@@ -472,15 +459,8 @@ class WorkingDirsUi(widgets.HBox):
 
 
 if __name__ == "__main__":
-    fix_attributes = {"process_type": "Calcs", "process_subtype": "wufi"}
+    fix_attributes = {"process_type": "Calcs", "process_subtype": "WUFI"}
     wdir = WorkingDirsUi(fix_attributes=fix_attributes)
     display(wdir)
 # -
-widgets.HBox(
-    [widgets.Button(), widgets.HTML("aasdf")],
-    layout=widgets.Layout(justify_content="flex-end"),  # , align_content="flex-end"
-)
-
-widgets.HTML("aasdf", layout=widgets.Layout(justify_content="flex-end"))
-
 
