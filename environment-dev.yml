@@ -13,11 +13,9 @@ dependencies:
   - jupyterlab>=3.0.14
   - xeus-python
   - ipywidgets
-#  - ipysheet>=0.5.0
   - ipyfilechooser
   - ipydatagrid
   - ipyvuetify
-#  - ipyrun>=v0.1.9
   - voila>=0.2.11
   - plotly
   - halo
@@ -29,23 +27,14 @@ dependencies:
   - dacite
   - xmltodict
   - pyyaml
-  - pillow
-#  - click
   - openpyxl
   - black
   - nb_black
   - immutables
   - wcmatch
-#  - sphinx # for docs
-#  - sphinx-book-theme # for docs
-#  - autodoc-pydantic # for docs
   - pytest
   - pip
   - pip:
     - traitlets-paths
-#  - xlsxwriter 
-#  - xlsxtemplater 
-#  - mf_file_utilities 
-#  - mfom
 variables:
   PYTHONPATH: /mnt/c/engDev/git_mf/ipyautoui/src
