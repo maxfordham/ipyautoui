@@ -77,7 +77,7 @@ def create_widget_caller(schema, calling=None):
     return caller
 
 
-class IntText(widgets.IntText): # TODO: add value to these as arg?
+class IntText(widgets.IntText):  # TODO: add value to these as arg?
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
@@ -226,7 +226,7 @@ class DatePickerString(widgets.HBox, traitlets.HasTraits):
         return self._strftime_format
 
     @strftime_format.setter
-    def strftime_format(self):
+    def strftime_format(self, value):
         self._strftime = value
         self._update_change("change")
 
@@ -242,12 +242,6 @@ class DatePickerString(widgets.HBox, traitlets.HasTraits):
     def _update_change(self, on_change):
         self._value = self._get_value()
 
-
-# class DatetimePicker(widgets.DatetimePicker):
-#     def __init__(self, schema):
-#         self.schema = schema
-#         self.caller = create_widget_caller(schema)
-#         super().__init__(**self.caller)
 
 # class FileChooser(widgets.FileChooser):
 #     def __init__(self, schema):
@@ -293,7 +287,7 @@ class RunName(modelrun.RunName):
         self.schema = schema
         self.caller = create_widget_caller(schema, calling=modelrun.RunName)
         super().__init__(**self.caller)
-        
+
 
 class EditGrid(edit_grid.EditGrid):
     def __init__(self, schema):
@@ -309,10 +303,4 @@ class AutoMarkdown(markdown_widget.MarkdownWidget):
             schema, calling=markdown_widget.MarkdownWidget
         )
         super().__init__(**self.caller)
-
-
-# class AutoOveride:
-#     def __init__(self, schema):
-#         self.schema = schema self.caller = create_widget_caller(schema)
-#         super().__init__(**self.caller)
 
