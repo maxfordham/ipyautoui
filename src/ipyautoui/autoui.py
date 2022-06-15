@@ -96,6 +96,7 @@ def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
 #         json_kwargs.update({"indent": 4})
 #     path.write_text(json.dumps(value, **json_kwargs), encoding="utf-8")
 
+
 def parse_json_file(path: pathlib.Path, model=None):
     """read json from file"""
     p = pathlib.Path(path)
@@ -103,8 +104,9 @@ def parse_json_file(path: pathlib.Path, model=None):
         return json.loads(model.parse_file(p).json())
     else:
         return json.loads(p.read_text())
-# -
 
+
+# -
 
 
 # +
@@ -162,13 +164,13 @@ class AutoUiCommonMethods(traitlets.HasTraits):
             logging.info("self.path == None. must be a valid path to save as json")
 
         return proposal["value"]
-    
+
     @property
     def json(self):
         if self.model is not None:
             return self.model(**self.value).json(indent=4)
         else:
-            return json.dumps(self.value, indent=4) 
+            return json.dumps(self.value, indent=4)
 
     def _init_AutoUiCommonMethods(self):
         self._init_autoui_form()
@@ -246,7 +248,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
             self.vbx_raw.layout.display = ""
             with self.out_raw:
                 clear_output()
-                display_python_string(self.json) #json.dumps(self.value, indent=4)
+                display_python_string(self.json)
         else:
             self.bn_showraw.tooltip = "show raw data"
             self.bn_showraw.icon = "code"
@@ -350,15 +352,6 @@ class AutoUiCommonMethods(traitlets.HasTraits):
             schema, save_controls=save_controls, show_raw=show_raw, fn_onsave=fn_onsave
         )
         docstring = f"AutoRenderer for {get_schema_title(schema)}"
-
-        # def autoui_prev(fpth):
-        #     f"""
-        #     pass the fpth of an autoui file and display
-        #     {docstring}
-        #     """
-        #     p = AutoRenderer(fpth)
-        #     display(p)
-
         return {ext: AutoRenderer}
 
     def _revert(self):  # TODO: check this!
@@ -410,8 +403,13 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
             typing.Callable, typing.List[typing.Callable]
         ] = lambda: None,
         validate_onchange=True,  # TODO: sort out how the validation works
+        update_fdir_to_path_parent=True,
     ):
         self.path = path
+        if self.path is not None:
+            self.fdir = str(self.path.parent)  # TODO: use traitlets_paths
+        else:
+            self.fdir = None
         self.show_raw = show_raw
 
         # accept schema or pydantic schema
@@ -422,20 +420,11 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
         self.fn_onsave = fn_onsave
 
         # init app
-        super().__init__(schema=schema, value=self.value, widgets_mapper=None)
+        super().__init__(
+            schema=schema, value=self.value, widgets_mapper=None, fdir=self.fdir,
+        )
         self._init_AutoUiCommonMethods()
         self.save_controls = save_controls
-        self._update_fileupload_fdir()
-
-    def _update_fileupload_fdir(self):
-        from ipyautoui.custom.fileupload import FileUploadToDir
-        for k, v in self.di_widgets.items():
-            #if isinstance(v, FileUploadToDir):
-            if "FileUploadToDir" in str(type(v)) and self.path is not None:
-                path = self.path.parent / "data"
-                path.mkdir(exist_ok=True)
-                self.di_widgets[k].fdir = str(path)
-        
 
 
 # -
@@ -444,7 +433,12 @@ if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
 
     sch = TestAutoLogicSimple.schema()
-    aui = AutoUi(TestAutoLogicSimple, path="test.json", show_raw=False, fn_onsave=lambda: print('test onsave'))
+    aui = AutoUi(
+        TestAutoLogicSimple,
+        path="test.json",
+        show_raw=False,
+        fn_onsave=lambda: print("test onsave"),
+    )
     display(aui)
 
 # + tags=[]
@@ -475,6 +469,4 @@ if __name__ == "__main__":
 
     aui = AutoUi(AnalysisPaths, show_raw=True)
     display(aui)
-
-
 

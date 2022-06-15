@@ -35,11 +35,14 @@ import functools
 import ipywidgets as widgets
 from IPython.display import display
 import traitlets
+import traitlets_paths
 import typing
 from ipyautoui.constants import load_test_constants
+
 #  from ipyautoui.custom.iterable import AutoArray
 import ipyautoui.automapschema as aumap
 import immutables
+import inspect
 
 frozenmap = immutables.Map
 
@@ -77,7 +80,7 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
         return aumap.widgetcaller(v)
 
     di_widgets = {k: _init_widget(v) for k, v in pr.items()}
-    
+
     # return di_widgets
     labels = {}
     for k, v in pr.items():
@@ -90,7 +93,7 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     ui_box = widgets.VBox()
     rows = []
     for (k, v), (k2, v2) in zip(di_widgets.items(), labels.items()):
-        v.layout = {"width": "70%"}  # Setting width of ui object
+        # v.layout = {"width": "70%"}  # Setting width of ui object. #TODO make edit_grid work with AutoUi
         rows.append(widgets.HBox([v, v2]))
     ui_box.children = rows
     # ui_box.layout = {'border': 'solid yellow'}
@@ -108,10 +111,11 @@ def _get_value_trait(widget):
         raise ValueError("no value (or _value) trait found")
 
 
-class AutoIpywidget(widgets.VBox): 
+class AutoIpywidget(widgets.VBox):
     """creates an ipywidgets form from a json-schema or pydantic model"""
 
     _value = traitlets.Dict(allow_none=True)
+    fdir = traitlets.Unicode(allow_none=True)  # traitlets_paths.Path(allow_none=True)
 
     @traitlets.validate("_value")
     def _valid_value(self, proposal):
@@ -128,10 +132,20 @@ class AutoIpywidget(widgets.VBox):
         if hasattr(self, "di_widgets"):
             self._update_widgets_from_value()
 
-    def __init__(
-        self, schema, value=None, widgets_mapper=None,
-    ):
+    def __init__(self, schema, value=None, widgets_mapper=None, fdir=None):
+        """creates a widget input form from schema
+
+        Args:
+            schema (dict): json schema defining widget to generate
+            value (dict, optional): value of json. Defaults to None.
+            widgets_mapper (frozenmap, optional): frozen dict of widgets to map to schema items. Defaults to None.
+            fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
+
+        Returns: 
+            AutoIpywidget(widgets.VBox)
+        """
         self.widgets_mapper = widgets_mapper
+        self.fdir = fdir
         self._init_ui(schema)
         if value is not None:
             self.value = value
@@ -143,17 +157,33 @@ class AutoIpywidget(widgets.VBox):
     @widgets_mapper.setter
     def widgets_mapper(self, value):
         if value is None:
-            self._widgets_mapper = aumap.MAP_WIDGETS  # TODO: maybe this should be a dict
+            self._widgets_mapper = aumap.MAP_WIDGETS
+            # ^ TODO: maybe this should be a dict
 
     def _init_ui(self, schema):
         self._init_schema(schema)
         self._init_form()
-        # self._init_titlebox()
         self._init_controls()
+
+    def add_fdir_to_widgetcallers(self):
+        if isinstance(self.pr, dict):
+            for k, v in self.pr.items():
+                if "fdir" in inspect.getfullargspec(v.autoui).args:
+                    v.kwargs = {"fdir": self.fdir}
+        elif isinstance(self.pr, aumap.WidgetCaller):
+            print("isinstance(self.pr, aumap.WidgetCaller):")
+            if "fdir" in inspect.getfullargspec(self.pr.autoui).args:
+                self.pr.kwargs = {"fdir": self.fdir}
+        else:
+            raise ValueError(
+                f"ERROR AutoIpywidget.add_fdir_to_widgetcallers. self.fdir = {self.fdir}"
+            )
 
     def _init_schema(self, schema):
         self.sch = schema  # attach_schema_refs(schema, schema_base=schema)
         self.pr = aumap.automapschema(self.sch, widget_map=self.widgets_mapper)
+        if self.fdir is not None:
+            self.add_fdir_to_widgetcallers()
 
     def _update_widgets_from_value(self):
         for k, v in self.value.items():
@@ -162,12 +192,10 @@ class AutoIpywidget(widgets.VBox):
                     v = _get_value_trait(self.di_widgets[k]).default()
                 self.di_widgets[k].value = v
             else:
-                logging.info(f"no widget created for {k}, with value {str(v)}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify")
+                logging.info(
+                    f"no widget created for {k}, with value {str(v)}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify"
+                )
                 # TODO: something weird is going on here...
-                # print(
-                #     f"no widget created for {k}, with value {str(v)}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify"
-                # )
-                # print('ffs - _update_widgets_from_value')
 
     def _init_form(self):
         super().__init__(
@@ -177,23 +205,11 @@ class AutoIpywidget(widgets.VBox):
                 flex="flex-grow",
                 border="solid LemonChiffon 2px",
             )
-        )  # main container
-        #         self.ui_header = widgets.VBox()
-        #         self.ui_main = widgets.VBox()
-
-        #         self.ui_titlebox = widgets.VBox()
-        #         self.ui_header.children = [self.ui_titlebox]
-
-        #         self.ui_box, self.di_widgets = _init_widgets_and_rows(self.pr)
-        #         self._value = self.di_widgets_value
-        #         self.ui_main.children = [self.ui_box]
-        #         self.children = [self.ui_header, self.ui_main]
-        #         self._update_widgets_from_value()
+        )
         self.ui_main = widgets.VBox()
         self.ui_widgets, self.di_widgets = _init_widgets_and_rows(self.pr)
-        self.ui_main.children = [
-            self.ui_widgets
-        ]  # note. box in box to allow for ui_main to be swapped to raw
+        self.ui_main.children = [self.ui_widgets]
+        # ^ note. box in box to allow for ui_main to be swapped to raw
         self._value = self.di_widgets_value
         self.children = [self.ui_main]
         self._update_widgets_from_value()
@@ -224,13 +240,9 @@ class AutoIpywidget(widgets.VBox):
                 pass
 
     def _watch_change(self, change, key=None, watch="value"):
-        # tmp = self._value.copy()
-        # tmp[key] = getattr(self.di_widgets[key], watch)
-        # self._value = tmp
-
         self._value = self.di_widgets_value
-        #  note. it is required to .copy the _value and then set it again
-        #        otherwise traitlets doesn't register the change.
+        #  note. it is required to set the whole "_value" otherwise
+        #        traitlets doesn't register the change.
 
 
 # -

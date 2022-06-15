@@ -17,11 +17,11 @@
 # %run __init__.py
 # %load_ext lab_black
 import typing
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from ipywidgets import widgets
 import ipywidgets as widgets
 import ipyautoui.autowidgets as auiwidgets
-from ipyautoui._utils import frozenmap
+from ipyautoui._utils import frozenmap, obj_from_importstr
 
 # +
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
@@ -363,6 +363,7 @@ def is_Array(di: dict) -> bool:
         return False
     return True
 
+
 def is_DataFrame(di: dict) -> bool:
     if "format" in di.keys():
         if di["format"] == "DataFrame":
@@ -371,6 +372,7 @@ def is_DataFrame(di: dict) -> bool:
             return False
     else:
         return False
+
 
 class WidgetMapper(BaseModel):
     """defines a filter function and associated widget. the "fn_filt" is used to search the
@@ -383,8 +385,9 @@ class WidgetMapper(BaseModel):
 
 class WidgetCaller(BaseModel):
     schema_: typing.Dict
-    autoui: typing.Callable  # TODO: change name autoui --> widget
-    # mvalue: typing.Any = None  # TODO: add functionality to add value. (don't think this is required...)
+    autoui: typing.Callable  # TODO: change name autoui --> widget?
+    args: typing.List = Field(default_factory=lambda: [])
+    kwargs: typing.Dict = Field(default_factory=lambda: {})
 
 
 def widgetcaller(caller: WidgetCaller, show_errors=True):
@@ -400,7 +403,7 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
         # kw = {k_: v_ for k_, v_ in v.items() if k_ in args}
         # ^ do this if required (get allowed args from class)
 
-        w = caller.autoui(caller.schema_)
+        w = caller.autoui(caller.schema_, *caller.args, **caller.kwargs)
 
     except:
         if show_errors:
@@ -423,7 +426,8 @@ schema:
 MAP_WIDGETS = frozenmap(
     **{
         "AutoOveride": WidgetMapper(
-            fn_filt=is_AutoOveride, widget=auiwidgets.autooveride
+            fn_filt=is_AutoOveride,
+            widget=auiwidgets.AutoPlaceholder,  # auiwidgets.autooveride
         ),
         "IntText": WidgetMapper(fn_filt=is_IntText, widget=auiwidgets.IntText),
         "IntSlider": WidgetMapper(fn_filt=is_IntSlider, widget=auiwidgets.IntSlider),
@@ -449,14 +453,30 @@ MAP_WIDGETS = frozenmap(
         "Color": WidgetMapper(fn_filt=is_Color, widget=auiwidgets.ColorPicker),
         "object": WidgetMapper(fn_filt=is_Object, widget=auiwidgets.AutoPlaceholder),
         "array": WidgetMapper(fn_filt=is_Array, widget=auiwidgets.AutoPlaceholder),
-        "DataFrame": WidgetMapper(fn_filt=is_DataFrame, widget=auiwidgets.AutoPlaceholder),
+        "DataFrame": WidgetMapper(
+            fn_filt=is_DataFrame, widget=auiwidgets.AutoPlaceholder
+        ),
     }
 )
 
 
-def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False):
-    mapped = []
+def get_autooveride(schema):
+    aui = schema["autoui"]
+    if type(aui) == str:
+        cl = obj_from_importstr(aui)
+    else:
+        cl = aui
+    return cl
 
+
+def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False):
+    def get_widget(di, k, widget_map):
+        if k == "AutoOveride":
+            return get_autooveride(di)
+        else:
+            return widget_map[k].widget
+
+    mapped = []
     # loop through widget_map to find a correct mapping...
     for k, v in widget_map.items():
         if v.fn_filt(di):
@@ -468,14 +488,17 @@ def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False):
         else:
             return WidgetCaller(schema_=di, autoui=auiwidgets.AutoPlaceholder)
     elif len(mapped) == 1:
+        # ONLY THIS ONE SHOULD HAPPEN
         k = mapped[0]
-        return WidgetCaller(schema_=di, autoui=widget_map[k].widget)
+        w = get_widget(di, k, widget_map)
+        return WidgetCaller(schema_=di, autoui=w)
     else:
         # TODO: add logging. take last map
         print(f"{di['title']}. multiple matches found. using the last one.")
         print(mapped)
         k = mapped[-1]
-        return WidgetCaller(schema_=di, autoui=widget_map[k].widget)
+        w = get_widget(di, k, widget_map)
+        return WidgetCaller(schema_=di, autoui=w)
 
 
 def automapschema(schema: dict, widget_map: frozenmap = MAP_WIDGETS) -> WidgetCaller:
@@ -484,19 +507,11 @@ def automapschema(schema: dict, widget_map: frozenmap = MAP_WIDGETS) -> WidgetCa
     from ipyautoui.autoipywidget import AutoIpywidget
     from ipyautoui.custom.edit_grid import EditGrid
 
-    # _ = widget_map.set("array", WidgetMapper(fn_filt=is_Array, widget=AutoArray))
-
     with widget_map.mutate() as mm:
         mm.set("array", WidgetMapper(fn_filt=is_Array, widget=AutoArray))
-        mm.set(
-            "DataFrame", WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid)
-        )  
+        mm.set("DataFrame", WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid))
         mm.set("object", WidgetMapper(fn_filt=is_Object, widget=AutoIpywidget))
         _ = mm.finish()
-    # mm = widget_map.mutate()
-    # mm.set(WidgetMapper(fn_filt=is_Array, widget=AutoArray)
-    # mm.set(WidgetMapper(fn_filt=is_Array, widget=AutoIpywidget)
-    # _ = mm.finish()
     del widget_map
     widget_map = _
 
@@ -517,7 +532,7 @@ def autowidget(schema, value=None):
     """interprets schema and returns appropriate widget"""
     caller = automapschema(schema)
     if value is not None:
-        caller['value'] = value
+        caller["value"] = value
     if type(caller) == WidgetCaller:
         # print("type(caller) == WidgetCaller")
         return widgetcaller(caller)
