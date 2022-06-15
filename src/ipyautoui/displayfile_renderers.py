@@ -44,6 +44,7 @@ from IPython.display import display, Markdown, IFrame, clear_output, Image
 import json
 import ipydatagrid as ipg
 import ipywidgets as widgets
+import importlib.util
 import plotly.io as pio
 
 #  from mf library
@@ -56,6 +57,8 @@ except:
 from ipyautoui.mydocstring_display import display_module_docstring
 from ipyautoui._utils import del_matching, display_python_file, frozenmap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
+
+
 
 # -
 
@@ -173,16 +176,27 @@ def preview_json(path):
 """
     )
 
+def check_installed(package_name):
+    spec = importlib.util.find_spec(package_name)
+    if spec is None:
+        return False
+    else:
+        return True    
 
 def preview_plotly(path):
-    return pio.read_json(path)
-
+# For illustrative purposes.
+    package_name = 'plotly'
+    if check_installed(package_name)
+        return widgets.HTML(package_name +" is not installed")
+    else:
+        return pio.read_json(path)
 
 def Vega(spec):
     """
     render Vega in jupyterlab
     https://github.com/jupyterlab/jupyterlab/blob/master/examples/vega/vega-extension.ipynb
     """
+    check_installed(package_name):
     bundle = {}
     bundle["application/vnd.vega.v5+json"] = spec
     display(bundle, raw=True)
