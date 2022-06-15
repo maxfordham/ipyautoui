@@ -366,7 +366,7 @@ def is_Array(di: dict) -> bool:
 
 def is_DataFrame(di: dict) -> bool:
     if "format" in di.keys():
-        if di["format"] == "DataFrame":
+        if di["format"].lower() == "dataframe":
             return True
         else:
             return False

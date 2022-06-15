@@ -319,7 +319,7 @@ class GridWrapper(DataGrid):
             selection_mode="row",
             renderers=self.datetime_format_renderers,
             **self.kwargs_datagrid_default,
-        )  # main container
+        )  # main container. # TODO: may be causing "DeprecationWarning: Passing unrecognized arguments..." in pytest
         if self.aui_column_widths:
             self._set_column_widths()
         if self.aui_sig_figs and self._data["data"] != []:
@@ -490,7 +490,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         kwargs_datagrid_update,
         ignore_cols,
     ):
-        super().__init__()  # main container
+        super().__init__(layout={"width": "100%"})  # main container
         self.button_bar = ButtonBar(
             add=self._add,
             edit=self._edit,
@@ -738,6 +738,8 @@ if __name__ == "__main__":
         something_else: float = Field(324, aui_column_width=100)
 
     class TestDataFrame(BaseModel):
+        """a description of TestDataFrame"""
+
         dataframe: typing.List[DataFrameCols] = Field(
             default_factory=lambda: [], format="dataframe"
         )
@@ -761,4 +763,6 @@ if __name__ == "__main__":
         {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
     ]
 
-
+if __name__ == "__main__":
+    auto_grid = AutoUi(schema=TestDataFrame)
+    display(auto_grid)
