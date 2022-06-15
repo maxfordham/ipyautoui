@@ -196,7 +196,6 @@ def Vega(spec):
     render Vega in jupyterlab
     https://github.com/jupyterlab/jupyterlab/blob/master/examples/vega/vega-extension.ipynb
     """
-    check_installed(package_name):
     bundle = {}
     bundle["application/vnd.vega.v5+json"] = spec
     display(bundle, raw=True)
