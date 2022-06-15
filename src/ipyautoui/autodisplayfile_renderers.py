@@ -59,7 +59,6 @@ from ipyautoui._utils import del_matching, display_python_file, frozenmap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 
 
-
 # -
 
 
@@ -176,20 +175,23 @@ def preview_json(path):
 """
     )
 
+
 def check_installed(package_name):
     spec = importlib.util.find_spec(package_name)
     if spec is None:
         return False
     else:
-        return True    
+        return True
+
 
 def preview_plotly(path):
-# For illustrative purposes.
-    package_name = 'plotly'
-    if check_installed(package_name)
-        return widgets.HTML(package_name +" is not installed")
+    # For illustrative purposes.
+    package_name = "plotly"
+    if check_installed(package_name):
+        return widgets.HTML(package_name + " is not installed")
     else:
         return pio.read_json(path)
+
 
 def Vega(spec):
     """
@@ -264,22 +266,22 @@ DEFAULT_FILE_RENDERERS = frozenmap(
     **{
         ".csv": preview_csv,
         ".json": preview_json,
-        ".plotly": preview_plotly, 
+        ".plotly": preview_plotly,
         ".plotly.json": preview_plotly,
         ".vg.json": preview_vega,
         ".vl.json": preview_vegalite,
         ".yaml": preview_yaml,
-        ".yml": preview_yaml, 
-        ".png": preview_image, 
-        ".jpg": preview_image, 
+        ".yml": preview_yaml,
+        ".png": preview_image,
+        ".jpg": preview_image,
         ".jpeg": preview_image,
         #'.obj': obj_prev, # add ipyvolume viewer?
-        ".txt": preview_text,  
-        ".bat": preview_text,  
-        ".rst": preview_text, 
-        "": preview_text,  
+        ".txt": preview_text,
+        ".bat": preview_text,
+        ".rst": preview_text,
+        "": preview_text,
         ".toml": preview_text,  # TODO: add toml viewer?
-        ".md": preview_markdown, 
+        ".md": preview_markdown,
         ".py": PreviewPython,
         ".pdf": preview_pdf,
     }
