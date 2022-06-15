@@ -93,13 +93,13 @@ KWARGS_OPENPREVIEW = frozenmap(
         style={'font_weight': 'bold'} #,'button_color':OPEN_BN_COLOR
 )
 KWARGS_OPENFILE = frozenmap(
-        icon='fa-file', 
+        icon='file', 
         layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
         tooltip='open file with system software',
         style={'font_weight': 'bold','button_color':OPEN_BN_COLOR}
 )
 KWARGS_OPENFOLDER = frozenmap(
-        icon='fa-folder', 
+        icon='folder', 
         layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
         tooltip='open folder in file-browser',
         style={'font_weight': 'bold','button_color':OPEN_BN_COLOR}
