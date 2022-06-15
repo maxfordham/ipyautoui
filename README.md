@@ -82,8 +82,6 @@ requires of a custom project. See [custom-renderers](custom-renderers.ipynb).
 
 ## AutoDisplay 
 
-`(TODO: name change to display, facilitating display of database data?)`
-
 - AutoDisplay uses Jupyter's rich display system and large ecosystem of 3rd party packages to create a simple and unified display wrapper to various filetypes.
 - The renderer for a given file is inferred from the file extension. 
      - TODO: where the datasource is not a file, the extension is a mapping code that maps a renderer to the datastructure of the data. 
@@ -91,14 +89,6 @@ requires of a custom project. See [custom-renderers](custom-renderers.ipynb).
 
 
 ## How it works: 
-
-```mermaid
-  graph TD;
-      A-->B;
-      A-->C;
-      B-->D;
-      C-->D;
-```
 
 - Make a pydantic model (or json schema) that defines the UI
 - Pass the model to `AutoUi` to generate an user-interface
