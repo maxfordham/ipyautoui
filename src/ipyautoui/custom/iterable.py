@@ -180,7 +180,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
     """generic iterable. pass a list of items"""
 
     # -----------------------------------------------------------------------------------
-    _value = traitlets.List()  # TODO: change to _value and add setter and getter?
+    _value = traitlets.List()
     _show_hash = traitlets.Unicode(allow_none=True)
     _add_remove_controls = traitlets.Unicode(allow_none=True)
     _sort_on = traitlets.Unicode(allow_none=True)
@@ -193,12 +193,15 @@ class Array(widgets.VBox, traitlets.HasTraits):
             )
         return proposal
 
-    @validate(
-        "_add_remove_controls"
-    )  # TODO: validator not getting called when this is changed once the class has been instantiated
+    @validate("_add_remove_controls")
     def _validate_add_remove_controls(self, proposal):
-        print(proposal.value)
-        if proposal.value not in ["add_remove", "append_only", "remove_only", None]:  # TODO: put this in an enum... 
+        # TODO: validator not getting called when this is changed once the class has been instantiated
+        if proposal.value not in [
+            "add_remove",
+            "append_only",
+            "remove_only",
+            None,
+        ]:  # TODO: put this in an enum...
             raise ValueError(
                 f'{proposal} given. allowed values of _add_remove_controls are "add_remove", "append_only", "remove_only", None only'
             )
@@ -214,6 +217,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
 
     def _update_value(self, onchange):
         self._value = [a.item.value for a in self.iterable]
+
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
@@ -224,7 +228,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         fn_add: typing.Callable = lambda: display("add item"),
         fn_add_dialogue: typing.Callable = None,
         fn_remove: typing.Callable = lambda: display("remove item"),
-        #fn_remove_dialogue: typing.Callable = lambda: display(f"are you sure you want to remove {item}"), #TODO
+        # fn_remove_dialogue: typing.Callable = lambda: display(f"are you sure you want to remove {item}"), #TODO
         watch_value: bool = True,
         minlen: int = 0,
         maxlen: int = 100,
@@ -245,8 +249,6 @@ class Array(widgets.VBox, traitlets.HasTraits):
         self.fn_remove = fn_remove
         self.watch_value = watch_value
         self.zfill = 2
-        # if value is None and items is not None:
-
         value, items = self._init_value(value, items)
         self.iterable = self._init_iterable(items)
         self._init_form()
@@ -290,7 +292,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
     def value(self):
         return self._value
 
-    @value.setter  # TODO: this!
+    @value.setter
     def value(self, value: typing.List):
         self.items = [self.fn_add() for v in value]
         for n, v in enumerate(value):
@@ -313,9 +315,13 @@ class Array(widgets.VBox, traitlets.HasTraits):
         return [i.key for i in self.iterable]
 
     def _add_from_zero_display(self):
-        if self.length == 0 and self.add_remove_controls != 'remove_only' and self.add_remove_controls is not None:
+        if (
+            self.length == 0
+            and self.add_remove_controls != "remove_only"
+            and self.add_remove_controls is not None
+        ):
             self.rows_box.children = [self.add_from_zero]
-        elif self.length == 0 and self.add_remove_controls == 'remove_only':
+        elif self.length == 0 and self.add_remove_controls == "remove_only":
             self.rows_box.children = []
         else:
             pass
@@ -338,12 +344,12 @@ class Array(widgets.VBox, traitlets.HasTraits):
         )
         self.title_box = widgets.HBox(
             layout=widgets.Layout(display="flex", flex="flex-grow")
-        )  # BOX[self.orient_rows]
+        )
         self.toggle_button = widgets.ToggleButton(
             icon="minus", layout=dict(BUTTON_MIN_SIZE)
         )
         self.add_from_zero = widgets.Button(**ADD_BUTTON_KWARGS)
-        #self._add_from_zero_display()
+        # self._add_from_zero_display()
         self.toggle_button.value = True
         self._refresh_children()
         self._update_rows_box()
@@ -538,7 +544,15 @@ class Array(widgets.VBox, traitlets.HasTraits):
             functools.partial(self._remove_rows, key=key)
         )
         if self.watch_value:
-            self._get_attribute(key, "item").observe(self._update_value, names="value")
+            obj = self._get_attribute(key, "item")
+            if "value" in obj.traits():
+                obj.observe(self._update_value, names="value")
+            elif "_value" in obj.traits():
+                obj.observe(self._update_value, names="_value")
+            else:
+                raise ValueError(
+                    'array item must have either "value" or "_value" trait to be observed'
+                )
 
     def _init_controls(self):
         self.add_from_zero.on_click(self._add_from_zero)
@@ -739,9 +753,7 @@ class AutoArray(Array):
         schema: typing.Dict,
         value=None,
         toggle=False,
-        # title=None,
-        # fn_add: typing.Callable = lambda: display("add item"),
-        fn_remove: typing.Callable = lambda: None,  # display("remove item"),
+        fn_remove: typing.Callable = lambda: None,
         watch_value: bool = True,
         add_remove_controls: str = "add_remove",
         show_hash: str = "index",
@@ -757,15 +769,6 @@ class AutoArray(Array):
         self.watch_value = watch_value
         self.zfill = 2
         if value is not None:
-            #     items = [
-            #         AutoIpywidget(value=v, schema=self.schema, show_raw=False)
-            #         for v in value
-            #     ]
-            # elif "default" in self.schema.keys():
-            #     items = [
-            #         AutoIpywidget(value=v, schema=self.schema["items"], show_raw=False)
-            #         for v in self.schema["default"]
-            #     ]
             items = [autowidgetcaller(schema=self.schema) for v in value]
         elif "default" in self.schema.keys():
             items = [
@@ -812,32 +815,6 @@ class AutoArray(Array):
 # -
 
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestArrays
-
-    sch = TestArrays.schema()["properties"]["array_strings"]
-    ui = AutoArray(sch)
-    display(ui)
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestArrays
-    from ipyautoui.autoipywidget import AutoIpywidget
-
-    # TestArrays.schema()["properties"]  # ["array_strings"]
-
-    sch = TestArrays.schema()
-    ui = AutoIpywidget(schema=sch)
-    display(ui)
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestArrays
-
-    sch = TestArrays.schema()
-    sch = sch["properties"]["array_strings1"]
-    ui = AutoArray(sch)
-    display(ui)
-
-# +
-if __name__ == "__main__":
     import random
     from IPython.display import Markdown
 
@@ -868,7 +845,7 @@ if __name__ == "__main__":
         else:
             return TestItem(di=value)
 
-    class TestItem(widgets.HBox, traitlets.HasTraits):
+    class TestItem(widgets.HBox):
         _value = traitlets.Dict()
 
         def __init__(self, di: typing.Dict = get_di()):
@@ -911,6 +888,34 @@ if __name__ == "__main__":
 
     arr = Array(**di_arr)
     display(arr)
+
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestArrays
+
+    sch = TestArrays.schema()["properties"]["array_strings"]
+    ui = AutoArray(sch)
+    display(ui)
+
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestArrays
+    from ipyautoui.autoipywidget import AutoIpywidget
+
+    # TestArrays.schema()["properties"]  # ["array_strings"]
+
+    sch = TestArrays.schema()
+    ui = AutoIpywidget(schema=sch)
+    display(ui)
+
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestArrays
+
+    sch = TestArrays.schema()
+    sch = sch["properties"]["array_strings1"]
+    ui = AutoArray(sch)
+    display(ui)
+
+# +
+
 
 
 if __name__ == "__main__":
