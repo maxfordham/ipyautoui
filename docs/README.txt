@@ -13,3 +13,4 @@ To build, do the following:
 
 Notes.
 - when authoring notebooks that will be executed the notebook must be authored from directly within the environment - __not__ using nb_conda_kernels
+- to crop the logo, run `python crop_logo.py`
