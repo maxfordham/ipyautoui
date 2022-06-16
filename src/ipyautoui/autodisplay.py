@@ -338,16 +338,6 @@ open folder:
         self.out_caller.layout.display = "none"
 
 
-if __name__ == "__main__":
-    path = pathlib.Path("pdf.pdf")
-    d = DisplayObject.from_path(
-        path,
-        newroot=pathlib.PureWindowsPath("C:\engDev\git_mf\ipyautoui\src\ipyautoui"),
-        # auto_open=False,
-    )
-    display(d)
-
-
 # -
 
 
@@ -566,21 +556,11 @@ class AutoDisplay(traitlets.HasTraits):
         [d._update_file() for d in self.display_objects]
 
 
-if __name__ == "__main__":
-    path = pathlib.Path("pdf.pdf")
-    d = AutoDisplay.from_paths(
-        path,
-        newroot=pathlib.PureWindowsPath("C:\engDev\git_mf\ipyautoui\src\ipyautoui"),
-        # auto_open=False,
-    )
-    display(d)
-
 # +
 # TODO: render markdown to html using pandoc and rebase relative paths - https://github.com/jgm/pandoc/issues/3752
 # TODO: render Vega updating the data path
 # TODO: render pdf update the relative path
 # TODO: figure out why the spacing between rows is weird
-# TODO: integrate with AutoUi
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
