@@ -9,7 +9,7 @@ def file(self:Type[BaseModel], path: pathlib.Path, **json_kwargs):
     "setattr".
     
     Example:
-        ```setattr(self.config_autoui.pydantic_model, 'file', file)```
+        ```setattr(model, 'file', file)```
         
     Args:
         self (pydantic.BaseModel): instance
