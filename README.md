@@ -5,7 +5,7 @@
 
 ![](docs/logo.png)
 
-click the launch|binder badge above, and run through the Notebooks in the docs folder to see it in action! 
+click the `launch|binder` badge above, and run through the Notebooks in the docs folder to see it in action! 
 
 ## Installation
 
