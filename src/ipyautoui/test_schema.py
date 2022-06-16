@@ -3,7 +3,8 @@ An example schema definition that demonstrates the current capability of the Aut
 """
 import typing
 from enum import Enum
-from pydantic import BaseModel, Field, conint, constr
+from pydantic import Field, conint, constr
+from ipyautoui.basemodel import BaseModel
 from pydantic.color import Color
 from datetime import datetime, date
 import pathlib
@@ -12,6 +13,24 @@ from pathlib import PurePosixPath
 
 # from ipyautoui.custom.modelrun import RunName
 
+STR_MARKDOWN = """
+See details here: [__commonmark__](https://commonmark.org/help/)
+
+or press the question mark button. 
+"""
+
+DATAGRID_TEST_VALUE = [
+        {
+            "string": "important string",
+            "integer": 1,
+            "floater": 3.14,
+            "something_else": 324,
+        },
+        {"string": "update", "integer": 4, "floater": 3.12344, "something_else": 123},
+        {"string": "evening", "integer": 5, "floater": 3.14, "something_else": 235},
+        {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
+        {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
+    ]
 
 class Gender(str, Enum):
     male = "male"
@@ -37,11 +56,18 @@ class RecursiveNest(BaseModel):
     nested: NestedObject = Field(default=None)
 
 
-STR_MARKDOWN = """
-See details here: [__commonmark__](https://commonmark.org/help/)
+class DataFrameCols(BaseModel):
+    string: str = Field("string", aui_column_width=100)
+    integer: int = Field(1, aui_column_width=80)
+    floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
+    something_else: float = Field(324, aui_column_width=100)
 
-or press the question mark button. 
-"""
+class TestDataFrame(BaseModel):
+    """a description of TestDataFrame"""
+
+    dataframe: typing.List[DataFrameCols] = Field(
+        default_factory=lambda: [], format="dataframe"
+    )
 
 
 class TestAutoLogicSimple(BaseModel):
@@ -111,10 +137,15 @@ class TestAutoLogic(TestAutoLogicSimple):
     run_name: str = Field(
         default="000-lean-description", autoui="ipyautoui.autowidgets.RunName", zfill=3,
     )
-    datagrid: str = Field(
-        default=pd.DataFrame.from_dict({"test": [0, 1], "df": [1, 2]}).to_json(),
+    datagrid: typing.List[DataFrameCols] = Field(
+        default=DATAGRID_TEST_VALUE,
+        #default_factory=lambda: DATAGRID_TEST_VALUE, # TODO: AutoUi isn't getting data when set using default_factory. make this work!
         format="DataFrame",
     )
+    # datagrid_from_dataframe: str = Field(
+    #     default=pd.DataFrame.from_dict({"test": [0, 1], "df": [1, 2]}),
+    #     format="DataFrame",
+    # )
     nested: NestedObject = Field(default=None)
     recursive_nest: RecursiveNest = Field(default=None)
 
