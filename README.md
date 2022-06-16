@@ -25,8 +25,9 @@ from ipyautoui import AutoUi, AutoVjsf, AutoDisplay
 ```
 ipyautoui aims to give you as much as possible out-the-box, whilst also supporting a simple workflow to extend and customise the interface to specific user requirements. 
 
+## Summary of main features
 
-## AutoUi
+### AutoUi
 
 ```python
 from pydantic import BaseModel, Field
@@ -70,13 +71,13 @@ AutoUi.parse_file #  init ui with data from .json file
 - TODO: AutoUi also allows the user to specify the usage of [__ipyvuetify__](https://github.com/widgetti/ipyvuetify) and 
     - __note__. this is the recommended approach for simple and generic input forms. Where custom UI objects are required these can be built using the ipyautoui core library. 
     
-## AutoVjsf
+### AutoVjsf
 
 `AutoVjsf` works in exactly the same way as `AutoUi`, but instead of using `ipywidgets` to render the JSON schema it uses [ipyvuetify](https://github.com/widgetti/ipyvuetify) and [vuetify-jsonschema-form](https://github.com/koumoul-dev/vuetify-jsonschema-form).
 
-## Should I use AutoUi or AutoVjsf?
+### Should I use AutoUi or AutoVjsf?
 
-### AutoVjsf
+#### AutoVjsf
 
 The excellent documentation for [__vuetify-jsonschema-form__](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/) can be used to create your schema. Anything possible
 in vjsf is therefore possible using AutoVjsf (TODO: implement markdown editor). This has a much more complete coverage of the json-schema specification, as well as the added
@@ -88,11 +89,11 @@ but vuetify-jsonschema-form requires them (e.g. "x-display");
 use "x_display" instead and AutoVjsf does the conversion). 
 ```
 
-### AutoUi
+#### AutoUi
 
 The main benefit of AutoUi (and main the reason for continuing to develop it), is that it makes it simple to create custom renderers for specific parts of the json-schema, facilitating the bespoke the requirements of a custom project. See [custom-renderers](custom-renderers.ipynb).
 
-## AutoDisplay 
+### AutoDisplay 
 
 - AutoDisplay uses Jupyter's rich display system and large ecosystem of 3rd party packages to create a simple and unified display wrapper to various filetypes.
 - The renderer for a given file is inferred from the file extension. 
