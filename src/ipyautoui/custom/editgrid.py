@@ -731,24 +731,16 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
 if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = {
-        "description": "ffs",
+        "description": "another description",
         "dataframe": [
-            {
-                "string": "important string",
-                "integer": 1,
-                "floater": 3.14,
-                "something_else": 324,
-            },
-            {
-                "string": "update",
-                "integer": 4,
-                "floater": 3.12344,
-                "something_else": 123,
-            },
-            {"string": "evening", "integer": 5, "floater": 3.14, "something_else": 235},
-            {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
-            {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
+            {"string": "important string", "integer": 1, "floater": 3.14,},
+            {"string": "update", "integer": 4, "floater": 3.12344,},
+            {"string": "evening", "integer": 5, "floater": 3.14},
+            {"string": "morning", "integer": 5, "floater": 3.14},
+            {"string": "number", "integer": 3, "floater": 3.14},
         ],
+        "alist": ["a", "b", "c"],
+        "anobject": DataFrameCols().dict(),
     }
 
     class DataFrameCols(BaseModel):
@@ -787,22 +779,9 @@ if __name__ == "__main__":
     ]
 
 if __name__ == "__main__":
-
-    auto_grid = AutoUi(schema=TestDataFrame, value=AUTO_GRID_DEFAULT_VALUE)
+    # TODO: note that default values aren't being set from the schema for the Array or DataGrid
+    auto_grid = AutoUi(schema=TestDataFrame)
     display(auto_grid)
 
 if __name__ == "__main__":
-    auto_grid.value = {
-        "description": "another description",
-        "dataframe": [
-            {"string": "important string", "integer": 1, "floater": 3.14,},
-            {"string": "update", "integer": 4, "floater": 3.12344,},
-            {"string": "evening", "integer": 5, "floater": 3.14},
-            {"string": "morning", "integer": 5, "floater": 3.14},
-            {"string": "number", "integer": 3, "floater": 3.14},
-        ],
-        "alist": ["a", "b", "c"],
-        "anobject": DataFrameCols().dict(),
-    }
-
-
+    auto_grid.value = AUTO_GRID_DEFAULT_VALUE
