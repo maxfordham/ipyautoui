@@ -6,14 +6,14 @@
         0,
         3
     ],
-    "float_slider": 2,
-    "float_text": 2,
+    "float_slider": 2.0,
+    "float_text": 2.0,
     "float_range_slider": [
         0.0,
         2.2
     ],
     "checkbox": true,
-    "dropdown": "male",
+    "dropdown": null,
     "dropdown_simple": "asd",
     "combobox": "asd",
     "text": "short text",
@@ -21,23 +21,65 @@
     "markdown": "\nSee details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. \n",
     "complex_serialisation": {
         "file_chooser": ".",
-        "date_picker": null,
-        "datetime_picker": "2022-05-13T19:44:08.257183",
+        "date_picker": "2022-06-16",
+        "datetime_picker": "2022-06-16T04:43:49.411522",
         "color_picker_ipywidgets": "#f5f595"
     },
     "select_multiple_non_constrained": [
         "male",
-        "male"
+        "female"
     ],
     "select_multiple_from_list": [
         "male",
         "female"
     ],
-    "select_multiple_search": [],
-    "array": [],
-    "objects_array": [],
+    "select_multiple_search": [
+        "male",
+        "female"
+    ],
+    "array": [
+        ""
+    ],
+    "objects_array": [
+        {
+            "string1": "adsf",
+            "int_slider1": 2,
+            "int_text1": 1
+        }
+    ],
     "run_name": "000-lean-description",
-    "datagrid": "{\"test\":{\"0\":0,\"1\":1},\"df\":{\"0\":1,\"1\":2}}",
+    "datagrid": [
+        {
+            "string": "important string",
+            "integer": 1,
+            "floater": 3.14,
+            "something_else": 324.0
+        },
+        {
+            "string": "update",
+            "integer": 4,
+            "floater": 3.12344,
+            "something_else": 123.0
+        },
+        {
+            "string": "evening",
+            "integer": 5,
+            "floater": 3.14,
+            "something_else": 235.0
+        },
+        {
+            "string": "morning",
+            "integer": 5,
+            "floater": 3.14,
+            "something_else": 12.0
+        },
+        {
+            "string": "number",
+            "integer": 3,
+            "floater": 3.14,
+            "something_else": 123.0
+        }
+    ],
     "nested": {
         "string1": "adsf",
         "int_slider1": 2,
@@ -47,10 +89,6 @@
         "string1": "adsf",
         "int_slider1": 2,
         "int_text1": 1,
-        "nested": {
-            "string1": "adsf",
-            "int_slider1": 2,
-            "int_text1": 1
-        }
+        "nested": null
     }
 }
