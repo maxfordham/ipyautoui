@@ -730,6 +730,26 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
 
 if __name__ == "__main__":
+    AUTO_GRID_DEFAULT_VALUE = {
+        "description": "ffs",
+        "dataframe": [
+            {
+                "string": "important string",
+                "integer": 1,
+                "floater": 3.14,
+                "something_else": 324,
+            },
+            {
+                "string": "update",
+                "integer": 4,
+                "floater": 3.12344,
+                "something_else": 123,
+            },
+            {"string": "evening", "integer": 5, "floater": 3.14, "something_else": 235},
+            {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
+            {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
+        ],
+    }
 
     class DataFrameCols(BaseModel):
         string: str = Field("string", aui_column_width=100)
@@ -740,9 +760,12 @@ if __name__ == "__main__":
     class TestDataFrame(BaseModel):
         """a description of TestDataFrame"""
 
+        description: str = "a description of my dataframe"
         dataframe: typing.List[DataFrameCols] = Field(
-            default_factory=lambda: [], format="dataframe"
+            default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
         )
+        alist: typing.List[str] = ["a", "b", "c"]
+        anobject: DataFrameCols
 
     schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
 
@@ -764,5 +787,22 @@ if __name__ == "__main__":
     ]
 
 if __name__ == "__main__":
-    auto_grid = AutoUi(schema=TestDataFrame)
+
+    auto_grid = AutoUi(schema=TestDataFrame, value=AUTO_GRID_DEFAULT_VALUE)
     display(auto_grid)
+
+if __name__ == "__main__":
+    auto_grid.value = {
+        "description": "another description",
+        "dataframe": [
+            {"string": "important string", "integer": 1, "floater": 3.14,},
+            {"string": "update", "integer": 4, "floater": 3.12344,},
+            {"string": "evening", "integer": 5, "floater": 3.14},
+            {"string": "morning", "integer": 5, "floater": 3.14},
+            {"string": "number", "integer": 3, "floater": 3.14},
+        ],
+        "alist": ["a", "b", "c"],
+        "anobject": DataFrameCols().dict(),
+    }
+
+
