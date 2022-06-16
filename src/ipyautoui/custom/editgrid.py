@@ -759,6 +759,16 @@ if __name__ == "__main__":
         alist: typing.List[str] = ["a", "b", "c"]
         anobject: DataFrameCols
 
+    # TODO: note that default values aren't being set from the schema for the Array or DataGrid
+    auto_grid = AutoUi(schema=TestDataFrame)
+    display(auto_grid)
+
+if __name__ == "__main__":
+    auto_grid.value = AUTO_GRID_DEFAULT_VALUE
+
+if __name__ == "__main__":
+    # a grid only example
+    # note. you have to pull out the section of the pydantic model
     schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
 
     editgrid = EditGrid(schema=schema)
@@ -777,11 +787,3 @@ if __name__ == "__main__":
         {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
         {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
     ]
-
-if __name__ == "__main__":
-    # TODO: note that default values aren't being set from the schema for the Array or DataGrid
-    auto_grid = AutoUi(schema=TestDataFrame)
-    display(auto_grid)
-
-if __name__ == "__main__":
-    auto_grid.value = AUTO_GRID_DEFAULT_VALUE
