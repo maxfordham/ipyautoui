@@ -26,7 +26,7 @@ import ipywidgets as widgets
 import traitlets
 from copy import deepcopy
 from ipyautoui._utils import obj_from_importstr
-from ipyautoui.custom import modelrun, markdown_widget, edit_grid
+from ipyautoui.custom import modelrun, markdown_widget, editgrid
 from ipyautoui._utils import remove_non_present_kwargs
 from datetime import datetime
 
@@ -289,10 +289,10 @@ class RunName(modelrun.RunName):
         super().__init__(**self.caller)
 
 
-class EditGrid(edit_grid.EditGrid):
+class EditGrid(editgrid.EditGrid):
     def __init__(self, schema):
         self.schema = schema
-        self.caller = create_widget_caller(schema, calling=edit_grid.EditGrid)
+        self.caller = create_widget_caller(schema, calling=editgrid.EditGrid)
         super().__init__(**self.caller)
 
 

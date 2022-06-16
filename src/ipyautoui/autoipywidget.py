@@ -93,7 +93,7 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
     ui_box = widgets.VBox()
     rows = []
     for (k, v), (k2, v2) in zip(di_widgets.items(), labels.items()):
-        # v.layout = {"width": "70%"}  # Setting width of ui object. #TODO make edit_grid work with AutoUi
+        # v.layout = {"width": "70%"}  # Setting width of ui object. #TODO make editgrid work with AutoUi
         rows.append(widgets.HBox([v, v2]))
     ui_box.children = rows
     # ui_box.layout = {'border': 'solid yellow'}
