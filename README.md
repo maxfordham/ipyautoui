@@ -81,8 +81,7 @@ use "x_display" instead and AutoVjsf does the conversion).
 
 ### AutoUi
 
-The main benefit of AutoUi (and main reason for continuing to develop it), as it is simple to create custom renderers for parts of the json-schema, facilitating the specific 
-requires of a custom project. See [custom-renderers](custom-renderers.ipynb).
+The main benefit of AutoUi (and main the reason for continuing to develop it), is that it makes it simple to create custom renderers for specific parts of the json-schema, facilitating the bespoke the requirements of a custom project. See [custom-renderers](custom-renderers.ipynb).
 
 ## AutoDisplay 
 
@@ -95,7 +94,7 @@ requires of a custom project. See [custom-renderers](custom-renderers.ipynb).
 ## How it works: 
 
 - Make a pydantic model (or json schema) that defines the UI
-- Pass the model to `AutoUi` to generate an user-interface
+- Pass the model to `AutoUi` or `AutoVjsf` to generate an user-interface
 - Save the UI fields to file 
 - Assign a compound-json filetype to the schema and generate `AutoDisplay` rendererer
 - Use `AutoDisplay` to display the json file using the AutoUi interface
