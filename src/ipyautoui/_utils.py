@@ -14,13 +14,13 @@ import importlib.util
 import inspect
 import immutables
 import getpass
-import importlib.util
-import typing
 
 frozenmap = immutables.Map
 
+
 def make_new_path(path, *args, **kwargs):
     return path
+
 
 try:
     from mf_file_utilities import go as open_file
@@ -34,8 +34,8 @@ except:
 
 
 def getuser():
-    try: 
-        return os.environ['JUPYTERHUB_USER']
+    try:
+        return os.environ["JUPYTERHUB_USER"]
     except:
         return getpass.getuser()
 
@@ -328,6 +328,7 @@ def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
     myobj.file(path)
     return path
 
+
 # TODO: use obj_to_importstr and obj_from_importstr rather than load_PyObj
 def obj_to_importstr(obj: typing.Callable):  # NOT IN USE
     """
@@ -462,3 +463,9 @@ def st_mtime_string(path):
         return "####-##-## ##:##:##"
 
 
+def check_installed(package_name):
+    spec = importlib.util.find_spec(package_name)
+    if spec is None:
+        return False
+    else:
+        return True

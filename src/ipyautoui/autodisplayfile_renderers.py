@@ -45,19 +45,17 @@ import json
 import ipydatagrid as ipg
 import ipywidgets as widgets
 import importlib.util
-import plotly.io as pio
-
-#  from mf library
-try:
-    from xlsxtemplater import from_excel
-except:
-    pass
 
 #  local imports
 from ipyautoui.mydocstring_display import display_module_docstring
-from ipyautoui._utils import del_matching, display_python_file, frozenmap
+from ipyautoui._utils import del_matching, display_python_file, frozenmap, check_installed
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 
+if check_installed('xlsxtemplater'):
+    from xlsxtemplater import from_excel
+
+if check_installed('plotly'):
+    import plotly.io as pio
 
 # -
 
@@ -174,14 +172,6 @@ def preview_json(path):
 ```
 """
     )
-
-
-def check_installed(package_name):
-    spec = importlib.util.find_spec(package_name)
-    if spec is None:
-        return False
-    else:
-        return True
 
 
 def preview_plotly(path):

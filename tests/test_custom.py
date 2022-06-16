@@ -14,7 +14,6 @@ from .example_objects import (
 from ipyautoui.custom import (
     Array,
     Dictionary,
-    Grid,
     MultiSelectSearch,
     SaveButtonBar,
     LoadProject,
