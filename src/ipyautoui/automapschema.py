@@ -502,11 +502,13 @@ def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False):
 
 
 def automapschema(schema: dict, widget_map: frozenmap = MAP_WIDGETS) -> WidgetCaller:
-    # By placing the import in this function we avoid a circular import.
     from ipyautoui.custom.iterable import AutoArray
     from ipyautoui.autoipywidget import AutoIpywidget
     from ipyautoui.custom.edit_grid import EditGrid
-
+    # ^ by placing the import in this function we avoid a circular import.
+    # all of the above depend on AutoUi, so there is recursion happening... 
+    
+    
     with widget_map.mutate() as mm:
         mm.set("array", WidgetMapper(fn_filt=is_Array, widget=AutoArray))
         mm.set("DataFrame", WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid))
