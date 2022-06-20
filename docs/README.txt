@@ -2,10 +2,10 @@ To build, do the following:
 
 **note: we assume you are in the same dir as this README.txt file. 
 
-1. delete the ../src/__init__.py
-^ this is here for dev only and makes the doc generator think that ipyautoui is a subpackage of src
+1. create conda environment for docs
+>>> mamba env create -f environment.yml
 
-2. generate conf.py file from jupyterbook
+2. generate conf.py file from jupyterbook _config.yml
 >>> jupyter-book config sphinx .
 
 3. generate docs
