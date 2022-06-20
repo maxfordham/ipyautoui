@@ -50,6 +50,7 @@ dependencies:
   - autodoc-pydantic # for docs
   - nbsphinx-link
   - sphinxcontrib-mermaid
+  - sphinx-panels
   - pytest
   - pip
   - pip:

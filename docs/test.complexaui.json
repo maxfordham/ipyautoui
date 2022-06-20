@@ -21,8 +21,8 @@
     "markdown": "\nSee details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. \n",
     "complex_serialisation": {
         "file_chooser": ".",
-        "date_picker": "2022-06-16",
-        "datetime_picker": "2022-06-16T04:43:49.411522",
+        "date_picker": "2022-06-20",
+        "datetime_picker": "2022-06-20T15:24:22.505560",
         "color_picker_ipywidgets": "#f5f595"
     },
     "select_multiple_non_constrained": [
@@ -37,16 +37,8 @@
         "male",
         "female"
     ],
-    "array": [
-        ""
-    ],
-    "objects_array": [
-        {
-            "string1": "adsf",
-            "int_slider1": 2,
-            "int_text1": 1
-        }
-    ],
+    "array": [],
+    "objects_array": [],
     "run_name": "000-lean-description",
     "datagrid": [
         {
