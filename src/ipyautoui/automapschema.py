@@ -133,6 +133,8 @@ def is_FloatText(di: dict) -> bool:
     Example:
         >>> is_FloatText({'title': 'floater', 'default': 1.33, 'type': 'number'})
         True
+        >>> is_FloatText({'title': 'floater', 'default': 1, 'type': 'integer'})
+        False
     """
     if "autoui" in di.keys():
         return False
@@ -431,7 +433,7 @@ MAP_WIDGETS = frozenmap(
         ),
         "IntText": WidgetMapper(fn_filt=is_IntText, widget=auiwidgets.IntText),
         "IntSlider": WidgetMapper(fn_filt=is_IntSlider, widget=auiwidgets.IntSlider),
-        "FloatText": WidgetMapper(fn_filt=is_FloatText, widget=auiwidgets.IntText),
+        "FloatText": WidgetMapper(fn_filt=is_FloatText, widget=auiwidgets.FloatText),
         "FloatSlider": WidgetMapper(
             fn_filt=is_FloatSlider, widget=auiwidgets.IntSlider
         ),
