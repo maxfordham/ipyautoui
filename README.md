@@ -5,7 +5,9 @@
 
 ![](docs/logo.png)
 
-click the `launch|binder` badge above, and run through the Notebooks in the docs folder to see it in action! 
+## Try in online! 
+
+launch [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD).
 
 ## Installation
 
