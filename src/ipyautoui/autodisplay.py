@@ -248,7 +248,8 @@ class DisplayObject(widgets.VBox):
         # data = widgets.HBox(layout=widgets.Layout(justify_items="center"))
         self.out_caller = widgets.Output()
         self.out = widgets.Output()
-
+        self.out_caller.layout.display = "none"
+        self.out.layout.display = "none"
         self.bx_bar = widgets.HBox()
         if (
             isinstance(self.display_actions.path, pathlib.PurePath)
@@ -274,7 +275,7 @@ open folder:
         self.bx_bar.children = children
         self.bx_out = widgets.VBox()
         self.bx_out.children = [self.out_caller, self.out]
-        self.children = [self.bx_bar]  # , self.bx_out]
+        self.children = [self.bx_bar, self.bx_out]
         self.check_exists()
 
     def _init_controls(self):
@@ -294,7 +295,6 @@ open folder:
 
     def _openpreview(self, onchange):
         if self.openpreview.value:
-            self.children = [self.bx_bar, self.bx_out]
             self.openpreview.icon = "eye-slash"
             self.out.layout.display = ""
 
@@ -307,7 +307,6 @@ open folder:
                 else:
                     display(Markdown("file does not exist"))
         else:
-            self.children = [self.bx_bar]
             self.openpreview.icon = "eye"
             self.out.layout.display = "none"
             with self.out:
@@ -316,26 +315,23 @@ open folder:
     def _openfile(
         self, sender
     ):  # TODO: use ipyevents to update file information and display in tooltip on mouseover?
-        self.children = [self.bx_bar, self.bx_out]
         self.out_caller.layout.display = ""
         with self.out_caller:
             clear_output()
             self.display_actions.open_file()
             time.sleep(5)
             clear_output()
-            self.children = [self.bx_bar]
         self.out_caller.layout.display = "none"
 
     def _openfolder(self, sender):
-        self.children = [self.bx_bar, self.bx_out]
         self.out_caller.layout.display = ""
         with self.out_caller:
             clear_output()
             self.display_actions.open_folder()
             time.sleep(5)
             clear_output()
-            self.children = [self.bx_bar]
         self.out_caller.layout.display = "none"
+
 
 
 # -
