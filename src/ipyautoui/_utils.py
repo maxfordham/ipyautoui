@@ -80,36 +80,6 @@ def _markdown(value="_Markdown_", **kwargs):
     return widgets.HTML(**_kwargs)
 
 
-def obj_from_string(class_type_string: str) -> Type:
-    """
-    given the str(type(Obj)) of an Obj, this function
-    imports it from the relevant lib (using getattr and
-    importlib) and returns the Obj. 
-    
-    makes it easy to define class used as a string in a json
-    object and then use this class to re-initite it.
-    
-    Args:
-        class_type_string
-    Returns: 
-        obj
-        
-    Example:
-        
-    """
-
-    def find(s, ch):
-        return [i for i, ltr in enumerate(s) if ltr == ch]
-
-    cl = class_type_string
-    ind = find(cl, "'")
-    nm = cl[ind[0] + 1 : ind[1]]
-    nms = nm.split(".")
-    clss = nms[-1:][0]
-    mod = ".".join(nms[:-1])
-    return getattr(importlib.import_module(mod), clss)
-
-
 def write_json(data, fpth="data.json", sort_keys=True, indent=4):
     """
     write output to json file
@@ -360,7 +330,7 @@ def obj_to_importstr(obj: typing.Callable):  # NOT IN USE
     return mod + "." + nm
 
 
-def obj_from_importstr(importstr: str) -> typing.Type:  # NOT IN USE
+def obj_from_importstr(importstr: str) -> typing.Type:
     """
     given the import string of an object this function and returns the Obj. 
     
