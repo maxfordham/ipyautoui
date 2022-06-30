@@ -768,8 +768,6 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     auto_grid.value = AUTO_GRID_DEFAULT_VALUE
 
-schema
-
 if __name__ == "__main__":
     # a grid only example
     # note. you have to pull out the section of the pydantic model
@@ -792,6 +790,5 @@ if __name__ == "__main__":
         {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
     ]
 
-schema
 
 
