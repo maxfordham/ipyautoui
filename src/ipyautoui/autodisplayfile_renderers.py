@@ -48,7 +48,7 @@ import importlib.util
 
 #  local imports
 from ipyautoui.mydocstring_display import display_module_docstring
-from ipyautoui._utils import del_matching, display_python_file, frozenmap, check_installed
+from ipyautoui._utils import del_matching, display_python_file, frozenmap, check_installed, get_ext
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 
 if check_installed('xlsxtemplater'):
@@ -225,9 +225,14 @@ def preview_yaml(path):
     )
 
 
-def preview_image(path):
-    return Image(pathlib.Path(path).read_bytes())
-
+def preview_image(path, *args, **kwargs):
+    return widgets.Image.from_file(path, *args, **kwargs)
+    
+def preview_video(path, *args, **kwargs):
+    return widgets.Video.from_file(path, *args, **kwargs)
+    
+def preview_audio(path, *args, **kwargs):
+    return widgets.Audio.from_file(path, *args, **kwargs)
 
 def preview_text(path):
     return Markdown(
@@ -265,6 +270,9 @@ DEFAULT_FILE_RENDERERS = frozenmap(
         ".png": preview_image,
         ".jpg": preview_image,
         ".jpeg": preview_image,
+        ".gif": preview_image,
+        ".mp4":preview_video,
+        ".mp3":preview_audio,
         #'.obj': obj_prev, # add ipyvolume viewer?
         ".txt": preview_text,
         ".bat": preview_text,
@@ -276,3 +284,8 @@ DEFAULT_FILE_RENDERERS = frozenmap(
         ".pdf": preview_pdf,
     }
 )
+
+def render_file(path: pathlib.Path, map_file_renderers=DEFAULT_FILE_RENDERERS):
+    path = pathlib.Path(path)
+    ext = get_ext(path)
+    return map_file_renderers[ext](path)
