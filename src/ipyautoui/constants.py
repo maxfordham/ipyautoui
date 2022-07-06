@@ -104,18 +104,23 @@ KWARGS_OPENFOLDER = frozenmap(
         tooltip='open folder in file-browser',
         style={'font_weight': 'bold','button_color':OPEN_BN_COLOR}
 )
-KWARGS_DISPLAY_ALL_FILES = frozenmap(
+
+KWARGS_DISPLAY = frozenmap(
     icon="plus",
     tooltip="display all files",
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     disabled=False
 )
-KWARGS_COLLAPSE_ALL_FILES = frozenmap(
+KWARGS_DISPLAY_ALL_FILES = frozenmap({**dict(KWARGS_DISPLAY),**{'tooltip':'display all files'}})
+
+KWARGS_COLLAPSE = frozenmap(
     icon="minus",
-    tooltip="collapse all files",
+    tooltip="collapse",
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     disabled=False
 )
+KWARGS_COLLAPSE_ALL_FILES = frozenmap({**dict(KWARGS_COLLAPSE),**{'tooltip':'collapse all files'}})
+
 KWARGS_HOME_DISPLAY_FILES = frozenmap(
     icon="home",
     tooltip="display default files",

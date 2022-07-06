@@ -45,11 +45,14 @@ import json
 import ipydatagrid as ipg
 import ipywidgets as widgets
 import importlib.util
+import traitlets
+import traitlets_paths
 
 #  local imports
 from ipyautoui.mydocstring_display import display_module_docstring
 from ipyautoui._utils import del_matching, display_python_file, frozenmap, check_installed, get_ext
 from ipyautoui.constants import BUTTON_WIDTH_MIN
+from ipyautoui.custom.showhide import ShowHide
 
 if check_installed('xlsxtemplater'):
     from xlsxtemplater import from_excel
@@ -60,7 +63,11 @@ if check_installed('plotly'):
 # -
 
 
+
+
 # + tags=[]
+
+
 class PreviewPython:
     """
     pass the class either a filepath or an imported
@@ -163,6 +170,71 @@ def preview_csv(path):
     df = del_matching(pd.read_csv(path), "Unnamed")
     return default_grid(df)
 
+class PreviewExcel(widgets.VBox):
+    path = traitlets_paths.Path()
+    xl = traitlets.Instance(klass='pandas.ExcelFile')
+    
+    def __init__(self, path):
+        super().__init__()
+        self.path = path
+        
+    @traitlets.observe('path')
+    def _observe_path(self, change):
+        self.xl = pd.ExcelFile(self.path)
+        
+    @traitlets.observe('xl')
+    def _observe_xl(self, change):
+        self.children = [
+            ShowHide(title=name, fn_display=lambda: default_grid(self.xl.parse(name))) for name in self.xl.sheet_names
+        ]
+
+
+def mdboldstr(string, di):
+    """return bold __key__: value from dict"""
+    return "__{}__: {}".format(string, di[string])
+
+
+def mdnorms(di):
+    return (
+        mdboldstr("ProjectNo", di)
+        + " ........ "
+        + mdboldstr("Date", di)
+        + " ........ "
+        + mdboldstr("Author", di)
+    )
+
+
+def mdwildcars(di):
+    exclude = [
+        "sheet_name",
+        "xlsx_params",
+        "xlsx_exporter",
+        "ProjectNo",
+        "Date",
+        "Author",
+        "df",
+        "grid",
+    ]
+    others = {k: v for k, v in di.items() if k not in exclude}
+    mdstr = ""
+    for k, v in others.items():
+        mdstr = mdstr + "__{}__: {}<br>".format(k, v)
+    return mdstr
+
+
+def mdheader(di):
+    return "### {} \n {} <br> {}".format(di["sheet_name"], mdnorms(di), mdwildcars(di))
+
+
+def xlsxtemplated_display(li):
+    """
+    displays xlsxtemplated (written using xlsxtemplater) using ipydatagrid
+    """
+    for l in li:
+        l["grid"] = default_grid(l["df"])
+        display(Markdown(mdheader(l)))
+        display(l["grid"])
+
 
 def preview_json(path):
     return Markdown(
@@ -260,6 +332,7 @@ def preview_pdf(path):
 DEFAULT_FILE_RENDERERS = frozenmap(
     **{
         ".csv": preview_csv,
+        ".xlsx":PreviewExcel,
         ".json": preview_json,
         ".plotly": preview_plotly,
         ".plotly.json": preview_plotly,
