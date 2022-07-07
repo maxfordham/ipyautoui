@@ -24,6 +24,7 @@
 import traitlets
 import typing
 import collections
+import traceback
 
 import immutables
 import pandas as pd
@@ -547,6 +548,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             self.button_bar.message.value = markdown("  ➕ _Adding Value_ ")
         except Exception as e:
             self.button_bar.message.value = markdown("  ☠️ _Failed to add_")
+            traceback.print_exc()
 
     def _edit(self):
         try:
@@ -787,3 +789,6 @@ if __name__ == "__main__":
         {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
         {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
     ]
+
+
+
