@@ -50,19 +50,23 @@ import traitlets_paths
 
 #  local imports
 from ipyautoui.mydocstring_display import display_module_docstring
-from ipyautoui._utils import del_matching, display_python_file, frozenmap, check_installed, get_ext
+from ipyautoui._utils import (
+    del_matching,
+    display_python_file,
+    frozenmap,
+    check_installed,
+    get_ext,
+)
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 from ipyautoui.custom.showhide import ShowHide
 
-if check_installed('xlsxtemplater'):
-    from xlsxtemplater import from_excel
+# if check_installed('xlsxtemplater'):
+#     from xlsxtemplater import from_excel
 
-if check_installed('plotly'):
+if check_installed("plotly"):
     import plotly.io as pio
 
 # -
-
-
 
 
 # + tags=[]
@@ -170,22 +174,24 @@ def preview_csv(path):
     df = del_matching(pd.read_csv(path), "Unnamed")
     return default_grid(df)
 
+
 class PreviewExcel(widgets.VBox):
     path = traitlets_paths.Path()
-    xl = traitlets.Instance(klass='pandas.ExcelFile')
-    
+    xl = traitlets.Instance(klass="pandas.ExcelFile")
+
     def __init__(self, path):
         super().__init__()
         self.path = path
-        
-    @traitlets.observe('path')
+
+    @traitlets.observe("path")
     def _observe_path(self, change):
         self.xl = pd.ExcelFile(self.path)
-        
-    @traitlets.observe('xl')
+
+    @traitlets.observe("xl")
     def _observe_xl(self, change):
         self.children = [
-            ShowHide(title=name, fn_display=lambda: default_grid(self.xl.parse(name))) for name in self.xl.sheet_names
+            ShowHide(title=name, fn_display=lambda: default_grid(self.xl.parse(name)))
+            for name in self.xl.sheet_names
         ]
 
 
@@ -299,12 +305,15 @@ def preview_yaml(path):
 
 def preview_image(path, *args, **kwargs):
     return widgets.Image.from_file(path, *args, **kwargs)
-    
+
+
 def preview_video(path, *args, **kwargs):
     return widgets.Video.from_file(path, *args, **kwargs)
-    
+
+
 def preview_audio(path, *args, **kwargs):
     return widgets.Audio.from_file(path, *args, **kwargs)
+
 
 def preview_text(path):
     return Markdown(
@@ -332,7 +341,7 @@ def preview_pdf(path):
 DEFAULT_FILE_RENDERERS = frozenmap(
     **{
         ".csv": preview_csv,
-        ".xlsx":PreviewExcel,
+        ".xlsx": PreviewExcel,
         ".json": preview_json,
         ".plotly": preview_plotly,
         ".plotly.json": preview_plotly,
@@ -344,8 +353,8 @@ DEFAULT_FILE_RENDERERS = frozenmap(
         ".jpg": preview_image,
         ".jpeg": preview_image,
         ".gif": preview_image,
-        ".mp4":preview_video,
-        ".mp3":preview_audio,
+        ".mp4": preview_video,
+        ".mp3": preview_audio,
         #'.obj': obj_prev, # add ipyvolume viewer?
         ".txt": preview_text,
         ".bat": preview_text,
@@ -358,7 +367,44 @@ DEFAULT_FILE_RENDERERS = frozenmap(
     }
 )
 
+
+def handle_compound_ext(ext, map_file_renderers=DEFAULT_FILE_RENDERERS): 
+    """_summary_
+
+    Args:
+        ext (_type_): _description_
+        map_file_renderers (_type_, optional): _description_. Defaults to DEFAULT_FILE_RENDERERS.
+
+    Returns:
+        _type_: _description_
+    """
+    li_ext = ext.split(".")
+    if ext in list(map_file_renderers.keys()):
+        return ext
+    elif len(li_ext) > 2:
+        # it is a compound filetype when the compound didn't match
+        # so return main ext
+        return "." + li_ext[-1]
+    else:
+        return ext
+
+
 def render_file(path: pathlib.Path, map_file_renderers=DEFAULT_FILE_RENDERERS):
+    """simple file renderer. 
+
+    Note: 
+        this function is not used by AutoDisplay, but is provided here for simple 
+        API functionality
+
+    Args:
+        path (pathlib.Path): 
+        map_file_renderers (_type_, optional): _description_. Defaults to DEFAULT_FILE_RENDERERS.
+
+    Returns:
+        something to display
+    """
+    # note: this isn't used by AutoDisplay
     path = pathlib.Path(path)
     ext = get_ext(path)
+    ext = handle_compound_ext(ext)
     return map_file_renderers[ext](path)
