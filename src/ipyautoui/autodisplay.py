@@ -53,7 +53,10 @@ import traitlets
 from pydantic import BaseModel, validator, HttpUrl
 
 #  local imports
-from ipyautoui.autodisplayfile_renderers import DEFAULT_FILE_RENDERERS
+from ipyautoui.autodisplayfile_renderers import (
+    DEFAULT_FILE_RENDERERS,
+    handle_compound_ext,
+)
 from ipyautoui._utils import (
     open_file,
     make_new_path,
@@ -73,10 +76,10 @@ from ipyautoui.constants import (
 )
 
 #  from mf library
-try:
-    from xlsxtemplater import from_excel
-except:
-    pass
+# try:
+#     from xlsxtemplater import from_excel
+# except:
+#     pass
 
 
 # -
@@ -124,6 +127,7 @@ class DisplayFromPath(DisplayObjectActions, MapFileRenderers):
     def _ext(cls, v, values):
         if values["path"] is not None:
             v = get_ext(values["path"])
+            v = handle_compound_ext(v)
         if v is None:
             ValueError("ext must be given to map data to renderer")
         return v
@@ -331,7 +335,6 @@ open folder:
             time.sleep(5)
             clear_output()
         self.out_caller.layout.display = "none"
-
 
 
 # -
