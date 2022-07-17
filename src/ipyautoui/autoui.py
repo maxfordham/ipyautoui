@@ -48,7 +48,7 @@ from enum import Enum
 from ipyautoui._utils import display_python_string
 from ipyautoui.custom import SaveButtonBar  #  Grid, FileChooser,
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-from ipyautoui.autoipywidget import AutoIpywidget
+from ipyautoui.autoipywidget import AutoIpywidget, AutoPydanticHandler
 
 # from ipyautoui.autovjsf import AutoVjsf
 
@@ -123,7 +123,7 @@ def get_schema_title(schema):
         return ""
 
 
-class AutoUiCommonMethods(traitlets.HasTraits):
+class AutoUiCommonMethods(traitlets.HasTraits, AutoPydanticHandler):
     """methods for: 
     - reading and writing to file
     - showing raw json form data
@@ -368,13 +368,13 @@ class AutoUiCommonMethods(traitlets.HasTraits):
     def call_disable_edits(self):
         pass  # TODO - call_disable_edits
 
-    def _init_model_schema(self, schema):
-        if type(schema) == dict:
-            model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
-        else:
-            model = schema  # the "model" passed is a pydantic model
-            schema = model.schema(by_alias=False)
-        return model, schema
+    # def _init_model_schema(self, schema):
+    #     if type(schema) == dict:
+    #         model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
+    #     else:
+    #         model = schema  # the "model" passed is a pydantic model
+    #         schema = model.schema(by_alias=False)
+    #     return model, schema
 
 
 class AutoUi(AutoIpywidget, AutoUiCommonMethods):
@@ -458,4 +458,6 @@ if __name__ == "__main__":
 
     aui = AutoUi(AnalysisPaths, show_raw=True)
     display(aui)
+
+
 

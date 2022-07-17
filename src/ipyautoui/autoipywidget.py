@@ -111,18 +111,19 @@ def _get_value_trait(widget):
         raise ValueError("no value (or _value) trait found")
 
 
-# class AutoPydanticHandler:
+class AutoPydanticHandler:
+    def _init_model_schema(self, schema):
+        if type(schema) == dict:
+            model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
+        else:
+            model = schema  # the "model" passed is a pydantic model
+            schema = model.schema(by_alias=False)
+        return model, schema
 
-#     def _init_model_schema(self, schema):
-#         if type(schema) == dict:
-#             model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
-#         else:
-#             model = schema  # the "model" passed is a pydantic model
-#             schema = model.schema(by_alias=False)
-#         return model, schema
+    # TODO: add validation methods here
 
 
-class AutoIpywidget(widgets.VBox):
+class AutoIpywidget(widgets.VBox, AutoPydanticHandler):
     """creates an ipywidgets form from a json-schema or pydantic model"""
 
     _value = traitlets.Dict(allow_none=True)
@@ -192,6 +193,7 @@ class AutoIpywidget(widgets.VBox):
             )
 
     def _init_schema(self, schema):
+        self.model, schema = self._init_model_schema(schema)
         self.schema = schema  # attach_schema_refs(schema, schema_base=schema)
         self.pr = aumap.automapschema(self.schema, widget_map=self.widgets_mapper)
         if self.fdir is not None:
