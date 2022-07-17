@@ -78,7 +78,7 @@ import traitlets
 from traitlets import validate
 import typing
 import immutables
-import inspect
+from IPython.display import display
 
 # from pydantic.dataclasses import dataclass
 from ipyautoui.basemodel import BaseModel
@@ -86,7 +86,6 @@ from pydantic import validator
 import uuid
 from uuid import UUID
 import functools
-import math
 from ipyautoui.constants import (
     ADD_BUTTON_KWARGS,
     REMOVE_BUTTON_KWARGS,
