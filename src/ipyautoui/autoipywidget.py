@@ -111,6 +111,17 @@ def _get_value_trait(widget):
         raise ValueError("no value (or _value) trait found")
 
 
+# class AutoPydanticHandler:
+
+#     def _init_model_schema(self, schema):
+#         if type(schema) == dict:
+#             model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
+#         else:
+#             model = schema  # the "model" passed is a pydantic model
+#             schema = model.schema(by_alias=False)
+#         return model, schema
+
+
 class AutoIpywidget(widgets.VBox):
     """creates an ipywidgets form from a json-schema or pydantic model"""
 
@@ -161,6 +172,7 @@ class AutoIpywidget(widgets.VBox):
             # ^ TODO: maybe this should be a dict
 
     def _init_ui(self, schema):
+
         self._init_schema(schema)
         self._init_form()
         self._init_controls()
@@ -180,8 +192,8 @@ class AutoIpywidget(widgets.VBox):
             )
 
     def _init_schema(self, schema):
-        self.sch = schema  # attach_schema_refs(schema, schema_base=schema)
-        self.pr = aumap.automapschema(self.sch, widget_map=self.widgets_mapper)
+        self.schema = schema  # attach_schema_refs(schema, schema_base=schema)
+        self.pr = aumap.automapschema(self.schema, widget_map=self.widgets_mapper)
         if self.fdir is not None:
             self.add_fdir_to_widgetcallers()
 
@@ -252,8 +264,8 @@ if __name__ == "__main__":
 
     test_constants = load_test_constants()
     test = TestAutoLogic()
-    sch = test.schema()
-    ui = AutoIpywidget(sch)
+    schema = test.schema()
+    ui = AutoIpywidget(schema)
     display(ui)
 
 if __name__ == "__main__":
@@ -262,6 +274,6 @@ if __name__ == "__main__":
 
     test_constants = load_test_constants()
     test = TestArrays()
-    sch = test.schema()
-    ui = AutoIpywidget(sch)
+    schema = test.schema()
+    ui = AutoIpywidget(schema)
     display(ui)

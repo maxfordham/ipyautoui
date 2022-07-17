@@ -197,7 +197,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         ]
 
         # init content
-        self.title = widgets.HTML(f"<big><b>{self.sch['title']}</b></big>")
+        self.title = widgets.HTML(f"<big><b>{self.schema['title']}</b></big>")
         self.bn_showraw = widgets.ToggleButton(
             icon="code",
             layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
@@ -213,8 +213,8 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         self.hbx_description.children = [self.description]
 
     def _init_description(self):
-        if "description" in self.sch.keys():
-            self.description.value = markdown(f"{self.sch['description']}")
+        if "description" in self.schema.keys():
+            self.description.value = markdown(f"{self.schema['description']}")
         if self.show_description:
             self.description.layout.display = ""
         else:
@@ -421,7 +421,7 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
 
-    sch = TestAutoLogicSimple.schema()
+    schema = TestAutoLogicSimple.schema()
     aui = AutoUi(
         TestAutoLogicSimple,
         path="test.json",
@@ -432,7 +432,7 @@ if __name__ == "__main__":
 
 # + tags=[]
 if __name__ == "__main__":
-    # Renderer = AutoUi.create_autoui_renderer(sch)
+    # Renderer = AutoUi.create_autoui_renderer(schema)
     Renderer = AutoUi.create_autoui_renderer(
         TestAutoLogic, path="test.json", show_raw=False
     )

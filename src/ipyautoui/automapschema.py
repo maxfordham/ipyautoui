@@ -25,11 +25,11 @@ from ipyautoui._utils import frozenmap, obj_from_importstr
 
 # +
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
-def recursive_search_schema(sch: typing.Dict, li: typing.List) -> typing.Dict:
+def recursive_search_schema(schema: typing.Dict, li: typing.List) -> typing.Dict:
     """searches down schema tree to retrieve definitions
 
     Args:
-        sch (typing.Dict): json schema made from pydantic
+        schema (typing.Dict): json schema made from pydantic
         li (typing.List): list of keys to search down tree
 
     Returns:
@@ -38,10 +38,10 @@ def recursive_search_schema(sch: typing.Dict, li: typing.List) -> typing.Dict:
     f = li[0]
     if len(li) > 1:
         li_tmp = li[1:]
-        sch_tmp = sch[f]
+        sch_tmp = schema[f]
         return recursive_search_schema(sch_tmp, li_tmp)
     else:
-        return sch[f]
+        return schema[f]
 
 
 def attach_schema_refs(schema, schema_base=None):

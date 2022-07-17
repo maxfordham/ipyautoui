@@ -892,8 +892,8 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
 
-    sch = TestArrays.schema()["properties"]["array_strings"]
-    ui = AutoArray(sch)
+    schema = TestArrays.schema()["properties"]["array_strings"]
+    ui = AutoArray(schema)
     display(ui)
 
 if __name__ == "__main__":
@@ -902,20 +902,19 @@ if __name__ == "__main__":
 
     # TestArrays.schema()["properties"]  # ["array_strings"]
 
-    sch = TestArrays.schema()
-    ui = AutoIpywidget(schema=sch)
+    schema = TestArrays.schema()
+    ui = AutoIpywidget(schema=schema)
     display(ui)
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
 
-    sch = TestArrays.schema()
-    sch = sch["properties"]["array_strings1"]
-    ui = AutoArray(sch)
+    schema = TestArrays.schema()
+    schema = schema["properties"]["array_strings1"]
+    ui = AutoArray(schema)
     display(ui)
 
 # +
-
 
 
 if __name__ == "__main__":
