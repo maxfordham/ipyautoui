@@ -257,6 +257,23 @@ def is_Color(di: dict) -> bool:
 
 
 def is_Text(di: dict) -> bool:
+    """check if schema object is a Text
+
+    Args:
+        di (dict): schema object
+
+    Returns:
+        bool: is the object a Text
+
+    Example:
+        >>> di = {"title": "Text", "default": "default string","type": "string"}
+        >>> is_Text(di)
+        True
+
+        >>> di = {"title": "Text", "default": 210*"s", "type": "string", "maxLength":210}
+        >>> is_Text(di)
+        False
+    """
     if "autoui" in di.keys():
         return False
     if not di["type"] == "string":
@@ -274,7 +291,20 @@ def is_Text(di: dict) -> bool:
     return True
 
 
-def is_Textarea(di: dict) -> bool:
+def is_Textarea(di: dict, max_length=200) -> bool:
+    """check if schema object is a is_Textarea
+
+    Args:
+        di (dict): schema object
+
+    Returns:
+        bool: is the object a is_Textarea
+
+    Example:
+        >>> di = {"title": "Text", "default": 210*"s", "type": "string", "maxLength":210}
+        >>> is_Textarea(di)
+        True
+    """
     if "autoui" in di.keys():
         return False
     if not di["type"] == "string":
@@ -283,7 +313,7 @@ def is_Textarea(di: dict) -> bool:
         return False
     if "maxLength" not in di.keys():
         return False
-    if "maxLength" in di.keys() and di["maxLength"] <= 200:  # i.e. == long text
+    if "maxLength" in di.keys() and di["maxLength"] <= max_length:  # i.e. == long text
         return False
     if is_Date(di):
         return False
@@ -471,7 +501,7 @@ def get_autooveride(schema):
     return cl
 
 
-def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False):
+def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False) -> WidgetCaller:
     def get_widget(di, k, widget_map):
         if k == "AutoOveride":
             return get_autooveride(di)
@@ -503,29 +533,47 @@ def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False):
         return WidgetCaller(schema_=di, autoui=w)
 
 
-def automapschema(schema: dict, widget_map: frozenmap = MAP_WIDGETS) -> WidgetCaller:
-    from ipyautoui.custom.iterable import AutoArray
-    from ipyautoui.autoipywidget import AutoIpywidget
-    from ipyautoui.custom.editgrid import EditGrid
+def update_widget_map(widget_map, di_update=None):
+    """update the widget mapper frozen object
 
-    # ^ by placing the import in this function we avoid a circular import.
-    # all of the above depend on AutoUi, so there is recursion happening...
+    Args:
+        widget_map (dict of WidgetMappers): _description_
+        di_update (_type_, optional): _description_. Defaults to None.
+    """
+    if di_update is None:
+        from ipyautoui.custom.iterable import AutoArray
+        from ipyautoui.autoipywidget import AutoObject #Ipywidget
+        from ipyautoui.custom.editgrid import EditGrid
+
+        # ^ by placing the import in this function we avoid a circular import.
+        # all of the above depend on AutoUi, so there is recursion happening...
+
+        di_update = {
+            "array": WidgetMapper(fn_filt=is_Array, widget=AutoArray),
+            "DataFrame": WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid),
+            "object": WidgetMapper(fn_filt=is_Object, widget=AutoObject),
+        }
 
     with widget_map.mutate() as mm:
-        mm.set("array", WidgetMapper(fn_filt=is_Array, widget=AutoArray))
-        mm.set("DataFrame", WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid))
-        mm.set("object", WidgetMapper(fn_filt=is_Object, widget=AutoIpywidget))
+        for k, v in di_update.items():
+            mm.set(k, v)
         _ = mm.finish()
     del widget_map
-    widget_map = _
+    return _
 
+
+def automapschema(schema: dict, widget_map: frozenmap = MAP_WIDGETS) -> WidgetCaller:
+
+    widget_map = update_widget_map(widget_map, di_update=None)
     schema = attach_schema_refs(schema)
     if "type" not in schema.keys():
         raise ValueError('"type" is a required key in schema')
     if schema["type"] == "object":
         # loop through keys
         pr = schema["properties"]
-        return {k: map_widget(v, widget_map=widget_map) for k, v in pr.items()}
+        return {
+            k: map_widget(v, widget_map=widget_map) for k, v in pr.items()
+        }  # TODO: check this
     elif schema["type"] == "array":
         return map_widget(schema, widget_map=widget_map)  # TODO: check this
     else:
@@ -548,7 +596,7 @@ def autowidget(schema, value=None):
 
 
 def autowidgetcaller(schema, value=None):
-    """interprets schema and returns appropriate widget"""
+    """interprets schema and returns appropriate widget. TODO: remove this"""
     from ipyautoui.custom.iterable import AutoArray
     from ipyautoui.autoipywidget import AutoIpywidget
 
