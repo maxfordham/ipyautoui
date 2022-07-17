@@ -10,9 +10,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.13.8
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python 3.9 (XPython)
 #     language: python
-#     name: python3
+#     name: xpython
 # ---
 
 # +
@@ -36,61 +36,67 @@ from ipyautoui._utils import round_sig_figs
 import ipyautoui.autoipywidget as aui
 import ipyautoui.custom.save_button_bar as sb
 
+# from ipyautoui.autoipywidget import AutoIpywidget
+
 from ipyautoui.constants import (
     BUTTON_WIDTH_MIN,
     TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT,
     KWARGS_DATAGRID_DEFAULT,
 )
 
-
 frozenmap = immutables.Map
 
 
 # -
-
-
-class BaseForm(widgets.VBox, traitlets.HasTraits):
+class BaseForm(aui.AutoIpywidget):
     def __init__(
         self,
-        save: typing.Callable,
-        revert: typing.Callable,
         schema: dict,
         value: dict = None,
+        widgets_mapper=None,
+        fdir=None,
+        save: typing.Callable = lambda: print("SAVE"),
+        revert: typing.Callable = lambda: print("REVERT"),
         fn_onsave: typing.Callable = lambda: None,
     ):
+
         self.fn_save = save
         self.fn_revert = revert
         self.fn_onsave = fn_onsave
-        self.model, schema = self._init_model_schema(schema)
+        super().__init__(schema, value=value, widgets_mapper=widgets_mapper, fdir=fdir)
+
         self.out = widgets.Output()
-        self._init_form(schema)
-        self._init_controls()
+        self._update_BaseForm()
+        self._update_BaseForm_controls()
 
-    def _init_model_schema(self, schema):
-        if type(schema) == dict:
-            model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
-        else:
-            model = schema  # the "model" passed is a pydantic model
-            schema = model.schema()
-        return model, schema
-
-    def _init_form(self, schema):
-        super().__init__()  # main container
-        self.autowidget = aui.AutoIpywidget(schema=schema)
+    def _update_BaseForm(self):
         self.save_button_bar = sb.SaveButtonBar(
             save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
         )
         self.title = widgets.HTML()
-        self.children = [self.title, self.save_button_bar, self.autowidget]
+        self.children = [self.title, self.save_button_bar, self.ui_main]
         self.save_button_bar._unsaved_changes(False)
-        self.value = self.autowidget.value
 
-    def _init_controls(self):
-        self.autowidget.observe(self._watch_change, "_value")
+    def _update_BaseForm_controls(self):
+        self.observe(self._watch_BaseForm_change, "_value")
 
-    def _watch_change(self, change):
+    def _watch_BaseForm_change(self, change):
         self.save_button_bar._unsaved_changes(True)
 
+
+if __name__ == "__main__":
+
+    class TestModel(BaseModel):
+        string: str = Field("string", title="Important String")
+        integer: int = Field(40, title="Integer of somesort")
+        floater: float = Field(1.33, title="floater")
+
+    # baseform = BaseForm(schema=TestModel.schema(), save=test_save, revert=test_revert)
+    ui = BaseForm(schema=TestModel.schema())
+    display(ui)
+
+if __name__ == "__main__":
+    ui.value = {'string': 'adfs', 'integer': 2, 'floater': 1.22}
 
 if __name__ == "__main__":
     from ipyautoui.automapschema import attach_schema_refs
@@ -107,6 +113,7 @@ if __name__ == "__main__":
         print("Reverted.")
 
     baseform = BaseForm(schema=TestModel.schema(), save=test_save, revert=test_revert)
+    #AutoUi(schema=TestModel.schema())
     display(baseform)
 
 if __name__ == "__main__":
@@ -125,12 +132,12 @@ if __name__ == "__main__":
         "items"
     ]
 
-    baseform = BaseForm(schema=schema, save=test_save, revert=test_revert)
+    baseform = AutoUi(schema=schema)
     display(baseform)
 
 if __name__ == "__main__":
     di = {"string": "update", "integer": 10, "floater": 3.123, "something_else": 444}
-    baseform.autowidget.value = di
+    baseform.value = di
 
 
 class ButtonBar(widgets.HBox):
@@ -528,7 +535,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             len(self.grid.selected_rows_) == 1
             and self.baseform.layout.display == "block"
         ):
-            self.baseform.autowidget.value = self.di_row
+            self.baseform.value = self.di_row
             self.baseform.save_button_bar._unsaved_changes(False)
 
     def _add(self):
@@ -540,7 +547,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 for col_name, col_data in self.schema["items"]["properties"].items()
             }
             self.initial_value = di_default_value
-            self.baseform.autowidget.value = di_default_value
+            self.baseform.value = di_default_value
             self.baseform.save_button_bar._unsaved_changes(
                 False
             )  # Set unsaved changes button back to False
@@ -555,7 +562,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             self._check_one_row_selected()
             di_obj = self.di_row
             self.initial_value = di_obj
-            self.baseform.autowidget.value = di_obj  # Set values in fields
+            self.baseform.value = di_obj  # Set values in fields
             self.baseform.save_button_bar._unsaved_changes(
                 False
             )  # Set unsaved changes button back to False
@@ -643,7 +650,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
             df = self.grid.data
             # ^ Can't assign directly to data so must assign to another variable before pushing changes through the setter.
-            for (k, v,) in self.baseform.autowidget.value.items():
+            for (k, v,) in self.baseform.value.items():
                 df.loc[self.selected_row, k] = v
             # ^ update selected row with updated values
 
@@ -651,8 +658,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         else:  # Else, if adding values, use post
             if self.data_handler is not None:
                 self.data_handler.fn_post(self)
-
-            df = pd.DataFrame([self.baseform.autowidget.value])
+            df = pd.DataFrame([self.baseform.value])
             if not self.grid._data["data"]:  # If no data in grid
                 self.grid.data = df
             else:
@@ -676,7 +682,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self._display_grid()
 
     def _revert(self):
-        self.baseform.autowidget.value = self.initial_value
+        self.baseform.value = self.initial_value
 
     def _set_toggle_buttons_to_false(self):
         if self.button_bar.add.value is True:
