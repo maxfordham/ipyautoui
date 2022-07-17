@@ -90,14 +90,10 @@ def _init_widgets_and_rows(pr: typing.Dict) -> tuple((widgets.VBox, typing.Dict)
         except:
             l = widgets.HTML("")
         labels[k] = l
-    ui_box = widgets.VBox()
     rows = []
     for (k, v), (k2, v2) in zip(di_widgets.items(), labels.items()):
-        # v.layout = {"width": "70%"}  # Setting width of ui object. #TODO make editgrid work with AutoUi
         rows.append(widgets.HBox([v, v2]))
-    ui_box.children = rows
-    # ui_box.layout = {'border': 'solid yellow'}
-    return ui_box, di_widgets
+    return rows, di_widgets
 
 
 # + tags=[]
@@ -121,6 +117,150 @@ class AutoPydanticHandler:
         return model, schema
 
     # TODO: add validation methods here
+
+
+class AutoRoot(widgets.VBox, AutoPydanticHandler):
+    """creates an ipywidgets form from a json-schema or pydantic model"""
+
+    _value = traitlets.Dict(allow_none=True)
+    fdir = traitlets.Unicode(allow_none=True)  # traitlets_paths.Path(allow_none=True)
+
+    @traitlets.validate("_value")
+    def _valid_value(self, proposal):
+        return proposal["value"]
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        """this is for setting the value via the API"""
+        self._value = value
+        if hasattr(self, "di_widgets"):
+            self._update_widgets_from_value()
+
+    @property
+    def widgets_mapper(self):
+        return self._widgets_mapper
+
+    @widgets_mapper.setter
+    def widgets_mapper(self, value):
+        if value is None:
+            self._widgets_mapper = aumap.update_widget_map(aumap.MAP_WIDGETS)
+            # ^ TODO: maybe this should be a dict
+
+    def add_fdir_to_widgetcallers(self):
+        if isinstance(self.pr, dict):
+            for k, v in self.pr.items():
+                if "fdir" in inspect.getfullargspec(v.autoui).args:
+                    v.kwargs = {"fdir": self.fdir}
+        elif isinstance(self.pr, aumap.WidgetCaller):
+            print("isinstance(self.pr, aumap.WidgetCaller):")
+            if "fdir" in inspect.getfullargspec(self.pr.autoui).args:
+                self.pr.kwargs = {"fdir": self.fdir}
+        else:
+            raise ValueError(
+                f"ERROR AutoIpywidget.add_fdir_to_widgetcallers. self.fdir = {self.fdir}"
+            )
+
+    def _update_widgets_from_value(self):
+        for k, v in self.value.items():
+            if k in self.di_widgets.keys():
+                if v is None:
+                    v = _get_value_trait(self.di_widgets[k]).default()
+                self.di_widgets[k].value = v
+            else:
+                logging.info(
+                    f"no widget created for {k}, with value {str(v)}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify"
+                )
+                # TODO: something weird is going on here...
+
+    @property
+    def di_widgets_value(self):
+        return {k: v.value for k, v in self.di_widgets.items()}
+
+    def disable_edits(self):
+        for k, v in self.di_widgets.items():
+            try:
+                v.disabled = True
+            except:
+                pass
+
+    def _init_controls(self):
+        for k, v in self.di_widgets.items():
+            if v.has_trait("value"):
+                v.observe(
+                    functools.partial(self._watch_change, key=k, watch="value"), "value"
+                )
+            elif v.has_trait("_value"):
+                v.observe(
+                    functools.partial(self._watch_change, key=k, watch="_value"),
+                    "_value",
+                )
+            else:
+                pass
+
+    def _watch_change(self, change, key=None, watch="value"):
+        self._value = self.di_widgets_value
+        #  note. it is required to set the whole "_value" otherwise
+        #        traitlets doesn't register the change.
+
+
+class AutoObject(AutoRoot):
+    def __init__(self, schema, value=None, widgets_mapper=None, fdir=None):
+        """creates a widget input form from schema
+
+        Args:
+            schema (dict): json schema defining widget to generate
+            value (dict, optional): value of json. Defaults to None.
+            widgets_mapper (frozenmap, optional): frozen dict of widgets to map to schema items. Defaults to None.
+            fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
+
+        Returns: 
+            AutoIpywidget(widgets.VBox)
+        """
+        self.widgets_mapper = widgets_mapper
+        self.fdir = fdir
+        self._init_ui(schema)
+        if value is not None:
+            self.value = value
+
+    def _init_ui(self, schema):
+        self._init_schema(schema)
+        self._init_form()
+        self._init_controls()
+
+    def _init_schema(self, schema):
+        self.model, schema = self._init_model_schema(schema)
+        self.schema = aumap.attach_schema_refs(schema)
+        if "type" not in self.schema.keys() and self.schema["type"] != "object":
+            raise ValueError(
+                '"type" must be in schema keys and "type" must == "object"'
+            )
+        pr = schema["properties"]
+        self.pr = {
+            k: aumap.map_widget(v, widget_map=self.widgets_mapper)
+            for k, v in pr.items()
+        }
+        if self.fdir is not None:
+            self.add_fdir_to_widgetcallers()
+
+    def _init_form(self):
+        super().__init__(
+            layout=widgets.Layout(
+                width="100%",
+                display="flex",
+                flex="flex-grow",
+                border="solid LemonChiffon 2px",
+            )
+        )
+        self.ui_main = widgets.VBox()
+        self.ui_main.children, self.di_widgets = _init_widgets_and_rows(self.pr)
+        # ^ note. box in box to allow for ui_main to be swapped to raw
+        self._value = self.di_widgets_value
+        self.children = [self.ui_main]
+        self._update_widgets_from_value()
 
 
 class AutoIpywidget(widgets.VBox, AutoPydanticHandler):
@@ -173,7 +313,6 @@ class AutoIpywidget(widgets.VBox, AutoPydanticHandler):
             # ^ TODO: maybe this should be a dict
 
     def _init_ui(self, schema):
-
         self._init_schema(schema)
         self._init_form()
         self._init_controls()
@@ -193,8 +332,7 @@ class AutoIpywidget(widgets.VBox, AutoPydanticHandler):
             )
 
     def _init_schema(self, schema):
-        self.model, schema = self._init_model_schema(schema)
-        self.schema = schema  # attach_schema_refs(schema, schema_base=schema)
+        self.model, self.schema = self._init_model_schema(schema)
         self.pr = aumap.automapschema(self.schema, widget_map=self.widgets_mapper)
         if self.fdir is not None:
             self.add_fdir_to_widgetcallers()
@@ -221,8 +359,7 @@ class AutoIpywidget(widgets.VBox, AutoPydanticHandler):
             )
         )
         self.ui_main = widgets.VBox()
-        self.ui_widgets, self.di_widgets = _init_widgets_and_rows(self.pr)
-        self.ui_main.children = [self.ui_widgets]
+        self.ui_main.children, self.di_widgets = _init_widgets_and_rows(self.pr)
         # ^ note. box in box to allow for ui_main to be swapped to raw
         self._value = self.di_widgets_value
         self.children = [self.ui_main]
