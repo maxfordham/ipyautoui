@@ -316,7 +316,7 @@ class AutoIpywidget(widgets.VBox):
     def _init_trait(self):
         # NOTE: see test for add_traits that demos usage  -@jovyan at 7/18/2022, 12:11:39 PM
         # https://github.com/ipython/ipython/commit/5105f02df27456cc54867dfbe4cef60d91021f92
-        trait_type = type(_get_value_trait(self.widget))
+        trait_type = type(_get_value_trait(self.autowidget))
         self.add_traits(**{"_value": trait_type()})
 
     def _init_schema(self, schema):
@@ -330,19 +330,19 @@ class AutoIpywidget(widgets.VBox):
         super().__init__(
             layout=widgets.Layout(width="100%", display="flex", flex="flex-grow")
         )
-        self.widget = aumap.widgetcaller(self.caller)
-        self.children = [self.widget]
+        self.autowidget = aumap.widgetcaller(self.caller)
+        self.children = [self.autowidget]
 
     def _init_controls(self):
-        if self.widget.has_trait("value"):
-            self.widget.observe(self._on_change, "value")
-        elif self.widget.has_trait("_value"):
-            self.widget.observe(self._on_change, "_value")
+        if self.autowidget.has_trait("value"):
+            self.autowidget.observe(self._on_change, "value")
+        elif self.autowidget.has_trait("_value"):
+            self.autowidget.observe(self._on_change, "_value")
         else:
             pass
 
     def _on_change(self, change):
-        self._value = self.widget.value
+        self._value = self.autowidget.value
 
     @property
     def value(self):
@@ -350,7 +350,7 @@ class AutoIpywidget(widgets.VBox):
 
     @value.setter
     def value(self, value):
-        self.widget.value = value
+        self.autowidget.value = value
 
 
 # -

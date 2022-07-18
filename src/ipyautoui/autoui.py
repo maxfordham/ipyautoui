@@ -236,7 +236,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         if self.bn_showraw.value:
             self.bn_showraw.tooltip = "show user interface"
             self.bn_showraw.icon = "user-edit"
-            self.widget.layout.display = "None"
+            self.autowidget.layout.display = "None"
             self.vbx_raw.layout.display = ""
 
             with self.out_raw:
@@ -251,7 +251,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         else:
             self.bn_showraw.tooltip = "show raw data"
             self.bn_showraw.icon = "code"
-            self.widget.layout.display = ""
+            self.autowidget.layout.display = ""
             self.vbx_raw.layout.display = "None"
 
     def _get_path(self, path=None):
