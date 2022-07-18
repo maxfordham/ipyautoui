@@ -12,7 +12,7 @@ import pathlib
 from .constants import DIR_TESTS, DIR_FILETYPES
 from .example_objects import ExampleSchema
 from ipyautoui import AutoUi, AutoDisplay, AutoVjsf
-
+from ipyautoui.autoipywidget import AutoObject
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
@@ -25,8 +25,7 @@ class TestUi:
     def test_auto_ui(self):
         auto_ui_eg = ExampleSchema()
         ui = AutoUi(auto_ui_eg)
-        li_keys = [key for key in ui.di_widgets.keys()]
-        assert li_keys[0] == "text"
+        assert ui.caller.schema_["type"] == "object"
 
     # def test_display_file(self):
     #     fpths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
