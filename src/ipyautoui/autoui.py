@@ -35,7 +35,7 @@ import logging
 import pathlib
 import functools
 import ipywidgets as widgets
-from IPython.display import display, Markdown, clear_output
+from IPython.display import display, Markdown, clear_output, display_pretty
 from pydantic import BaseModel, Field
 from markdown import markdown
 import immutables
@@ -123,6 +123,9 @@ def get_schema_title(schema):
         return ""
 
 
+# IDEA: Possible implementations -@jovyan at 7/18/2022, 6:02:03 PM
+# instead of having a general `AutoUiCommonMethods`, split into specific task
+# orientated classes. e.g. AutoUiShowRaw
 class AutoUiCommonMethods(traitlets.HasTraits):
     """methods for: 
     - reading and writing to file
@@ -235,9 +238,16 @@ class AutoUiCommonMethods(traitlets.HasTraits):
             self.bn_showraw.icon = "user-edit"
             self.widget.layout.display = "None"
             self.vbx_raw.layout.display = ""
+
             with self.out_raw:
                 clear_output()
-                display_python_string(self.json)
+                try:
+                    js = self.json
+                    display_python_string(self.json)
+                except:
+                    print("value is not valid json")
+                    display_pretty(self.value)
+
         else:
             self.bn_showraw.tooltip = "show raw data"
             self.bn_showraw.icon = "code"
