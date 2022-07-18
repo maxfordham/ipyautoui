@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.5
+#       jupytext_version: 1.13.8
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -108,6 +108,7 @@ TOGGLE_BUTTON_KWARGS = frozenmap(
 
 from ipyautoui.autowidgets import create_widget_caller
 from ipyautoui.automapschema import autowidgetcaller
+from ipyautoui.autoipywidget import AutoIpywidget
 
 
 # +
@@ -768,10 +769,10 @@ class AutoArray(Array):
         self.watch_value = watch_value
         self.zfill = 2
         if value is not None:
-            items = [autowidgetcaller(schema=self.schema) for v in value]
+            items = [AutoIpywidget(schema=self.schema) for v in value]
         elif "default" in self.schema.keys():
             items = [
-                autowidgetcaller(schema=self.schema["items"])
+                AutoIpywidget(schema=self.schema["items"])
                 for v in self.schema["default"]
             ]
             # [display(i) for i in items]
@@ -808,7 +809,7 @@ class AutoArray(Array):
             self.maxlen = self.schema["maxItems"]
         else:
             self.maxlen = 100
-        self.fn_add = functools.partial(autowidgetcaller, schema=self.caller["items"])
+        self.fn_add = functools.partial(AutoIpywidget, schema=self.caller["items"])
 
 
 # -
