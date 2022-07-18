@@ -603,20 +603,6 @@ def autowidget(schema, value=None):
         raise ValueError("adsf")
 
 
-def autowidgetcaller(schema, value=None):
-    """interprets schema and returns appropriate widget. TODO: remove this"""
-    from ipyautoui.custom.iterable import AutoArray
-    from ipyautoui.autoipywidget import AutoIpywidget
-
-    t = schema["type"]
-    if t == "object":
-        return AutoIpywidget(schema, value=value)
-    elif t == "array":
-        return AutoArray(schema, value=value)
-    else:
-        return autowidget(schema, value=value)
-
-
 if __name__ == "__main__":
     import doctest
 

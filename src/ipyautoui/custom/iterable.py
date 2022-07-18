@@ -107,7 +107,6 @@ TOGGLE_BUTTON_KWARGS = frozenmap(
 # -
 
 from ipyautoui.autowidgets import create_widget_caller
-from ipyautoui.automapschema import autowidgetcaller
 from ipyautoui.autoipywidget import AutoIpywidget
 
 
