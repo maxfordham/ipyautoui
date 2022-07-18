@@ -455,7 +455,7 @@ schema:
     return w
 
 
-MAP_WIDGETS = frozenmap(
+WIDGETS_MAP = frozenmap(
     **{
         "AutoOveride": WidgetMapper(
             fn_filt=is_AutoOveride, widget=auiwidgets.AutoPlaceholder,
@@ -491,23 +491,23 @@ MAP_WIDGETS = frozenmap(
 )
 
 
-def update_widget_map(widget_map, di_update=None):
+def update_widgets_map(widgets_map, di_update=None):
     """update the widget mapper frozen object
 
     Args:
-        widget_map (dict of WidgetMappers): _description_
+        widgets_map (dict of WidgetMappers): _description_
         di_update (_type_, optional): _description_. Defaults to None.
     """
 
-    with widget_map.mutate() as mm:
+    with widgets_map.mutate() as mm:
         for k, v in di_update.items():
             mm.set(k, v)
         _ = mm.finish()
-    del widget_map
+    del widgets_map
     return _
 
 
-def map_widgets(di_update=None):
+def widgets_map(di_update=None):
 
     from ipyautoui.custom.iterable import AutoArray
     from ipyautoui.autoipywidget import AutoObject  # Ipywidget
@@ -525,7 +525,7 @@ def map_widgets(di_update=None):
         di_update = {**di_update_, **di_update}
     else:
         di_update = di_update_
-    return update_widget_map(MAP_WIDGETS, di_update=di_update)
+    return update_widgets_map(WIDGETS_MAP, di_update=di_update)
 
 
 def get_autooveride(schema):
@@ -537,16 +537,16 @@ def get_autooveride(schema):
     return cl
 
 
-def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False) -> WidgetCaller:
-    def get_widget(di, k, widget_map):
+def map_widget(di, widgets_map=WIDGETS_MAP, fail_on_error=False) -> WidgetCaller:
+    def get_widget(di, k, widgets_map):
         if k == "AutoOveride":
             return get_autooveride(di)
         else:
-            return widget_map[k].widget
+            return widgets_map[k].widget
 
     mapped = []
-    # loop through widget_map to find a correct mapping...
-    for k, v in widget_map.items():
+    # loop through widgets_map to find a correct mapping...
+    for k, v in widgets_map.items():
         if v.fn_filt(di):
             mapped.append(k)
 
@@ -559,20 +559,20 @@ def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False) -> WidgetCaller:
     elif len(mapped) == 1:
         # ONLY THIS ONE SHOULD HAPPEN
         k = mapped[0]
-        w = get_widget(di, k, widget_map)
+        w = get_widget(di, k, widgets_map)
         return WidgetCaller(schema_=di, autoui=w)
     else:
         # TODO: add logging. take last map
         print(f"{di['title']}. multiple matches found. using the last one.")
         print(mapped)
         k = mapped[-1]
-        w = get_widget(di, k, widget_map)
+        w = get_widget(di, k, widgets_map)
         return WidgetCaller(schema_=di, autoui=w)
 
 
-def automapschema(schema: dict, widget_map: frozenmap = MAP_WIDGETS) -> WidgetCaller:
+def automapschema(schema: dict, widgets_map: frozenmap = WIDGETS_MAP) -> WidgetCaller:
 
-    widget_map = update_widget_map(widget_map, di_update={})
+    widgets_map = update_widgets_map(widgets_map, di_update={})
     schema = attach_schema_refs(schema)
     if "type" not in schema.keys():
         raise ValueError('"type" is a required key in schema')
@@ -580,12 +580,12 @@ def automapschema(schema: dict, widget_map: frozenmap = MAP_WIDGETS) -> WidgetCa
         # loop through keys
         pr = schema["properties"]
         return {
-            k: map_widget(v, widget_map=widget_map) for k, v in pr.items()
+            k: map_widget(v, widgets_map=widgets_map) for k, v in pr.items()
         }  # TODO: check this
     elif schema["type"] == "array":
-        return map_widget(schema, widget_map=widget_map)  # TODO: check this
+        return map_widget(schema, widgets_map=widgets_map)  # TODO: check this
     else:
-        return map_widget(schema, widget_map=widget_map)
+        return map_widget(schema, widgets_map=widgets_map)
 
 
 def autowidget(schema, value=None):
