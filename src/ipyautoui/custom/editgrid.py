@@ -48,42 +48,60 @@ frozenmap = immutables.Map
 
 
 # -
-class BaseForm(aui.AutoIpywidget):
-    def __init__(
-        self,
-        schema: dict,
-        value: dict = None,
-        update_map_widgets=None,
-        fdir=None,
-        save: typing.Callable = lambda: print("SAVE"),
-        revert: typing.Callable = lambda: print("REVERT"),
-        fn_onsave: typing.Callable = lambda: None,
-    ):
+def BaseForm(
+    schema: dict,
+    value: dict = None,
+    update_map_widgets=None,
+    fdir=None,
+    save: typing.Callable = lambda: print("SAVE"),
+    revert: typing.Callable = lambda: print("REVERT"),
+    fn_onsave: typing.Callable = lambda: None,
+):
+    class BaseForm(aui.AutoObject):
+        def __init__(
+            self,
+            schema: dict,
+            value: dict = None,
+            update_map_widgets=None,
+            fdir=None,
+            save: typing.Callable = lambda: print("SAVE"),
+            revert: typing.Callable = lambda: print("REVERT"),
+            fn_onsave: typing.Callable = lambda: None,
+        ):
+            self.fn_save = save
+            self.fn_revert = revert
+            self.fn_onsave = fn_onsave
+            super().__init__(
+                schema, value=value, update_map_widgets=update_map_widgets, fdir=fdir
+            )
 
-        self.fn_save = save
-        self.fn_revert = revert
-        self.fn_onsave = fn_onsave
-        super().__init__(
-            schema, value=value, update_map_widgets=update_map_widgets, fdir=fdir
-        )
+            self.out = widgets.Output()
+            self._update_BaseForm()
+            self._update_BaseForm_controls()
 
-        self.out = widgets.Output()
-        self._update_BaseForm()
-        self._update_BaseForm_controls()
+        def _update_BaseForm(self):
+            self.save_button_bar = sb.SaveButtonBar(
+                save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
+            )
+            self.title = widgets.HTML()
+            self.children = [self.title, self.save_button_bar, self.ui_main]
+            self.save_button_bar._unsaved_changes(False)
 
-    def _update_BaseForm(self):
-        self.save_button_bar = sb.SaveButtonBar(
-            save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
-        )
-        self.title = widgets.HTML()
-        self.children = [self.title, self.save_button_bar, self.ui_main]
-        self.save_button_bar._unsaved_changes(False)
+        def _update_BaseForm_controls(self):
+            self.observe(self._watch_BaseForm_change, "_value")
 
-    def _update_BaseForm_controls(self):
-        self.observe(self._watch_BaseForm_change, "_value")
+        def _watch_BaseForm_change(self, change):
+            self.save_button_bar._unsaved_changes(True)
 
-    def _watch_BaseForm_change(self, change):
-        self.save_button_bar._unsaved_changes(True)
+    return BaseForm(
+        schema,
+        value=value,
+        update_map_widgets=update_map_widgets,
+        fdir=fdir,
+        save=save,
+        revert=revert,
+        fn_onsave=fn_onsave,
+    )
 
 
 if __name__ == "__main__":
@@ -93,7 +111,6 @@ if __name__ == "__main__":
         integer: int = Field(40, title="Integer of somesort")
         floater: float = Field(1.33, title="floater")
 
-    # baseform = BaseForm(schema=TestModel.schema(), save=test_save, revert=test_revert)
     ui = BaseForm(schema=TestModel.schema())
     display(ui)
 
@@ -136,6 +153,9 @@ if __name__ == "__main__":
 
     baseform = AutoUi(schema=schema)
     display(baseform)
+
+baseform.ui_main
+
 
 if __name__ == "__main__":
     di = {"string": "update", "integer": 10, "floater": 3.123, "something_else": 444}

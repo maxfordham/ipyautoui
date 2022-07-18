@@ -96,17 +96,15 @@ from ipyautoui.constants import (
 )
 from markdown import markdown
 
-frozenmap = (
-    immutables.Map
-)  # https://www.python.org/dev/peps/pep-0603/, https://github.com/MagicStack/immutables
+frozenmap = immutables.Map
+# ^ https://www.python.org/dev/peps/pep-0603/, https://github.com/MagicStack/immutables
 BOX = frozenmap({True: widgets.HBox, False: widgets.VBox})
 TOGGLE_BUTTON_KWARGS = frozenmap(
     icon="", layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
 )
 # -
 
-from ipyautoui.autowidgets import create_widget_caller
-from ipyautoui.autoipywidget import AutoIpywidget
+
 
 
 # +
@@ -791,6 +789,7 @@ class AutoArray(Array):
 
     @schema.setter
     def schema(self, value):
+        from ipyautoui.autowidgets import create_widget_caller
         from ipyautoui.autoipywidget import AutoIpywidget
 
         self._schema = value
