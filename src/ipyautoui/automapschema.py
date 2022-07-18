@@ -516,15 +516,16 @@ def map_widgets(di_update=None):
     # ^ by placing the import in this function we avoid a circular import.
     # all of the above depend on AutoUi, so there is recursion happening...
 
-    di = {
+    di_update_ = {
         "array": WidgetMapper(fn_filt=is_Array, widget=AutoArray),
         "DataFrame": WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid),
         "object": WidgetMapper(fn_filt=is_Object, widget=AutoObject),
     }
     if di_update is not None:
-        di = {**di, **di_update}
-
-    return update_widget_map(m, di_update=di)
+        di_update = {**di_update_, **di_update}
+    else:
+        di_update = di_update_
+    return update_widget_map(MAP_WIDGETS, di_update=di_update)
 
 
 def get_autooveride(schema):
@@ -571,7 +572,7 @@ def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False) -> WidgetCaller:
 
 def automapschema(schema: dict, widget_map: frozenmap = MAP_WIDGETS) -> WidgetCaller:
 
-    widget_map = update_widget_map(widget_map, di_update=None)
+    widget_map = update_widget_map(widget_map, di_update={})
     schema = attach_schema_refs(schema)
     if "type" not in schema.keys():
         raise ValueError('"type" is a required key in schema')

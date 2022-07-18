@@ -197,8 +197,7 @@ class AutoObject(widgets.VBox):
             )
         pr = schema["properties"]
         self.pr = {
-            k: aumap.map_widget(v, widget_map=self.update_map_widgets)
-            for k, v in pr.items()
+            k: aumap.map_widget(v, widget_map=self.map_widgets) for k, v in pr.items()
         }
         if self.fdir is not None:
             for v in self.pr.values():
@@ -267,8 +266,8 @@ class AutoObject(widgets.VBox):
 
     @update_map_widgets.setter
     def update_map_widgets(self, value):
-        if value is None:
-            self._update_map_widgets = aumap.update_widget_map(aumap.MAP_WIDGETS)
+        self._update_map_widgets = value
+        self.map_widgets = aumap.map_widgets(value)
 
 
 class AutoIpywidget(widgets.VBox):
@@ -290,8 +289,8 @@ class AutoIpywidget(widgets.VBox):
 
     @update_map_widgets.setter
     def update_map_widgets(self, value):
-        if value is None:
-            self._update_map_widgets = aumap.update_widget_map(aumap.MAP_WIDGETS)
+        self._update_map_widgets = value
+        self.map_widgets = aumap.map_widgets(value)
 
     def _init_ui(self, schema):
         self._init_schema(schema)
@@ -308,7 +307,7 @@ class AutoIpywidget(widgets.VBox):
     def _init_schema(self, schema):
         self.model, schema = _init_model_schema(schema)
         self.schema = aumap.attach_schema_refs(schema)
-        self.caller = aumap.map_widget(schema, widget_map=self.update_map_widgets)
+        self.caller = aumap.map_widget(schema, widget_map=self.map_widgets)
         if self.fdir is not None:
             add_fdir_to_widgetcaller(caller=self.caller, fdir=self.fdir)
 
