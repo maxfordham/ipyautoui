@@ -38,7 +38,7 @@ import traitlets
 import traitlets_paths
 
 # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:07:55 PM
-# use traitlets_paths or not...
+# use traitlets_paths or not... pull request to main traitlets?
 import typing
 from ipyautoui.constants import load_test_constants
 
@@ -135,10 +135,28 @@ def _init_model_schema(schema):
 
 
 def add_fdir_to_widgetcaller(caller, fdir: str):  #: aumap.WidgetCaller
+    """_summary_
+
+    Args:
+        caller (_type_): _description_
+        fdir (str): _description_
+
+    Raises:
+        ValueError: _description_
+
+    Example:
+        >>> import ipyautoui.automapschema as aumap
+        >>> from ipyautoui.autowidgets import Text
+        >>> caller = aumap.WidgetCaller(schema_={'title': 'Test', 'type': 'object', 'properties': {'string': {'title': 'String','default': 'asdf','type': 'string'}}}, autoui=Text)
+        >>> add_fdir_to_widgetcaller(caller, '.').kwargs
+        {}
+    """
     if isinstance(caller, aumap.WidgetCaller):
-        print("isinstance(self.pr, aumap.WidgetCaller):")
-        if "fdir" in inspect.getfullargspec(caller).args:
+        if "fdir" in inspect.getfullargspec(caller.autoui).args:
             caller.kwargs = {"fdir": fdir}
+            return caller
+        else:
+            return caller
     else:
         raise ValueError(f"ERROR add_fdir_to_widgetcallers self.fdir = {fdir}")
 
@@ -201,7 +219,7 @@ class AutoObject(widgets.VBox):
         }
         if self.fdir is not None:
             for v in self.pr.values():
-                add_fdir_to_widgetcaller(v, self.fdir)
+                v = add_fdir_to_widgetcaller(v, self.fdir)
 
     def _init_form(self):
         super().__init__(
@@ -212,11 +230,8 @@ class AutoObject(widgets.VBox):
                 border="solid LemonChiffon 2px",
             )
         )
-        self.ui_main = widgets.VBox()
-        self.ui_main.children, self.di_widgets = _init_widgets_and_rows(self.pr)
-        # ^ note. box in box to allow for ui_main to be swapped to raw
+        self.children, self.di_widgets = _init_widgets_and_rows(self.pr)
         self._value = self.di_widgets_value
-        self.children = [self.ui_main]
         self._update_widgets_from_value()
 
     def _init_controls(self):
@@ -236,7 +251,7 @@ class AutoObject(widgets.VBox):
     def _watch_change(self, change, key=None, watch="value"):
         self._value = self.di_widgets_value
         # NOTE: it is required to set the whole "_value" otherwise
-        #       traitlets doesn't register the change. -@jovyan at 7/18/2022, 12:45:48 PM
+        # traitlets doesn't register the change. -@jovyan at 7/18/2022, 12:45:48 PM
 
     def _update_widgets_from_value(self):
         for k, v in self.value.items():
@@ -309,7 +324,7 @@ class AutoIpywidget(widgets.VBox):
         self.schema = aumap.attach_schema_refs(schema)
         self.caller = aumap.map_widget(schema, widgets_map=self.widgets_map)
         if self.fdir is not None:
-            add_fdir_to_widgetcaller(caller=self.caller, fdir=self.fdir)
+            v = add_fdir_to_widgetcaller(caller=self.caller, fdir=self.fdir)
 
     def _init_form(self):
         super().__init__(
@@ -340,21 +355,26 @@ class AutoIpywidget(widgets.VBox):
 
 # -
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
-    from ipyautoui.constants import load_test_constants
+    import doctest
 
-    test_constants = load_test_constants()
-    test = TestAutoLogic()
-    schema = test.schema()
-    ui = AutoIpywidget(schema)
-    display(ui)
+    doctest.testmod()
 
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestArrays
-    from ipyautoui.constants import load_test_constants
+# if __name__ == "__main__":
+#     from ipyautoui.test_schema import TestAutoLogic
+#     from ipyautoui.constants import load_test_constants
 
-    test_constants = load_test_constants()
-    test = TestArrays()
-    schema = test.schema()
-    ui = AutoIpywidget(schema)
-    display(ui)
+#     test_constants = load_test_constants()
+#     test = TestAutoLogic()
+#     schema = test.schema()
+#     ui = AutoIpywidget(schema)
+#     display(ui)
+
+# if __name__ == "__main__":
+#     from ipyautoui.test_schema import TestArrays
+#     from ipyautoui.constants import load_test_constants
+
+#     test_constants = load_test_constants()
+#     test = TestArrays()
+#     schema = test.schema()
+#     ui = AutoIpywidget(schema)
+#     display(ui)

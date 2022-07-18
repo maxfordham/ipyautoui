@@ -84,7 +84,7 @@ def BaseForm(
                 save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
             )
             self.title = widgets.HTML()
-            self.children = [self.title, self.save_button_bar, self.ui_main]
+            self.children = [self.title, self.save_button_bar]+ list(self.children)
             self.save_button_bar._unsaved_changes(False)
 
         def _update_BaseForm_controls(self):
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     baseform = AutoUi(schema=schema)
     display(baseform)
 
-baseform.ui_main
+# baseform.widget
 
 
 if __name__ == "__main__":

@@ -233,7 +233,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         if self.bn_showraw.value:
             self.bn_showraw.tooltip = "show user interface"
             self.bn_showraw.icon = "user-edit"
-            self.ui_main.layout.display = "None"
+            self.widget.layout.display = "None"
             self.vbx_raw.layout.display = ""
             with self.out_raw:
                 clear_output()
@@ -241,7 +241,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         else:
             self.bn_showraw.tooltip = "show raw data"
             self.bn_showraw.icon = "code"
-            self.ui_main.layout.display = ""
+            self.widget.layout.display = ""
             self.vbx_raw.layout.display = "None"
 
     def _get_path(self, path=None):
@@ -402,15 +402,15 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
         self.show_raw = show_raw
 
         # accept schema or pydantic schema
-        self.model, schema = _init_model_schema(schema)
-        self.value = self._get_value(value, self.path)
+        # self.model, schema = _init_model_schema(schema)
+        # self.value = self._get_value(value, self.path)
 
         # list of actions to be called on save
         self.fn_onsave = fn_onsave
 
         # init app
         super().__init__(
-            schema=schema, value=self.value, update_map_widgets=None, fdir=self.fdir,
+            schema=schema, value=value, update_map_widgets=None, fdir=self.fdir,
         )
         self._init_AutoUiCommonMethods()
         self.save_controls = save_controls

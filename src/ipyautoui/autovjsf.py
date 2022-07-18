@@ -93,10 +93,10 @@ class AutoVjsf(widgets.VBox, AutoUiCommonMethods):
         self.vui.value = self._value
 
     def _init_vui_form(self):
-        self.ui_main = widgets.VBox()
-        self.ui_main.children = [self.vui]
+        self.widget = widgets.VBox()
+        self.widget.children = [self.vui]
         li = list(self.children)
-        li.append(self.ui_main)
+        li.append(self.widget)
         self.children = li
 
     def _init_controls(self):
