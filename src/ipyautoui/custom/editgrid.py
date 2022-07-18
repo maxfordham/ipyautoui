@@ -760,61 +760,28 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
 
 if __name__ == "__main__":
-    AUTO_GRID_DEFAULT_VALUE = {
-        "description": "another description",
-        "dataframe": [
+    AUTO_GRID_DEFAULT_VALUE = [
             {"string": "important string", "integer": 1, "floater": 3.14,},
             {"string": "update", "integer": 4, "floater": 3.12344,},
             {"string": "evening", "integer": 5, "floater": 3.14},
             {"string": "morning", "integer": 5, "floater": 3.14},
             {"string": "number", "integer": 3, "floater": 3.14},
-        ],
-        "alist": ["a", "b", "c"],
-        "anobject": DataFrameCols().dict(),
-    }
+        ]
 
     class DataFrameCols(BaseModel):
         string: str = Field("string", aui_column_width=100)
         integer: int = Field(1, aui_column_width=80)
         floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
-        something_else: float = Field(324, aui_column_width=100)
 
-    class TestDataFrame(BaseModel):
+    class TestDataFrameOnly(BaseModel):
         """a description of TestDataFrame"""
-
-        description: str = "a description of my dataframe"
-        dataframe: typing.List[DataFrameCols] = Field(
+        __root__: typing.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
         )
-        alist: typing.List[str] = ["a", "b", "c"]
-        anobject: DataFrameCols
 
     # TODO: note that default values aren't being set from the schema for the Array or DataGrid
-    auto_grid = AutoUi(schema=TestDataFrame)
+    auto_grid = AutoUi(schema=TestDataFrameOnly)
     display(auto_grid)
 
 if __name__ == "__main__":
     auto_grid.value = AUTO_GRID_DEFAULT_VALUE
-
-if __name__ == "__main__":
-    # a grid only example
-    # note. you have to pull out the section of the pydantic model
-    schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
-
-    editgrid = EditGrid(schema=schema)
-    display(editgrid)
-
-if __name__ == "__main__":
-    editgrid.value = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-            "something_else": 324,
-        },
-        {"string": "update", "integer": 4, "floater": 3.12344, "something_else": 123},
-        {"string": "evening", "integer": 5, "floater": 3.14, "something_else": 235},
-        {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
-        {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
-    ]
-

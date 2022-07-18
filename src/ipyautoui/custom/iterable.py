@@ -908,11 +908,12 @@ AutoArray(
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
     from ipyautoui.autoipywidget import AutoIpywidget
+    from ipyautoui import AutoUi
 
     # TestArrays.schema()["properties"]  # ["array_strings"]
 
     schema = TestArrays.schema()
-    ui = AutoIpywidget(schema=TestArrays)
+    ui = AutoUi(schema=TestArrays)
     display(ui)
 
 if __name__ == "__main__":
