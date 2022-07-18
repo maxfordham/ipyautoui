@@ -458,8 +458,7 @@ schema:
 MAP_WIDGETS = frozenmap(
     **{
         "AutoOveride": WidgetMapper(
-            fn_filt=is_AutoOveride,
-            widget=auiwidgets.AutoPlaceholder,  # auiwidgets.autooveride
+            fn_filt=is_AutoOveride, widget=auiwidgets.AutoPlaceholder,
         ),
         "IntText": WidgetMapper(fn_filt=is_IntText, widget=auiwidgets.IntText),
         "IntSlider": WidgetMapper(fn_filt=is_IntSlider, widget=auiwidgets.IntSlider),
@@ -492,6 +491,42 @@ MAP_WIDGETS = frozenmap(
 )
 
 
+def update_widget_map(widget_map, di_update=None):
+    """update the widget mapper frozen object
+
+    Args:
+        widget_map (dict of WidgetMappers): _description_
+        di_update (_type_, optional): _description_. Defaults to None.
+    """
+
+    with widget_map.mutate() as mm:
+        for k, v in di_update.items():
+            mm.set(k, v)
+        _ = mm.finish()
+    del widget_map
+    return _
+
+
+def map_widgets(di_update=None):
+
+    from ipyautoui.custom.iterable import AutoArray
+    from ipyautoui.autoipywidget import AutoObject  # Ipywidget
+    from ipyautoui.custom.editgrid import EditGrid
+
+    # ^ by placing the import in this function we avoid a circular import.
+    # all of the above depend on AutoUi, so there is recursion happening...
+
+    di = {
+        "array": WidgetMapper(fn_filt=is_Array, widget=AutoArray),
+        "DataFrame": WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid),
+        "object": WidgetMapper(fn_filt=is_Object, widget=AutoObject),
+    }
+    if di_update is not None:
+        di = {**di, **di_update}
+
+    return update_widget_map(m, di_update=di)
+
+
 def get_autooveride(schema):
     aui = schema["autoui"]
     if type(aui) == str:
@@ -513,6 +548,7 @@ def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False) -> WidgetCaller:
     for k, v in widget_map.items():
         if v.fn_filt(di):
             mapped.append(k)
+
     if len(mapped) == 0:
         if fail_on_error:
             # TODO: pass error or not..
@@ -531,35 +567,6 @@ def map_widget(di, widget_map=MAP_WIDGETS, fail_on_error=False) -> WidgetCaller:
         k = mapped[-1]
         w = get_widget(di, k, widget_map)
         return WidgetCaller(schema_=di, autoui=w)
-
-
-def update_widget_map(widget_map, di_update=None):
-    """update the widget mapper frozen object
-
-    Args:
-        widget_map (dict of WidgetMappers): _description_
-        di_update (_type_, optional): _description_. Defaults to None.
-    """
-    if di_update is None:
-        from ipyautoui.custom.iterable import AutoArray
-        from ipyautoui.autoipywidget import AutoObject #Ipywidget
-        from ipyautoui.custom.editgrid import EditGrid
-
-        # ^ by placing the import in this function we avoid a circular import.
-        # all of the above depend on AutoUi, so there is recursion happening...
-
-        di_update = {
-            "array": WidgetMapper(fn_filt=is_Array, widget=AutoArray),
-            "DataFrame": WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid),
-            "object": WidgetMapper(fn_filt=is_Object, widget=AutoObject),
-        }
-
-    with widget_map.mutate() as mm:
-        for k, v in di_update.items():
-            mm.set(k, v)
-        _ = mm.finish()
-    del widget_map
-    return _
 
 
 def automapschema(schema: dict, widget_map: frozenmap = MAP_WIDGETS) -> WidgetCaller:
