@@ -103,8 +103,8 @@ TOGGLE_BUTTON_KWARGS = frozenmap(
     icon="", layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
 )
 # -
-
-
+from ipyautoui.autowidgets import create_widget_caller
+from ipyautoui.autoipywidget import AutoIpywidget
 
 
 # +
@@ -757,6 +757,7 @@ class AutoArray(Array):
         orient_rows=True,
         fn_add_dialogue: typing.Callable = None,
     ):
+
         self.fn_add_dialogue = fn_add_dialogue
         self.fn_remove = fn_remove
         self._toggle = toggle
@@ -789,8 +790,6 @@ class AutoArray(Array):
 
     @schema.setter
     def schema(self, value):
-        from ipyautoui.autowidgets import create_widget_caller
-        from ipyautoui.autoipywidget import AutoIpywidget
 
         self._schema = value
         self.caller = create_widget_caller(value)
@@ -888,10 +887,23 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
+    from ipyautoui.autowidgets import create_widget_caller
+    from ipyautoui.autoipywidget import AutoIpywidget
 
     schema = TestArrays.schema()["properties"]["array_strings"]
     ui = AutoArray(schema)
     display(ui)
+
+AutoArray(
+    schema={
+        "title": "Array Strings",
+        "default": ["f", "d"],
+        "minItems": 2,
+        "maxItems": 5,
+        "type": "array",
+        "items": {"type": "string"},
+    }
+)
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
@@ -900,7 +912,7 @@ if __name__ == "__main__":
     # TestArrays.schema()["properties"]  # ["array_strings"]
 
     schema = TestArrays.schema()
-    ui = AutoIpywidget(schema=schema)
+    ui = AutoIpywidget(schema=TestArrays)
     display(ui)
 
 if __name__ == "__main__":
@@ -912,8 +924,6 @@ if __name__ == "__main__":
     display(ui)
 
 # +
-
-
 if __name__ == "__main__":
     di_arr = {
         "items": None,
@@ -999,4 +1009,6 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     arr.value = [{"None": False}, {"ads": True}, {"asdf": False}]
+
+
 

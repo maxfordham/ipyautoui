@@ -95,7 +95,6 @@ def attach_schema_refs(schema, schema_base=None):
 # Dropdown
 # SelectMultiple
 # Checkbox
-# autooveride
 
 
 def is_IntText(di: dict) -> bool:
@@ -455,42 +454,6 @@ schema:
     return w
 
 
-WIDGETS_MAP = frozenmap(
-    **{
-        "AutoOveride": WidgetMapper(
-            fn_filt=is_AutoOveride, widget=auiwidgets.AutoPlaceholder,
-        ),
-        "IntText": WidgetMapper(fn_filt=is_IntText, widget=auiwidgets.IntText),
-        "IntSlider": WidgetMapper(fn_filt=is_IntSlider, widget=auiwidgets.IntSlider),
-        "FloatText": WidgetMapper(fn_filt=is_FloatText, widget=auiwidgets.FloatText),
-        "FloatSlider": WidgetMapper(
-            fn_filt=is_FloatSlider, widget=auiwidgets.IntSlider
-        ),
-        "IntRangeSlider": WidgetMapper(
-            fn_filt=is_IntRangeSlider, widget=auiwidgets.IntRangeSlider
-        ),
-        "FloatRangeSlider": WidgetMapper(
-            fn_filt=is_FloatRangeSlider, widget=auiwidgets.FloatRangeSlider
-        ),
-        "Text": WidgetMapper(fn_filt=is_Text, widget=auiwidgets.Text),
-        "Textarea": WidgetMapper(fn_filt=is_Textarea, widget=auiwidgets.Textarea),
-        "Markdown": WidgetMapper(fn_filt=is_Markdown, widget=auiwidgets.AutoMarkdown),
-        "Dropdown": WidgetMapper(fn_filt=is_Dropdown, widget=auiwidgets.Dropdown),
-        "SelectMultiple": WidgetMapper(
-            fn_filt=is_SelectMultiple, widget=auiwidgets.SelectMultiple
-        ),
-        "Checkbox": WidgetMapper(fn_filt=is_Checkbox, widget=auiwidgets.Checkbox),
-        "Date": WidgetMapper(fn_filt=is_Date, widget=auiwidgets.DatePickerString),
-        "Color": WidgetMapper(fn_filt=is_Color, widget=auiwidgets.ColorPicker),
-        "object": WidgetMapper(fn_filt=is_Object, widget=auiwidgets.AutoPlaceholder),
-        "array": WidgetMapper(fn_filt=is_Array, widget=auiwidgets.AutoPlaceholder),
-        "DataFrame": WidgetMapper(
-            fn_filt=is_DataFrame, widget=auiwidgets.AutoPlaceholder
-        ),
-    }
-)
-
-
 def update_widgets_map(widgets_map, di_update=None):
     """update the widget mapper frozen object
 
@@ -509,12 +472,51 @@ def update_widgets_map(widgets_map, di_update=None):
 
 def widgets_map(di_update=None):
 
+    WIDGETS_MAP = frozenmap(
+        **{
+            "AutoOveride": WidgetMapper(
+                fn_filt=is_AutoOveride, widget=auiwidgets.AutoPlaceholder,
+            ),
+            "IntText": WidgetMapper(fn_filt=is_IntText, widget=auiwidgets.IntText),
+            "IntSlider": WidgetMapper(
+                fn_filt=is_IntSlider, widget=auiwidgets.IntSlider
+            ),
+            "FloatText": WidgetMapper(
+                fn_filt=is_FloatText, widget=auiwidgets.FloatText
+            ),
+            "FloatSlider": WidgetMapper(
+                fn_filt=is_FloatSlider, widget=auiwidgets.IntSlider
+            ),
+            "IntRangeSlider": WidgetMapper(
+                fn_filt=is_IntRangeSlider, widget=auiwidgets.IntRangeSlider
+            ),
+            "FloatRangeSlider": WidgetMapper(
+                fn_filt=is_FloatRangeSlider, widget=auiwidgets.FloatRangeSlider
+            ),
+            "Text": WidgetMapper(fn_filt=is_Text, widget=auiwidgets.Text),
+            "Textarea": WidgetMapper(fn_filt=is_Textarea, widget=auiwidgets.Textarea),
+            "Markdown": WidgetMapper(
+                fn_filt=is_Markdown, widget=auiwidgets.AutoMarkdown
+            ),
+            "Dropdown": WidgetMapper(fn_filt=is_Dropdown, widget=auiwidgets.Dropdown),
+            "SelectMultiple": WidgetMapper(
+                fn_filt=is_SelectMultiple, widget=auiwidgets.SelectMultiple
+            ),
+            "Checkbox": WidgetMapper(fn_filt=is_Checkbox, widget=auiwidgets.Checkbox),
+            "Date": WidgetMapper(fn_filt=is_Date, widget=auiwidgets.DatePickerString),
+            "Color": WidgetMapper(fn_filt=is_Color, widget=auiwidgets.ColorPicker),
+            "object": WidgetMapper(
+                fn_filt=is_Object, widget=auiwidgets.AutoPlaceholder
+            ),
+            "array": WidgetMapper(fn_filt=is_Array, widget=auiwidgets.AutoPlaceholder),
+            "DataFrame": WidgetMapper(
+                fn_filt=is_DataFrame, widget=auiwidgets.AutoPlaceholder
+            ),
+        }
+    )
     from ipyautoui.custom.iterable import AutoArray
     from ipyautoui.autoipywidget import AutoObject  # Ipywidget
     from ipyautoui.custom.editgrid import EditGrid
-
-    # ^ by placing the import in this function we avoid a circular import.
-    # all of the above depend on AutoUi, so there is recursion happening...
 
     di_update_ = {
         "array": WidgetMapper(fn_filt=is_Array, widget=AutoArray),
@@ -537,7 +539,10 @@ def get_autooveride(schema):
     return cl
 
 
-def map_widget(di, widgets_map=WIDGETS_MAP, fail_on_error=False) -> WidgetCaller:
+def map_widget(di, widgets_map=None, fail_on_error=False) -> WidgetCaller:
+    if widgets_map is None:
+        widgets_map = widgets_map()
+
     def get_widget(di, k, widgets_map):
         if k == "AutoOveride":
             return get_autooveride(di)
