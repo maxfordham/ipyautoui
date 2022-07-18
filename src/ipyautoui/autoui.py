@@ -410,7 +410,7 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
 
         # init app
         super().__init__(
-            schema=schema, value=self.value, widgets_mapper=None, fdir=self.fdir,
+            schema=schema, value=self.value, update_map_widgets=None, fdir=self.fdir,
         )
         self._init_AutoUiCommonMethods()
         self.save_controls = save_controls

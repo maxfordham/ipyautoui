@@ -53,7 +53,7 @@ class BaseForm(aui.AutoIpywidget):
         self,
         schema: dict,
         value: dict = None,
-        widgets_mapper=None,
+        update_map_widgets=None,
         fdir=None,
         save: typing.Callable = lambda: print("SAVE"),
         revert: typing.Callable = lambda: print("REVERT"),
@@ -63,7 +63,9 @@ class BaseForm(aui.AutoIpywidget):
         self.fn_save = save
         self.fn_revert = revert
         self.fn_onsave = fn_onsave
-        super().__init__(schema, value=value, widgets_mapper=widgets_mapper, fdir=fdir)
+        super().__init__(
+            schema, value=value, update_map_widgets=update_map_widgets, fdir=fdir
+        )
 
         self.out = widgets.Output()
         self._update_BaseForm()
@@ -96,7 +98,7 @@ if __name__ == "__main__":
     display(ui)
 
 if __name__ == "__main__":
-    ui.value = {'string': 'adfs', 'integer': 2, 'floater': 1.22}
+    ui.value = {"string": "adfs", "integer": 2, "floater": 1.22}
 
 if __name__ == "__main__":
     from ipyautoui.automapschema import attach_schema_refs
@@ -113,7 +115,7 @@ if __name__ == "__main__":
         print("Reverted.")
 
     baseform = BaseForm(schema=TestModel.schema(), save=test_save, revert=test_revert)
-    #AutoUi(schema=TestModel.schema())
+    # AutoUi(schema=TestModel.schema())
     display(baseform)
 
 if __name__ == "__main__":
@@ -795,6 +797,4 @@ if __name__ == "__main__":
         {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
         {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
     ]
-
-
 

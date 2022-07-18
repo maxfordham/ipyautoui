@@ -36,8 +36,9 @@ import ipywidgets as widgets
 from IPython.display import display
 import traitlets
 import traitlets_paths
+
 # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:07:55 PM
-# use traitlets_paths or not... 
+# use traitlets_paths or not...
 import typing
 from ipyautoui.constants import load_test_constants
 
@@ -49,6 +50,7 @@ import inspect
 frozenmap = immutables.Map
 
 # +
+
 
 def get_title_description_from_schema(schema):
     if schema["type"] == "array":
@@ -162,20 +164,20 @@ class AutoObject(widgets.VBox):
         if hasattr(self, "di_widgets"):
             self._update_widgets_from_value()
 
-    def __init__(self, schema, value=None, widgets_mapper=None, fdir=None):
+    def __init__(self, schema, value=None, update_map_widgets=None, fdir=None):
         """creates a widget input form from schema
 
         Args:
             schema (dict): json schema defining widget to generate
             value (dict, optional): value of json. Defaults to None.
-            widgets_mapper (frozenmap, optional): frozen dict of widgets to map to schema items. Defaults to None.
+            update_map_widgets (frozenmap, optional): frozen dict of widgets to map to schema items. Defaults to None.
             fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
 
         Returns: 
             AutoIpywidget(widgets.VBox)
         """
 
-        self.widgets_mapper = widgets_mapper
+        self.update_map_widgets = update_map_widgets
         self.fdir = fdir
         self._init_ui(schema)
         if value is not None:
@@ -195,7 +197,7 @@ class AutoObject(widgets.VBox):
             )
         pr = schema["properties"]
         self.pr = {
-            k: aumap.map_widget(v, widget_map=self.widgets_mapper)
+            k: aumap.map_widget(v, widget_map=self.update_map_widgets)
             for k, v in pr.items()
         }
         if self.fdir is not None:
@@ -260,11 +262,11 @@ class AutoObject(widgets.VBox):
                 pass
 
     @property
-    def widgets_mapper(self):
+    def update_map_widgets(self):
         return self._widgets_mapper
 
-    @widgets_mapper.setter
-    def widgets_mapper(self, value):
+    @update_map_widgets.setter
+    def update_map_widgets(self, value):
         if value is None:
             self._widgets_mapper = aumap.update_widget_map(aumap.MAP_WIDGETS)
 
@@ -272,9 +274,9 @@ class AutoObject(widgets.VBox):
 class AutoIpywidget(widgets.VBox):
     fdir = traitlets.Unicode(allow_none=True)
     # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:06:04 PM
-    # consider changing name `widgets_mapper` to `update_widgets_mapper`
-    def __init__(self, schema, value=None, widgets_mapper=None, fdir=None):
-        self.widgets_mapper = widgets_mapper
+    # consider changing name `update_map_widgets` to `update_widgets_mapper`
+    def __init__(self, schema, value=None, update_map_widgets=None, fdir=None):
+        self.update_map_widgets = update_map_widgets
         self.fdir = fdir
         self._init_ui(schema)
         if value is not None:
@@ -283,11 +285,11 @@ class AutoIpywidget(widgets.VBox):
             self._on_change("change")
 
     @property
-    def widgets_mapper(self):
+    def update_map_widgets(self):
         return self._widgets_mapper
 
-    @widgets_mapper.setter
-    def widgets_mapper(self, value):
+    @update_map_widgets.setter
+    def update_map_widgets(self, value):
         if value is None:
             self._widgets_mapper = aumap.update_widget_map(aumap.MAP_WIDGETS)
 
@@ -306,7 +308,7 @@ class AutoIpywidget(widgets.VBox):
     def _init_schema(self, schema):
         self.model, schema = _init_model_schema(schema)
         self.schema = aumap.attach_schema_refs(schema)
-        self.caller = aumap.map_widget(schema, widget_map=self.widgets_mapper)
+        self.caller = aumap.map_widget(schema, widget_map=self.update_map_widgets)
         if self.fdir is not None:
             add_fdir_to_widgetcaller(caller=self.caller, fdir=self.fdir)
 
@@ -327,7 +329,6 @@ class AutoIpywidget(widgets.VBox):
 
     def _on_change(self, change):
         self._value = self.widget.value
-
 
     @property
     def value(self):
