@@ -263,12 +263,12 @@ class AutoObject(widgets.VBox):
 
     @property
     def update_map_widgets(self):
-        return self._widgets_mapper
+        return self._update_map_widgets
 
     @update_map_widgets.setter
     def update_map_widgets(self, value):
         if value is None:
-            self._widgets_mapper = aumap.update_widget_map(aumap.MAP_WIDGETS)
+            self._update_map_widgets = aumap.update_widget_map(aumap.MAP_WIDGETS)
 
 
 class AutoIpywidget(widgets.VBox):
@@ -286,12 +286,12 @@ class AutoIpywidget(widgets.VBox):
 
     @property
     def update_map_widgets(self):
-        return self._widgets_mapper
+        return self._update_map_widgets
 
     @update_map_widgets.setter
     def update_map_widgets(self, value):
         if value is None:
-            self._widgets_mapper = aumap.update_widget_map(aumap.MAP_WIDGETS)
+            self._update_map_widgets = aumap.update_widget_map(aumap.MAP_WIDGETS)
 
     def _init_ui(self, schema):
         self._init_schema(schema)
