@@ -48,7 +48,7 @@ from enum import Enum
 from ipyautoui._utils import display_python_string
 from ipyautoui.custom import SaveButtonBar  #  Grid, FileChooser,
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-from ipyautoui.autoipywidget import AutoIpywidget, AutoPydanticHandler
+from ipyautoui.autoipywidget import AutoIpywidget, _init_model_schema
 
 # from ipyautoui.autovjsf import AutoVjsf
 
@@ -123,7 +123,7 @@ def get_schema_title(schema):
         return ""
 
 
-class AutoUiCommonMethods(traitlets.HasTraits, AutoPydanticHandler):
+class AutoUiCommonMethods(traitlets.HasTraits):
     """methods for: 
     - reading and writing to file
     - showing raw json form data
@@ -402,7 +402,7 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
         self.show_raw = show_raw
 
         # accept schema or pydantic schema
-        self.model, schema = self._init_model_schema(schema)
+        self.model, schema = _init_model_schema(schema)
         self.value = self._get_value(value, self.path)
 
         # list of actions to be called on save
@@ -458,6 +458,4 @@ if __name__ == "__main__":
 
     aui = AutoUi(AnalysisPaths, show_raw=True)
     display(aui)
-
-
 
