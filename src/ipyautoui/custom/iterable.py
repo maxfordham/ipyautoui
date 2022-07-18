@@ -95,7 +95,6 @@ from ipyautoui.constants import (
     BUTTON_MIN_SIZE,
 )
 from markdown import markdown
-from ipyautoui.automapschema import autowidget
 
 frozenmap = (
     immutables.Map

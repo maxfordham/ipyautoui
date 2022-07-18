@@ -570,39 +570,6 @@ def map_widget(di, widgets_map=WIDGETS_MAP, fail_on_error=False) -> WidgetCaller
         return WidgetCaller(schema_=di, autoui=w)
 
 
-def automapschema(schema: dict, widgets_map: frozenmap = WIDGETS_MAP) -> WidgetCaller:
-
-    widgets_map = update_widgets_map(widgets_map, di_update={})
-    schema = attach_schema_refs(schema)
-    if "type" not in schema.keys():
-        raise ValueError('"type" is a required key in schema')
-    if schema["type"] == "object":
-        # loop through keys
-        pr = schema["properties"]
-        return {
-            k: map_widget(v, widgets_map=widgets_map) for k, v in pr.items()
-        }  # TODO: check this
-    elif schema["type"] == "array":
-        return map_widget(schema, widgets_map=widgets_map)  # TODO: check this
-    else:
-        return map_widget(schema, widgets_map=widgets_map)
-
-
-def autowidget(schema, value=None):
-    """interprets schema and returns appropriate widget"""
-    caller = automapschema(schema)
-    if value is not None:
-        caller["value"] = value
-    if type(caller) == WidgetCaller:
-        # print("type(caller) == WidgetCaller")
-        return widgetcaller(caller)
-    elif type(caller) == dict:
-        # print("type(caller) == dict")
-        return {k: widgetcaller(v) for k, v in caller.items()}
-    else:
-        raise ValueError("adsf")
-
-
 if __name__ == "__main__":
     import doctest
 
