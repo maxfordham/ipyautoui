@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.5
+#       jupytext_version: 1.13.8
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -78,7 +78,7 @@ import traitlets
 from traitlets import validate
 import typing
 import immutables
-import inspect
+from IPython.display import display
 
 # from pydantic.dataclasses import dataclass
 from ipyautoui.basemodel import BaseModel
@@ -86,7 +86,6 @@ from pydantic import validator
 import uuid
 from uuid import UUID
 import functools
-import math
 from ipyautoui.constants import (
     ADD_BUTTON_KWARGS,
     REMOVE_BUTTON_KWARGS,
@@ -96,19 +95,16 @@ from ipyautoui.constants import (
     BUTTON_MIN_SIZE,
 )
 from markdown import markdown
-from ipyautoui.automapschema import autowidget
 
-frozenmap = (
-    immutables.Map
-)  # https://www.python.org/dev/peps/pep-0603/, https://github.com/MagicStack/immutables
+frozenmap = immutables.Map
+# ^ https://www.python.org/dev/peps/pep-0603/, https://github.com/MagicStack/immutables
 BOX = frozenmap({True: widgets.HBox, False: widgets.VBox})
 TOGGLE_BUTTON_KWARGS = frozenmap(
     icon="", layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
 )
 # -
-
 from ipyautoui.autowidgets import create_widget_caller
-from ipyautoui.automapschema import autowidgetcaller
+from ipyautoui.autoipywidget import AutoIpywidget
 
 
 # +
@@ -761,6 +757,7 @@ class AutoArray(Array):
         orient_rows=True,
         fn_add_dialogue: typing.Callable = None,
     ):
+
         self.fn_add_dialogue = fn_add_dialogue
         self.fn_remove = fn_remove
         self._toggle = toggle
@@ -769,10 +766,10 @@ class AutoArray(Array):
         self.watch_value = watch_value
         self.zfill = 2
         if value is not None:
-            items = [autowidgetcaller(schema=self.schema) for v in value]
+            items = [AutoIpywidget(schema=self.schema) for v in value]
         elif "default" in self.schema.keys():
             items = [
-                autowidgetcaller(schema=self.schema["items"])
+                AutoIpywidget(schema=self.schema["items"])
                 for v in self.schema["default"]
             ]
             # [display(i) for i in items]
@@ -793,7 +790,6 @@ class AutoArray(Array):
 
     @schema.setter
     def schema(self, value):
-        from ipyautoui.autoipywidget import AutoIpywidget
 
         self._schema = value
         self.caller = create_widget_caller(value)
@@ -809,7 +805,7 @@ class AutoArray(Array):
             self.maxlen = self.schema["maxItems"]
         else:
             self.maxlen = 100
-        self.fn_add = functools.partial(autowidgetcaller, schema=self.caller["items"])
+        self.fn_add = functools.partial(AutoIpywidget, schema=self.caller["items"])
 
 
 # -
@@ -891,33 +887,44 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
+    from ipyautoui.autowidgets import create_widget_caller
+    from ipyautoui.autoipywidget import AutoIpywidget
 
-    sch = TestArrays.schema()["properties"]["array_strings"]
-    ui = AutoArray(sch)
+    schema = TestArrays.schema()["properties"]["array_strings"]
+    ui = AutoArray(schema)
     display(ui)
+
+AutoArray(
+    schema={
+        "title": "Array Strings",
+        "default": ["f", "d"],
+        "minItems": 2,
+        "maxItems": 5,
+        "type": "array",
+        "items": {"type": "string"},
+    }
+)
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
     from ipyautoui.autoipywidget import AutoIpywidget
+    from ipyautoui import AutoUi
 
     # TestArrays.schema()["properties"]  # ["array_strings"]
 
-    sch = TestArrays.schema()
-    ui = AutoIpywidget(schema=sch)
+    schema = TestArrays.schema()
+    ui = AutoUi(schema=TestArrays)
     display(ui)
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
 
-    sch = TestArrays.schema()
-    sch = sch["properties"]["array_strings1"]
-    ui = AutoArray(sch)
+    schema = TestArrays.schema()
+    schema = schema["properties"]["array_strings1"]
+    ui = AutoArray(schema)
     display(ui)
 
 # +
-
-
-
 if __name__ == "__main__":
     di_arr = {
         "items": None,
@@ -1003,4 +1010,6 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     arr.value = [{"None": False}, {"ads": True}, {"asdf": False}]
+
+
 

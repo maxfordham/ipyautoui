@@ -7,13 +7,13 @@
         3
     ],
     "float_slider": 2.0,
-    "float_text": 2.0,
+    "float_text": 2.2,
     "float_range_slider": [
         0.0,
         2.2
     ],
     "checkbox": true,
-    "dropdown": null,
+    "dropdown": "male",
     "dropdown_simple": "asd",
     "combobox": "asd",
     "text": "short text",
@@ -21,57 +21,23 @@
     "markdown": "\nSee details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. \n",
     "complex_serialisation": {
         "file_chooser": ".",
-        "date_picker": "2022-06-20",
-        "datetime_picker": "2022-06-20T17:49:45.574695",
+        "date_picker": null,
+        "datetime_picker": "2022-07-18T18:21:48.197948",
         "color_picker_ipywidgets": "#f5f595"
     },
     "select_multiple_non_constrained": [
         "male",
-        "female"
+        "male"
     ],
     "select_multiple_from_list": [
         "male",
         "female"
     ],
-    "select_multiple_search": [
-        "male",
-        "female"
-    ],
+    "select_multiple_search": [],
     "array": [],
     "objects_array": [],
     "run_name": "000-lean-description",
-    "datagrid": [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-            "something_else": 324.0
-        },
-        {
-            "string": "update",
-            "integer": 4,
-            "floater": 3.12344,
-            "something_else": 123.0
-        },
-        {
-            "string": "evening",
-            "integer": 5,
-            "floater": 3.14,
-            "something_else": 235.0
-        },
-        {
-            "string": "morning",
-            "integer": 5,
-            "floater": 3.14,
-            "something_else": 12.0
-        },
-        {
-            "string": "number",
-            "integer": 3,
-            "floater": 3.14,
-            "something_else": 123.0
-        }
-    ],
+    "datagrid": [],
     "nested": {
         "string1": "adsf",
         "int_slider1": 2,
@@ -81,6 +47,10 @@
         "string1": "adsf",
         "int_slider1": 2,
         "int_text1": 1,
-        "nested": null
+        "nested": {
+            "string1": "adsf",
+            "int_slider1": 2,
+            "int_text1": 1
+        }
     }
 }

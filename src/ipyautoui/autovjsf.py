@@ -42,8 +42,8 @@ if __name__ == "__main__":
     from IPython.display import display
 
     test = TestAutoLogic()
-    sch = test.schema()
-    ui = Vjsf(schema=sch)
+    schema = test.schema()
+    ui = Vjsf(schema=schema)
     display(ui)
 
 
@@ -93,10 +93,10 @@ class AutoVjsf(widgets.VBox, AutoUiCommonMethods):
         self.vui.value = self._value
 
     def _init_vui_form(self):
-        self.ui_main = widgets.VBox()
-        self.ui_main.children = [self.vui]
+        self.autowidget = widgets.VBox()
+        self.autowidget.children = [self.vui]
         li = list(self.children)
-        li.append(self.ui_main)
+        li.append(self.autowidget)
         self.children = li
 
     def _init_controls(self):
@@ -106,7 +106,7 @@ class AutoVjsf(widgets.VBox, AutoUiCommonMethods):
         self._value = self.vui.value
 
     @property
-    def sch(self):  # TODO: change to schema
+    def schema(self):  # TODO: change to schema
         return self.vui.schema
 
 
@@ -115,5 +115,5 @@ if __name__ == "__main__":
     display(vui)
 
 if __name__ == "__main__":
-    Renderer = AutoVjsf.create_autoui_renderer(sch)
+    Renderer = AutoVjsf.create_autoui_renderer(schema)
     display(Renderer(path="test.json"))

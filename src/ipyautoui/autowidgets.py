@@ -92,6 +92,14 @@ class IntSlider(widgets.IntSlider):
 
 
 class FloatText(widgets.FloatText):
+    """Example:
+        >>> from ipyautoui.test_schema import TestAutoLogic
+        >>> import ipywidgets as widgets
+        >>> sch = TestAutoLogic.schema()["properties"]['float_text']
+        >>> FloatText(sch)
+        FloatText(value=2.2)
+    """
+
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
@@ -263,15 +271,6 @@ class ColorPicker(widgets.ColorPicker):
         super().__init__(**self.caller)
 
 
-def autooveride(schema):
-    aui = schema["autoui"]
-    if type(aui) == str:
-        cl = obj_from_importstr(aui)
-    else:
-        cl = aui
-    return cl(schema)
-
-
 class AutoPlaceholder(widgets.Textarea):
     def __init__(self, schema):
         txt = f"""
@@ -304,3 +303,8 @@ class AutoMarkdown(markdown_widget.MarkdownWidget):
         )
         super().__init__(**self.caller)
 
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod()

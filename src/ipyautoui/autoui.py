@@ -35,7 +35,7 @@ import logging
 import pathlib
 import functools
 import ipywidgets as widgets
-from IPython.display import display, Markdown, clear_output
+from IPython.display import display, Markdown, clear_output, display_pretty
 from pydantic import BaseModel, Field
 from markdown import markdown
 import immutables
@@ -48,7 +48,7 @@ from enum import Enum
 from ipyautoui._utils import display_python_string
 from ipyautoui.custom import SaveButtonBar  #  Grid, FileChooser,
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-from ipyautoui.autoipywidget import AutoIpywidget
+from ipyautoui.autoipywidget import AutoIpywidget, _init_model_schema
 
 # from ipyautoui.autovjsf import AutoVjsf
 
@@ -123,6 +123,9 @@ def get_schema_title(schema):
         return ""
 
 
+# IDEA: Possible implementations -@jovyan at 7/18/2022, 6:02:03 PM
+# instead of having a general `AutoUiCommonMethods`, split into specific task
+# orientated classes. e.g. AutoUiShowRaw
 class AutoUiCommonMethods(traitlets.HasTraits):
     """methods for: 
     - reading and writing to file
@@ -197,7 +200,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         ]
 
         # init content
-        self.title = widgets.HTML(f"<big><b>{self.sch['title']}</b></big>")
+        self.title = widgets.HTML(f"<big><b>{self.schema['title']}</b></big>")
         self.bn_showraw = widgets.ToggleButton(
             icon="code",
             layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
@@ -213,8 +216,8 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         self.hbx_description.children = [self.description]
 
     def _init_description(self):
-        if "description" in self.sch.keys():
-            self.description.value = markdown(f"{self.sch['description']}")
+        if "description" in self.schema.keys():
+            self.description.value = markdown(f"{self.schema['description']}")
         if self.show_description:
             self.description.layout.display = ""
         else:
@@ -233,15 +236,22 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         if self.bn_showraw.value:
             self.bn_showraw.tooltip = "show user interface"
             self.bn_showraw.icon = "user-edit"
-            self.ui_main.layout.display = "None"
+            self.autowidget.layout.display = "None"
             self.vbx_raw.layout.display = ""
+
             with self.out_raw:
                 clear_output()
-                display_python_string(self.json)
+                try:
+                    js = self.json
+                    display_python_string(self.json)
+                except:
+                    print("value is not valid json")
+                    display_pretty(self.value)
+
         else:
             self.bn_showraw.tooltip = "show raw data"
             self.bn_showraw.icon = "code"
-            self.ui_main.layout.display = ""
+            self.autowidget.layout.display = ""
             self.vbx_raw.layout.display = "None"
 
     def _get_path(self, path=None):
@@ -368,13 +378,13 @@ class AutoUiCommonMethods(traitlets.HasTraits):
     def call_disable_edits(self):
         pass  # TODO - call_disable_edits
 
-    def _init_model_schema(self, schema):
-        if type(schema) == dict:
-            model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
-        else:
-            model = schema  # the "model" passed is a pydantic model
-            schema = model.schema(by_alias=False)
-        return model, schema
+    # def _init_model_schema(self, schema):
+    #     if type(schema) == dict:
+    #         model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
+    #     else:
+    #         model = schema  # the "model" passed is a pydantic model
+    #         schema = model.schema(by_alias=False)
+    #     return model, schema
 
 
 class AutoUi(AutoIpywidget, AutoUiCommonMethods):
@@ -402,15 +412,15 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
         self.show_raw = show_raw
 
         # accept schema or pydantic schema
-        self.model, schema = self._init_model_schema(schema)
-        self.value = self._get_value(value, self.path)
+        # self.model, schema = _init_model_schema(schema)
+        # self.value = self._get_value(value, self.path)
 
         # list of actions to be called on save
         self.fn_onsave = fn_onsave
 
         # init app
         super().__init__(
-            schema=schema, value=self.value, widgets_mapper=None, fdir=self.fdir,
+            schema=schema, value=value, update_map_widgets=None, fdir=self.fdir,
         )
         self._init_AutoUiCommonMethods()
         self.save_controls = save_controls
@@ -421,7 +431,7 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
 
-    sch = TestAutoLogicSimple.schema()
+    schema = TestAutoLogicSimple.schema()
     aui = AutoUi(
         TestAutoLogicSimple,
         path="test.json",
@@ -432,7 +442,7 @@ if __name__ == "__main__":
 
 # + tags=[]
 if __name__ == "__main__":
-    # Renderer = AutoUi.create_autoui_renderer(sch)
+    # Renderer = AutoUi.create_autoui_renderer(schema)
     Renderer = AutoUi.create_autoui_renderer(
         TestAutoLogic, path="test.json", show_raw=False
     )

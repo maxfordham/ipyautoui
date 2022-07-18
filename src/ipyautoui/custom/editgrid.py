@@ -48,40 +48,60 @@ frozenmap = immutables.Map
 
 
 # -
-class BaseForm(aui.AutoIpywidget):
-    def __init__(
-        self,
-        schema: dict,
-        value: dict = None,
-        widgets_mapper=None,
-        fdir=None,
-        save: typing.Callable = lambda: print("SAVE"),
-        revert: typing.Callable = lambda: print("REVERT"),
-        fn_onsave: typing.Callable = lambda: None,
-    ):
+def BaseForm(
+    schema: dict,
+    value: dict = None,
+    update_map_widgets=None,
+    fdir=None,
+    save: typing.Callable = lambda: print("SAVE"),
+    revert: typing.Callable = lambda: print("REVERT"),
+    fn_onsave: typing.Callable = lambda: None,
+):
+    class BaseForm(aui.AutoObject):
+        def __init__(
+            self,
+            schema: dict,
+            value: dict = None,
+            update_map_widgets=None,
+            fdir=None,
+            save: typing.Callable = lambda: print("SAVE"),
+            revert: typing.Callable = lambda: print("REVERT"),
+            fn_onsave: typing.Callable = lambda: None,
+        ):
+            self.fn_save = save
+            self.fn_revert = revert
+            self.fn_onsave = fn_onsave
+            super().__init__(
+                schema, value=value, update_map_widgets=update_map_widgets, fdir=fdir
+            )
 
-        self.fn_save = save
-        self.fn_revert = revert
-        self.fn_onsave = fn_onsave
-        super().__init__(schema, value=value, widgets_mapper=widgets_mapper, fdir=fdir)
+            self.out = widgets.Output()
+            self._update_BaseForm()
+            self._update_BaseForm_controls()
 
-        self.out = widgets.Output()
-        self._update_BaseForm()
-        self._update_BaseForm_controls()
+        def _update_BaseForm(self):
+            self.save_button_bar = sb.SaveButtonBar(
+                save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
+            )
+            self.title = widgets.HTML()
+            self.children = [self.title, self.save_button_bar]+ list(self.children)
+            self.save_button_bar._unsaved_changes(False)
 
-    def _update_BaseForm(self):
-        self.save_button_bar = sb.SaveButtonBar(
-            save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
-        )
-        self.title = widgets.HTML()
-        self.children = [self.title, self.save_button_bar, self.ui_main]
-        self.save_button_bar._unsaved_changes(False)
+        def _update_BaseForm_controls(self):
+            self.observe(self._watch_BaseForm_change, "_value")
 
-    def _update_BaseForm_controls(self):
-        self.observe(self._watch_BaseForm_change, "_value")
+        def _watch_BaseForm_change(self, change):
+            self.save_button_bar._unsaved_changes(True)
 
-    def _watch_BaseForm_change(self, change):
-        self.save_button_bar._unsaved_changes(True)
+    return BaseForm(
+        schema,
+        value=value,
+        update_map_widgets=update_map_widgets,
+        fdir=fdir,
+        save=save,
+        revert=revert,
+        fn_onsave=fn_onsave,
+    )
 
 
 if __name__ == "__main__":
@@ -91,12 +111,11 @@ if __name__ == "__main__":
         integer: int = Field(40, title="Integer of somesort")
         floater: float = Field(1.33, title="floater")
 
-    # baseform = BaseForm(schema=TestModel.schema(), save=test_save, revert=test_revert)
     ui = BaseForm(schema=TestModel.schema())
     display(ui)
 
 if __name__ == "__main__":
-    ui.value = {'string': 'adfs', 'integer': 2, 'floater': 1.22}
+    ui.value = {"string": "adfs", "integer": 2, "floater": 1.22}
 
 if __name__ == "__main__":
     from ipyautoui.automapschema import attach_schema_refs
@@ -113,7 +132,7 @@ if __name__ == "__main__":
         print("Reverted.")
 
     baseform = BaseForm(schema=TestModel.schema(), save=test_save, revert=test_revert)
-    #AutoUi(schema=TestModel.schema())
+    # AutoUi(schema=TestModel.schema())
     display(baseform)
 
 if __name__ == "__main__":
@@ -134,6 +153,9 @@ if __name__ == "__main__":
 
     baseform = AutoUi(schema=schema)
     display(baseform)
+
+# baseform.widget
+
 
 if __name__ == "__main__":
     di = {"string": "update", "integer": 10, "floater": 3.123, "something_else": 444}
@@ -738,63 +760,28 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
 
 if __name__ == "__main__":
-    AUTO_GRID_DEFAULT_VALUE = {
-        "description": "another description",
-        "dataframe": [
+    AUTO_GRID_DEFAULT_VALUE = [
             {"string": "important string", "integer": 1, "floater": 3.14,},
             {"string": "update", "integer": 4, "floater": 3.12344,},
             {"string": "evening", "integer": 5, "floater": 3.14},
             {"string": "morning", "integer": 5, "floater": 3.14},
             {"string": "number", "integer": 3, "floater": 3.14},
-        ],
-        "alist": ["a", "b", "c"],
-        "anobject": DataFrameCols().dict(),
-    }
+        ]
 
     class DataFrameCols(BaseModel):
         string: str = Field("string", aui_column_width=100)
         integer: int = Field(1, aui_column_width=80)
         floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
-        something_else: float = Field(324, aui_column_width=100)
 
-    class TestDataFrame(BaseModel):
+    class TestDataFrameOnly(BaseModel):
         """a description of TestDataFrame"""
-
-        description: str = "a description of my dataframe"
-        dataframe: typing.List[DataFrameCols] = Field(
+        __root__: typing.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
         )
-        alist: typing.List[str] = ["a", "b", "c"]
-        anobject: DataFrameCols
 
     # TODO: note that default values aren't being set from the schema for the Array or DataGrid
-    auto_grid = AutoUi(schema=TestDataFrame)
+    auto_grid = AutoUi(schema=TestDataFrameOnly)
     display(auto_grid)
 
 if __name__ == "__main__":
     auto_grid.value = AUTO_GRID_DEFAULT_VALUE
-
-if __name__ == "__main__":
-    # a grid only example
-    # note. you have to pull out the section of the pydantic model
-    schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
-
-    editgrid = EditGrid(schema=schema)
-    display(editgrid)
-
-if __name__ == "__main__":
-    editgrid.value = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-            "something_else": 324,
-        },
-        {"string": "update", "integer": 4, "floater": 3.12344, "something_else": 123},
-        {"string": "evening", "integer": 5, "floater": 3.14, "something_else": 235},
-        {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
-        {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
-    ]
-
-
-
