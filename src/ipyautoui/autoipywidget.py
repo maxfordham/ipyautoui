@@ -286,6 +286,8 @@ class AutoObject(widgets.VBox):
 
 
 class AutoIpywidget(widgets.VBox):
+    """Automatically generates the widget based on an input schema"""
+
     fdir = traitlets.Unicode(allow_none=True)
     # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:06:04 PM
     # consider changing name `update_map_widgets` to `update_widgets_mapper`
