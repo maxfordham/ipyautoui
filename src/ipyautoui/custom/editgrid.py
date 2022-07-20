@@ -292,7 +292,6 @@ if __name__ == "__main__":
     display(button_bar)
 
 
-# +
 class GridWrapper(DataGrid, traitlets.HasTraits):
 
     _value = traitlets.List()
@@ -364,13 +363,14 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         self.column_widths = self.aui_column_widths  # Set column widths for data grid.
     
     
-#     def _check_value(self, df, ignore_cols):
-#         """Checking column names in produced data frame match those within the schema."""
-#         columns = [column for column in df.columns if column not in ignore_cols]
-#         if not collections.Counter(columns) == collections.Counter(self.column_names):
-#             raise Exception(
-#                 f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.column_names))}"
-#             )
+    def _check_value(self, value):
+        """Checking column names in value passed match those within the dataframe."""
+        for di_value in value:
+            columns = [name for name in di_value.keys()]
+            if not collections.Counter(columns) == collections.Counter(grid.column_names):
+                raise Exception(
+                    f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(grid.column_names))}"
+                )
     
     def _set_titles(self, value):
         data = [
@@ -458,11 +458,19 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             self._value = []
             self.data = self.df_empty
         else:
+            self._check_value(value)
             self._value = value
             data = self._set_titles(self._value)
             self.data = pd.DataFrame.from_dict(data)
 
-# -
+
+eg_value = [
+        {"string": "important string", "integer": 1, "floater": 3.14,},
+        {"string": "update", "integer": 4, "floater": 3.12344,},
+        {"string": "evening", "integer": 5, "floater": 3.14},
+        {"string": "morning", "integer": 5, "floater": 3.14},
+        {"string": "number", "integer": 3, "floater": 3.14},
+    ]
 
 if __name__ == "__main__":
 
@@ -489,8 +497,6 @@ if __name__ == "__main__":
         {"string": "number", "integer": 3, "floater": 3.14},
     ]
     grid.value = eg_value
-
-grid.data
 
 if __name__ == "__main__":
     grid = GridWrapper(schema=schema, value=eg_value)
