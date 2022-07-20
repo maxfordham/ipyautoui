@@ -309,10 +309,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         self.di_cols_properties = schema["items"][
             "properties"
         ]  # Obtain each column's properties
-        # df = self._init_df(value)
         self._init_df()
-        # self._check_data(df, ignore_cols)  # Checking data frame
-
         self.kwargs_datagrid_default = kwargs_datagrid_default
         self._init_form()
         self.kwargs_datagrid_update = kwargs_datagrid_update
@@ -342,7 +339,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         li_default_value = [
             {
                 col_data["title"]: (
-                    col_data["default"] if "default" in col_data.keys() and "title" in col_data.keys() else None
+                    col_data["default"] if "default" in col_data.keys() else None
                 )
                 for col_name, col_data in self.di_cols_properties.items()
             }
@@ -413,7 +410,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
     @property
     def aui_column_widths(self):
         self._aui_column_widths = {
-            col_name: col_data["aui_column_width"]
+            col_data["title"]: col_data["aui_column_width"]
             for col_name, col_data in self.di_cols_properties.items()
             if "aui_column_width" in col_data
         }  # Obtaining column widths from schema object
@@ -422,7 +419,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
     @property
     def datetime_format_renderers(self):
         date_time_fields = {
-            col_name: col_data["format"]
+            col_data["title"]: col_data["format"]
             for col_name, col_data in self.di_cols_properties.items()
             if "format" in col_data
         }
@@ -464,16 +461,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             self.data = pd.DataFrame.from_dict(data)
 
 
-eg_value = [
-        {"string": "important string", "integer": 1, "floater": 3.14,},
-        {"string": "update", "integer": 4, "floater": 3.12344,},
-        {"string": "evening", "integer": 5, "floater": 3.14},
-        {"string": "morning", "integer": 5, "floater": 3.14},
-        {"string": "number", "integer": 3, "floater": 3.14},
-    ]
-
 if __name__ == "__main__":
-
     class DataFrameCols(BaseModel):
         string: str = Field("string", title="Important String", aui_column_width=100,)
         integer: int = Field(40, title="Integer of somesort", aui_column_width=80)
