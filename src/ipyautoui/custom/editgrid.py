@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.8
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3.9 (XPython)
 #     language: python
@@ -292,11 +292,15 @@ if __name__ == "__main__":
     display(button_bar)
 
 
-class GridWrapper(DataGrid):
+# +
+class GridWrapper(DataGrid, traitlets.HasTraits):
+
+    _value = traitlets.List()
+        
     def __init__(
         self,
         schema: dict,
-        value: dict = None,
+        value: list = None,
         kwargs_datagrid_default: frozenmap = frozenmap(),
         kwargs_datagrid_update: frozenmap = frozenmap(),
         ignore_cols: list = [],
@@ -306,34 +310,14 @@ class GridWrapper(DataGrid):
         self.di_cols_properties = schema["items"][
             "properties"
         ]  # Obtain each column's properties
-
-        # Put all objects in datagrid belonging to that particular model
-        if value is None or value == []:
-            li_default_value = [
-                {
-                    col_name: (
-                        col_data["default"] if "default" in col_data.keys() else None
-                    )
-                    for col_name, col_data in self.di_cols_properties.items()
-                }
-            ]  # default value
-            df = pd.DataFrame.from_dict(li_default_value)
-            df = df.drop(
-                df.index
-            )  # Empty dataframe to revert to when everything is deleted
-            self.df_empty = df
-
-        else:
-            df = pd.DataFrame.from_dict([val.dict() for val in value])
-            self.df_empty = df.drop(
-                df.index
-            )  # Empty dataframe to revert to when everything is deleted
-
-        self._check_data(df, ignore_cols)  # Checking data frame
+        # df = self._init_df(value)
+        self._init_df()
+        # self._check_data(df, ignore_cols)  # Checking data frame
 
         self.kwargs_datagrid_default = kwargs_datagrid_default
-        self._init_form(df)
+        self._init_form()
         self.kwargs_datagrid_update = kwargs_datagrid_update
+        self.value = value
 
     def _init_model_schema(self, schema):
         if type(schema) == dict:
@@ -343,9 +327,9 @@ class GridWrapper(DataGrid):
             schema = model.schema()
         return model, schema
 
-    def _init_form(self, df):
+    def _init_form(self):
         super().__init__(
-            df,
+            self.df_empty,
             selection_mode="row",
             renderers=self.datetime_format_renderers,
             **self.kwargs_datagrid_default,
@@ -354,24 +338,49 @@ class GridWrapper(DataGrid):
             self._set_column_widths()
         if self.aui_sig_figs and self._data["data"] != []:
             self._round_sig_figs()  # Rounds any specified fields in schema
+      
+    def _init_df(self):
+        li_default_value = [
+            {
+                col_data["title"]: (
+                    col_data["default"] if "default" in col_data.keys() and "title" in col_data.keys() else None
+                )
+                for col_name, col_data in self.di_cols_properties.items()
+            }
+        ]  # default value
+        df = pd.DataFrame.from_dict(li_default_value)
+        df = df.drop(
+            df.index
+        )  # Empty dataframe to revert to when everything is deleted
+        self.df_empty = df
 
     def _round_sig_figs(self):
         df = self.data
         for k, v in self.aui_sig_figs.items():
             df.loc[:, k] = df.loc[:, k].apply(lambda x: round_sig_figs(x, sig_figs=v))
         self.data = df  # Update data through setter
-
+    
     def _set_column_widths(self):
         self.column_widths = self.aui_column_widths  # Set column widths for data grid.
-
-    def _check_data(self, df, ignore_cols):
-        """Checking column names in produced data frame match those within the schema."""
-        columns = [column for column in df.columns if column not in ignore_cols]
-        if not collections.Counter(columns) == collections.Counter(self.column_names):
-            raise Exception(
-                f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.column_names))}"
-            )
-
+    
+    
+#     def _check_value(self, df, ignore_cols):
+#         """Checking column names in produced data frame match those within the schema."""
+#         columns = [column for column in df.columns if column not in ignore_cols]
+#         if not collections.Counter(columns) == collections.Counter(self.column_names):
+#             raise Exception(
+#                 f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.column_names))}"
+#             )
+    
+    def _set_titles(self, value):
+        data = [
+            {
+                self.di_cols_properties[name]["title"]: value for name, value in di_value.items()
+            } # Replace name from value with title from schema
+        for di_value in value
+        ]
+        return data
+    
     @property
     def kwargs_datagrid_update(self):
         return self._kwargs_datagrid_update
@@ -438,15 +447,30 @@ class GridWrapper(DataGrid):
                 for i in range(r1, r2 + 1):
                     self._selected_rows_.add(i)
         return self._selected_rows_
+    
+    @property
+    def value(self):
+        return self._value
 
+    @value.setter
+    def value(self, value):
+        if value == [] or value is None:
+            self._value = []
+            self.data = self.df_empty
+        else:
+            self._value = value
+            data = self._set_titles(self._value)
+            self.data = pd.DataFrame.from_dict(data)
+
+# -
 
 if __name__ == "__main__":
 
     class DataFrameCols(BaseModel):
-        string: str = Field("string", aui_column_width=100)
-        integer: int = Field(1, aui_column_width=80)
-        floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
-        something_else: float = Field(324, aui_column_width=100)
+        string: str = Field("string", title="Important String", aui_column_width=100,)
+        integer: int = Field(40, title="Integer of somesort", aui_column_width=80)
+        floater: float = Field(1.33, title="Floater", aui_column_width=70, aui_sig_fig=3)
+
 
     class TestDataFrame(BaseModel):
         dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
@@ -457,13 +481,19 @@ if __name__ == "__main__":
     display(grid)
 
 if __name__ == "__main__":
-    value = [
-        DataFrameCols(),
-        DataFrameCols(floater=2131),
-        DataFrameCols(floater=4123),
-        DataFrameCols(floater=234),
+    eg_value = [
+        {"string": "important string", "integer": 1, "floater": 3.14,},
+        {"string": "update", "integer": 4, "floater": 3.12344,},
+        {"string": "evening", "integer": 5, "floater": 3.14},
+        {"string": "morning", "integer": 5, "floater": 3.14},
+        {"string": "number", "integer": 3, "floater": 3.14},
     ]
-    grid = GridWrapper(schema=schema, value=value)
+    grid.value = eg_value
+
+grid.data
+
+if __name__ == "__main__":
+    grid = GridWrapper(schema=schema, value=eg_value)
     display(grid)
 
 
