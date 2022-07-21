@@ -364,9 +364,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         """Checking column names in value passed match those within the dataframe."""
         for di_value in value:
             columns = [name for name in di_value.keys()]
-            if not collections.Counter(columns) == collections.Counter(grid.column_names):
+            if not collections.Counter(columns) == collections.Counter(self.column_names):
                 raise Exception(
-                    f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(grid.column_names))}"
+                    f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.column_names))}"
                 )
     
     def _set_titles(self, value):
@@ -401,7 +401,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
     @property
     def aui_sig_figs(self):
         self._aui_sig_figs = {
-            col_name: col_data["aui_sig_fig"]
+            col_data["title"]: col_data["aui_sig_fig"]
             for col_name, col_data in self.di_cols_properties.items()
             if "aui_sig_fig" in col_data
         }
@@ -463,8 +463,8 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
 if __name__ == "__main__":
     class DataFrameCols(BaseModel):
-        string: str = Field("string", title="Important String", aui_column_width=100,)
-        integer: int = Field(40, title="Integer of somesort", aui_column_width=80)
+        string: str = Field("string", title="Important String", aui_column_width=120,)
+        integer: int = Field(40, title="Integer of somesort", aui_column_width=150)
         floater: float = Field(1.33, title="Floater", aui_column_width=70, aui_sig_fig=3)
 
 
@@ -620,6 +620,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             self.button_bar.message.value = markdown(
                 "  👇 _Please select one row from the table!_ "
             )
+            traceback.print_exc()
 
     def _copy(self):
         try:
@@ -629,27 +630,20 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                     "  👇 _Please select a row from the table!_ "
                 )
             else:
-                li_objs = [
-                    self.grid.data.to_dict(orient="records")[i]
-                    for i in sorted([i for i in selected_rows])
-                ]
-                df_objs = pd.DataFrame(li_objs)
+                li_values_selected = [self.value[i] for i in sorted([i for i in selected_rows])]
+                self.value += li_values_selected
+                # ^ add copied values
 
                 if self.data_handler is not None:
                     self.data_handler.fn_post(self)
-                else:
-                    # Concat new row with existing grid data
-                    self.grid.data = pd.concat(
-                        [self.grid.data, df_objs], ignore_index=True
-                    )
 
                 self.button_bar.message.value = markdown("  📝 _Copied Data_ ")
                 self._edit_bool = False  # Want to add the values
-            self.value = self.grid.data.to_dict(orient="records")
         except Exception as e:
             self.button_bar.message.value = markdown(
                 "  👇 _Please select a row from the table!_ "
             )
+            traceback.print_exc()
 
     def _delete(self):
         try:
@@ -664,24 +658,17 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 print(f"Row Number: {self.rows_to_delete}")
                 if self.data_handler is not None:
                     self.data_handler.fn_delete(self)
-
-                df = self.grid.data.drop(self.rows_to_delete)  # Delete rows selected
-                self.grid.data = df.reset_index(
-                    drop=True
-                )  # Must reset index so data grid can perform tasks to updated data frame after reload
+                
+                self.value = [value for i, value in enumerate(self.value) if i not in self.rows_to_delete]
+                # ^ Only set for values NOT in self.rows_to_delete
                 self.button_bar.message.value = markdown("  🗑️ _Deleted Row_ ")
-                if self.grid._data["data"]:  # If data in grid
-                    self.grid._round_sig_figs()
-                    self.value = self.grid.data.to_dict(orient="records")
-                else:
-                    self.value = []
 
             else:
                 self.button_bar.message.value = markdown(
                     "  👇 _Please select one row from the table!_"
                 )
         except Exception as e:
-            pass
+            traceback.print_exc()
 
     def _check_one_row_selected(self):
         if len(self.grid.selected_rows_) > 1:
@@ -693,24 +680,24 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         if self._edit_bool:  # If editing then use patch
             if self.data_handler is not None:
                 self.data_handler.fn_patch(self)
-
-            df = self.grid.data
-            # ^ Can't assign directly to data so must assign to another variable before pushing changes through the setter.
-            for (k, v,) in self.baseform.value.items():
-                df.loc[self.selected_row, k] = v
-            # ^ update selected row with updated values
-
-            self.grid.data = df  # Update data through setter
+            
+            value = self.value
+            value[self.selected_row] = self.baseform.value
+            self.value = value
+            # ^ Call setter
         else:  # Else, if adding values, use post
             if self.data_handler is not None:
                 self.data_handler.fn_post(self)
-            df = pd.DataFrame([self.baseform.value])
+            # df = pd.DataFrame([self.baseform.value])
             if not self.grid._data["data"]:  # If no data in grid
-                self.grid.data = df
+                # self.grid.data = df
+                self.value = [self.baseform.value]
             else:
                 # Append new row onto data frame and set to grid's data.
-                self.grid.data = pd.concat([self.grid.data, df], ignore_index=True)
-        self.value = self.grid.data.to_dict(orient="records")
+                value = self.value
+                value.append(self.baseform.value)
+                self.value = value # Call setter
+                # self.value = df.to_dict(orient="records")
 
     def _onsave(self):
         self._display_grid()
@@ -757,16 +744,19 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     @property
     def value(self):
+        self._value = self.grid._value
         return self._value
 
     @value.setter
     def value(self, value):
-        if value == []:
-            self._value = []
-            self.grid.data = self.grid.df_empty
-        else:
-            self._value = value
-            self.grid.data = pd.DataFrame(self._value)
+        self.grid.value = value
+        self._value = self.grid.value
+        # if value == []:
+        #     self._value = []
+        #     self.grid.data = self.grid.df_empty
+        # else:
+        #     self._value = value
+        #     self.grid.data = pd.DataFrame(self._value)
 
     @property
     def di_row(self):
@@ -799,13 +789,23 @@ if __name__ == "__main__":
 
     class TestDataFrameOnly(BaseModel):
         """a description of TestDataFrame"""
-        __root__: typing.List[DataFrameCols] = Field(
+        dataframe: typing.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
         )
-
+    
+    schema = attach_schema_refs(TestDataFrameOnly.schema())["properties"]["dataframe"]
     # TODO: note that default values aren't being set from the schema for the Array or DataGrid
-    auto_grid = AutoUi(schema=TestDataFrameOnly)
-    display(auto_grid)
+    # auto_grid = AutoUi(schema=TestDataFrameOnly)
+    # display(auto_grid)
+
+editgrid.selected_row_
+
+editgrid = EditGrid(schema=schema)
+display(editgrid)
+
+auto_grid.di_row
 
 if __name__ == "__main__":
     auto_grid.value = AUTO_GRID_DEFAULT_VALUE
+
+
