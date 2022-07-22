@@ -371,7 +371,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             columns = [name for name in di_value.keys()]
             if not collections.Counter(columns) == collections.Counter(self.li_field_names):
                 raise Exception(
-                    f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.li_field_names))}"
+                    f"Schema fields and data fields do not match.\nRejected Columns: {set(columns) ^ set(self.li_field_names)}"
                 )
     
     def _set_titles(self, value: list):
@@ -477,7 +477,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             df = pd.DataFrame.from_dict(data)
             df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
             self.data = self._round_sig_figs(df)
-            
+
 
 
 if __name__ == "__main__":
