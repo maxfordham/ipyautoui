@@ -30,8 +30,9 @@ import immutables
 import pandas as pd
 import ipywidgets as widgets
 from markdown import markdown
-from ipydatagrid import DataGrid, TextRenderer
 from pydantic import BaseModel, Field
+from ipydatagrid import DataGrid, TextRenderer, Expr, VegaExpr
+
 from ipyautoui._utils import round_sig_figs
 import ipyautoui.autoipywidget as aui
 import ipyautoui.custom.save_button_bar as sb
