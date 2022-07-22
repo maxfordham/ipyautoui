@@ -324,6 +324,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         return model, schema
 
     def _init_form(self):
+        """Initialise grid and apply schema properties."""
         super().__init__(
             self.df_empty,
             selection_mode="row",
@@ -336,6 +337,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             self._round_sig_figs(self.data)  # Rounds any specified fields in schema
       
     def _init_df(self):
+        """Get initial empty dataframe."""
         li_default_value = [
             {
                 col_data["title"]: (
@@ -351,11 +353,13 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         self.df_empty = df
 
     def _round_sig_figs(self, df):
+        """Round values in dataframe to desired significant figures as given in the schema."""
         for k, v in self.aui_sig_figs.items():
             df.loc[:, k] = df.loc[:, k].apply(lambda x: round_sig_figs(x, sig_figs=v))
         return df
     
     def _set_column_widths(self):
+        """Set the column widths of the data grid based on aui_column_widths given in the schema."""
         self.column_widths = self.aui_column_widths  # Set column widths for data grid.
     
     
@@ -368,7 +372,8 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                     f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.li_field_names))}"
                 )
     
-    def _set_titles(self, value):
+    def _set_titles(self, value: list):
+        """Replace field names with titles in value passed."""
         data = [
             {
                 self.di_cols_properties[name]["title"]: value for name, value in di_value.items()
@@ -436,17 +441,17 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         return {col_data["title"]: col_name for col_name, col_data in self.di_cols_properties.items()}
 
     @property
-    def selected_rows_(self):
-        self._selected_rows_ = set()
+    def selected_keys(self):
+        self._selected_keys = set()
         for di in self.selected_rows:
             r1 = di["r1"]
             r2 = di["r2"]
             if r1 == r2:
-                self._selected_rows_.add(r1)
+                self._selected_keys.add(r1)
             else:
                 for i in range(r1, r2 + 1):
-                    self._selected_rows_.add(i)
-        return self._selected_rows_
+                    self._selected_keys.add(i)
+        return self._selected_keys
     
     @property
     def value(self):
@@ -583,7 +588,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     def _update_baseform(self, onchange):
         if (
-            len(self.grid.selected_rows_) == 1
+            len(self.grid.selected_keys) == 1
             and self.baseform.layout.display == "block"
         ):
             print(self.di_row)
@@ -631,7 +636,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     def _copy(self):
         try:
-            selected_rows = self.grid.selected_rows_
+            selected_rows = self.grid.selected_keys
             if selected_rows == set():
                 self.button_bar.message.value = markdown(
                     "  👇 _Please select a row from the table!_ "
@@ -678,7 +683,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             traceback.print_exc()
 
     def _check_one_row_selected(self):
-        if len(self.grid.selected_rows_) > 1:
+        if len(self.grid.selected_keys) > 1:
             raise Exception(
                 markdown("  👇 _Please only select ONLY one row from the table!_")
             )
@@ -801,10 +806,6 @@ if __name__ == "__main__":
     # TODO: note that default values aren't being set from the schema for the Array or DataGrid
     # auto_grid = AutoUi(schema=TestDataFrameOnly)
     # display(auto_grid)
-
-editgrid.baseform.value
-
-editgrid.grid.di_titles_to_field_names
 
 if __name__ == "__main__":
     editgrid = EditGrid(schema=schema)
