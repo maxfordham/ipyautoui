@@ -309,6 +309,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         self.di_cols_properties = schema["items"][
             "properties"
         ]  # Obtain each column's properties
+        self.ignore_cols = ignore_cols
         self._init_df()
         self.kwargs_datagrid_default = kwargs_datagrid_default
         self._init_form()
@@ -323,19 +324,6 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             schema = model.schema()
         return model, schema
 
-    def _init_form(self):
-        """Initialise grid and apply schema properties."""
-        super().__init__(
-            self.df_empty,
-            selection_mode="row",
-            renderers=self.datetime_format_renderers,
-            **self.kwargs_datagrid_default,
-        )  # main container. # TODO: may be causing "DeprecationWarning: Passing unrecognized arguments..." in pytest
-        if self.aui_column_widths:
-            self._set_column_widths()
-        if self.aui_sig_figs and self._data["data"] != []:
-            self._round_sig_figs(self.data)  # Rounds any specified fields in schema
-      
     def _init_df(self):
         """Get initial empty dataframe."""
         li_default_value = [
@@ -350,7 +338,21 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         df = df.drop(
             df.index
         )  # Empty dataframe to revert to when everything is deleted
+        df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
         self.df_empty = df
+    
+    def _init_form(self):
+        """Initialise grid and apply schema properties."""
+        super().__init__(
+            self.df_empty,
+            selection_mode="row",
+            renderers=self.datetime_format_renderers,
+            **self.kwargs_datagrid_default,
+        )  # main container. # TODO: may be causing "DeprecationWarning: Passing unrecognized arguments..." in pytest
+        if self.aui_column_widths:
+            self._set_column_widths()
+        if self.aui_sig_figs and self._data["data"] != []:
+            self._round_sig_figs(self.data)  # Rounds any specified fields in schema
 
     def _round_sig_figs(self, df):
         """Round values in dataframe to desired significant figures as given in the schema."""
@@ -361,7 +363,6 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
     def _set_column_widths(self):
         """Set the column widths of the data grid based on aui_column_widths given in the schema."""
         self.column_widths = self.aui_column_widths  # Set column widths for data grid.
-    
     
     def _check_value(self, value):
         """Checking column names in value passed match those within the dataframe."""
@@ -381,16 +382,6 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         for di_value in value
         ]
         return data
-    
-    @property
-    def kwargs_datagrid_update(self):
-        return self._kwargs_datagrid_update
-
-    @kwargs_datagrid_update.setter
-    def kwargs_datagrid_update(self, value):
-        self._kwargs_datagrid_update = value
-        for k, v in value.items():
-            setattr(self, k, v)
 
     @property
     def selected_rows(self):
@@ -401,6 +392,27 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         return self.selected_cell_values[
             -1
         ]  # Set to -1 as this as ID is last column. Will break if ID moves column!
+
+    @property
+    def selected_keys(self):
+        self._selected_keys = set()
+        for di in self.selected_rows:
+            r1 = di["r1"]
+            r2 = di["r2"]
+            if r1 == r2:
+                self._selected_keys.add(r1)
+            else:
+                for i in range(r1, r2 + 1):
+                    self._selected_keys.add(i)
+        return self._selected_keys
+    
+    @property
+    def li_field_names(self):
+        return [col_name for col_name, col_data in self.di_cols_properties.items()]
+    
+    @property
+    def di_titles_to_field_names(self):
+        return {col_data["title"]: col_name for col_name, col_data in self.di_cols_properties.items()}
 
     @property
     def aui_sig_figs(self):
@@ -433,26 +445,18 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         return {k: text_renderer_date_time_format for k, v in date_time_fields.items()}
 
     @property
-    def li_field_names(self):
-        return [col_name for col_name, col_data in self.di_cols_properties.items()]
-    
-    @property
-    def di_titles_to_field_names(self):
-        return {col_data["title"]: col_name for col_name, col_data in self.di_cols_properties.items()}
+    def kwargs_datagrid_update(self):
+        return self._kwargs_datagrid_update
 
-    @property
-    def selected_keys(self):
-        self._selected_keys = set()
-        for di in self.selected_rows:
-            r1 = di["r1"]
-            r2 = di["r2"]
-            if r1 == r2:
-                self._selected_keys.add(r1)
-            else:
-                for i in range(r1, r2 + 1):
-                    self._selected_keys.add(i)
-        return self._selected_keys
-    
+    @kwargs_datagrid_update.setter
+    def kwargs_datagrid_update(self, value):
+        self._kwargs_datagrid_update = value
+        for k, v in value.items():
+            setattr(self, k, v)
+            
+    def set_ignore_fields(self, value):
+        return [{name: value for name, value in di_value.items() if name not in ["string"]} for di_value in value]
+        
     @property
     def value(self):
         return self._value
@@ -467,6 +471,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             self._value = value
             data = self._set_titles(self._value)
             df = pd.DataFrame.from_dict(data)
+            df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
             self.data = self._round_sig_figs(df)
             
 
@@ -498,7 +503,7 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     grid = GridWrapper(schema=schema, value=eg_value)
-    display(grid)
+    display(grid, ignore_cols=["String"])
 
 
 class DataHandler:  # Need BaseModel?
