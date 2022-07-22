@@ -419,7 +419,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         self._aui_sig_figs = {
             col_data["title"]: col_data["aui_sig_fig"]
             for col_name, col_data in self.di_cols_properties.items()
-            if "aui_sig_fig" in col_data
+            if "aui_sig_fig" in col_data and col_data["title"] not in self.ignore_cols
         }
         return self._aui_sig_figs
 
@@ -428,7 +428,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         self._aui_column_widths = {
             col_data["title"]: col_data["aui_column_width"]
             for col_name, col_data in self.di_cols_properties.items()
-            if "aui_column_width" in col_data
+            if "aui_column_width" in col_data and col_data["title"] not in self.ignore_cols
         }  # Obtaining column widths from schema object
         return self._aui_column_widths
 
@@ -502,8 +502,8 @@ if __name__ == "__main__":
     grid.value = eg_value
 
 if __name__ == "__main__":
-    grid = GridWrapper(schema=schema, value=eg_value)
-    display(grid, ignore_cols=["String"])
+    grid = GridWrapper(schema=schema, value=eg_value, ignore_cols=["Important String"])
+    display(grid)
 
 
 class DataHandler:  # Need BaseModel?
