@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.8
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3.9 (XPython)
 #     language: python
@@ -30,8 +30,9 @@ import immutables
 import pandas as pd
 import ipywidgets as widgets
 from markdown import markdown
-from ipydatagrid import DataGrid, TextRenderer
 from pydantic import BaseModel, Field
+from ipydatagrid import DataGrid, TextRenderer, Expr, VegaExpr
+
 from ipyautoui._utils import round_sig_figs
 import ipyautoui.autoipywidget as aui
 import ipyautoui.custom.save_button_bar as sb
@@ -292,48 +293,29 @@ if __name__ == "__main__":
     display(button_bar)
 
 
-class GridWrapper(DataGrid):
+class GridWrapper(DataGrid, traitlets.HasTraits):
+
+    _value = traitlets.List()
+        
     def __init__(
         self,
         schema: dict,
-        value: dict = None,
+        value: list = None,
         kwargs_datagrid_default: frozenmap = frozenmap(),
         kwargs_datagrid_update: frozenmap = frozenmap(),
         ignore_cols: list = [],
     ):
         # accept schema or pydantic schema
         self.model, schema = self._init_model_schema(schema)
+        self.kwargs_datagrid_default = kwargs_datagrid_default
         self.di_cols_properties = schema["items"][
             "properties"
         ]  # Obtain each column's properties
-
-        # Put all objects in datagrid belonging to that particular model
-        if value is None or value == []:
-            li_default_value = [
-                {
-                    col_name: (
-                        col_data["default"] if "default" in col_data.keys() else None
-                    )
-                    for col_name, col_data in self.di_cols_properties.items()
-                }
-            ]  # default value
-            df = pd.DataFrame.from_dict(li_default_value)
-            df = df.drop(
-                df.index
-            )  # Empty dataframe to revert to when everything is deleted
-            self.df_empty = df
-
-        else:
-            df = pd.DataFrame.from_dict([val.dict() for val in value])
-            self.df_empty = df.drop(
-                df.index
-            )  # Empty dataframe to revert to when everything is deleted
-
-        self._check_data(df, ignore_cols)  # Checking data frame
-
-        self.kwargs_datagrid_default = kwargs_datagrid_default
-        self._init_form(df)
+        self.ignore_cols = ignore_cols
+        self._init_df()
+        self._init_form()
         self.kwargs_datagrid_update = kwargs_datagrid_update
+        self.value = value
 
     def _init_model_schema(self, schema):
         if type(schema) == dict:
@@ -343,9 +325,27 @@ class GridWrapper(DataGrid):
             schema = model.schema()
         return model, schema
 
-    def _init_form(self, df):
+    def _init_df(self):
+        """Preparing initial empty dataframe."""
+        li_default_value = [
+            {
+                col_data["title"]: (
+                    col_data["default"] if "default" in col_data.keys() else None
+                )
+                for col_name, col_data in self.di_cols_properties.items()
+            }
+        ]  # default value
+        df = pd.DataFrame.from_dict(li_default_value)
+        df = df.drop(
+            df.index
+        )  # Empty dataframe to revert to when everything is deleted
+        df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
+        self.df_empty = df
+    
+    def _init_form(self):
+        """Initialise grid and apply schema properties."""
         super().__init__(
-            df,
+            self.df_empty,
             selection_mode="row",
             renderers=self.datetime_format_renderers,
             **self.kwargs_datagrid_default,
@@ -353,35 +353,45 @@ class GridWrapper(DataGrid):
         if self.aui_column_widths:
             self._set_column_widths()
         if self.aui_sig_figs and self._data["data"] != []:
-            self._round_sig_figs()  # Rounds any specified fields in schema
+            self._round_sig_figs(self.data)  # Rounds any specified fields in schema
 
-    def _round_sig_figs(self):
-        df = self.data
+    def _round_sig_figs(self, df):
+        """Round values in dataframe to desired significant figures as given in the schema."""
         for k, v in self.aui_sig_figs.items():
             df.loc[:, k] = df.loc[:, k].apply(lambda x: round_sig_figs(x, sig_figs=v))
-        self.data = df  # Update data through setter
-
+        return df
+    
     def _set_column_widths(self):
+        """Set the column widths of the data grid based on aui_column_widths given in the schema."""
         self.column_widths = self.aui_column_widths  # Set column widths for data grid.
-
-    def _check_data(self, df, ignore_cols):
-        """Checking column names in produced data frame match those within the schema."""
-        columns = [column for column in df.columns if column not in ignore_cols]
-        if not collections.Counter(columns) == collections.Counter(self.column_names):
-            raise Exception(
-                f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.column_names))}"
-            )
-
+    
+    def _check_value(self, value):
+        """Checking column names in value passed match those within the dataframe."""
+        for di_value in value:
+            columns = [name for name in di_value.keys()]
+            if not collections.Counter(columns) == collections.Counter(self.li_field_names):
+                raise Exception(
+                    f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.li_field_names))}"
+                )
+    
+    def _set_titles(self, value: list):
+        """Replace field names with titles in value passed."""
+        data = [
+            {
+                self.di_cols_properties[name]["title"]: value for name, value in di_value.items()
+            } # Replace name from value with title from schema
+        for di_value in value
+        ]
+        return data
+    
     @property
-    def kwargs_datagrid_update(self):
-        return self._kwargs_datagrid_update
-
-    @kwargs_datagrid_update.setter
-    def kwargs_datagrid_update(self, value):
-        self._kwargs_datagrid_update = value
-        for k, v in value.items():
-            setattr(self, k, v)
-
+    def di_default_value(self):
+        """Obtain default value given in schema."""
+        return {
+            col_name: col_data["default"]
+            for col_name, col_data in self.di_cols_properties.items()
+        }
+    
     @property
     def selected_rows(self):
         return [{"r1": v["r1"], "r2": v["r2"]} for v in self.selections]
@@ -393,27 +403,44 @@ class GridWrapper(DataGrid):
         ]  # Set to -1 as this as ID is last column. Will break if ID moves column!
 
     @property
+    def selected_keys(self):
+        self._selected_keys = set()
+        for di in self.selected_rows:
+            r1 = di["r1"]
+            r2 = di["r2"]
+            if r1 == r2:
+                self._selected_keys.add(r1)
+            else:
+                for i in range(r1, r2 + 1):
+                    self._selected_keys.add(i)
+        return self._selected_keys
+    
+    @property
+    def li_field_names(self):
+        return [col_name for col_name, col_data in self.di_cols_properties.items()]
+
+    @property
     def aui_sig_figs(self):
         self._aui_sig_figs = {
-            col_name: col_data["aui_sig_fig"]
+            col_data["title"]: col_data["aui_sig_fig"]
             for col_name, col_data in self.di_cols_properties.items()
-            if "aui_sig_fig" in col_data
+            if "aui_sig_fig" in col_data and col_data["title"] not in self.ignore_cols
         }
         return self._aui_sig_figs
 
     @property
     def aui_column_widths(self):
         self._aui_column_widths = {
-            col_name: col_data["aui_column_width"]
+            col_data["title"]: col_data["aui_column_width"]
             for col_name, col_data in self.di_cols_properties.items()
-            if "aui_column_width" in col_data
+            if "aui_column_width" in col_data and col_data["title"] not in self.ignore_cols
         }  # Obtaining column widths from schema object
         return self._aui_column_widths
 
     @property
     def datetime_format_renderers(self):
         date_time_fields = {
-            col_name: col_data["format"]
+            col_data["title"]: col_data["format"]
             for col_name, col_data in self.di_cols_properties.items()
             if "format" in col_data
         }
@@ -423,30 +450,40 @@ class GridWrapper(DataGrid):
         return {k: text_renderer_date_time_format for k, v in date_time_fields.items()}
 
     @property
-    def column_names(self):
-        return [col_name for col_name, col_data in self.di_cols_properties.items()]
+    def kwargs_datagrid_update(self):
+        return self._kwargs_datagrid_update
 
+    @kwargs_datagrid_update.setter
+    def kwargs_datagrid_update(self, value):
+        self._kwargs_datagrid_update = value
+        for k, v in value.items():
+            setattr(self, k, v)
+        
     @property
-    def selected_rows_(self):
-        self._selected_rows_ = set()
-        for di in self.selected_rows:
-            r1 = di["r1"]
-            r2 = di["r2"]
-            if r1 == r2:
-                self._selected_rows_.add(r1)
-            else:
-                for i in range(r1, r2 + 1):
-                    self._selected_rows_.add(i)
-        return self._selected_rows_
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if value == [] or value is None:
+            self._value = []
+            self.data = self.df_empty
+        else:
+            self._check_value(value)
+            self._value = value
+            data = self._set_titles(self._value)
+            df = pd.DataFrame.from_dict(data)
+            df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
+            self.data = self._round_sig_figs(df)
+            
 
 
 if __name__ == "__main__":
-
     class DataFrameCols(BaseModel):
-        string: str = Field("string", aui_column_width=100)
-        integer: int = Field(1, aui_column_width=80)
-        floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
-        something_else: float = Field(324, aui_column_width=100)
+        string: str = Field("string", title="Important String", aui_column_width=120,)
+        integer: int = Field(40, title="Integer of somesort", aui_column_width=150)
+        floater: float = Field(1.33, title="Floater", aui_column_width=70, aui_sig_fig=3)
+
 
     class TestDataFrame(BaseModel):
         dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
@@ -457,13 +494,17 @@ if __name__ == "__main__":
     display(grid)
 
 if __name__ == "__main__":
-    value = [
-        DataFrameCols(),
-        DataFrameCols(floater=2131),
-        DataFrameCols(floater=4123),
-        DataFrameCols(floater=234),
+    eg_value = [
+        {"string": "important string", "integer": 1, "floater": 3.14,},
+        {"string": "update", "integer": 4, "floater": 3.12344,},
+        {"string": "evening", "integer": 5, "floater": 3.14},
+        {"string": "morning", "integer": 5, "floater": 3.14},
+        {"string": "number", "integer": 3, "floater": 3.14},
     ]
-    grid = GridWrapper(schema=schema, value=value)
+    grid.value = eg_value
+
+if __name__ == "__main__":
+    grid = GridWrapper(schema=schema, value=eg_value, ignore_cols=["Important String"])
     display(grid)
 
 
@@ -554,22 +595,19 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     def _update_baseform(self, onchange):
         if (
-            len(self.grid.selected_rows_) == 1
+            len(self.grid.selected_keys) == 1
             and self.baseform.layout.display == "block"
         ):
-            self.baseform.value = self.di_row
+            print(self.di_row_value)
+            self.baseform.value = self.di_row_value
             self.baseform.save_button_bar._unsaved_changes(False)
 
     def _add(self):
         try:
             self._edit_bool = False  # Editing mode is False, therefore addition mode
             self.grid.clear_selection()  # Clear selection of data grid. We don't want to replace an existing value by accident.
-            di_default_value = {
-                col_name: col_data["default"]
-                for col_name, col_data in self.schema["items"]["properties"].items()
-            }
-            self.initial_value = di_default_value
-            self.baseform.value = di_default_value
+            self.initial_value = self.grid.di_default_value
+            self.baseform.value = self.grid.di_default_value
             self.baseform.save_button_bar._unsaved_changes(
                 False
             )  # Set unsaved changes button back to False
@@ -582,9 +620,8 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
     def _edit(self):
         try:
             self._check_one_row_selected()
-            di_obj = self.di_row
-            self.initial_value = di_obj
-            self.baseform.value = di_obj  # Set values in fields
+            self.initial_value = self.di_row_value
+            self.baseform.value = self.di_row_value  # Set values in fields
             self.baseform.save_button_bar._unsaved_changes(
                 False
             )  # Set unsaved changes button back to False
@@ -596,36 +633,30 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             self.button_bar.message.value = markdown(
                 "  👇 _Please select one row from the table!_ "
             )
+            traceback.print_exc()
 
     def _copy(self):
         try:
-            selected_rows = self.grid.selected_rows_
+            selected_rows = self.grid.selected_keys
             if selected_rows == set():
                 self.button_bar.message.value = markdown(
                     "  👇 _Please select a row from the table!_ "
                 )
             else:
-                li_objs = [
-                    self.grid.data.to_dict(orient="records")[i]
-                    for i in sorted([i for i in selected_rows])
-                ]
-                df_objs = pd.DataFrame(li_objs)
+                li_values_selected = [self.value[i] for i in sorted([i for i in selected_rows])]
+                self.value += li_values_selected
+                # ^ add copied values
 
                 if self.data_handler is not None:
                     self.data_handler.fn_post(self)
-                else:
-                    # Concat new row with existing grid data
-                    self.grid.data = pd.concat(
-                        [self.grid.data, df_objs], ignore_index=True
-                    )
 
                 self.button_bar.message.value = markdown("  📝 _Copied Data_ ")
                 self._edit_bool = False  # Want to add the values
-            self.value = self.grid.data.to_dict(orient="records")
         except Exception as e:
             self.button_bar.message.value = markdown(
                 "  👇 _Please select a row from the table!_ "
             )
+            traceback.print_exc()
 
     def _delete(self):
         try:
@@ -640,27 +671,20 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 print(f"Row Number: {self.rows_to_delete}")
                 if self.data_handler is not None:
                     self.data_handler.fn_delete(self)
-
-                df = self.grid.data.drop(self.rows_to_delete)  # Delete rows selected
-                self.grid.data = df.reset_index(
-                    drop=True
-                )  # Must reset index so data grid can perform tasks to updated data frame after reload
+                
+                self.value = [value for i, value in enumerate(self.value) if i not in self.rows_to_delete]
+                # ^ Only set for values NOT in self.rows_to_delete
                 self.button_bar.message.value = markdown("  🗑️ _Deleted Row_ ")
-                if self.grid._data["data"]:  # If data in grid
-                    self.grid._round_sig_figs()
-                    self.value = self.grid.data.to_dict(orient="records")
-                else:
-                    self.value = []
 
             else:
                 self.button_bar.message.value = markdown(
                     "  👇 _Please select one row from the table!_"
                 )
         except Exception as e:
-            pass
+            traceback.print_exc()
 
     def _check_one_row_selected(self):
-        if len(self.grid.selected_rows_) > 1:
+        if len(self.grid.selected_keys) > 1:
             raise Exception(
                 markdown("  👇 _Please only select ONLY one row from the table!_")
             )
@@ -669,24 +693,20 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         if self._edit_bool:  # If editing then use patch
             if self.data_handler is not None:
                 self.data_handler.fn_patch(self)
-
-            df = self.grid.data
-            # ^ Can't assign directly to data so must assign to another variable before pushing changes through the setter.
-            for (k, v,) in self.baseform.value.items():
-                df.loc[self.selected_row, k] = v
-            # ^ update selected row with updated values
-
-            self.grid.data = df  # Update data through setter
+            value = self.value
+            value[self.selected_row] = self.baseform.value
+            self.value = value
+            # ^ Call setter
         else:  # Else, if adding values, use post
             if self.data_handler is not None:
                 self.data_handler.fn_post(self)
-            df = pd.DataFrame([self.baseform.value])
             if not self.grid._data["data"]:  # If no data in grid
-                self.grid.data = df
+                self.value = [self.baseform.value]
             else:
                 # Append new row onto data frame and set to grid's data.
-                self.grid.data = pd.concat([self.grid.data, df], ignore_index=True)
-        self.value = self.grid.data.to_dict(orient="records")
+                value = self.value
+                value.append(self.baseform.value)
+                self.value = value # Call setter
 
     def _onsave(self):
         self._display_grid()
@@ -728,35 +748,29 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
     def _reload_all_data(self):
         if self.data_handler is not None:
             self.value = self.data_handler.fn_get_all_data(self)
-        if self.grid._data["data"]:  # If data in grid
-            self.grid._round_sig_figs()
 
     @property
     def value(self):
+        self._value = self.grid._value
         return self._value
 
     @value.setter
     def value(self, value):
-        if value == []:
-            self._value = []
-            self.grid.data = self.grid.df_empty
-        else:
-            self._value = value
-            self.grid.data = pd.DataFrame(self._value)
+        self.grid.value = value
+        self._value = self.grid.value
 
     @property
-    def di_row(self):
+    def di_row_value(self):
         try:
             self._check_one_row_selected()  # Performing checks to see if only one row is selected
             self.selected_row = self.grid.selected_rows[0][
                 "r1"
             ]  # Only one row selected during editing
-            di_obj = self.grid.data.to_dict(orient="records")[
-                self.selected_row
-            ]  # obtaining object selected to put into base form
-            return di_obj
+            return self.value[self.selected_row]
+
         except Exception as e:
             self.button_bar.message.value = markdown(f"_{e}_")
+            traceback.print_exc()
 
 
 if __name__ == "__main__":
@@ -775,13 +789,20 @@ if __name__ == "__main__":
 
     class TestDataFrameOnly(BaseModel):
         """a description of TestDataFrame"""
-        __root__: typing.List[DataFrameCols] = Field(
+        dataframe: typing.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
         )
-
+    
+    schema = attach_schema_refs(TestDataFrameOnly.schema())["properties"]["dataframe"]
     # TODO: note that default values aren't being set from the schema for the Array or DataGrid
-    auto_grid = AutoUi(schema=TestDataFrameOnly)
-    display(auto_grid)
+    # auto_grid = AutoUi(schema=TestDataFrameOnly)
+    # display(auto_grid)
+
+if __name__ == "__main__":
+    editgrid = EditGrid(schema=schema)
+    display(editgrid)
 
 if __name__ == "__main__":
     auto_grid.value = AUTO_GRID_DEFAULT_VALUE
+
+
