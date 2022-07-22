@@ -306,12 +306,12 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
     ):
         # accept schema or pydantic schema
         self.model, schema = self._init_model_schema(schema)
+        self.kwargs_datagrid_default = kwargs_datagrid_default
         self.di_cols_properties = schema["items"][
             "properties"
         ]  # Obtain each column's properties
         self.ignore_cols = ignore_cols
         self._init_df()
-        self.kwargs_datagrid_default = kwargs_datagrid_default
         self._init_form()
         self.kwargs_datagrid_update = kwargs_datagrid_update
         self.value = value
@@ -325,7 +325,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         return model, schema
 
     def _init_df(self):
-        """Get initial empty dataframe."""
+        """Preparing initial empty dataframe."""
         li_default_value = [
             {
                 col_data["title"]: (
@@ -382,7 +382,15 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         for di_value in value
         ]
         return data
-
+    
+    @property
+    def di_default_value(self):
+        """Obtain default value given in schema."""
+        return {
+            col_name: col_data["default"]
+            for col_name, col_data in self.di_cols_properties.items()
+        }
+    
     @property
     def selected_rows(self):
         return [{"r1": v["r1"], "r2": v["r2"]} for v in self.selections]
@@ -409,10 +417,6 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
     @property
     def li_field_names(self):
         return [col_name for col_name, col_data in self.di_cols_properties.items()]
-    
-    @property
-    def di_titles_to_field_names(self):
-        return {col_data["title"]: col_name for col_name, col_data in self.di_cols_properties.items()}
 
     @property
     def aui_sig_figs(self):
@@ -453,9 +457,6 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         self._kwargs_datagrid_update = value
         for k, v in value.items():
             setattr(self, k, v)
-            
-    def set_ignore_fields(self, value):
-        return [{name: value for name, value in di_value.items() if name not in ["string"]} for di_value in value]
         
     @property
     def value(self):
@@ -596,20 +597,16 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             len(self.grid.selected_keys) == 1
             and self.baseform.layout.display == "block"
         ):
-            print(self.di_row)
-            self.baseform.value = self.di_row
+            print(self.di_row_value)
+            self.baseform.value = self.di_row_value
             self.baseform.save_button_bar._unsaved_changes(False)
 
     def _add(self):
         try:
             self._edit_bool = False  # Editing mode is False, therefore addition mode
             self.grid.clear_selection()  # Clear selection of data grid. We don't want to replace an existing value by accident.
-            di_default_value = {
-                col_name: col_data["default"]
-                for col_name, col_data in self.schema["items"]["properties"].items()
-            }
-            self.initial_value = di_default_value
-            self.baseform.value = di_default_value
+            self.initial_value = self.grid.di_default_value
+            self.baseform.value = self.grid.di_default_value
             self.baseform.save_button_bar._unsaved_changes(
                 False
             )  # Set unsaved changes button back to False
@@ -622,10 +619,8 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
     def _edit(self):
         try:
             self._check_one_row_selected()
-            di_obj = self.di_row
-            print(di_obj)
-            self.initial_value = di_obj
-            self.baseform.value = di_obj  # Set values in fields
+            self.initial_value = self.di_row_value
+            self.baseform.value = self.di_row_value  # Set values in fields
             self.baseform.save_button_bar._unsaved_changes(
                 False
             )  # Set unsaved changes button back to False
@@ -697,7 +692,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         if self._edit_bool:  # If editing then use patch
             if self.data_handler is not None:
                 self.data_handler.fn_patch(self)
-            
             value = self.value
             value[self.selected_row] = self.baseform.value
             self.value = value
@@ -705,16 +699,13 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         else:  # Else, if adding values, use post
             if self.data_handler is not None:
                 self.data_handler.fn_post(self)
-            # df = pd.DataFrame([self.baseform.value])
             if not self.grid._data["data"]:  # If no data in grid
-                # self.grid.data = df
                 self.value = [self.baseform.value]
             else:
                 # Append new row onto data frame and set to grid's data.
                 value = self.value
                 value.append(self.baseform.value)
                 self.value = value # Call setter
-                # self.value = df.to_dict(orient="records")
 
     def _onsave(self):
         self._display_grid()
@@ -756,8 +747,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
     def _reload_all_data(self):
         if self.data_handler is not None:
             self.value = self.data_handler.fn_get_all_data(self)
-        # if self.grid._data["data"]:  # If data in grid
-        #     self.grid._round_sig_figs(self.grid.data)
 
     @property
     def value(self):
@@ -770,18 +759,14 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self._value = self.grid.value
 
     @property
-    def di_row(self):
+    def di_row_value(self):
         try:
             self._check_one_row_selected()  # Performing checks to see if only one row is selected
             self.selected_row = self.grid.selected_rows[0][
                 "r1"
             ]  # Only one row selected during editing
-            di_obj = self.grid.data.to_dict(orient="records")[
-                self.selected_row
-            ]  # obtaining object selected to put into base form
-            di_obj = {self.grid.di_titles_to_field_names[column_name]: value for column_name, value in di_obj.items()}
-            # ^ update dict with field names
-            return di_obj
+            return self.value[self.selected_row]
+
         except Exception as e:
             self.button_bar.message.value = markdown(f"_{e}_")
             traceback.print_exc()
