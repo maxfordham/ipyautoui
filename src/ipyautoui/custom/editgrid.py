@@ -388,7 +388,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
     def di_default_value(self):
         """Obtain default value given in schema."""
         return {
-            col_name: col_data["default"]
+            col_name: (
+                    col_data["default"] if "default" in col_data.keys() else None
+                )
             for col_name, col_data in self.di_cols_properties.items()
         }
     
