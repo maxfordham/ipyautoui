@@ -333,7 +333,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         if self.aui_column_widths:
             self._set_column_widths()
         if self.aui_sig_figs and self._data["data"] != []:
-            self._round_sig_figs()  # Rounds any specified fields in schema
+            self._round_sig_figs(self.data)  # Rounds any specified fields in schema
       
     def _init_df(self):
         li_default_value = [
@@ -350,11 +350,10 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         )  # Empty dataframe to revert to when everything is deleted
         self.df_empty = df
 
-    def _round_sig_figs(self):
-        df = self.data
+    def _round_sig_figs(self, df):
         for k, v in self.aui_sig_figs.items():
             df.loc[:, k] = df.loc[:, k].apply(lambda x: round_sig_figs(x, sig_figs=v))
-        self.data = df  # Update data through setter
+        return df
     
     def _set_column_widths(self):
         self.column_widths = self.aui_column_widths  # Set column widths for data grid.
@@ -364,9 +363,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         """Checking column names in value passed match those within the dataframe."""
         for di_value in value:
             columns = [name for name in di_value.keys()]
-            if not collections.Counter(columns) == collections.Counter(self.column_names):
+            if not collections.Counter(columns) == collections.Counter(self.li_field_names):
                 raise Exception(
-                    f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.column_names))}"
+                    f"Schema fields and data fields do not match.\nRejected Columns: {list(set(columns).difference(self.li_field_names))}"
                 )
     
     def _set_titles(self, value):
@@ -429,8 +428,12 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         return {k: text_renderer_date_time_format for k, v in date_time_fields.items()}
 
     @property
-    def column_names(self):
+    def li_field_names(self):
         return [col_name for col_name, col_data in self.di_cols_properties.items()]
+    
+    @property
+    def di_titles_to_field_names(self):
+        return {col_data["title"]: col_name for col_name, col_data in self.di_cols_properties.items()}
 
     @property
     def selected_rows_(self):
@@ -458,7 +461,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             self._check_value(value)
             self._value = value
             data = self._set_titles(self._value)
-            self.data = pd.DataFrame.from_dict(data)
+            df = pd.DataFrame.from_dict(data)
+            self.data = self._round_sig_figs(df)
+            
 
 
 if __name__ == "__main__":
@@ -581,6 +586,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             len(self.grid.selected_rows_) == 1
             and self.baseform.layout.display == "block"
         ):
+            print(self.di_row)
             self.baseform.value = self.di_row
             self.baseform.save_button_bar._unsaved_changes(False)
 
@@ -607,6 +613,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         try:
             self._check_one_row_selected()
             di_obj = self.di_row
+            print(di_obj)
             self.initial_value = di_obj
             self.baseform.value = di_obj  # Set values in fields
             self.baseform.save_button_bar._unsaved_changes(
@@ -739,8 +746,8 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
     def _reload_all_data(self):
         if self.data_handler is not None:
             self.value = self.data_handler.fn_get_all_data(self)
-        if self.grid._data["data"]:  # If data in grid
-            self.grid._round_sig_figs()
+        # if self.grid._data["data"]:  # If data in grid
+        #     self.grid._round_sig_figs(self.grid.data)
 
     @property
     def value(self):
@@ -751,12 +758,6 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
     def value(self, value):
         self.grid.value = value
         self._value = self.grid.value
-        # if value == []:
-        #     self._value = []
-        #     self.grid.data = self.grid.df_empty
-        # else:
-        #     self._value = value
-        #     self.grid.data = pd.DataFrame(self._value)
 
     @property
     def di_row(self):
@@ -768,9 +769,12 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             di_obj = self.grid.data.to_dict(orient="records")[
                 self.selected_row
             ]  # obtaining object selected to put into base form
+            di_obj = {self.grid.di_titles_to_field_names[column_name]: value for column_name, value in di_obj.items()}
+            # ^ update dict with field names
             return di_obj
         except Exception as e:
             self.button_bar.message.value = markdown(f"_{e}_")
+            traceback.print_exc()
 
 
 if __name__ == "__main__":
@@ -798,12 +802,13 @@ if __name__ == "__main__":
     # auto_grid = AutoUi(schema=TestDataFrameOnly)
     # display(auto_grid)
 
-editgrid.selected_row_
+editgrid.baseform.value
 
-editgrid = EditGrid(schema=schema)
-display(editgrid)
+editgrid.grid.di_titles_to_field_names
 
-auto_grid.di_row
+if __name__ == "__main__":
+    editgrid = EditGrid(schema=schema)
+    display(editgrid)
 
 if __name__ == "__main__":
     auto_grid.value = AUTO_GRID_DEFAULT_VALUE
