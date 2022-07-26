@@ -13,6 +13,7 @@
 #     name: python3
 # ---
 
+# +
 """
 multiselect dropdown widget definition. TODO: integrate with ipyautoui
 
@@ -28,6 +29,8 @@ import traitlets
 import requests
 import random
 
+BUTTON_WIDTH_MIN = "60px"
+
 
 # +
 class MultiSelectSearch(widgets.VBox):
@@ -39,19 +42,38 @@ class MultiSelectSearch(widgets.VBox):
             https://gist.github.com/MattJBritton/9dc26109acb4dfe17820cf72d82f1e6f
     """
     
+    _options = traitlets.List(default_value=[])
     _value = traitlets.List(default_value=[])
 
-    def __init__(self, value):
+    def __init__(self, options=[], value=[]):
         super().__init__()
+        self.check_all = widgets.Button(
+            icon="fa-check-square-o",
+            tooltip="Check all",
+            button_style="success",
+            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+        )
+        self.uncheck_all = widgets.Button(
+            icon="fa-square-o",
+            tooltip="Uncheck all",
+            button_style="warning",
+            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+        )
+        self.options = options
         self.value = value
+        self._init_controls()
         
-    @property
-    def value(self):
-        return self._value
+    def _init_controls(self):
+        self.check_all.on_click(self._check_all)
+        self.uncheck_all.on_click(self._uncheck_all)
     
-    @value.setter
-    def value(self, value):
-        self._value = value
+    @property
+    def options(self):
+        return self._options
+    
+    @options.setter
+    def options(self, value):
+        self._options = value
         self.options_dict = {
             x: widgets.Checkbox(
                 description=x, value=False, style={"description_width": "0px"}
@@ -60,7 +82,25 @@ class MultiSelectSearch(widgets.VBox):
         }
         self.ui = self.multi_checkbox_widget(self.options_dict)
         self.children = [self.ui]
+    
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, value):
+        self._value = value
+        for name in value:
+            self.options_dict[name].value = True
 
+    def _check_all(self, onchange):
+        for name, checkbox in self.options_dict.items():
+            checkbox.value = True
+            
+    def _uncheck_all(self, onchange):
+        for name, checkbox in reversed(self.options_dict.items()):
+            checkbox.value = False
+        
     def multi_checkbox_widget(self, options_dict):
         """ Widget with a search field and lots of checkboxes """
         search_widget = widgets.Text()
@@ -69,13 +109,13 @@ class MultiSelectSearch(widgets.VBox):
         options_layout = widgets.Layout(
             overflow="auto",
             border="1px solid black",
-            width="400px",
+            width="430px",
             height="300px",
             flex_flow="column",
             display="flex",
         )
         options_widget = widgets.VBox(options, layout=options_layout)
-        multi_select = widgets.VBox([search_widget, options_widget])
+        multi_select = widgets.VBox([widgets.HBox([search_widget, self.check_all, self.uncheck_all]), options_widget])
 
         @output_widget.capture()
         def on_checkbox_change(change):
@@ -149,7 +189,7 @@ Abel
     words = set([word.lower() for word in words.splitlines()])
     descriptions = list(words)[:10]
 
-    m = MultiSelectSearch(value=descriptions)
+    m = MultiSelectSearch(options=descriptions)
     display(m)
 # -
 
