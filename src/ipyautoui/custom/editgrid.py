@@ -384,6 +384,13 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         ]
         return data
     
+    def filter_by_column_name(self, column_name: str, li_filter: list):
+        """Filter rows to display based on a column name and a list of objects belonging to that column."""
+        self.transform([{'type': 'filter',
+            'columnIndex': self.data.columns.get_loc(column_name) + 1,
+            'operator': 'in',
+            'value': li_filter}])
+    
     @property
     def di_default_value(self):
         """Obtain default value given in schema."""
