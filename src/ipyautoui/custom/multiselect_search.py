@@ -29,7 +29,7 @@ import traitlets
 import requests
 import random
 
-BUTTON_WIDTH_MIN = "60px"
+BUTTON_WIDTH_MIN = "50px"
 
 
 # +
@@ -59,6 +59,12 @@ class MultiSelectSearch(widgets.VBox):
             button_style="warning",
             layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
         )
+        self.delete = widgets.Button(
+            icon="trash-alt",
+            tooltip="Deleted checked items",
+            button_style="danger",
+            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+        )
         self.options = options
         self.value = value
         self._init_controls()
@@ -66,6 +72,7 @@ class MultiSelectSearch(widgets.VBox):
     def _init_controls(self):
         self.check_all.on_click(self._check_all)
         self.uncheck_all.on_click(self._uncheck_all)
+        self.delete.on_click(self._delete_checked)
     
     @property
     def options(self):
@@ -102,6 +109,9 @@ class MultiSelectSearch(widgets.VBox):
         for name, checkbox in reversed(self.options_dict.items()):
             checkbox.value = False
         
+    def _delete_checked(self, onchange):
+        self.options = [option for option in self.options if option not in self.value]
+        
     def multi_checkbox_widget(self, options_dict):
         """ Widget with a search field and lots of checkboxes """
         search_widget = widgets.Text()
@@ -110,13 +120,13 @@ class MultiSelectSearch(widgets.VBox):
         options_layout = widgets.Layout(
             overflow="auto",
             border="1px solid black",
-            width="430px",
+            width="470px",
             height="300px",
             flex_flow="column",
             display="flex",
         )
         options_widget = widgets.VBox(options, layout=options_layout)
-        multi_select = widgets.VBox([widgets.HBox([search_widget, self.check_all, self.uncheck_all]), options_widget])
+        multi_select = widgets.VBox([widgets.HBox([search_widget, self.check_all, self.uncheck_all, self.delete]), options_widget])
 
         @output_widget.capture()
         def on_checkbox_change(change):
@@ -193,5 +203,7 @@ Abel
     m = MultiSelectSearch(options=descriptions)
     display(m)
 # -
+
+
 
 
