@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.5
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -31,7 +31,6 @@ import random
 
 # +
 class MultiSelectSearch(widgets.VBox):
-    _value=traitlets.List(default_value=[])
     """
     multi-checkbox select widget with search 
     
@@ -39,20 +38,12 @@ class MultiSelectSearch(widgets.VBox):
         multi-select widget:
             https://gist.github.com/MattJBritton/9dc26109acb4dfe17820cf72d82f1e6f
     """
+    
+    _value = traitlets.List(default_value=[])
 
-    def __init__(self, options):
+    def __init__(self, value):
         super().__init__()
-        self.options_dict = {
-            x: widgets.Checkbox(
-                description=x, value=False, style={"description_width": "0px"}
-            )
-            for x in options
-        }
-
-        self.ui = self.multi_checkbox_widget(self.options_dict)
-        self.out = widgets.interactive_output(self.f, self.options_dict)
-        children = [self.ui, self.out]
-        self.children = children
+        self.value = value
         
     @property
     def value(self):
@@ -61,9 +52,14 @@ class MultiSelectSearch(widgets.VBox):
     @value.setter
     def value(self, value):
         self._value = value
-
-    def f(self, **args):
-        self.value = [key for key, value in args.items() if value]
+        self.options_dict = {
+            x: widgets.Checkbox(
+                description=x, value=False, style={"description_width": "0px"}
+            )
+            for x in value
+        }
+        self.ui = self.multi_checkbox_widget(self.options_dict)
+        self.children = [self.ui]
 
     def multi_checkbox_widget(self, options_dict):
         """ Widget with a search field and lots of checkboxes """
@@ -153,5 +149,8 @@ Abel
     words = set([word.lower() for word in words.splitlines()])
     descriptions = list(words)[:10]
 
-    m = MultiSelectSearch(options=descriptions)
+    m = MultiSelectSearch(value=descriptions)
     display(m)
+# -
+
+
