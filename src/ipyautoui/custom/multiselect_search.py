@@ -85,7 +85,7 @@ class MultiSelectSearch(widgets.VBox):
     
     @property
     def value(self):
-        self._value = [name for name, checkbox in m.options_dict.items() if checkbox.value is True]
+        self._value = [name for name, checkbox in self.options_dict.items() if checkbox.value is True]
         return self._value
     
     @value.setter
