@@ -347,7 +347,6 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         super().__init__(
             self.df_empty,
             selection_mode="row",
-            renderers=self.datetime_format_renderers,
             **self.kwargs_datagrid_default,
         )  # main container. # TODO: may be causing "DeprecationWarning: Passing unrecognized arguments..." in pytest
         if self.aui_column_widths:
@@ -445,18 +444,6 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             if "aui_column_width" in col_data and col_data["title"] not in self.ignore_cols
         }  # Obtaining column widths from schema object
         return self._aui_column_widths
-
-    @property
-    def datetime_format_renderers(self):
-        date_time_fields = {
-            col_data["title"]: col_data["format"]
-            for col_name, col_data in self.di_cols_properties.items()
-            if "format" in col_data
-        }
-        text_renderer_date_time_format = TextRenderer(
-            format="%Y-%m-%d %H:%M:%S", format_type="time",
-        )
-        return {k: text_renderer_date_time_format for k, v in date_time_fields.items()}
 
     @property
     def kwargs_datagrid_update(self):
