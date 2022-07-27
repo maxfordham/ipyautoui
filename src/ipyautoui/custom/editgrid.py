@@ -486,7 +486,6 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             self.data = self._round_sig_figs(df)
 
 
-
 if __name__ == "__main__":
     class DataFrameCols(BaseModel):
         string: str = Field("string", title="Important String", aui_column_width=120,)
@@ -536,6 +535,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         kwargs_datagrid_default: frozenmap = {},
         kwargs_datagrid_update: frozenmap = {},
         ignore_cols: list = [],
+        description: str = ""
     ):
         self.model, self.schema = self._init_model_schema(
             schema
@@ -550,6 +550,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
             ignore_cols=ignore_cols,
+            description=description,
         )
         self._init_controls()
         self._edit_bool = False  # Initially define edit mode to be false
@@ -569,6 +570,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         kwargs_datagrid_default,
         kwargs_datagrid_update,
         ignore_cols,
+        description,
     ):
         super().__init__(layout={"width": "100%"})  # main container
         self.button_bar = ButtonBar(
@@ -579,6 +581,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
             backward=self._backward,
             show_message=False,
         )
+        self.description = widgets.HTML(description)
         self.grid = GridWrapper(
             schema=schema,
             value=value,
@@ -596,7 +599,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self.button_bar.layout = widgets.Layout(padding="0px 20px")
         self.baseform.save_button_bar.layout = widgets.Layout(padding="0px 20px")
         self.baseform.layout = widgets.Layout(padding="0px 0px 40px 0px")
-        self.children = [self.button_bar, self.baseform, self.grid]
+        self.children = [self.description, self.button_bar, self.baseform, self.grid]
         self.baseform.layout.display = "none"  # Hide base form menu
 
     def _init_controls(self):
@@ -808,7 +811,8 @@ if __name__ == "__main__":
     # display(auto_grid)
 
 if __name__ == "__main__":
-    editgrid = EditGrid(schema=schema)
+    description = markdown("<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes whatever they may be 👍")
+    editgrid = EditGrid(schema=schema, description=description)
     display(editgrid)
 
 if __name__ == "__main__":
