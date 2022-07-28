@@ -303,6 +303,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         value: list = None,
         kwargs_datagrid_default: frozenmap = frozenmap(),
         kwargs_datagrid_update: frozenmap = frozenmap(),
+        order_cols: list = [],
         ignore_cols: list = [],
     ):
         # accept schema or pydantic schema
@@ -312,6 +313,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             "properties"
         ]  # Obtain each column's properties
         self.ignore_cols = ignore_cols
+        self.order_cols = order_cols
         self._init_df()
         self._init_form()
         self.kwargs_datagrid_update = kwargs_datagrid_update
@@ -339,7 +341,10 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         df = df.drop(
             df.index
         )  # Empty dataframe to revert to when everything is deleted
-        df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
+        if self.ignore_cols:
+            df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
+        if self.order_cols:
+            df = df[self.order_cols]
         self.df_empty = df
     
     def _init_form(self):
@@ -347,7 +352,6 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         super().__init__(
             self.df_empty,
             selection_mode="row",
-            renderers=self.datetime_format_renderers,
             **self.kwargs_datagrid_default,
         )  # main container. # TODO: may be causing "DeprecationWarning: Passing unrecognized arguments..." in pytest
         if self.aui_column_widths:
@@ -447,18 +451,6 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         return self._aui_column_widths
 
     @property
-    def datetime_format_renderers(self):
-        date_time_fields = {
-            col_data["title"]: col_data["format"]
-            for col_name, col_data in self.di_cols_properties.items()
-            if "format" in col_data
-        }
-        text_renderer_date_time_format = TextRenderer(
-            format="%Y-%m-%d %H:%M:%S", format_type="time",
-        )
-        return {k: text_renderer_date_time_format for k, v in date_time_fields.items()}
-
-    @property
     def kwargs_datagrid_update(self):
         return self._kwargs_datagrid_update
 
@@ -482,7 +474,10 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             self._value = value
             data = self._set_titles(self._value)
             df = pd.DataFrame.from_dict(data)
-            df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
+            if self.ignore_cols:
+                df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
+            if self.order_cols:
+                df = df[self.order_cols]
             self.data = self._round_sig_figs(df)
 
 
@@ -512,7 +507,7 @@ if __name__ == "__main__":
     grid.value = eg_value
 
 if __name__ == "__main__":
-    grid = GridWrapper(schema=schema, value=eg_value, ignore_cols=["Important String"])
+    grid = GridWrapper(schema=schema, value=eg_value, ignore_cols=["Important String"], order_cols=["Floater", "Integer of somesort"])
     display(grid)
 
 
