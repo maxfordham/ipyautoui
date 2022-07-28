@@ -303,6 +303,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         value: list = None,
         kwargs_datagrid_default: frozenmap = frozenmap(),
         kwargs_datagrid_update: frozenmap = frozenmap(),
+        order_cols: list = [],
         ignore_cols: list = [],
     ):
         # accept schema or pydantic schema
@@ -312,6 +313,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             "properties"
         ]  # Obtain each column's properties
         self.ignore_cols = ignore_cols
+        self.order_cols = order_cols
         self._init_df()
         self._init_form()
         self.kwargs_datagrid_update = kwargs_datagrid_update
@@ -339,7 +341,10 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         df = df.drop(
             df.index
         )  # Empty dataframe to revert to when everything is deleted
-        df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
+        if self.ignore_cols:
+            df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
+        if self.order_cols:
+            df = df[self.order_cols]
         self.df_empty = df
     
     def _init_form(self):
@@ -469,7 +474,10 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             self._value = value
             data = self._set_titles(self._value)
             df = pd.DataFrame.from_dict(data)
-            df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
+            if self.ignore_cols:
+                df = df.drop(columns=self.ignore_cols)  # Drop columns we want to ignore from datagrid
+            if self.order_cols:
+                df = df[self.order_cols]
             self.data = self._round_sig_figs(df)
 
 
@@ -499,7 +507,7 @@ if __name__ == "__main__":
     grid.value = eg_value
 
 if __name__ == "__main__":
-    grid = GridWrapper(schema=schema, value=eg_value, ignore_cols=["Important String"])
+    grid = GridWrapper(schema=schema, value=eg_value, ignore_cols=["Important String"], order_cols=["Floater", "Integer of somesort"])
     display(grid)
 
 
