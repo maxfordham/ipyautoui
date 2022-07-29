@@ -511,11 +511,12 @@ if __name__ == "__main__":
     display(grid)
 
 
-class DataHandler:  # Need BaseModel?
+class DataHandler(BaseModel):
     fn_get_all_data: typing.Callable
     fn_post: typing.Callable
     fn_patch: typing.Callable
     fn_delete: typing.Callable
+    fn_copy: typing.Callable
 
 
 class EditGrid(widgets.VBox, traitlets.HasTraits):
@@ -526,7 +527,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self,
         schema: dict,
         value: dict = None,
-        data_handler: typing.Type[BaseModel] = None,
+        datahandler: typing.Type[BaseModel] = None,
         kwargs_datagrid_default: frozenmap = {},
         kwargs_datagrid_update: frozenmap = {},
         ignore_cols: list = [],
@@ -535,9 +536,9 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self.model, self.schema = self._init_model_schema(
             schema
         )  # TODO: Will update to use model in the future
-        self.data_handler = data_handler
-        if self.data_handler is not None:
-            df = pd.DataFrame(self.data_handler.fn_get_all_data(self))
+        self.datahandler = datahandler
+        if self.datahandler is not None:
+            value = self.datahandler.fn_get_all_data()
         self.out = widgets.Output()
         self._init_form(
             value=value,
@@ -651,11 +652,13 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 )
             else:
                 li_values_selected = [self.value[i] for i in sorted([i for i in selected_rows])]
-                self.value += li_values_selected
-                # ^ add copied values
-
-                if self.data_handler is not None:
-                    self.data_handler.fn_post(self)
+                if self.datahandler is not None:
+                    for value in li_values_selected:
+                        self.datahandler.fn_copy(value)
+                        self._reload_all_data()
+                else:
+                    self.value += li_values_selected
+                    # ^ add copied values
 
                 self.button_bar.message.value = markdown("  📝 _Copied Data_ ")
                 self._edit_bool = False  # Want to add the values
@@ -676,11 +679,14 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                     end_row = i["r2"]
                     self.rows_to_delete += [i for i in range(*[start_row, end_row + 1])]
                 print(f"Row Number: {self.rows_to_delete}")
-                if self.data_handler is not None:
-                    self.data_handler.fn_delete(self)
-                
-                self.value = [value for i, value in enumerate(self.value) if i not in self.rows_to_delete]
-                # ^ Only set for values NOT in self.rows_to_delete
+                if self.datahandler is not None:
+                    value = [self.value[i] for i in self.rows_to_delete]
+                    for v in value:
+                        self.datahandler.fn_delete(v)
+                    self._reload_all_data()
+                else:
+                    self.value = [value for i, value in enumerate(self.value) if i not in self.rows_to_delete]
+                    # ^ Only set for values NOT in self.rows_to_delete
                 self.button_bar.message.value = markdown("  🗑️ _Deleted Row_ ")
 
             else:
@@ -698,22 +704,28 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
 
     def _save(self):
         if self._edit_bool:  # If editing then use patch
-            if self.data_handler is not None:
-                self.data_handler.fn_patch(self)
-            value = self.value
-            value[self.selected_row] = self.baseform.value
-            self.value = value
-            # ^ Call setter
-        else:  # Else, if adding values, use post
-            if self.data_handler is not None:
-                self.data_handler.fn_post(self)
-            if not self.grid._data["data"]:  # If no data in grid
-                self.value = [self.baseform.value]
+            if self.datahandler is not None:
+                value = self.baseform.value
+                self.datahandler.fn_patch(value)
+                self._reload_all_data()
             else:
-                # Append new row onto data frame and set to grid's data.
                 value = self.value
-                value.append(self.baseform.value)
-                self.value = value # Call setter
+                value[self.selected_row] = self.baseform.value
+                self.value = value
+                # ^ Call setter
+        else:  # Else, if adding values, use post
+            if self.datahandler is not None:
+                value = self.baseform.value
+                self.datahandler.fn_post(value)
+                self._reload_all_data()
+            else:
+                if not self.grid._data["data"]:  # If no data in grid
+                    self.value = [self.baseform.value]
+                else:
+                    # Append new row onto data frame and set to grid's data.
+                    value = self.value
+                    value.append(self.baseform.value)
+                    self.value = value # Call setter
 
     def _onsave(self):
         self._display_grid()
@@ -753,8 +765,8 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
         self.baseform.layout.display = "block"  # Displays base form menu
 
     def _reload_all_data(self):
-        if self.data_handler is not None:
-            self.value = self.data_handler.fn_get_all_data(self)
+        if self.datahandler is not None:
+            self.value = self.datahandler.fn_get_all_data()
 
     @property
     def value(self):
@@ -809,8 +821,5 @@ if __name__ == "__main__":
     description = markdown("<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes whatever they may be 👍")
     editgrid = EditGrid(schema=schema, description=description)
     display(editgrid)
-
-if __name__ == "__main__":
-    auto_grid.value = AUTO_GRID_DEFAULT_VALUE
 
 
