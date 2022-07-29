@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.8
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -100,7 +100,8 @@ frozenmap = immutables.Map
 # ^ https://www.python.org/dev/peps/pep-0603/, https://github.com/MagicStack/immutables
 BOX = frozenmap({True: widgets.HBox, False: widgets.VBox})
 TOGGLE_BUTTON_KWARGS = frozenmap(
-    icon="", layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+    icon="",
+    layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
 )
 # -
 from ipyautoui.autowidgets import create_widget_caller
@@ -270,7 +271,11 @@ class Array(widgets.VBox, traitlets.HasTraits):
 
     def _init_iterable(self, items):
         return [
-            IterableItem(index=n, key=uuid.uuid4(), item=i,)
+            IterableItem(
+                index=n,
+                key=uuid.uuid4(),
+                item=i,
+            )
             for n, i in enumerate(items)
         ]
 
@@ -606,7 +611,11 @@ class Array(widgets.VBox, traitlets.HasTraits):
         else:
             new_item = item
 
-        item = IterableItem(index=index, key=new_key, item=new_item,)
+        item = IterableItem(
+            index=index,
+            key=new_key,
+            item=new_item,
+        )
         self.iterable.insert(index + 1, item)
         self.iterable = self._sort_iterable()  # update map
         index = self._get_attribute(item.key, "index")
