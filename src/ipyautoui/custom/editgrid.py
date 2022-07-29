@@ -516,6 +516,7 @@ class DataHandler(BaseModel):
     fn_post: typing.Callable
     fn_patch: typing.Callable
     fn_delete: typing.Callable
+    fn_copy: typing.Callable
 
 
 class EditGrid(widgets.VBox, traitlets.HasTraits):
@@ -653,7 +654,7 @@ class EditGrid(widgets.VBox, traitlets.HasTraits):
                 li_values_selected = [self.value[i] for i in sorted([i for i in selected_rows])]
                 if self.datahandler is not None:
                     for value in li_values_selected:
-                        self.datahandler.fn_post(value)
+                        self.datahandler.fn_copy(value)
                         self._reload_all_data()
                 else:
                     self.value += li_values_selected
