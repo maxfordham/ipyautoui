@@ -843,7 +843,6 @@ class EditGrid(widgets.VBox):
             # ^ Don't remove display of base form if already showing when going from edit to add (or vice versa).
             pass
         else:
-            self._reload_all_data()  # Reloads all data and data grid
             self.baseform.layout.display = "none"  # Hides base form menu
             self._set_toggle_buttons_to_false()
 
