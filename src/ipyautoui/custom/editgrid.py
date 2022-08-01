@@ -373,7 +373,8 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                 columns=self.ignore_cols
             )  # Drop columns we want to ignore from datagrid
         if self.order_cols:
-            df = df[self.order_cols]
+            order_cols = self.order_cols + [col for col in df.columns if col not in self.order_cols]
+            df = df[order_cols]
         self.df_empty = df
 
     def _init_form(self):
@@ -516,7 +517,8 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                     columns=self.ignore_cols
                 )  # Drop columns we want to ignore from datagrid
             if self.order_cols:
-                df = df[self.order_cols]
+                order_cols = self.order_cols + [col for col in df.columns if col not in self.order_cols]
+                df = df[order_cols]
             self.data = self._round_sig_figs(df)
 
 
@@ -598,6 +600,7 @@ class EditGrid(widgets.VBox):
         ui_edit: typing.Callable = None,
         kwargs_datagrid_default: frozenmap = {},
         kwargs_datagrid_update: frozenmap = {},
+        order_cols: list = [],
         ignore_cols: list = [],
         description: str = "",
     ):
@@ -613,6 +616,7 @@ class EditGrid(widgets.VBox):
             schema=schema,
             kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
+            order_cols=order_cols,
             ignore_cols=ignore_cols,
             description=description,
         )
@@ -633,6 +637,7 @@ class EditGrid(widgets.VBox):
         value,
         kwargs_datagrid_default,
         kwargs_datagrid_update,
+        order_cols,
         ignore_cols,
         description,
     ):
@@ -651,6 +656,7 @@ class EditGrid(widgets.VBox):
             value=value,
             kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
+            order_cols=order_cols,
             ignore_cols=ignore_cols,
         )
         self.baseform = BaseForm(
