@@ -337,7 +337,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
                 width="100%",
                 display="flex",
                 flex="flex-grow",
-                border="solid LightCyan 2px",
+                #border="solid LightCyan 2px",
             )
         )  # main container
         self.rows_box = BOX[not self.orient_rows](
