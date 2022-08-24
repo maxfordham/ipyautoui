@@ -70,6 +70,12 @@ def attach_schema_refs(schema, schema_base=None):
                 if "$ref" in v:
                     li_filt = v["$ref"].split("/")[1:]
                     schema[k] = recursive_search_schema(schema_base, li_filt)
+                elif "allOf" in v and len(v["allOf"]) == 1 and "$ref" in v["allOf"][0].keys():
+                    # ^ this is an edge case for setting enums with Field values (probs unique to how pydantic does it)
+                    li_filt = v["allOf"][0]["$ref"].split("/")[1:]
+                    ref = recursive_search_schema(schema_base, li_filt)
+                    schema[k] = {k_: v_ for k_, v_ in ref.items() if k_ not in list(schema[k].keys())} | schema[k]
+                    del schema[k]["allOf"]
                 else:
                     schema[k] = attach_schema_refs(v, schema_base=schema_base)
             elif type(v) == list:

@@ -20,17 +20,18 @@ or press the question mark button.
 """
 
 DATAGRID_TEST_VALUE = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-            "something_else": 324,
-        },
-        {"string": "update", "integer": 4, "floater": 3.12344, "something_else": 123},
-        {"string": "evening", "integer": 5, "floater": 3.14, "something_else": 235},
-        {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
-        {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
-    ]
+    {
+        "string": "important string",
+        "integer": 1,
+        "floater": 3.14,
+        "something_else": 324,
+    },
+    {"string": "update", "integer": 4, "floater": 3.12344, "something_else": 123},
+    {"string": "evening", "integer": 5, "floater": 3.14, "something_else": 235},
+    {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
+    {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
+]
+
 
 class Gender(str, Enum):
     male = "male"
@@ -80,11 +81,14 @@ class TestAutoLogicSimple(BaseModel):
     int_text: int = 1
     int_range_slider: tuple[int, int] = Field(default=(0, 3), ge=0, le=4)  # check
     float_slider: float = Field(default=2.2, ge=0, le=3)
-    float_text: float = 2.2 
+    float_text: float = 2.2
     float_text_locked: float = Field(default=2.2, disabled=True)
     float_range_slider: tuple[float, float] = Field(default=(0, 2.2), ge=0, le=3.5)
     checkbox: bool = True
     dropdown: Gender = None
+    dropdown_edge_case: Gender = Field(
+        default=Gender.female, description="updated description"
+    )
     dropdown_simple: str = Field(default="asd", enum=["asd", "asdf"])
     combobox: str = Field(
         default="asd", enum=["asd", "asdf"], autoui="ipyautoui.autowidgets.Combobox",
@@ -134,7 +138,7 @@ class TestAutoLogic(TestAutoLogicSimple):
     # )
     # FIXME: Needing refactor or cleanup -@jovyan at 8/23/2022, 10:28:36 PM
     # select_multiple_search needs a wrapper that calls it from a schema var
-    
+
     array: typing.List[str] = Field(default=[], max_items=5)
     objects_array: typing.List[NestedObject] = Field(default=[], max_items=5)
     # file_upload # TODO: how best to implement this? could auto-save to another location...
@@ -143,7 +147,7 @@ class TestAutoLogic(TestAutoLogicSimple):
     )
     datagrid: typing.List[DataFrameCols] = Field(
         default=DATAGRID_TEST_VALUE,
-        #default_factory=lambda: DATAGRID_TEST_VALUE, # TODO: AutoUi isn't getting data when set using default_factory. make this work!
+        # default_factory=lambda: DATAGRID_TEST_VALUE, # TODO: AutoUi isn't getting data when set using default_factory. make this work!
         format="DataFrame",
     )
     # datagrid_from_dataframe: str = Field(

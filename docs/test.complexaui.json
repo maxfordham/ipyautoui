@@ -15,6 +15,7 @@
     ],
     "checkbox": true,
     "dropdown": "male",
+    "dropdown_edge_case": "female",
     "dropdown_simple": "asd",
     "combobox": "asd",
     "text": "short text",
@@ -23,7 +24,7 @@
     "complex_serialisation": {
         "file_chooser": ".",
         "date_picker": null,
-        "datetime_picker": "2022-08-23T22:30:04.008356",
+        "datetime_picker": "2022-08-24T07:06:19.093678",
         "color_picker_ipywidgets": "#f5f595"
     },
     "select_multiple_non_constrained": [
