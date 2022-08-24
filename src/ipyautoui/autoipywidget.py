@@ -199,12 +199,12 @@ class AutoObject(widgets.VBox):
 
     @traitlets.validate("order")
     def _order(self, proposal):
-        if proposal["value"] is None:
+        v = proposal["value"]
+        if v is None:
             return None
         else:
-            if set(self.default_order) != set(proposal["value"]):
+            if set(self.default_order) != set(v):
                 raise ValueError("set(self.default_order) != set(proposal['value'])")
-
         return v
 
     @traitlets.validate("nested_widgets")
