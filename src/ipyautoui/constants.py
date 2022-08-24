@@ -75,6 +75,13 @@ BLANK_BUTTON_KWARGS = frozenmap(
     disabled=True
 )
 
+DOWNARROW_BUTTON_KWARGS = frozenmap(
+    icon="arrow-down",
+    layout={"width": "300px"},
+    disabled=True,
+    style={"button_color": "white"},
+)
+
 
 KWARGS_DATAGRID_DEFAULT = frozenmap(
     header_renderer = TextRenderer(

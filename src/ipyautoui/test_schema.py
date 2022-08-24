@@ -127,11 +127,14 @@ class TestAutoLogic(TestAutoLogicSimple):
         enum=["male", "female", "other", "not_given"],
         description="simple select multiple from list",
     )
-    select_multiple_search: typing.List[str] = Field(
-        default=["male", "female"],
-        enum=["male", "female", "other", "not_given"],
-        autoui="ipyautoui.custom.multiselect_search.MultiSelectSearch",
-    )
+    # select_multiple_search: typing.List[str] = Field(
+    #     default=["male", "female"],
+    #     enum=["male", "female", "other", "not_given"],
+    #     autoui="ipyautoui.custom.multiselect_search.MultiSelectSearch",
+    # )
+    # FIXME: Needing refactor or cleanup -@jovyan at 8/23/2022, 10:28:36 PM
+    # select_multiple_search needs a wrapper that calls it from a schema var
+    
     array: typing.List[str] = Field(default=[], max_items=5)
     objects_array: typing.List[NestedObject] = Field(default=[], max_items=5)
     # file_upload # TODO: how best to implement this? could auto-save to another location...

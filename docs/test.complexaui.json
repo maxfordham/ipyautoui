@@ -8,6 +8,7 @@
     ],
     "float_slider": 2.0,
     "float_text": 2.2,
+    "float_text_locked": 2.2,
     "float_range_slider": [
         0.0,
         2.2
@@ -22,7 +23,7 @@
     "complex_serialisation": {
         "file_chooser": ".",
         "date_picker": null,
-        "datetime_picker": "2022-07-18T18:38:46.813137",
+        "datetime_picker": "2022-08-23T22:30:04.008356",
         "color_picker_ipywidgets": "#f5f595"
     },
     "select_multiple_non_constrained": [
@@ -33,7 +34,6 @@
         "male",
         "female"
     ],
-    "select_multiple_search": [],
     "array": [],
     "objects_array": [],
     "run_name": "000-lean-description",

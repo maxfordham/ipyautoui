@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.5
+#       jupytext_version: 1.13.8
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -14,7 +14,6 @@
 # ---
 
 # +
-
 """autoui is used to automatically create ipywidget user input (UI) form from a pydantic schema.
 
 This module maps the pydantic fields to appropriate widgets based on type to display the data in the UI.
@@ -40,33 +39,97 @@ import traitlets_paths
 # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:07:55 PM
 # use traitlets_paths or not... pull request to main traitlets?
 import typing
-from ipyautoui.constants import load_test_constants
+from ipyautoui.constants import load_test_constants, DOWNARROW_BUTTON_KWARGS
 
-#  from ipyautoui.custom.iterable import AutoArray
+from ipyautoui.custom.showhide import ShowHide
 import ipyautoui.automapschema as aumap
 import immutables
 import inspect
 
 frozenmap = immutables.Map
 
+
 # +
-
-
 def get_title_description_from_schema(schema):
-    if schema["type"] == "array":
-        return "", ""
-    elif schema["type"] == "object":
-        return "", ""
+    if "title" in schema.keys():
+        t = schema["title"]
     else:
-        if "title" in schema.keys():
-            t = schema["title"]
+        t = ""
+    if "description" in schema.keys():
+        d = schema["description"]
+    else:
+        d = ""
+
+    return {"title": t, "description": d}
+
+
+def nested_horizontal_row(widget, title, description, auto_open=False):
+    return ShowHide(
+        fn_display=lambda: widget,
+        title=f"<b>{title}</b>, <i>{description}</i>",
+        auto_open=auto_open,
+        button_width="300px",
+    )
+
+
+# BUG: Reported defects -@jovyan at 8/23/2022, 10:30:52 PM
+# ^ buggy behaviour associated to ShowHide class for nested objects observed in
+# example form linked to `nested_horizontal_row`
+
+
+def simple_horizontal_row(widget, title, description):
+    return widgets.HBox([widget, widgets.HTML(f"<b>{title}</b>, <i>{description}</i>")])
+
+
+def simple_vertical_row(widget, title, description):
+    return widgets.VBox(
+        [
+            widgets.HTML(f"<b>{title}</b>, <i>{description}</i>"),
+            widgets.HBox([widgets.HBox(layout={"width": "40px"}), widget]),
+        ]
+    )
+
+
+# TODO: Tasks pending completion -@jg at 8/23/2022, 10:23:58 PM
+# develop mechanism for assigning these formatting vars from higher level
+# classes. add statefullness. currently only default settings supported.
+def create_row(
+    widget,
+    title: str = "",
+    description: str = "",
+    align_horizontal: bool = True,
+    auto_open: bool = True,
+    nest_widgets: list = None,
+) -> typing.Type[widgets.Box]:
+
+    from ipyautoui.autowidgets import AutoMarkdown  # , EditGrid
+    from ipyautoui.custom.iterable import AutoArray
+    from ipyautoui.custom.editgrid import EditGrid  # as EditGridCore
+    from ipyautoui import AutoUi
+
+    default_nested = [
+        AutoIpywidget,
+        AutoArray,
+        AutoMarkdown,
+        EditGrid,
+        # EditGridCore,
+        AutoUi,
+        AutoObject,
+    ]
+    if nest_widgets is None:
+        nest_widgets = default_nested
+    else:
+        nest_widgets.append(default_nested)
+
+    if align_horizontal:
+        if True in [isinstance(widget, w) for w in nest_widgets]:
+            return nested_horizontal_row(
+                widget, title, description, auto_open=auto_open
+            )
         else:
-            t = ""
-        if "description" in schema.keys():
-            d = schema["description"]
-        else:
-            d = ""
-        return t, d
+            return simple_horizontal_row(widget, title, description)
+    else:
+        return simple_vertical_row(widget, title, description)
 
 
 def _init_widgets_and_rows(
@@ -85,19 +148,10 @@ def _init_widgets_and_rows(
         return aumap.widgetcaller(v)
 
     di_widgets = {k: _init_widget(v) for k, v in pr.items()}
-
-    # return di_widgets
-    labels = {}
-    for k, v in pr.items():
-        try:
-            t, d = get_title_description_from_schema(v.schema_)
-            l = widgets.HTML(f"<b>{t}</b>, <i>{d}</i>")
-        except:
-            l = widgets.HTML("")
-        labels[k] = l
     rows = []
-    for (k, v), (k2, v2) in zip(di_widgets.items(), labels.items()):
-        rows.append(widgets.HBox([v, v2]))
+    for (k, v), (k2, v2) in zip(di_widgets.items(), pr.items()):
+        _ = get_title_description_from_schema(v2.schema_)
+        rows.append(create_row(v, **_))
     return rows, di_widgets
 
 
@@ -162,7 +216,7 @@ def add_fdir_to_widgetcaller(caller, fdir: str):  #: aumap.WidgetCaller
 
 
 class AutoObject(widgets.VBox):
-    """creates an ipywidgets form from a json-schema or pydantic model"""
+    """creates an ipywidgets form from a json-schema or pydantic model. datatype must be "object" """
 
     _value = traitlets.Dict(allow_none=True)
     fdir = traitlets.Unicode(allow_none=True)
@@ -183,7 +237,7 @@ class AutoObject(widgets.VBox):
             self._update_widgets_from_value()
 
     def __init__(self, schema, value=None, update_map_widgets=None, fdir=None):
-        """creates a widget input form from schema
+        """creates a widget input form from schema. datatype must be "object"
 
         Args:
             schema (dict): json schema defining widget to generate
@@ -227,7 +281,7 @@ class AutoObject(widgets.VBox):
                 width="100%",
                 display="flex",
                 flex="flex-grow",
-                border="solid LemonChiffon 2px",
+                # border="solid LemonChiffon 2px",
             )
         )
         self.children, self.di_widgets = _init_widgets_and_rows(self.pr)
@@ -361,22 +415,26 @@ if __name__ == "__main__":
 
     doctest.testmod()
 
-# if __name__ == "__main__":
-#     from ipyautoui.test_schema import TestAutoLogic
-#     from ipyautoui.constants import load_test_constants
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.constants import load_test_constants
 
-#     test_constants = load_test_constants()
-#     test = TestAutoLogic()
-#     schema = test.schema()
-#     ui = AutoIpywidget(schema)
-#     display(ui)
+    test_constants = load_test_constants()
+    test = TestAutoLogic()
+    schema = test.schema()
+    ui = AutoIpywidget(schema)
+    display(ui)
 
+
+# + active=""
 # if __name__ == "__main__":
 #     from ipyautoui.test_schema import TestArrays
 #     from ipyautoui.constants import load_test_constants
-
 #     test_constants = load_test_constants()
 #     test = TestArrays()
 #     schema = test.schema()
 #     ui = AutoIpywidget(schema)
 #     display(ui)
+# -
+
+#
