@@ -32,7 +32,7 @@ import traitlets
 import typing
 from enum import Enum
 
-from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP, BUTTON_WIDTH_MIN
+from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET, BUTTON_WIDTH_MIN
 
 
 # +
@@ -137,5 +137,4 @@ class SaveButtonBar(widgets.HBox):
 if __name__ == "__main__":
     save_button_bar = SaveButtonBar()
     display(save_button_bar)
-
 

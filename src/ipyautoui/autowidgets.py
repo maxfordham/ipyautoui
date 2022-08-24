@@ -21,7 +21,7 @@
 extends standard ipywidgets to facilitate initialisation from jsonschema
 """
 
-from ipyautoui.constants import DI_JSONSCHEMA_WIDGET_MAP
+from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET
 import ipywidgets as widgets
 import traitlets
 from copy import deepcopy
@@ -31,14 +31,14 @@ from ipyautoui._utils import remove_non_present_kwargs
 from datetime import datetime
 
 #  -- CHANGE JSON-SCHEMA KEYS TO IPYWIDGET KEYS -------------
-def update_key(key, di_map=DI_JSONSCHEMA_WIDGET_MAP):
+def update_key(key, di_map=MAP_JSONSCHEMA_TO_IPYWIDGET):
     if key in di_map.keys():
         return di_map[key]
     else:
         return key
 
 
-def update_keys(di, di_map=DI_JSONSCHEMA_WIDGET_MAP):
+def update_keys(di, di_map=MAP_JSONSCHEMA_TO_IPYWIDGET):
     return {update_key(k, di_map): v for k, v in di.items()}
 
 
