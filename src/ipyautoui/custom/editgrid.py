@@ -310,11 +310,7 @@ if __name__ == "__main__":
         print("BACK")
 
     button_bar = ButtonBar(
-        add=add,
-        edit=edit,
-        copy=copy,
-        delete=delete,
-        backward=backward,
+        add=add, edit=edit, copy=copy, delete=delete, backward=backward,
     )
 
     display(button_bar)
@@ -373,22 +369,36 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                 columns=self.ignore_cols
             )  # Drop columns we want to ignore from datagrid
         if self.order_cols:
-            order_cols = self.order_cols + [col for col in df.columns if col not in self.order_cols]
+            order_cols = self.order_cols + [
+                col for col in df.columns if col not in self.order_cols
+            ]
             df = df[order_cols]
         self.df_empty = df
 
     def _init_form(self):
         """Initialise grid and apply schema properties."""
         super().__init__(
-            self.df_empty,
-            selection_mode="row",
-            **self.kwargs_datagrid_default,
+            self.df_empty, selection_mode="row", **self.kwargs_datagrid_default,
         )  # main container. # TODO: may be causing "DeprecationWarning: Passing unrecognized arguments..." in pytest
         if self.aui_column_widths:
             self._set_column_widths()
         if self.aui_sig_figs and self._data["data"] != []:
             self._round_sig_figs(self.data)  # Rounds any specified fields in schema
 
+    def set_row_value(self, key: int, value: dict):
+        """Set a chosen row using the key and a value given.
+        
+        Args:
+            key (int): The key of the row.
+            value (dict): The data we want to input into the row.
+        """
+        value_columns = [k for k, v in value.items()]
+        if set(value_columns) != set(self.data.columns):
+            raise Exception("Columns of value given do not match with grid columns.")
+
+        for column, value in value.items():
+            self.set_cell_value(column, key, value)
+            
     def _round_sig_figs(self, df):
         """Round values in dataframe to desired significant figures as given in the schema."""
         for k, v in self.aui_sig_figs.items():
@@ -433,6 +443,34 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                 }
             ]
         )
+
+    def _swap_rows(self, key_a: int, key_b: int):
+        """Swap two rows by giving their keys.
+        
+        Args:
+            key_a (int): Key of a row.
+            key_b (int): Key of another row.
+        """
+        di_a = self.data.iloc[key_a].to_dict()
+        di_b = self.data.iloc[key_b].to_dict()
+        self.set_row_value(key=key_b, value=di_a)
+        self.set_row_value(key=key_a, value=di_b)
+
+    def _move_row_down(self, key: int):
+        """Move a row down.
+        
+        Args:
+            key (int): Key of the row
+        """
+        self._swap_rows(key_a=key, key_b=key + 1)
+
+    def _move_row_up(self, key: int):
+        """Move a row up.
+        
+        Args:
+            key (int): Key of the row
+        """
+        self._swap_rows(key_a=key, key_b=key - 1)
 
     @property
     def di_default_value(self):
@@ -517,7 +555,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                     columns=self.ignore_cols
                 )  # Drop columns we want to ignore from datagrid
             if self.order_cols:
-                order_cols = self.order_cols + [col for col in df.columns if col not in self.order_cols]
+                order_cols = self.order_cols + [
+                    col for col in df.columns if col not in self.order_cols
+                ]
                 df = df[order_cols]
             self.data = self._round_sig_figs(df)
 
@@ -526,9 +566,7 @@ if __name__ == "__main__":
 
     class DataFrameCols(BaseModel):
         string: str = Field(
-            "string",
-            title="Important String",
-            aui_column_width=120,
+            "string", title="Important String", aui_column_width=120,
         )
         integer: int = Field(40, title="Integer of somesort", aui_column_width=150)
         floater: float = Field(
@@ -545,16 +583,8 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     eg_value = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-        },
-        {
-            "string": "update",
-            "integer": 4,
-            "floater": 3.12344,
-        },
+        {"string": "important string", "integer": 1, "floater": 3.14,},
+        {"string": "update", "integer": 4, "floater": 3.12344,},
         {"string": "evening", "integer": 5, "floater": 3.14},
         {"string": "morning", "integer": 5, "floater": 3.14},
         {"string": "number", "integer": 3, "floater": 3.14},
