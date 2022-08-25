@@ -394,19 +394,29 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
     def set_row_value(self, key: int, value: dict):
         """Set a chosen row using the key and a value given.
         
+        Note: We do not call value setter to apply values as it resets the datagrid.
+        
         Args:
             key (int): The key of the row.
             value (dict): The data we want to input into the row.
         """
-        value_columns = [k for k, v in value.items()]
-        if set(value_columns) != set(self.data.columns):
-            raise Exception("Columns of value given do not match with grid columns.")
+        if set([col for col, v in value.items()]) != set(
+            [col for col, v in self.value[0].items()]
+        ):
+            raise Exception("Columns of value given do not match with value keys.")
 
-        for column, v in value.items():
-            self.set_cell_value(column, key, v)
-        self._value[key] = {
-            self.di_title_to_field_names.get(k): v for k, v in value.items()
+        # value_with_titles is used for datagrid
+        value_with_titles = {
+            self.di_field_to_titles.get(name): v for name, v in value.items()
         }
+        for col, sig_fig in self.aui_sig_figs.items():
+            value_with_titles[col] = round_sig_figs(
+                value_with_titles[col], sig_figs=sig_fig
+            )
+        for column, v in value_with_titles.items():
+            self.set_cell_value(column, key, v)
+
+        self._value[key] = {k: v for k, v in value.items()}
 
     def _round_sig_figs(self, df):
         """Round values in dataframe to desired significant figures as given in the schema.
@@ -445,7 +455,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         """
         data = [
             {
-                self.di_cols_properties[name]["title"]: value
+                self.di_field_to_titles.get(name): value
                 for name, value in di_value.items()
             }  # Replace name from value with title from schema
             for di_value in value
@@ -477,8 +487,8 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             key_a (int): Key of a row.
             key_b (int): Key of another row.
         """
-        di_a = self.data.iloc[key_a].to_dict()
-        di_b = self.data.iloc[key_b].to_dict()
+        di_a = self.value[key_a]
+        di_b = self.value[key_b]
         self.set_row_value(key=key_b, value=di_a)
         self.set_row_value(key=key_a, value=di_b)
 
@@ -539,8 +549,8 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         }
 
     @property
-    def di_title_to_field_names(self):
-        return {di["title"]: k for k, di in self.di_cols_properties.items()}
+    def di_field_to_titles(self):
+        return {field: di["title"] for field, di in self.di_cols_properties.items()}
 
     @property
     def selected_rows(self):
@@ -602,6 +612,19 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
     def value(self):
         return self._value
 
+    # def _apply_schema_config(self, df):
+    #     data = self._set_titles(self._value)
+    #     df = pd.DataFrame.from_dict(data)
+    #     if self.ignore_cols:
+    #         df = df.drop(
+    #             columns=self.ignore_cols
+    #         )  # Drop columns we want to ignore from datagrid
+    #     if self.order_cols:
+    #         order_cols = self.order_cols + [
+    #             col for col in df.columns if col not in self.order_cols
+    #         ]
+    #         df = df[order_cols]
+
     @value.setter
     def value(self, value):
         if value == [] or value is None:
@@ -643,6 +666,10 @@ if __name__ == "__main__":
     grid = GridWrapper(schema=schema)
     display(grid)
 
+grid._move_row_up(key=1)
+
+grid.value
+
 if __name__ == "__main__":
     eg_value = [
         {"string": "important string", "integer": 1, "floater": 3.14,},
@@ -652,6 +679,8 @@ if __name__ == "__main__":
         {"string": "number", "integer": 3, "floater": 3.14},
     ]
     grid.value = eg_value
+
+grid._move_row_up(key=2)
 
 if __name__ == "__main__":
     grid = GridWrapper(
