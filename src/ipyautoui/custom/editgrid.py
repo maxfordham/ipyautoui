@@ -653,10 +653,6 @@ if __name__ == "__main__":
     grid = GridWrapper(schema=schema)
     display(grid)
 
-grid._move_row_up(key=1)
-
-grid.value
-
 if __name__ == "__main__":
     eg_value = [
         {"string": "important string", "integer": 1, "floater": 3.14,},
@@ -666,8 +662,6 @@ if __name__ == "__main__":
         {"string": "number", "integer": 3, "floater": 3.14},
     ]
     grid.value = eg_value
-
-grid._move_row_up(key=2)
 
 if __name__ == "__main__":
     grid = GridWrapper(
