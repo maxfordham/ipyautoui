@@ -400,7 +400,11 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             self.set_cell_value(column, key, value)
             
     def _round_sig_figs(self, df):
-        """Round values in dataframe to desired significant figures as given in the schema."""
+        """Round values in dataframe to desired significant figures as given in the schema.
+        
+        Args:
+            df (pd.DataFrame): dataframe to round sig figs on.
+        """
         for k, v in self.aui_sig_figs.items():
             df.loc[:, k] = df.loc[:, k].apply(lambda x: round_sig_figs(x, sig_figs=v))
         return df
@@ -409,8 +413,12 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         """Set the column widths of the data grid based on aui_column_widths given in the schema."""
         self.column_widths = self.aui_column_widths  # Set column widths for data grid.
 
-    def _check_value(self, value):
-        """Checking column names in value passed match those within the dataframe."""
+    def _check_value(self, value: list):
+        """Checking column names in value passed match those within the dataframe.
+        
+        Args:
+            value (list): list of dicts.
+        """
         for di_value in value:
             columns = [name for name in di_value.keys()]
             if not collections.Counter(columns) == collections.Counter(
@@ -421,7 +429,11 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                 )
 
     def _set_titles(self, value: list):
-        """Replace field names with titles in value passed."""
+        """Replace field names with titles in value passed.
+        
+        Args:
+            value (list): Replace all the keys in the dictionaries with associated titles from schema.
+        """
         data = [
             {
                 self.di_cols_properties[name]["title"]: value
@@ -432,7 +444,12 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         return data
 
     def filter_by_column_name(self, column_name: str, li_filter: list):
-        """Filter rows to display based on a column name and a list of objects belonging to that column."""
+        """Filter rows to display based on a column name and a list of objects belonging to that column.
+        
+        Args:
+            column_name (str): column name we want to apply the transform to.
+            li_filter (list): Values within the column we want to display in the grid.
+        """
         self.transform(
             [
                 {
