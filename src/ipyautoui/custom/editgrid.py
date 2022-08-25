@@ -612,19 +612,6 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
     def value(self):
         return self._value
 
-    # def _apply_schema_config(self, df):
-    #     data = self._set_titles(self._value)
-    #     df = pd.DataFrame.from_dict(data)
-    #     if self.ignore_cols:
-    #         df = df.drop(
-    #             columns=self.ignore_cols
-    #         )  # Drop columns we want to ignore from datagrid
-    #     if self.order_cols:
-    #         order_cols = self.order_cols + [
-    #             col for col in df.columns if col not in self.order_cols
-    #         ]
-    #         df = df[order_cols]
-
     @value.setter
     def value(self, value):
         if value == [] or value is None:
