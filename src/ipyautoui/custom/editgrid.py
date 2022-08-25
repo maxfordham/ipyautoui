@@ -29,6 +29,7 @@ import traceback
 import immutables
 import pandas as pd
 import ipywidgets as widgets
+from typing import List
 from markdown import markdown
 from pydantic import BaseModel, Field
 from ipydatagrid import DataGrid, TextRenderer, Expr, VegaExpr
@@ -396,9 +397,12 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         if set(value_columns) != set(self.data.columns):
             raise Exception("Columns of value given do not match with grid columns.")
 
-        for column, value in value.items():
-            self.set_cell_value(column, key, value)
-            
+        for column, v in value.items():
+            self.set_cell_value(column, key, v)
+        self._value[key] = {
+            self.di_title_to_field_names.get(k): v for k, v in value.items()
+        }
+
     def _round_sig_figs(self, df):
         """Round values in dataframe to desired significant figures as given in the schema.
         
@@ -479,6 +483,8 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         Args:
             key (int): Key of the row
         """
+        if key + 1 == len(self.data):
+            raise Exception("Can't move down last row.")
         self._swap_rows(key_a=key, key_b=key + 1)
 
     def _move_row_up(self, key: int):
@@ -487,7 +493,27 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         Args:
             key (int): Key of the row
         """
+        if key - 1 == -1:
+            raise Exception("Can't move up first row.")
         self._swap_rows(key_a=key, key_b=key - 1)
+
+    def _move_rows_up(self, li_keys: List[int]):
+        """Move multiple rows up.
+        
+        Args:
+            li_key (List[int]): List of row keys.
+        """
+        for key in sorted(li_keys):
+            self._move_row_up(key)
+
+    def _move_rows_down(self, li_keys: List[int]):
+        """Move multiple rows down.
+        
+        Args:
+            li_key (List[int]): List of row keys.
+        """
+        for key in sorted(li_keys, reverse=True):
+            self._move_row_down(key)
 
     @property
     def di_default_value(self):
@@ -496,6 +522,10 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             col_name: (col_data["default"] if "default" in col_data.keys() else None)
             for col_name, col_data in self.di_cols_properties.items()
         }
+
+    @property
+    def di_title_to_field_names(self):
+        return {di["title"]: k for k, di in grid.di_cols_properties.items()}
 
     @property
     def selected_rows(self):
@@ -926,16 +956,8 @@ class EditGrid(widgets.VBox):
 
 if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-        },
-        {
-            "string": "update",
-            "integer": 4,
-            "floater": 3.12344,
-        },
+        {"string": "important string", "integer": 1, "floater": 3.14,},
+        {"string": "update", "integer": 4, "floater": 3.12344,},
         {"string": "evening", "integer": 5, "floater": 3.14},
         {"string": "morning", "integer": 5, "floater": 3.14},
         {"string": "number", "integer": 3, "floater": 3.14},
