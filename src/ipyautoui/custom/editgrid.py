@@ -512,7 +512,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             raise Exception("Only select a property or block of properties.")
         for key in sorted(li_keys):
             self._move_row_up(key)
-        self.select(min(li_keys) - 1, 0, max(li_keys) - 1, 0, clear_mode="all")
+        self.selections = [
+            {"r1": min(li_keys) - 1, "r2": max(li_keys) - 1, "c1": 0, "c2": 2}
+        ]
 
     def _move_rows_down(self, li_keys: List[int]):
         """Move multiple rows down.
@@ -524,7 +526,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             raise Exception("Only select a property or block of properties.")
         for key in sorted(li_keys, reverse=True):
             self._move_row_down(key)
-        self.select(min(li_keys) + 1, 0, max(li_keys) + 1, 0, clear_mode="all")
+        self.selections = [
+            {"r1": min(li_keys) + 1, "r2": max(li_keys) + 1, "c1": 0, "c2": 2}
+        ]
 
     @property
     def di_default_value(self):
