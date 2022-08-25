@@ -317,6 +317,11 @@ if __name__ == "__main__":
     display(button_bar)
 
 
+# TODO: Move to utils
+def is_incremental(li):
+    return li == list(range(li[0], li[0] + len(li)))
+
+
 class GridWrapper(DataGrid, traitlets.HasTraits):
 
     _value = traitlets.List()
@@ -503,8 +508,11 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         Args:
             li_key (List[int]): List of row keys.
         """
+        if is_incremental(sorted(li_keys)) is False:
+            raise Exception("Only select a property or block of properties.")
         for key in sorted(li_keys):
             self._move_row_up(key)
+        self.select(min(li_keys) - 1, 0, max(li_keys) - 1, 0, clear_mode="all")
 
     def _move_rows_down(self, li_keys: List[int]):
         """Move multiple rows down.
@@ -512,8 +520,11 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         Args:
             li_key (List[int]): List of row keys.
         """
+        if is_incremental(sorted(li_keys)) is False:
+            raise Exception("Only select a property or block of properties.")
         for key in sorted(li_keys, reverse=True):
             self._move_row_down(key)
+        self.select(min(li_keys) + 1, 0, max(li_keys) + 1, 0, clear_mode="all")
 
     @property
     def di_default_value(self):
@@ -525,7 +536,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     @property
     def di_title_to_field_names(self):
-        return {di["title"]: k for k, di in grid.di_cols_properties.items()}
+        return {di["title"]: k for k, di in self.di_cols_properties.items()}
 
     @property
     def selected_rows(self):
