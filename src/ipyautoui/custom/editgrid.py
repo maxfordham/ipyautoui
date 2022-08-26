@@ -334,10 +334,12 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         kwargs_datagrid_update: frozenmap = frozenmap(),
         order_cols: list = [],
         ignore_cols: list = [],
+        idx_start_from_one: bool = False,
     ):
         # accept schema or pydantic schema
         self.model, self.schema = self._init_model_schema(schema)
         self.kwargs_datagrid_default = kwargs_datagrid_default
+        self.idx_start_from_one = idx_start_from_one
         self.di_cols_properties = self.schema["items"][
             "properties"
         ]  # Obtain each column's properties
@@ -379,6 +381,8 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                 col for col in df.columns if col not in self.order_cols
             ]
             df = df[order_cols]
+        if self.idx_start_from_one is True:
+            df = df.set_index(pd.Index(range(1, len(df)+1), dtype='int64', name='idx'))
         self.df_empty = df
 
     def _init_form(self):
@@ -631,6 +635,8 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                     col for col in df.columns if col not in self.order_cols
                 ]
                 df = df[order_cols]
+            if self.idx_start_from_one is True:
+                df = df.set_index(pd.Index(range(1, len(df)+1), dtype='int64', name='idx'))
             self.data = self._round_sig_figs(df)
 
 
