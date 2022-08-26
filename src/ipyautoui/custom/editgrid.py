@@ -29,6 +29,7 @@ import traceback
 import immutables
 import pandas as pd
 import ipywidgets as widgets
+from typing import List
 from markdown import markdown
 from pydantic import BaseModel, Field
 from ipydatagrid import DataGrid, TextRenderer, Expr, VegaExpr
@@ -310,14 +311,15 @@ if __name__ == "__main__":
         print("BACK")
 
     button_bar = ButtonBar(
-        add=add,
-        edit=edit,
-        copy=copy,
-        delete=delete,
-        backward=backward,
+        add=add, edit=edit, copy=copy, delete=delete, backward=backward,
     )
 
     display(button_bar)
+
+
+# TODO: Move to utils
+def is_incremental(li):
+    return li == list(range(li[0], li[0] + len(li)))
 
 
 class GridWrapper(DataGrid, traitlets.HasTraits):
@@ -332,10 +334,12 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         kwargs_datagrid_update: frozenmap = frozenmap(),
         order_cols: list = [],
         ignore_cols: list = [],
+        idx_start_from_one: bool = False,
     ):
         # accept schema or pydantic schema
         self.model, self.schema = self._init_model_schema(schema)
         self.kwargs_datagrid_default = kwargs_datagrid_default
+        self.idx_start_from_one = idx_start_from_one
         self.di_cols_properties = self.schema["items"][
             "properties"
         ]  # Obtain each column's properties
@@ -373,24 +377,62 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                 columns=self.ignore_cols
             )  # Drop columns we want to ignore from datagrid
         if self.order_cols:
-            order_cols = self.order_cols + [col for col in df.columns if col not in self.order_cols]
+            order_cols = self.order_cols + [
+                col for col in df.columns if col not in self.order_cols
+            ]
             df = df[order_cols]
+        if self.idx_start_from_one is True:
+            df = df.set_index(pd.Index(range(1, len(df)+1), dtype='int64', name='idx'))
         self.df_empty = df
 
     def _init_form(self):
         """Initialise grid and apply schema properties."""
         super().__init__(
-            self.df_empty,
-            selection_mode="row",
-            **self.kwargs_datagrid_default,
+            self.df_empty, selection_mode="row", **self.kwargs_datagrid_default,
         )  # main container. # TODO: may be causing "DeprecationWarning: Passing unrecognized arguments..." in pytest
         if self.aui_column_widths:
             self._set_column_widths()
         if self.aui_sig_figs and self._data["data"] != []:
             self._round_sig_figs(self.data)  # Rounds any specified fields in schema
 
+    def set_row_value(self, key: int, value: dict):
+        """Set a chosen row using the key and a value given.
+        
+        Note: We do not call value setter to apply values as it resets the datagrid.
+        
+        Args:
+            key (int): The key of the row.
+            value (dict): The data we want to input into the row.
+        """
+        if set([col for col, v in value.items()]) != set(
+            [col for col, v in self.value[0].items()]
+        ):
+            raise Exception("Columns of value given do not match with value keys.")
+
+        # value_with_titles is used for datagrid
+        value_with_titles = {
+            self.di_field_to_titles.get(name): v for name, v in value.items()
+        }
+        for col, sig_fig in self.aui_sig_figs.items():
+            value_with_titles[col] = round_sig_figs(
+                value_with_titles[col], sig_figs=sig_fig
+            )
+        
+        for column, v in value_with_titles.items():
+            if self.idx_start_from_one is True:
+                # ^ If idx start from one then we must add one to the key
+                self.set_cell_value(column, key+1, v)
+            else:
+                self.set_cell_value(column, key, v)
+
+        self._value[key] = {k: v for k, v in value.items()}
+
     def _round_sig_figs(self, df):
-        """Round values in dataframe to desired significant figures as given in the schema."""
+        """Round values in dataframe to desired significant figures as given in the schema.
+        
+        Args:
+            df (pd.DataFrame): dataframe to round sig figs on.
+        """
         for k, v in self.aui_sig_figs.items():
             df.loc[:, k] = df.loc[:, k].apply(lambda x: round_sig_figs(x, sig_figs=v))
         return df
@@ -399,8 +441,12 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         """Set the column widths of the data grid based on aui_column_widths given in the schema."""
         self.column_widths = self.aui_column_widths  # Set column widths for data grid.
 
-    def _check_value(self, value):
-        """Checking column names in value passed match those within the dataframe."""
+    def _check_value(self, value: list):
+        """Checking column names in value passed match those within the dataframe.
+        
+        Args:
+            value (list): list of dicts.
+        """
         for di_value in value:
             columns = [name for name in di_value.keys()]
             if not collections.Counter(columns) == collections.Counter(
@@ -411,10 +457,14 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                 )
 
     def _set_titles(self, value: list):
-        """Replace field names with titles in value passed."""
+        """Replace field names with titles in value passed.
+        
+        Args:
+            value (list): Replace all the keys in the dictionaries with associated titles from schema.
+        """
         data = [
             {
-                self.di_cols_properties[name]["title"]: value
+                self.di_field_to_titles.get(name): value
                 for name, value in di_value.items()
             }  # Replace name from value with title from schema
             for di_value in value
@@ -422,7 +472,12 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         return data
 
     def filter_by_column_name(self, column_name: str, li_filter: list):
-        """Filter rows to display based on a column name and a list of objects belonging to that column."""
+        """Filter rows to display based on a column name and a list of objects belonging to that column.
+        
+        Args:
+            column_name (str): column name we want to apply the transform to.
+            li_filter (list): Values within the column we want to display in the grid.
+        """
         self.transform(
             [
                 {
@@ -434,6 +489,66 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             ]
         )
 
+    def _swap_rows(self, key_a: int, key_b: int):
+        """Swap two rows by giving their keys.
+        
+        Args:
+            key_a (int): Key of a row.
+            key_b (int): Key of another row.
+        """
+        di_a = self.value[key_a]
+        di_b = self.value[key_b]
+        self.set_row_value(key=key_b, value=di_a)
+        self.set_row_value(key=key_a, value=di_b)
+
+    def _move_row_down(self, key: int):
+        """Move a row down.
+        
+        Args:
+            key (int): Key of the row
+        """
+        if key + 1 == len(self.data):
+            raise Exception("Can't move down last row.")
+        self._swap_rows(key_a=key, key_b=key + 1)
+
+    def _move_row_up(self, key: int):
+        """Move a row up.
+        
+        Args:
+            key (int): Key of the row
+        """
+        if key - 1 == -1:
+            raise Exception("Can't move up first row.")
+        self._swap_rows(key_a=key, key_b=key - 1)
+
+    def _move_rows_up(self, li_keys: List[int]):
+        """Move multiple rows up.
+        
+        Args:
+            li_key (List[int]): List of row keys.
+        """
+        if is_incremental(sorted(li_keys)) is False:
+            raise Exception("Only select a property or block of properties.")
+        for key in sorted(li_keys):
+            self._move_row_up(key)
+        self.selections = [
+            {"r1": min(li_keys) - 1, "r2": max(li_keys) - 1, "c1": 0, "c2": 2}
+        ]
+
+    def _move_rows_down(self, li_keys: List[int]):
+        """Move multiple rows down.
+        
+        Args:
+            li_key (List[int]): List of row keys.
+        """
+        if is_incremental(sorted(li_keys)) is False:
+            raise Exception("Only select a property or block of properties.")
+        for key in sorted(li_keys, reverse=True):
+            self._move_row_down(key)
+        self.selections = [
+            {"r1": min(li_keys) + 1, "r2": max(li_keys) + 1, "c1": 0, "c2": 2}
+        ]
+
     @property
     def di_default_value(self):
         """Obtain default value given in schema."""
@@ -441,6 +556,10 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             col_name: (col_data["default"] if "default" in col_data.keys() else None)
             for col_name, col_data in self.di_cols_properties.items()
         }
+
+    @property
+    def di_field_to_titles(self):
+        return {field: di["title"] for field, di in self.di_cols_properties.items()}
 
     @property
     def selected_rows(self):
@@ -517,8 +636,12 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                     columns=self.ignore_cols
                 )  # Drop columns we want to ignore from datagrid
             if self.order_cols:
-                order_cols = self.order_cols + [col for col in df.columns if col not in self.order_cols]
+                order_cols = self.order_cols + [
+                    col for col in df.columns if col not in self.order_cols
+                ]
                 df = df[order_cols]
+            if self.idx_start_from_one is True:
+                df = df.set_index(pd.Index(range(1, len(df)+1), dtype='int64', name='idx'))
             self.data = self._round_sig_figs(df)
 
 
@@ -526,9 +649,7 @@ if __name__ == "__main__":
 
     class DataFrameCols(BaseModel):
         string: str = Field(
-            "string",
-            title="Important String",
-            aui_column_width=120,
+            "string", title="Important String", aui_column_width=120,
         )
         integer: int = Field(40, title="Integer of somesort", aui_column_width=150)
         floater: float = Field(
@@ -545,16 +666,8 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     eg_value = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-        },
-        {
-            "string": "update",
-            "integer": 4,
-            "floater": 3.12344,
-        },
+        {"string": "important string", "integer": 1, "floater": 3.14,},
+        {"string": "update", "integer": 4, "floater": 3.12344,},
         {"string": "evening", "integer": 5, "floater": 3.14},
         {"string": "morning", "integer": 5, "floater": 3.14},
         {"string": "number", "integer": 3, "floater": 3.14},
@@ -879,16 +992,8 @@ class EditGrid(widgets.VBox):
 
 if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-        },
-        {
-            "string": "update",
-            "integer": 4,
-            "floater": 3.12344,
-        },
+        {"string": "important string", "integer": 1, "floater": 3.14,},
+        {"string": "update", "integer": 4, "floater": 3.12344,},
         {"string": "evening", "integer": 5, "floater": 3.14},
         {"string": "morning", "integer": 5, "floater": 3.14},
         {"string": "number", "integer": 3, "floater": 3.14},
