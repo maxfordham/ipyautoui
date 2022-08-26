@@ -417,8 +417,13 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             value_with_titles[col] = round_sig_figs(
                 value_with_titles[col], sig_figs=sig_fig
             )
+        
         for column, v in value_with_titles.items():
-            self.set_cell_value(column, key, v)
+            if self.idx_start_from_one is True:
+                # ^ If idx start from one then we must add one to the key
+                self.set_cell_value(column, key+1, v)
+            else:
+                self.set_cell_value(column, key, v)
 
         self._value[key] = {k: v for k, v in value.items()}
 
