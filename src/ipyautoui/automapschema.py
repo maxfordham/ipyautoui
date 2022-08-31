@@ -68,13 +68,24 @@ def attach_schema_refs(schema, schema_base=None):
         for k, v in schema.items():
             if type(v) == dict:
                 if "$ref" in v:
+                    # FIXME: Needing refactor or cleanup -@jovyan at 8/31/2022, 12:24:09 AM
+                    # refs are only attached to schema values, meaning that root definitions
+                    # are ignored.
                     li_filt = v["$ref"].split("/")[1:]
                     schema[k] = recursive_search_schema(schema_base, li_filt)
-                elif "allOf" in v and len(v["allOf"]) == 1 and "$ref" in v["allOf"][0].keys():
+                elif (
+                    "allOf" in v
+                    and len(v["allOf"]) == 1
+                    and "$ref" in v["allOf"][0].keys()
+                ):
                     # ^ this is an edge case for setting enums with Field values (probs unique to how pydantic does it)
                     li_filt = v["allOf"][0]["$ref"].split("/")[1:]
                     ref = recursive_search_schema(schema_base, li_filt)
-                    schema[k] = {k_: v_ for k_, v_ in ref.items() if k_ not in list(schema[k].keys())} | schema[k]
+                    schema[k] = {
+                        k_: v_
+                        for k_, v_ in ref.items()
+                        if k_ not in list(schema[k].keys())
+                    } | schema[k]
                     del schema[k]["allOf"]
                 else:
                     schema[k] = attach_schema_refs(v, schema_base=schema_base)
