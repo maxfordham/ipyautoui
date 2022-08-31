@@ -33,7 +33,9 @@ DATAGRID_TEST_VALUE = [
 ]
 
 
-class Gender(str, Enum):
+class GenderEnum(str, Enum):
+    """available genders. this is just an example."""
+
     male = "male"
     female = "female"
     other = "other"
@@ -63,6 +65,7 @@ class DataFrameCols(BaseModel):
     floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
     something_else: float = Field(324, aui_column_width=100)
 
+
 class TestDataFrame(BaseModel):
     """a description of TestDataFrame"""
 
@@ -85,9 +88,9 @@ class TestAutoLogicSimple(BaseModel):
     float_text_locked: float = Field(default=2.2, disabled=True)
     float_range_slider: tuple[float, float] = Field(default=(0, 2.2), ge=0, le=3.5)
     checkbox: bool = True
-    dropdown: Gender = None
-    dropdown_edge_case: Gender = Field(
-        default=Gender.female, description="updated description"
+    dropdown: GenderEnum = None
+    dropdown_edge_case: GenderEnum = Field(
+        default=GenderEnum.female, description="updated description"
     )
     dropdown_simple: str = Field(default="asd", enum=["asd", "asdf"])
     combobox: str = Field(
@@ -122,7 +125,7 @@ class TestAutoLogic(TestAutoLogicSimple):
     """this is a test UI form to demonstrate how pydantic class can be used to generate an ipywidget input form"""
 
     complex_serialisation: TestTypesWithComplexSerialisation = Field(default=None)
-    select_multiple_non_constrained: typing.List[Gender] = Field(
+    select_multiple_non_constrained: typing.List[GenderEnum] = Field(
         default=["male", "female"],
         description="select multiple, non-constrained, allows duplicates",
     )  # TODO: make this work. requires handling the "anyOf" JSON link
