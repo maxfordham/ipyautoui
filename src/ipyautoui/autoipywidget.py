@@ -47,7 +47,6 @@ import inspect
 
 frozenmap = immutables.Map
 
-
 # +
 
 
@@ -76,6 +75,18 @@ def _init_widgets_and_labels(
     return di_labels, di_widgets
 
 
+def _init_model_schema(schema):
+    if type(schema) == dict:
+        model = None  # jsonschema_to_pydantic(schema)
+        # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM
+        # jsonschema_to_pydantic
+        # https://koxudaxi.github.io/datamodel-code-generator/using_as_module/
+    else:
+        model = schema  # the "model" passed is a pydantic model
+        schema = model.schema(by_alias=False)
+    return model, schema
+
+
 # + tags=[]
 def _get_value_trait(obj_with_traits):
     """gets the trait type for a given object (looks for "_value" and 
@@ -98,15 +109,6 @@ def _get_value_trait(obj_with_traits):
         raise ValueError(
             f"{str(type(obj_with_traits))}: has no '_value' or 'value' trait"
         )
-
-
-def _init_model_schema(schema):
-    if type(schema) == dict:
-        model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
-    else:
-        model = schema  # the "model" passed is a pydantic model
-        schema = model.schema(by_alias=False)
-    return model, schema
 
 
 def add_fdir_to_widgetcaller(caller, fdir: str):  #: aumap.WidgetCaller
@@ -196,6 +198,7 @@ class AutoObject(widgets.VBox):
     auto_open = traitlets.Bool(default_value=False)
     nested_widgets = traitlets.List()
     order = traitlets.List(default_value=None, allow_none=True)
+    insert_rows = traitlets.Dict(default_value=None, allow_none=True)
 
     @traitlets.validate("order")
     def _order(self, proposal):
@@ -266,6 +269,8 @@ class AutoObject(widgets.VBox):
         self._init_ui(schema)
         if value is not None:
             self.value = value
+        if order is not None:
+            self.order = order
 
     def _init_ui(self, schema):
         self._init_schema(schema)
@@ -295,18 +300,19 @@ class AutoObject(widgets.VBox):
 
     def _init_form(self):
         super().__init__(
-            layout=widgets.Layout(
-                width="100%",
-                display="flex",
-                flex="flex-grow",
-                # border="solid LemonChiffon 2px",
-            )
+            layout=widgets.Layout(width="100%", display="flex", flex="flex-grow",)
         )
         self._format_rows()
 
+    def _insert_rows(self):
+        if self.insert_rows is not None:
+            for k, v in self.insert_rows.items():
+                self.rows.insert(k, v)
+
     def _format_rows(self):
-        order = (lambda _: self.default_order if _ is None else self.order)(self.order)
-        self.children = [
+        set_order = lambda _: self.default_order if _ is None else self.order
+        order = set_order(self.order)
+        self.rows = [
             create_row(
                 self.di_widgets[row],
                 self.di_labels[row],
@@ -316,6 +322,8 @@ class AutoObject(widgets.VBox):
             )
             for row in order
         ]
+        self._insert_rows()
+        self.children = self.rows
 
     def _init_controls(self):
         self._init_watch_widgets()
