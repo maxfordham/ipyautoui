@@ -31,14 +31,10 @@ from ipyautoui._utils import remove_non_present_kwargs
 from datetime import datetime
 
 #  -- CHANGE JSON-SCHEMA KEYS TO IPYWIDGET KEYS -------------
-def update_key(key, di_map=MAP_JSONSCHEMA_TO_IPYWIDGET):
-    if key in di_map.keys():
-        return di_map[key]
-    else:
-        return key
 
 
 def update_keys(di, di_map=MAP_JSONSCHEMA_TO_IPYWIDGET):
+    update_key = lambda key, di_map: di_map[key] if key in di_map.keys() else key
     return {update_key(k, di_map): v for k, v in di.items()}
 
 
