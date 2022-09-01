@@ -13,7 +13,7 @@
 #     name: python3
 # ---
 
-"""markdown widget"""
+"""simple markdown widget"""
 # %run __init__.py
 # %load_ext lab_black
 
@@ -21,7 +21,7 @@
 import ipywidgets as widgets
 import functools
 import traitlets
-from IPython.display import Markdown, clear_output
+from IPython.display import Markdown, clear_output, display
 import immutables
 
 frozenmap = immutables.Map
@@ -102,6 +102,7 @@ MAP_MARKDOWN = frozenmap(
 
 
 # -
+
 
 def markdown_buttons():
     """generate markdown widget button bar"""
@@ -214,8 +215,8 @@ class MarkdownWidget(widgets.VBox):
             clear_output()
             display(Markdown(self.text.value))
 
+
 if __name__ == "__main__":
     ui = MarkdownWidget()
     display(ui)
-
 
