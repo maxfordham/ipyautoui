@@ -200,6 +200,23 @@ class AutoObject(widgets.VBox):
     order = traitlets.List(default_value=None, allow_none=True)
     insert_rows = traitlets.Dict(default_value=None, allow_none=True)
 
+    @traitlets.validate("insert_rows")
+    def _insert_rows(self, proposal):
+        intkeys = (
+            lambda di: True
+            if [isinstance(l, int) == True for l in di.keys()]
+            else False
+        )
+        v = proposal["value"]
+        if v is None:
+            return None
+        else:
+            if not isinstance(v, dict):
+                raise ValueError("insert_rows must be a dict")
+            if not intkeys(v):
+                raise ValueError("keys of insert_rows must be integers")
+        return v
+
     @traitlets.validate("order")
     def _order(self, proposal):
         v = proposal["value"]
@@ -250,7 +267,13 @@ class AutoObject(widgets.VBox):
             self._update_widgets_from_value()
 
     def __init__(
-        self, schema, value=None, update_map_widgets=None, fdir=None, order=None
+        self,
+        schema,
+        value=None,
+        update_map_widgets=None,
+        fdir=None,
+        order=None,
+        insert_rows=None,
     ):
         """creates a widget input form from schema. datatype must be "object"
 
@@ -259,6 +282,9 @@ class AutoObject(widgets.VBox):
             value (dict, optional): value of json. Defaults to None.
             update_map_widgets (frozenmap, optional): frozen dict of widgets to map to schema items. Defaults to None.
             fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
+            order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
+            insert_rows (dict): e.g. {3:widgets.Button()}. allows user to insert a widget into the rows. its presence
+                is ignored by the widget otherwise.
 
         Returns: 
             AutoIpywidget(widgets.VBox)
@@ -348,7 +374,8 @@ class AutoObject(widgets.VBox):
 
     def _init_update_row_format(self):
         self.observe(
-            self._call_format_rows, names=["align_horizontal", "order", "auto_open"]
+            self._call_format_rows,
+            names=["align_horizontal", "order", "auto_open", "insert_rows"],
         )
 
     def _watch_change(self, change, key=None, watch="value"):
