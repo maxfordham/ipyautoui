@@ -19,6 +19,8 @@ from ipyautoui._utils import open_file, obj_to_importstr, getuser
 from ipyautoui.autodisplay import AutoDisplay, DisplayObject
 from ipyautoui.custom.iterable import Array, AutoArray, Dictionary
 
+IS_IPYWIDGETS8 = (lambda: True if "8" in widgets.__version__ else False)()
+
 # +
 # TODO: allow for adding number of allowed files based on schema
 # TODO: patterns for types etc.
@@ -50,6 +52,7 @@ class File(BaseModel):
     @validator("path", always=True, pre=True)
     def _path(cls, v, values):
         return values["fdir"] / values["name"]
+
 
 
 class FileUi(widgets.HBox):
@@ -93,22 +96,38 @@ class FileUi(widgets.HBox):
 def read_file_upload_item(di: dict, fdir=pathlib.Path("."), added_by=None):
     if added_by is None:
         added_by = getuser()
-    _ = di["metadata"]
+    map_version = {True: di, False: di["metadata"]}
+    _ = map_version[IS_IPYWIDGETS8]
     _["fdir"] = fdir
     _["added_by"] = added_by
-    f = File(**_)
-    return f
+    return File(**_)
 
 
-def add_files(upld_value, fdir=pathlib.Path(".")):
-    if not pathlib.Path(fdir).exists():
-        pathlib.Path(fdir).mkdir(exist_ok=True)
+def add_files_ipywidgets7(upld_value, fdir=pathlib.Path(".")):
     di = {}
     for k, v in upld_value.items():
         f = read_file_upload_item(v, fdir=fdir)
         f.path.write_bytes(v["content"])
         di[k] = f
     return di
+
+
+def add_files_ipywidgets8(upld_value, fdir=pathlib.Path(".")):
+    di = {}
+    for l in upld_value:
+        f = read_file_upload_item(l, fdir=fdir)
+        f.path.write_bytes(l.content.tobytes())
+        di[k] = f
+    return di
+
+
+def add_files(upld_value, fdir=pathlib.Path(".")):
+    if not pathlib.Path(fdir).exists():
+        pathlib.Path(fdir).mkdir(exist_ok=True)
+    if IS_IPYWIDGETS8:
+        return add_files_ipywidgets8(upld_value, fdir=fdir)
+    else:
+        return add_files_ipywidgets7(upld_value, fdir=fdir)
 
 
 class FileUploadToDir(widgets.VBox):
@@ -153,23 +172,20 @@ class FileUploadToDir(widgets.VBox):
     @value.setter
     def value(self, value):
         value = {k: self.convert_to_dict(v) for k, v in value.items()}
-        # for k, v in value.items():
-        #     if v["fdir"] != self.fdir:
-        #         raise ValueError(f"fdir for {k} != {self.fdir}")
         self.arr_files.items = {}
         self.add_files(value)
         self._arr_files("change")
 
     def _init_form(self):
-        super().__init__()
-        self.hbx_buttons = widgets.HBox()
-        self.upld = widgets.FileUpload(multiple=True)
+        super().__init__(layout={"border": "solid LightCyan 2px"})
+        self.vbx_buttons = widgets.VBox()
+        self.upld = widgets.FileUpload(multiple=True, layout={"width": "300px"})
         self.text = widgets.HTML()
-        self.hbx_buttons.children = [self.upld, self.text]
+        self.vbx_buttons.children = [self.upld, self.text]
         self.arr_files = Dictionary(
             add_remove_controls="remove_only", show_hash=None, fn_remove=self.fn_remove
         )
-        self.children = [self.hbx_buttons, self.arr_files]
+        self.children = [self.vbx_buttons, self.arr_files]
         self._update_text("change")
 
     def _init_controls(self):
@@ -178,7 +194,7 @@ class FileUploadToDir(widgets.VBox):
         self.observe(self._update_text, names="_fdir")
 
     def _update_text(self, onchange):
-        self.text.value = markdown(f"`{self.fdir}`")
+        self.text.value = markdown(f"_`{self.fdir}`/_")
 
     def _arr_files(self, onchange):
         self._value = self.arr_files.value
@@ -204,10 +220,10 @@ if __name__ == "__main__":
 
     class Ui(BaseModel):
         name: str
-        description: str
         files: typing.Dict[str, File] = Field(
             autoui="__main__.FileUploadToDir", maximumItems=1, minimumItems=0
         )
+        description: str
 
     aui = AutoUi(schema=Ui, path="test.aui.json")
     display(aui)
