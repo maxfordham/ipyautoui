@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.13.8
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -337,7 +337,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         idx_start_from_one: bool = False,
     ):
         # accept schema or pydantic schema
-        self.model, self.schema = self._init_model_schema(schema)
+        self.model, self.schema = aui._init_model_schema(schema)
         self.kwargs_datagrid_default = kwargs_datagrid_default
         self.idx_start_from_one = idx_start_from_one
         self.di_cols_properties = self.schema["items"][
@@ -349,14 +349,6 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         self._init_form()
         self.kwargs_datagrid_update = kwargs_datagrid_update
         self.value = value
-
-    def _init_model_schema(self, schema):
-        if type(schema) == dict:
-            model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
-        else:
-            model = schema  # the "model" passed is a pydantic model
-            schema = model.schema()
-        return model, schema
 
     def _init_df(self):
         """Preparing initial empty dataframe."""
@@ -382,7 +374,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             ]
             df = df[order_cols]
         if self.idx_start_from_one is True:
-            df = df.set_index(pd.Index(range(1, len(df)+1), dtype='int64', name='idx'))
+            df = df.set_index(
+                pd.Index(range(1, len(df) + 1), dtype="int64", name="idx")
+            )
         self.df_empty = df
 
     def _init_form(self):
@@ -417,11 +411,11 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             value_with_titles[col] = round_sig_figs(
                 value_with_titles[col], sig_figs=sig_fig
             )
-        
+
         for column, v in value_with_titles.items():
             if self.idx_start_from_one is True:
                 # ^ If idx start from one then we must add one to the key
-                self.set_cell_value(column, key+1, v)
+                self.set_cell_value(column, key + 1, v)
             else:
                 self.set_cell_value(column, key, v)
 
@@ -641,7 +635,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                 ]
                 df = df[order_cols]
             if self.idx_start_from_one is True:
-                df = df.set_index(pd.Index(range(1, len(df)+1), dtype='int64', name='idx'))
+                df = df.set_index(
+                    pd.Index(range(1, len(df) + 1), dtype="int64", name="idx")
+                )
             self.data = self._round_sig_figs(df)
 
 
@@ -657,11 +653,12 @@ if __name__ == "__main__":
         )
 
     class TestDataFrame(BaseModel):
-        dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
+        # dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
+        __root__: typing.List[DataFrameCols] = Field(..., format="dataframe")
 
-    schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
+    # schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
 
-    grid = GridWrapper(schema=schema)
+    grid = GridWrapper(schema=TestDataFrame)
     display(grid)
 
 if __name__ == "__main__":
@@ -676,7 +673,7 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     grid = GridWrapper(
-        schema=schema,
+        schema=TestDataFrame,
         value=eg_value,
         ignore_cols=["Important String"],
         order_cols=["Floater", "Integer of somesort"],
@@ -719,7 +716,7 @@ class EditGrid(widgets.VBox):
     ):
         self.ui_add = ui_add
         self.ui_edit = ui_edit
-        self.model, self.schema = self._init_model_schema(schema)
+        self.model, self.schema = aui._init_model_schema(schema)
         self.datahandler = datahandler
         if self.datahandler is not None:
             value = self.datahandler.fn_get_all_data()
@@ -735,14 +732,6 @@ class EditGrid(widgets.VBox):
         )
         self._init_controls()
         self._edit_bool = False  # Initially define edit mode to be false
-
-    def _init_model_schema(self, schema):
-        if type(schema) == dict:
-            model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
-        else:
-            model = schema  # the "model" passed is a pydantic model
-            schema = model.schema()
-        return model, schema
 
     def _init_form(
         self,
@@ -1007,21 +996,39 @@ if __name__ == "__main__":
     class TestDataFrameOnly(BaseModel):
         """a description of TestDataFrame"""
 
-        dataframe: typing.List[DataFrameCols] = Field(
+        __root__: typing.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
         )
-
-    schema = attach_schema_refs(TestDataFrameOnly.schema())["properties"]["dataframe"]
-    # TODO: note that default values aren't being set from the schema for the Array or DataGrid
-    # auto_grid = AutoUi(schema=TestDataFrameOnly)
-    # display(auto_grid)
 
 if __name__ == "__main__":
     description = markdown(
         "<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes whatever they may be 👍"
     )
     editgrid = EditGrid(
-        schema=schema, description=description, ui_add=None, ui_edit=AutoUi
+        schema=TestDataFrameOnly, description=description, ui_add=None, ui_edit=AutoUi
+    )
+    display(editgrid)
+
+if __name__ == "__main__":
+
+    class TestDataFrame(BaseModel):
+        __root__: typing.List[DataFrameCols] = Field(
+            default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
+        )
+
+if __name__ == "__main__":
+    from ipyautoui import AutoUi
+    from ipyautoui.autoipywidget import AutoIpywidget
+
+    ui = AutoIpywidget(schema=TestDataFrame)
+    display(ui)
+
+if __name__ == "__main__":
+    description = markdown(
+        "<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes whatever they may be 👍"
+    )
+    editgrid = EditGrid(
+        schema=TestDataFrame, description=description, ui_add=None, ui_edit=AutoUi
     )
     display(editgrid)
 

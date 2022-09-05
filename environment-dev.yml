@@ -33,6 +33,7 @@ dependencies:
   - immutables
   - wcmatch
   - pytest
+  - stringcase
   - pip
   - pip:
     - traitlets-paths
