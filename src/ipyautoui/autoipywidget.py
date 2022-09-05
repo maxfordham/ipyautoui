@@ -47,9 +47,8 @@ import inspect
 
 frozenmap = immutables.Map
 
+
 # +
-
-
 def _init_widgets_and_labels(
     pr: typing.Dict,
 ) -> tuple((typing.List[widgets.HBox], typing.Dict)):
@@ -83,7 +82,9 @@ def _init_model_schema(schema):
         # https://koxudaxi.github.io/datamodel-code-generator/using_as_module/
     else:
         model = schema  # the "model" passed is a pydantic model
-        schema = model.schema(by_alias=False)
+        schema = model.schema(by_alias=False).copy()
+
+    schema = aumap.attach_schema_refs(schema)
     return model, schema
 
 
@@ -241,7 +242,6 @@ class AutoObject(widgets.VBox):
             AutoArray,
             AutoMarkdown,
             EditGrid,
-            # EditGridCore,
             AutoUi,
             AutoObject,
         ]
@@ -274,6 +274,7 @@ class AutoObject(widgets.VBox):
         fdir=None,
         order=None,
         insert_rows=None,
+        nested_widgets=None,
     ):
         """creates a widget input form from schema. datatype must be "object"
 
@@ -285,18 +286,20 @@ class AutoObject(widgets.VBox):
             order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
             insert_rows (dict): e.g. {3:widgets.Button()}. allows user to insert a widget into the rows. its presence
                 is ignored by the widget otherwise.
+            nested_widgets (list): e.g. [FileUploadToDir]. allows user to indicate widgets that should be show / hide 
+                type 
 
         Returns: 
             AutoIpywidget(widgets.VBox)
         """
-        self.nested_widgets = []
+        setdefault = lambda val, default: default if val is None else val
+        self.nested_widgets = setdefault(nested_widgets, [])
         self.update_map_widgets = update_map_widgets
         self.fdir = fdir
         self._init_ui(schema)
+        self.order = setdefault(order, None)
         if value is not None:
             self.value = value
-        if order is not None:
-            self.order = order
 
     def _init_ui(self, schema):
         self._init_schema(schema)
@@ -375,7 +378,13 @@ class AutoObject(widgets.VBox):
     def _init_update_row_format(self):
         self.observe(
             self._call_format_rows,
-            names=["align_horizontal", "order", "auto_open", "insert_rows"],
+            names=[
+                "align_horizontal",
+                "order",
+                "auto_open",
+                "insert_rows",
+                "nested_widgets",
+            ],
         )
 
     def _watch_change(self, change, key=None, watch="value"):
@@ -453,9 +462,9 @@ class AutoIpywidget(widgets.VBox):
         self.add_traits(**{"_value": trait_type()})
 
     def _init_schema(self, schema):
-        self.model, schema = _init_model_schema(schema)
-        self.schema = aumap.attach_schema_refs(schema)
-        self.caller = aumap.map_widget(schema, widgets_map=self.widgets_map)
+        self.model, self.schema = _init_model_schema(schema)
+        # self.schema = aumap.attach_schema_refs(schema)
+        self.caller = aumap.map_widget(self.schema, widgets_map=self.widgets_map)
         if self.fdir is not None:
             v = add_fdir_to_widgetcaller(caller=self.caller, fdir=self.fdir)
 
