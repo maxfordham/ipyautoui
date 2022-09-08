@@ -52,7 +52,8 @@ frozenmap = immutables.Map
 # -
 class BaseForm(widgets.VBox):
     _value = traitlets.Dict()
-    _cls_ui = traitlets.Type()
+    _cls_ui = traitlets.Callable(default_value=None, allow_none=True)
+    # _cls_ui = traitlets.Type()
 
     def __init__(
         self,
@@ -95,7 +96,7 @@ class BaseForm(widgets.VBox):
 
     @cls_ui.setter
     def cls_ui(self, cls_ui):
-        if self._cls_ui != cls_ui:
+        if self._cls_ui != cls_ui or self._cls_ui is None:
             if cls_ui is None:
                 self._cls_ui = aui.AutoObject
             else:
@@ -103,7 +104,6 @@ class BaseForm(widgets.VBox):
             self._init_ui()
             self._update_BaseForm_controls()
         else:
-            print("asdf")
             pass
 
     @property
@@ -139,29 +139,18 @@ if __name__ == "__main__":
         integer: int = Field(40, title="Integer of somesort")
         floater: float = Field(1.33, title="floater")
 
-    ui = BaseForm(schema=TestModel.schema())
-    display(ui)
-
-if __name__ == "__main__":
-    ui.value = {"string": "adfs", "integer": 2, "floater": 1.22}
-
-if __name__ == "__main__":
-    from ipyautoui.automapschema import attach_schema_refs
-
-    class TestModel(BaseModel):
-        string: str = Field("string", title="Important String")
-        integer: int = Field(40, title="Integer of somesort")
-        floater: float = Field(1.33, title="floater")
-
     def test_save():
         print("Saved.")
 
     def test_revert():
         print("Reverted.")
 
-    baseform = BaseForm(schema=TestModel.schema(), save=test_save, revert=test_revert)
+    ui = BaseForm(schema=TestModel, save=test_save, revert=test_revert)
     # AutoUi(schema=TestModel.schema())
-    display(baseform)
+    display(ui)
+
+if __name__ == "__main__":
+    ui.value = {"string": "adfs", "integer": 2, "floater": 1.22}
 
 if __name__ == "__main__":
     # With nested object
@@ -330,6 +319,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         self,
         schema: dict,
         value: list = None,
+        by_alias: bool = False,
         kwargs_datagrid_default: frozenmap = frozenmap(),
         kwargs_datagrid_update: frozenmap = frozenmap(),
         order_cols: list = [],
@@ -337,7 +327,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         idx_start_from_one: bool = False,
     ):
         # accept schema or pydantic schema
-        self.model, self.schema = aui._init_model_schema(schema)
+        self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         self.kwargs_datagrid_default = kwargs_datagrid_default
         self.idx_start_from_one = idx_start_from_one
         self.di_cols_properties = self.schema["items"][
@@ -697,6 +687,11 @@ class RowUiCallables(BaseModel):
 
 # -
 
+# IDEA: Possible implementations -@jovyan at 9/3/2022, 11:29:20 AM
+# review having both GridWrapper and EditGrid. This means an additional
+# nesting that requires keeping the _value of both the GridWrapper
+# object and the EditGrid object up-to-date. or maybe GridWrapper
+# doesn't require a _value trait as it is never used within EditGrid.
 class EditGrid(widgets.VBox):
 
     _value = traitlets.List()
@@ -705,6 +700,7 @@ class EditGrid(widgets.VBox):
         self,
         schema: dict,
         value: dict = None,
+        by_alias: bool = False,
         datahandler: typing.Type[BaseModel] = None,
         ui_add: typing.Callable = None,
         ui_edit: typing.Callable = None,
@@ -716,14 +712,14 @@ class EditGrid(widgets.VBox):
     ):
         self.ui_add = ui_add
         self.ui_edit = ui_edit
-        self.model, self.schema = aui._init_model_schema(schema)
+        self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         self.datahandler = datahandler
         if self.datahandler is not None:
             value = self.datahandler.fn_get_all_data()
         self.out = widgets.Output()
         self._init_form(
             value=value,
-            schema=schema,
+            schema=self.schema,
             kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
             order_cols=order_cols,
@@ -1000,6 +996,7 @@ if __name__ == "__main__":
             default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
         )
 
+
 if __name__ == "__main__":
     description = markdown(
         "<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes whatever they may be 👍"
@@ -1016,6 +1013,7 @@ if __name__ == "__main__":
             default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
         )
 
+
 if __name__ == "__main__":
     from ipyautoui import AutoUi
     from ipyautoui.autoipywidget import AutoIpywidget
@@ -1031,5 +1029,4 @@ if __name__ == "__main__":
         schema=TestDataFrame, description=description, ui_add=None, ui_edit=AutoUi
     )
     display(editgrid)
-
 
