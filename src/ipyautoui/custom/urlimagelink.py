@@ -30,42 +30,51 @@ class UrlImageLink(w.HBox):
     path_image = t.Unicode()
     width = t.Integer()
     height = t.Integer()
+    tooltip = t.Unicode(default_value="")
+    font_size = t.Integer(allow_none=True)
+    description = t.Unicode(allow_none=True)
 
-    def __init__(self, url, path_image, description=None, width=40, height=40):
+    def __init__(self, url, path_image, tooltip=None, description=None, font_size=None, width=40, height=40):
         super().__init__()
         self.out = w.Output()
-        self._description = w.HTML(description)
-        self.children = [self.out, self._description]
+        #self._description = w.HTML(description)
+        self.children = [self.out]
         self.url = url
         self.path_image = path_image
+        if tooltip is not None:
+            self.tooltip = tooltip
         self.width = width
         self.height = height
-
+        self.description = description
+        self.font_size = font_size
         self._init_controls()
         self.update("")
 
-    @property
-    def description(self):
-        return self._description.value
-
-    @description.setter
-    def description(self, value):
-        self._description.value = value
-
     def _init_controls(self):
-        self.observe(self.update, names=["url", "path_image", "width", "height"])
+        self.observe(self.update, names=["url", "path_image", "width", "height", "tooltip", "font_size", "description"])
 
     @property
     def html(self):
-        return HTML(
-            f"""<!DOCTYPE html>
-<html>
-<a href="{self.url}" target="_blank">
-<img border="0" src="{self.path_image}"width={self.width} height={self.height}>
-</a>
-</html>
-"""
-        )
+        self.html_image = f"""<a href="{self.url}" title="{self.tooltip}" target="_blank">
+                            <img border="0" src="{self.path_image}"width={self.width} height={self.height}>
+                            </a>
+                            """
+        if self.description is not None:
+            style = f"<style> p.ex1 {{font-size: {self.font_size}px;}}</style>"
+            html = f"""<!DOCTYPE html>
+                    <html>
+                    {style}
+                    <p class="ex1">
+                    {self.html_image}
+                    <b>AEC Templater</b>
+                    </p>
+                    </html>
+                    """
+        else: 
+            html = self.html_image
+            
+        
+        return HTML(html)
 
     def update(self, onchange):
         if self.url == "":

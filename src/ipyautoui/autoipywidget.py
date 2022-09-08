@@ -74,7 +74,7 @@ def _init_widgets_and_labels(
     return di_labels, di_widgets
 
 
-def _init_model_schema(schema):
+def _init_model_schema(schema, by_alias=False):
     if type(schema) == dict:
         model = None  # jsonschema_to_pydantic(schema)
         # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM
@@ -82,7 +82,7 @@ def _init_model_schema(schema):
         # https://koxudaxi.github.io/datamodel-code-generator/using_as_module/
     else:
         model = schema  # the "model" passed is a pydantic model
-        schema = model.schema(by_alias=False).copy()
+        schema = model.schema(by_alias=by_alias).copy()
 
     schema = aumap.attach_schema_refs(schema)
     return model, schema
@@ -203,7 +203,7 @@ class AutoObject(widgets.VBox):
 
     @traitlets.validate("insert_rows")
     def _insert_rows(self, proposal):
-        intkeys = (
+        fn_checkisintkeys = (
             lambda di: True
             if [isinstance(l, int) == True for l in di.keys()]
             else False
@@ -214,7 +214,7 @@ class AutoObject(widgets.VBox):
         else:
             if not isinstance(v, dict):
                 raise ValueError("insert_rows must be a dict")
-            if not intkeys(v):
+            if not fn_checkisintkeys(v):
                 raise ValueError("keys of insert_rows must be integers")
         return v
 
@@ -270,6 +270,7 @@ class AutoObject(widgets.VBox):
         self,
         schema,
         value=None,
+        by_alias=False,
         update_map_widgets=None,
         fdir=None,
         order=None,
@@ -294,27 +295,27 @@ class AutoObject(widgets.VBox):
         """
         setdefault = lambda val, default: default if val is None else val
         self.nested_widgets = setdefault(nested_widgets, [])
+        self.insert_rows = insert_rows
         self.update_map_widgets = update_map_widgets
         self.fdir = fdir
-        self._init_ui(schema)
+        self._init_schema(schema, by_alias=by_alias)
+        self._init_ui()
         self.order = setdefault(order, None)
         if value is not None:
             self.value = value
 
-    def _init_ui(self, schema):
-        self._init_schema(schema)
+    def _init_ui(self):
         self._init_widgets()
         self._init_form()
         self._init_controls()
 
-    def _init_schema(self, schema):
-        self.model, schema = _init_model_schema(schema)
-        self.schema = aumap.attach_schema_refs(schema)
+    def _init_schema(self, schema, by_alias=False):
+        self.model, self.schema = _init_model_schema(schema, by_alias=by_alias)
         if "type" not in self.schema.keys() and self.schema["type"] != "object":
             raise ValueError(
                 '"type" must be in schema keys and "type" must == "object"'
             )
-        pr = schema["properties"]
+        pr = self.schema["properties"]
         self.pr = {
             k: aumap.map_widget(v, widgets_map=self.widgets_map) for k, v in pr.items()
         }
@@ -408,7 +409,7 @@ class AutoObject(widgets.VBox):
         return {k: v.value for k, v in self.di_widgets.items()}
 
     def disable_edits(self):
-        for k, v in self.di_widgets.items():
+        for v in self.di_widgets.values():
             try:
                 v.disabled = True
             except:
@@ -431,6 +432,9 @@ class AutoIpywidget(widgets.VBox):
     fdir = traitlets.Unicode(allow_none=True)
     # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:06:04 PM
     # consider changing name `update_map_widgets` to `update_widgets_mapper`
+
+    # TODO: Tasks pending completion -@jovyan at 9/07/2022, 2:06:04 PM
+    # consider whether this shouldn't inherit AutoObject afterall...
     def __init__(self, schema, value=None, update_map_widgets=None, fdir=None):
         self.update_map_widgets = update_map_widgets
         self.fdir = fdir
@@ -463,7 +467,6 @@ class AutoIpywidget(widgets.VBox):
 
     def _init_schema(self, schema):
         self.model, self.schema = _init_model_schema(schema)
-        # self.schema = aumap.attach_schema_refs(schema)
         self.caller = aumap.map_widget(self.schema, widgets_map=self.widgets_map)
         if self.fdir is not None:
             v = add_fdir_to_widgetcaller(caller=self.caller, fdir=self.fdir)
