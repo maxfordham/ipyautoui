@@ -48,6 +48,13 @@ from ipyautoui.constants import (
 
 frozenmap = immutables.Map
 
+# TODO: Tasks pending completion -@jovyan at 9/14/2022, 5:09:18 PM
+#       review how ipydatagrid works. it has a _data trait which has 
+#       a schema. Perhaps we can make better use of this / contribute
+#       back to the main repo.
+
+# BUG: Reported defects -@jovyan at 9/16/2022, 5:25:13 PM
+#      the selection when filtered issue is creating a problem.
 
 # -
 class BaseForm(widgets.VBox):
@@ -709,9 +716,11 @@ class EditGrid(widgets.VBox):
         order_cols: list = [],
         ignore_cols: list = [],
         description: str = "",
+        fn_on_copy: typing.Callable = None,
     ):
         self.ui_add = ui_add
         self.ui_edit = ui_edit
+        self.fn_on_copy = fn_on_copy
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         self.datahandler = datahandler
         if self.datahandler is not None:
@@ -833,10 +842,12 @@ class EditGrid(widgets.VBox):
                 li_values_selected = [
                     self.value[i] for i in sorted([i for i in selected_rows])
                 ]
+                if self.fn_on_copy is not None:
+                    li_values_selected = self.fn_on_copy(li_values_selected)
                 if self.datahandler is not None:
                     for value in li_values_selected:
                         self.datahandler.fn_copy(value)
-                        self._reload_all_data()
+                    self._reload_all_data()
                 else:
                     self.value += li_values_selected
                     # ^ add copied values
