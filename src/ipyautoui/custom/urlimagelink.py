@@ -66,7 +66,7 @@ class UrlImageLink(w.HBox):
                     {style}
                     <p class="ex1">
                     {self.html_image}
-                    <b>AEC Templater</b>
+                    <b>{self.description}</b>
                     </p>
                     </html>
                     """
