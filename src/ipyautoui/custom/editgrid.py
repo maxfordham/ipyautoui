@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.8
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -27,6 +27,7 @@ import collections
 import traceback
 
 import immutables
+import numpy as np
 import pandas as pd
 import ipywidgets as widgets
 from typing import List
@@ -34,9 +35,10 @@ from markdown import markdown
 from pydantic import BaseModel, Field
 from ipydatagrid import DataGrid, TextRenderer, Expr, VegaExpr
 
-from ipyautoui._utils import round_sig_figs
 import ipyautoui.autoipywidget as aui
 import ipyautoui.custom.save_button_bar as sb
+from ipyautoui._utils import round_sig_figs
+from ipyautoui.automapschema import attach_schema_refs
 
 # from ipyautoui.autoipywidget import AutoIpywidget
 
@@ -49,13 +51,12 @@ from ipyautoui.constants import (
 frozenmap = immutables.Map
 
 # TODO: Tasks pending completion -@jovyan at 9/14/2022, 5:09:18 PM
-#       review how ipydatagrid works. it has a _data trait which has 
+#       review how ipydatagrid works. it has a _data trait which has
 #       a schema. Perhaps we can make better use of this / contribute
 #       back to the main repo.
 
 # BUG: Reported defects -@jovyan at 9/16/2022, 5:25:13 PM
 #      the selection when filtered issue is creating a problem.
-
 # -
 class BaseForm(widgets.VBox):
     _value = traitlets.Dict()
@@ -307,7 +308,11 @@ if __name__ == "__main__":
         print("BACK")
 
     button_bar = ButtonBar(
-        add=add, edit=edit, copy=copy, delete=delete, backward=backward,
+        add=add,
+        edit=edit,
+        copy=copy,
+        delete=delete,
+        backward=backward,
     )
 
     display(button_bar)
@@ -379,7 +384,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
     def _init_form(self):
         """Initialise grid and apply schema properties."""
         super().__init__(
-            self.df_empty, selection_mode="row", **self.kwargs_datagrid_default,
+            self.df_empty,
+            selection_mode="row",
+            **self.kwargs_datagrid_default,
         )  # main container. # TODO: may be causing "DeprecationWarning: Passing unrecognized arguments..." in pytest
         if self.aui_column_widths:
             self._set_column_widths()
@@ -388,9 +395,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     def set_row_value(self, key: int, value: dict):
         """Set a chosen row using the key and a value given.
-        
+
         Note: We do not call value setter to apply values as it resets the datagrid.
-        
+
         Args:
             key (int): The key of the row.
             value (dict): The data we want to input into the row.
@@ -420,7 +427,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     def _round_sig_figs(self, df):
         """Round values in dataframe to desired significant figures as given in the schema.
-        
+
         Args:
             df (pd.DataFrame): dataframe to round sig figs on.
         """
@@ -434,7 +441,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     def _check_value(self, value: list):
         """Checking column names in value passed match those within the dataframe.
-        
+
         Args:
             value (list): list of dicts.
         """
@@ -449,7 +456,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     def _set_titles(self, value: list):
         """Replace field names with titles in value passed.
-        
+
         Args:
             value (list): Replace all the keys in the dictionaries with associated titles from schema.
         """
@@ -464,7 +471,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     def filter_by_column_name(self, column_name: str, li_filter: list):
         """Filter rows to display based on a column name and a list of objects belonging to that column.
-        
+
         Args:
             column_name (str): column name we want to apply the transform to.
             li_filter (list): Values within the column we want to display in the grid.
@@ -482,7 +489,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     def _swap_rows(self, key_a: int, key_b: int):
         """Swap two rows by giving their keys.
-        
+
         Args:
             key_a (int): Key of a row.
             key_b (int): Key of another row.
@@ -494,7 +501,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     def _move_row_down(self, key: int):
         """Move a row down.
-        
+
         Args:
             key (int): Key of the row
         """
@@ -504,7 +511,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     def _move_row_up(self, key: int):
         """Move a row up.
-        
+
         Args:
             key (int): Key of the row
         """
@@ -514,7 +521,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     def _move_rows_up(self, li_keys: List[int]):
         """Move multiple rows up.
-        
+
         Args:
             li_key (List[int]): List of row keys.
         """
@@ -528,7 +535,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     def _move_rows_down(self, li_keys: List[int]):
         """Move multiple rows down.
-        
+
         Args:
             li_key (List[int]): List of row keys.
         """
@@ -565,14 +572,24 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
     @property
     def selected_keys(self):
         self._selected_keys = set()
+        no_rows_selected = 0
         for di in self.selected_rows:
-            r1 = di["r1"]
-            r2 = di["r2"]
-            if r1 == r2:
-                self._selected_keys.add(r1)
-            else:
-                for i in range(r1, r2 + 1):
-                    self._selected_keys.add(i)
+            no_rows_selected += di["r2"] - di["r1"] + 1
+
+        col_posx = list(self.data.columns).index("Name")
+
+        arr_property_name_posx = (np.arange(no_rows_selected) * 3) + col_posx
+
+        li_property_names_selected = [
+            self.selected_cell_values[i] for i in arr_property_name_posx
+        ]
+
+        self._selected_keys = {
+            i
+            for i, v in enumerate(self.value)
+            if v["Name"] in li_property_names_selected
+        }
+
         return self._selected_keys
 
     @property
@@ -642,7 +659,9 @@ if __name__ == "__main__":
 
     class DataFrameCols(BaseModel):
         string: str = Field(
-            "string", title="Important String", aui_column_width=120,
+            "string",
+            title="Important String",
+            aui_column_width=120,
         )
         integer: int = Field(40, title="Integer of somesort", aui_column_width=150)
         floater: float = Field(
@@ -660,8 +679,16 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     eg_value = [
-        {"string": "important string", "integer": 1, "floater": 3.14,},
-        {"string": "update", "integer": 4, "floater": 3.12344,},
+        {
+            "string": "important string",
+            "integer": 1,
+            "floater": 3.14,
+        },
+        {
+            "string": "update",
+            "integer": 4,
+            "floater": 3.12344,
+        },
         {"string": "evening", "integer": 5, "floater": 3.14},
         {"string": "morning", "integer": 5, "floater": 3.14},
         {"string": "number", "integer": 3, "floater": 3.14},
