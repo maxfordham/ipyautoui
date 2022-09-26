@@ -58,6 +58,11 @@ frozenmap = immutables.Map
 # BUG: Reported defects -@jovyan at 9/16/2022, 5:25:13 PM
 #      the selection when filtered issue is creating a problem.
 # -
+
+# TODO: Tasks pending completion -@jovyan at 9/22/2022, 9:25:53 PM
+#       Can BaseForm inherit autoipywidget.AutoObject directly?
+
+
 class BaseForm(widgets.VBox):
     _value = traitlets.Dict()
     _cls_ui = traitlets.Callable(default_value=None, allow_none=True)
@@ -570,26 +575,39 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         ]  # Set to -1 as this as ID is last column. Will break if ID moves column!
 
     @property
+    def get_selected_data(self):
+        tmp = self.get_visible_data()
+
+        rows = self.selected_rows
+
+        # TODO: Tasks pending completion -@jovyan at 9/22/2022, 10:24:07 PM
+        #       OLLY to finish
+        #
+        pass
+
+    @property
     def selected_keys(self):
-        # HACK: Temporary fix -@jovyan at 9/21/2022, 12:24:37 PM
-        # Specific fix for selected_keys. Needs review and should probably be moved into aectemplater repo.
-        if "Name" in list(self.data.columns):
-            self._selected_keys = set()
-            no_rows_selected = 0
-            for di in self.selected_rows:
-                no_rows_selected += di["r2"] - di["r1"] + 1
+        # FIXME: Needing refactor or cleanup -@jovyan at 9/22/2022, 10:19:26 PM
+        #        edit this
+        self._selected_keys = set()
+        no_rows_selected = 0
+        for di in self.selected_rows:
+            no_rows_selected += di["r2"] - di["r1"] + 1
 
-            col_posx = list(self.data.columns).index("Name")
+        col_posx = list(self.data.columns).index("Name")
 
-            arr_name_posx = (np.arange(no_rows_selected) * len(self.data.columns)) + col_posx
+        arr_property_name_posx = (np.arange(no_rows_selected) * 3) + col_posx
 
-            li_names_selected = [self.selected_cell_values[i] for i in arr_name_posx]
+        li_property_names_selected = [
+            self.selected_cell_values[i] for i in arr_property_name_posx
+        ]
 
-            self._selected_keys = {
-                i for i, v in enumerate(self.value) if v["Name"] in li_names_selected
-            }
-        else:
-            self._selected_keys = None
+        self._selected_keys = {
+            i
+            for i, v in enumerate(self.value)
+            if v["Name"] in li_property_names_selected
+        }
+
         return self._selected_keys
 
     @property
