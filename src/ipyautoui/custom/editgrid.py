@@ -439,8 +439,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         return df
 
     def _set_column_widths(self):
-        """Set the column widths of the data grid based on aui_column_widths given in the schema.
-        """
+        """Set the column widths of the data grid based on aui_column_widths given in the schema."""
         self.column_widths = self.aui_column_widths  # Set column widths for data grid.
 
     def _check_value(self, value: list):
@@ -566,49 +565,28 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     @property
     def selected_rows(self):
-        return [{"r1": v["r1"], "r2": v["r2"]} for v in self.selections]
-
-    @property
-    def selected_obj_id(self):
-        return self.selected_cell_values[
-            -1
-        ]  # Set to -1 as this as ID is last column. Will break if ID moves column!
+        """Get position of rows selected."""
+        _selected_rows = set()
+        for di in self.selections:
+            r1 = di["r1"]
+            r2 = di["r2"]
+            if r1 == r2:
+                _selected_rows.add(r1)
+            else:
+                for i in range(r1, r2 + 1):
+                    _selected_rows.add(i)
+        return list(_selected_rows)
 
     @property
     def get_selected_data(self):
-        tmp = self.get_visible_data()
-
-        rows = self.selected_rows
-
-        # TODO: Tasks pending completion -@jovyan at 9/22/2022, 10:24:07 PM
-        #       OLLY to finish
-        #
-        pass
+        """Get the data selected in the table which is returned as a dataframe."""
+        df_tmp = self.get_visible_data()
+        return df_tmp.iloc[self.selected_rows]
 
     @property
     def selected_keys(self):
-        # FIXME: Needing refactor or cleanup -@jovyan at 9/22/2022, 10:19:26 PM
-        #        edit this
-        self._selected_keys = set()
-        no_rows_selected = 0
-        for di in self.selected_rows:
-            no_rows_selected += di["r2"] - di["r1"] + 1
-
-        col_posx = list(self.data.columns).index("Name")
-
-        arr_property_name_posx = (np.arange(no_rows_selected) * 3) + col_posx
-
-        li_property_names_selected = [
-            self.selected_cell_values[i] for i in arr_property_name_posx
-        ]
-
-        self._selected_keys = {
-            i
-            for i, v in enumerate(self.value)
-            if v["Name"] in li_property_names_selected
-        }
-
-        return self._selected_keys
+        """Return the keys of the selected rows."""
+        return list(self.get_selected_data.index.values)
 
     @property
     def li_field_names(self):
@@ -828,7 +806,7 @@ class EditGrid(widgets.VBox):
 
     def _update_baseform(self, onchange):
         if (
-            len(self.grid.selected_keys) == 1
+            len(self.grid.selected_rows) == 1
             and self.baseform.layout.display == "block"
         ):
             print(self.di_row_value)
@@ -857,7 +835,6 @@ class EditGrid(widgets.VBox):
         self.baseform.cls_ui = self.ui_edit
         try:
             self._check_one_row_selected()
-
             if len(self.grid.selected_keys) == 0:
                 raise ValueError("you must select a row")
             self.initial_value = self.di_row_value
@@ -877,14 +854,13 @@ class EditGrid(widgets.VBox):
 
     def _copy(self):
         try:
-            selected_rows = self.grid.selected_keys
-            if selected_rows == set():
+            if self.grid.selected_keys == set():
                 self.button_bar.message.value = markdown(
                     "  👇 _Please select a row from the table!_ "
                 )
             else:
                 li_values_selected = [
-                    self.value[i] for i in sorted([i for i in selected_rows])
+                    self.value[i] for i in sorted([i for i in self.grid.selected_keys])
                 ]
                 if self.fn_on_copy is not None:
                     li_values_selected = self.fn_on_copy(li_values_selected)
@@ -907,13 +883,6 @@ class EditGrid(widgets.VBox):
     def _delete(self):
         try:
             self._set_toggle_buttons_to_false()
-            # Delete from data frame.
-            # self.rows_to_delete = []
-            # if self.grid.selected_rows:
-            #     for i in self.grid.selected_rows:
-            #         start_row = i["r1"]
-            #         end_row = i["r2"]
-            #         self.rows_to_delete += [i for i in range(*[start_row, end_row + 1])]
             if self.grid.selected_keys:
                 print(f"Row Number: {self.grid.selected_keys}")
                 if self.datahandler is not None:
@@ -938,7 +907,7 @@ class EditGrid(widgets.VBox):
             traceback.print_exc()
 
     def _check_one_row_selected(self):
-        if len(self.grid.selected_keys) > 1:
+        if len(self.grid.selected_rows) > 1:
             raise Exception(
                 markdown("  👇 _Please only select ONLY one row from the table!_")
             )
@@ -1021,10 +990,7 @@ class EditGrid(widgets.VBox):
     def di_row_value(self):
         try:
             self._check_one_row_selected()  # Performing checks to see if only one row is selected
-            self.selected_row = self.grid.selected_rows[0][
-                "r1"
-            ]  # Only one row selected during editing
-            return self.value[self.selected_row]
+            return self.value[self.grid.selected_rows[0]]
 
         except Exception as e:
             self.button_bar.message.value = markdown(f"_{e}_")
@@ -1094,4 +1060,7 @@ if __name__ == "__main__":
     editgrid = EditGrid(
         schema=TestDataFrame, description=description, ui_add=None, ui_edit=AutoUi
     )
+    editgrid.value = AUTO_GRID_DEFAULT_VALUE
     display(editgrid)
+
+
