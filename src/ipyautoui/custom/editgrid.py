@@ -34,6 +34,7 @@ from typing import List
 from markdown import markdown
 from pydantic import BaseModel, Field
 from ipydatagrid import DataGrid, TextRenderer, Expr, VegaExpr
+from ipydatagrid.datagrid import SelectionHelper
 
 import ipyautoui.autoipywidget as aui
 import ipyautoui.custom.save_button_bar as sb
@@ -57,16 +58,15 @@ frozenmap = immutables.Map
 
 # BUG: Reported defects -@jovyan at 9/16/2022, 5:25:13 PM
 #      the selection when filtered issue is creating a problem.
-# -
 
 # TODO: Tasks pending completion -@jovyan at 9/22/2022, 9:25:53 PM
 #       Can BaseForm inherit autoipywidget.AutoObject directly?
-
+# -
 
 class BaseForm(widgets.VBox):
     _value = traitlets.Dict()
     _cls_ui = traitlets.Callable(default_value=None, allow_none=True)
-    # _cls_ui = traitlets.Type()
+    #_row_edit_index = traitlets.Any(default_value=None)
 
     def __init__(
         self,
@@ -327,7 +327,7 @@ def is_incremental(li):
     return li == list(range(li[0], li[0] + len(li)))
 
 
-class GridWrapper(DataGrid, traitlets.HasTraits):
+class GridWrapper(DataGrid):
     _value = traitlets.List()
 
     def __init__(
@@ -337,9 +337,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         by_alias: bool = False,
         kwargs_datagrid_default: frozenmap = frozenmap(),
         kwargs_datagrid_update: frozenmap = frozenmap(),
-        order_cols: list = [],
-        ignore_cols: list = [],
-        idx_start_from_one: bool = False,
+        order_cols: list = [],  # TODO: this should be a trait
+        ignore_cols: list = [],  # TODO: this should be a trait
+        idx_start_from_one: bool = False,  # FIXME: don't think this is required.
     ):
         # accept schema or pydantic schema
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
@@ -491,6 +491,8 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             ]
         )
 
+    # move rows around
+    # ----------------
     def _swap_rows(self, key_a: int, key_b: int):
         """Swap two rows by giving their keys.
 
@@ -551,6 +553,8 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             {"r1": min(li_keys) + 1, "r2": max(li_keys) + 1, "c1": 0, "c2": 2}
         ]
 
+    # ----------------
+
     @property
     def di_default_value(self):
         """Obtain default value given in schema."""
@@ -565,7 +569,7 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
 
     @property
     def selected_rows(self):
-        """Get position of rows selected."""
+        """Get position of rows selected. (not the index / key). returns index of filtered df"""
         _selected_rows = set()
         for di in self.selections:
             r1 = di["r1"]
@@ -578,15 +582,19 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
         return list(_selected_rows)
 
     @property
-    def get_selected_data(self):
+    def selected_rows_data(self):
         """Get the data selected in the table which is returned as a dataframe."""
-        df_tmp = self.get_visible_data()
-        return df_tmp.iloc[self.selected_rows]
+        s = self.selected_visible_cell_iterator
+        rows = set([l["r"] for l in s])
+        return [s._data["data"][r] for r in rows]
 
     @property
     def selected_keys(self):
         """Return the keys of the selected rows."""
-        return list(self.get_selected_data.index.values)
+        s = self.selected_visible_cell_iterator
+        index = self.get_dataframe_index(self.data)
+        rows = set([l["r"] for l in s])
+        return [s._data["data"][r][index] for r in rows]
 
     @property
     def li_field_names(self):
@@ -622,6 +630,22 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
             setattr(self, k, v)
 
     @property
+    def selected_visible_cell_iterator(self):
+        """
+        An iterator to traverse selected cells one by one.
+        """
+        # Copy of the front-end data model
+        view_data = self.get_visible_data()
+
+        # Get primary key from dataframe
+        index_key = self.get_dataframe_index(view_data)
+
+        # Serielize to JSON table schema
+        view_data_object = self.generate_data_object(view_data, "ipydguuid", index_key)
+
+        return SelectionHelper(view_data_object, self.selections, self.selection_mode)
+
+    @property
     def value(self):
         return self._value
 
@@ -646,7 +670,9 @@ class GridWrapper(DataGrid, traitlets.HasTraits):
                 df = df[order_cols]
             if self.idx_start_from_one is True:
                 df = df.set_index(
-                    pd.Index(range(1, len(df) + 1), dtype="int64", name="idx")
+                    pd.Index(
+                        range(1, len(df) + 1), dtype="int64", name="idx"
+                    )  # BUG: hardcoded + application specific
                 )
             self.data = self._round_sig_figs(df)
 
@@ -689,7 +715,7 @@ if __name__ == "__main__":
         {"string": "morning", "integer": 5, "floater": 3.14},
         {"string": "number", "integer": 3, "floater": 3.14},
     ]
-    grid.value = eg_value
+    grid.value = eg_value * 10
 
 if __name__ == "__main__":
     grid = GridWrapper(
@@ -816,6 +842,10 @@ class EditGrid(widgets.VBox):
     def _update_baseform_ui(self, cls_ui):
         if type(self.baseform) != cls_ui:
             self.baseform.cls_ui = cls_ui
+
+    @property
+    def selected_row(self):
+        return self.grid.selected_keys[0]
 
     def _add(self):
         self.baseform.cls_ui = self.ui_add
@@ -990,7 +1020,9 @@ class EditGrid(widgets.VBox):
     def di_row_value(self):
         try:
             self._check_one_row_selected()  # Performing checks to see if only one row is selected
-            return self.value[self.grid.selected_rows[0]]
+            di = self.grid.selected_rows_data[0]
+            cols = [v["title"] for k, v in self.baseform.schema["properties"].items()]
+            return {c: di[c] for c in cols}
 
         except Exception as e:
             self.button_bar.message.value = markdown(f"_{e}_")
