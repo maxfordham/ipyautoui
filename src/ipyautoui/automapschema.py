@@ -78,7 +78,8 @@ def attach_schema_refs(schema, schema_base=None):
                     and len(v["allOf"]) == 1
                     and "$ref" in v["allOf"][0].keys()
                 ):
-                    # ^ this is an edge case for setting enums with Field values (probs unique to how pydantic does it)
+                    # ^ this is an edge case for setting enums with Field values 
+                    #   (probs unique to how pydantic does it)
                     li_filt = v["allOf"][0]["$ref"].split("/")[1:]
                     ref = recursive_search_schema(schema_base, li_filt)
                     schema[k] = {
