@@ -12,7 +12,8 @@ launch [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/
 ## Installation
 
 ```
-# TODO: do this! WARNING ipyautoui is WIP is not yet packaged and distrubuted so the commands below don't work.
+# TODO: do this! WARNING ipyautoui is WIP is not yet packaged and distrubuted 
+#       so the commands below don't work.
 
 mamba install ipyautoui -c conda-forge  # mamba ...
 conda install ipyautoui -c conda-forge  # or conda ...
