@@ -40,7 +40,7 @@ Example:
 import os
 import pathlib
 import pandas as pd
-from IPython.display import display, Markdown, IFrame, clear_output, Image
+from IPython.display import display, Markdown, IFrame, clear_output, Image, HTML
 import json
 import ipydatagrid as ipg
 import ipywidgets as widgets
@@ -324,6 +324,20 @@ def preview_text(path):
 """
     )
 
+def preview_dir(path):
+    """preview folder"""
+    # TODO: make recursive using AutoDisplay?
+    li = path.glob("*")
+    make_str = lambda p: f"📁 {p.stem}" if p.is_dir() else f"📄 {p.stem}"
+    li = [make_str(l) for l in li]
+    return HTML("<br>".join(li))
+
+def preview_text_or_dir(path):
+    """display path with ext == "" """
+    if path.is_file():
+        return preview_text(path)
+    else:
+        return preview_dir(path)
 
 def preview_markdown(path):
     return Markdown(
@@ -359,7 +373,7 @@ DEFAULT_FILE_RENDERERS = frozenmap(
         ".txt": preview_text,
         ".bat": preview_text,
         ".rst": preview_text,
-        "": preview_text,
+        "": preview_text_or_dir,
         ".toml": preview_text,  # TODO: add toml viewer?
         ".md": preview_markdown,
         ".py": PreviewPython,
