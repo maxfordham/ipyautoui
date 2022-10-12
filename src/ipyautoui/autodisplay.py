@@ -94,19 +94,13 @@ def merge_file_renderers(merge_renderers, default_renderers=DEFAULT_FILE_RENDERE
 class DisplayObjectActions(BaseModel):
     """base object with callables for creating a display object"""
 
+    map_renderers: frozenmap = DEFAULT_FILE_RENDERERS
     path: typing.Union[str, pathlib.Path, HttpUrl]
     ext: str = None
     name: str = None
     check_exists: typing.Callable = None
     renderer: typing.Callable = lambda: print("renderer")
-    # open_file: typing.Optional[typing.Callable] = lambda: print("open_file")
-    # open_folder: typing.Optional[typing.Callable] = lambda: print("open_folder")
-    check_date_modified: typing.Optional[typing.Callable] = None
-
-
-class MapFileRenderers(BaseModel):
-    newroot = pathlib.PureWindowsPath("J:/")
-    map_file_renderers: frozenmap = DEFAULT_FILE_RENDERERS
+    check_date_modified: typing.Callable = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -119,10 +113,14 @@ def check_exists(path):
         return False
 
 
-class DisplayFromPath(DisplayObjectActions, MapFileRenderers):
-    path: pathlib.Path
+class DisplayFromPath(DisplayObjectActions):
+    newroot: pathlib.PureWindowsPath = pathlib.PureWindowsPath("J:/")
     open_file: typing.Callable = None
     open_folder: typing.Callable = None
+
+    @validator("path", always=True)
+    def _path(cls, v, values):
+        return pathlib.Path(v)
 
     @validator("name", always=True)
     def _name(cls, v, values):
@@ -130,24 +128,24 @@ class DisplayFromPath(DisplayObjectActions, MapFileRenderers):
             v = values["path"].name
         return v
 
-    @validator("ext", always=True)
-    def _ext(cls, v, values):
-        if values["path"] is not None:
-            v = get_ext(values["path"])
-            v = handle_compound_ext(v)
-        if v is None:
-            ValueError("ext must be given to map data to renderer")
-        return v
-
     @validator("renderer", always=True)
     def _renderer(cls, v, values):
         ext = values["ext"]
-        map_ = values["map_file_renderers"]
+        map_ = values["map_renderers"]
         if ext in map_.keys():
             fn = functools.partial(map_[ext], values["path"])
         else:
             fn = lambda: widgets.HTML("File renderer not found")
         return fn
+
+    @validator("ext", always=True)
+    def _ext(cls, v, values):
+        if values["path"] is not None:
+            v = get_ext(values["path"])
+            v = handle_compound_ext(v, map_renderers=values["map_renderers"])
+        if v is None:
+            ValueError("ext must be given to map data to renderer")
+        return v
 
     @validator("check_exists", always=True)
     def _check_exists(cls, v, values):
@@ -175,9 +173,12 @@ class DisplayFromPath(DisplayObjectActions, MapFileRenderers):
             fn = functools.partial(open_file, p, newroot=values["newroot"])
         return fn
 
+    class Config:
+        arbitrary_types_allowed = True
+
 
 # TODO: create a DisplayFromRequest actions. for use with API queries...?
-class DisplayFromRequest(DisplayObjectActions, MapFileRenderers):
+class DisplayFromRequest(DisplayObjectActions):
     pass
 
 
@@ -272,7 +273,7 @@ class DisplayObject(widgets.VBox):
         else:
             file_renderers = DEFAULT_FILE_RENDERERS
         display_actions = DisplayFromPath(
-            path=path, newroot=newroot, map_file_renderers=file_renderers
+            path=path, newroot=newroot, map_renderers=file_renderers
         )
         return cls(display_actions, auto_open=auto_open)
 
@@ -386,6 +387,17 @@ if __name__ == "__main__":
     d.order = ("exists", "name", "openpreview", "openfile", "openfolder")
     d.show_exists = False
 
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestAutoLogic
+
+    user_file_renderers = AutoUi.create_autodisplay_map(
+        ext=".aui.json", schema=TestAutoLogic
+    )
+    path1 = tests_constants.PATH_TEST_AUI
+
+    d = DisplayObject.from_path(path1, file_renderers=user_file_renderers)
+    display(d)
+
 
 class AutoDisplay(traitlets.HasTraits):
     """
@@ -470,9 +482,7 @@ class AutoDisplay(traitlets.HasTraits):
             paths = [pathlib.Path(paths)]
 
         display_objects_actions = [
-            DisplayFromPath(
-                path=path, newroot=newroot, map_file_renderers=file_renderers
-            )
+            DisplayFromPath(path=path, newroot=newroot, map_renderers=file_renderers)
             for path in paths
         ]
         return cls(
