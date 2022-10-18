@@ -23,6 +23,7 @@ import ipywidgets as widgets
 
 from ipyautoui.constants import PATH_VJSF_TEMPLATE
 from ipyautoui.autoui import AutoUiCommonMethods, SaveControls
+from ipyautoui.autoipywidget import _init_model_schema
 
 # import ipyvue
 # ipyvue.watch(PATH_VJSF_TEMPLATE.parent)  # for hot-reloading. currently not in use. requires watchdog
@@ -64,7 +65,7 @@ class AutoVjsf(widgets.VBox, AutoUiCommonMethods):
         self.show_raw = show_raw
         self.show_description = False
         self.path = path
-        self.model, schema = self._init_model_schema(schema)
+        self.model, schema = _init_model_schema(schema)
         value = self._get_value(value, self.path)
         # list of actions to be called on save
         self.fn_onsave = fn_onsave
