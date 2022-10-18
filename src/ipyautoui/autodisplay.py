@@ -115,6 +115,7 @@ def check_exists(path):
 
 class DisplayFromPath(DisplayObjectActions):
     newroot: pathlib.PureWindowsPath = pathlib.PureWindowsPath("J:/")
+    path_new: pathlib.Path = None
     open_file: typing.Callable = None
     open_folder: typing.Callable = None
 
@@ -122,6 +123,10 @@ class DisplayFromPath(DisplayObjectActions):
     def _path(cls, v, values):
         return pathlib.Path(v)
 
+    @validator("path_new", always=True)
+    def _path_new(cls, v, values):
+        return make_new_path(values["path"], newroot=values["newroot"])
+    
     @validator("name", always=True)
     def _name(cls, v, values):
         if values["path"] is not None:
@@ -168,7 +173,9 @@ class DisplayFromPath(DisplayObjectActions):
 
     @validator("open_folder", always=True)
     def _open_folder(cls, v, values):
-        p = values["path"].parent
+        p = values["path"]
+        if not p.is_dir():
+            p = p.parent
         if p is not None:
             fn = functools.partial(open_file, p, newroot=values["newroot"])
         return fn
@@ -185,6 +192,8 @@ class DisplayFromRequest(DisplayObjectActions):
 # -
 
 # TODO: separate out the bit that is display data and display from path...
+# TODO: probs useful to have a `value` trait (allowing the object to be updated instead of remade)
+#       this probably means having DisplayObject as a base class and extending it for display file... 
 class DisplayObject(widgets.VBox):
 
     auto_open = traitlets.Bool(default_value=False)
@@ -192,6 +201,10 @@ class DisplayObject(widgets.VBox):
     show_openfolder = traitlets.Bool(default_value=True)
     show_exists = traitlets.Bool(default_value=True)
     show_openpreview = traitlets.Bool(default_value=True)
+    # TODO: 
+    # maybe we don't actually need the "show_" traits 
+    # as stuff can be hidden using "order"...
+    
     order = traitlets.Tuple()
 
     @traitlets.observe("auto_open")
@@ -290,6 +303,7 @@ class DisplayObject(widgets.VBox):
             value=False,
             disabled=True,
             readout="-",
+            tooltip="indicates if file exists",
             layout=widgets.Layout(width="20px", height=BUTTON_HEIGHT_MIN),
         )
         self.openpreview = widgets.ToggleButton(**KWARGS_OPENPREVIEW)
