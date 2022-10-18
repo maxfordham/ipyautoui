@@ -324,6 +324,7 @@ def preview_text(path):
 """
     )
 
+
 def preview_dir(path):
     """preview folder"""
     # TODO: make recursive using AutoDisplay?
@@ -332,12 +333,14 @@ def preview_dir(path):
     li = [make_str(l) for l in li]
     return HTML("<br>".join(li))
 
+
 def preview_text_or_dir(path):
     """display path with ext == "" """
     if path.is_file():
         return preview_text(path)
     else:
         return preview_dir(path)
+
 
 def preview_markdown(path):
     return Markdown(
@@ -382,18 +385,18 @@ DEFAULT_FILE_RENDERERS = frozenmap(
 )
 
 
-def handle_compound_ext(ext, map_file_renderers=DEFAULT_FILE_RENDERERS): 
+def handle_compound_ext(ext, map_renderers=DEFAULT_FILE_RENDERERS):
     """_summary_
 
     Args:
         ext (_type_): _description_
-        map_file_renderers (_type_, optional): _description_. Defaults to DEFAULT_FILE_RENDERERS.
+        map_renderers (_type_, optional): _description_. Defaults to DEFAULT_FILE_RENDERERS.
 
     Returns:
         _type_: _description_
     """
     li_ext = ext.split(".")
-    if ext in list(map_file_renderers.keys()):
+    if ext in list(map_renderers.keys()):
         return ext
     elif len(li_ext) > 2:
         # it is a compound filetype when the compound didn't match
@@ -403,16 +406,16 @@ def handle_compound_ext(ext, map_file_renderers=DEFAULT_FILE_RENDERERS):
         return ext
 
 
-def render_file(path: pathlib.Path, map_file_renderers=DEFAULT_FILE_RENDERERS):
-    """simple file renderer. 
+def render_file(path: pathlib.Path, map_renderers=DEFAULT_FILE_RENDERERS):
+    """simple file renderer.
 
-    Note: 
-        this function is not used by AutoDisplay, but is provided here for simple 
+    Note:
+        this function is not used by AutoDisplay, but is provided here for simple
         API functionality
 
     Args:
-        path (pathlib.Path): 
-        map_file_renderers (_type_, optional): _description_. Defaults to DEFAULT_FILE_RENDERERS.
+        path (pathlib.Path):
+        map_renderers (_type_, optional): _description_. Defaults to DEFAULT_FILE_RENDERERS.
 
     Returns:
         something to display
@@ -421,4 +424,4 @@ def render_file(path: pathlib.Path, map_file_renderers=DEFAULT_FILE_RENDERERS):
     path = pathlib.Path(path)
     ext = get_ext(path)
     ext = handle_compound_ext(ext)
-    return map_file_renderers[ext](path)
+    return map_renderers[ext](path)
