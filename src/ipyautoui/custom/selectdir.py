@@ -268,7 +268,7 @@ class SelectDirUi(w.VBox):
 
 if __name__ == "__main__":
 
-    c1_str_exists = "📁👍 - `{}` : folder exists in location"
+    c1_str_exists = "📁👍 - `{}` : folder exists in location. press to load."
     c1_str_not_exists = (
         "📁⚠️ - `{}` : folder does not exist in location. It will be created on load"
     )
@@ -305,5 +305,7 @@ if __name__ == "__main__":
     )
     display(sdir)
 # -
+
+
 
 
