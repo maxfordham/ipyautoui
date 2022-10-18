@@ -95,7 +95,7 @@ OPEN_BN_COLOR = "white"
 KWARGS_OPENPREVIEW = frozenmap(
     icon="eye",
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
-    tooltip="preview file",
+    tooltip="preview",
     # button_style="warning", #"primary", "success", "info", "warning", "danger"
     style={"font_weight": "bold"},  # ,'button_color':OPEN_BN_COLOR
 )
@@ -103,13 +103,13 @@ KWARGS_OPENFILE = frozenmap(
     icon="file",
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     tooltip="open file with system software",
-    style={"font_weight": "bold", "button_color": OPEN_BN_COLOR},
+    style={"font_weight": "bold" } #, "button_color": OPEN_BN_COLOR},
 )
 KWARGS_OPENFOLDER = frozenmap(
     icon="folder",
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     tooltip="open folder in file-browser",
-    style={"font_weight": "bold", "button_color": OPEN_BN_COLOR},
+    style={"font_weight": "bold"} #, "button_color": OPEN_BN_COLOR},
 )
 
 KWARGS_DISPLAY = frozenmap(
