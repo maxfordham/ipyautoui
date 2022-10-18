@@ -18,7 +18,6 @@
 # %load_ext lab_black
 import typing
 from pydantic import BaseModel, Field
-from ipywidgets import widgets
 import ipywidgets as widgets
 import ipyautoui.autowidgets as auiwidgets
 from ipyautoui._utils import frozenmap, obj_from_importstr
