@@ -60,7 +60,12 @@ def attach_schema_refs(schema, schema_base=None):
 
     """
     if schema_base is None:
-        schema_base = schema
+        schema_base = schema.copy()
+    try:
+        schema = schema.copy()
+    except:
+        pass
+    # ^ copying to avoid pydantic schema being modified "in-place"
     if type(schema) == list:
         for n, s in enumerate(schema):
             schema[n] = attach_schema_refs(s, schema_base=schema_base)
