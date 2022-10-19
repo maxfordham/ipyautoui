@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.8
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -75,7 +75,7 @@ from ipyautoui.constants import (
     KWARGS_HOME_DISPLAY_FILES,
 )
 
-#  from mf library
+# from mf library
 # try:
 #     from xlsxtemplater import from_excel
 # except:
@@ -94,59 +94,68 @@ def merge_file_renderers(merge_renderers, default_renderers=DEFAULT_FILE_RENDERE
 class DisplayObjectActions(BaseModel):
     """base object with callables for creating a display object"""
 
+    map_renderers: frozenmap = DEFAULT_FILE_RENDERERS
     path: typing.Union[str, pathlib.Path, HttpUrl]
     ext: str = None
     name: str = None
     check_exists: typing.Callable = None
     renderer: typing.Callable = lambda: print("renderer")
-    # open_file: typing.Optional[typing.Callable] = lambda: print("open_file")
-    # open_folder: typing.Optional[typing.Callable] = lambda: print("open_folder")
-    check_date_modified: typing.Optional[typing.Callable] = None
-
-
-class MapFileRenderers(BaseModel):
-    newroot = pathlib.PureWindowsPath("J:/")
-    map_file_renderers: frozenmap = DEFAULT_FILE_RENDERERS
+    check_date_modified: typing.Callable = None
 
     class Config:
         arbitrary_types_allowed = True
 
 
-class DisplayFromPath(DisplayObjectActions, MapFileRenderers):
-    path: pathlib.Path
+def check_exists(path):
+    if path.is_file() or path.is_dir():
+        return True
+    else:
+        return False
+
+
+class DisplayFromPath(DisplayObjectActions):
+    newroot: pathlib.PureWindowsPath = pathlib.PureWindowsPath("J:/")
+    path_new: pathlib.Path = None
     open_file: typing.Callable = None
     open_folder: typing.Callable = None
 
+    @validator("path", always=True)
+    def _path(cls, v, values):
+        return pathlib.Path(v)
+
+    @validator("path_new", always=True)
+    def _path_new(cls, v, values):
+        return make_new_path(values["path"], newroot=values["newroot"])
+    
     @validator("name", always=True)
     def _name(cls, v, values):
         if values["path"] is not None:
             v = values["path"].name
         return v
 
-    @validator("ext", always=True)
-    def _ext(cls, v, values):
-        if values["path"] is not None:
-            v = get_ext(values["path"])
-            v = handle_compound_ext(v)
-        if v is None:
-            ValueError("ext must be given to map data to renderer")
-        return v
-
     @validator("renderer", always=True)
     def _renderer(cls, v, values):
         ext = values["ext"]
-        map_ = values["map_file_renderers"]
+        map_ = values["map_renderers"]
         if ext in map_.keys():
             fn = functools.partial(map_[ext], values["path"])
         else:
             fn = lambda: widgets.HTML("File renderer not found")
         return fn
 
+    @validator("ext", always=True)
+    def _ext(cls, v, values):
+        if values["path"] is not None:
+            v = get_ext(values["path"])
+            v = handle_compound_ext(v, map_renderers=values["map_renderers"])
+        if v is None:
+            ValueError("ext must be given to map data to renderer")
+        return v
+
     @validator("check_exists", always=True)
     def _check_exists(cls, v, values):
-        p = values["path"]
-        # f=functools.partial()
-        return p.is_file
+        fn = functools.partial(check_exists, values["path"])
+        return fn
 
     @validator("check_date_modified", always=True)
     def _date_modified(cls, v, values):
@@ -164,37 +173,39 @@ class DisplayFromPath(DisplayObjectActions, MapFileRenderers):
 
     @validator("open_folder", always=True)
     def _open_folder(cls, v, values):
-        p = values["path"].parent
+        p = values["path"]
+        if not p.is_dir():
+            p = p.parent
         if p is not None:
             fn = functools.partial(open_file, p, newroot=values["newroot"])
         return fn
 
+    class Config:
+        arbitrary_types_allowed = True
 
-# TODO: create a DisplayFromRequest pydantic model
-class DisplayFromRequest(DisplayObjectActions, MapFileRenderers):
+
+# TODO: create a DisplayFromRequest actions. for use with API queries...?
+class DisplayFromRequest(DisplayObjectActions):
     pass
 
 
-# +
+# -
+
+# TODO: separate out the bit that is display data and display from path...
+# TODO: probs useful to have a `value` trait (allowing the object to be updated instead of remade)
+#       this probably means having DisplayObject as a base class and extending it for display file... 
 class DisplayObject(widgets.VBox):
+
     auto_open = traitlets.Bool(default_value=False)
-
-    def __init__(
-        self,
-        display_actions: typing.Type[DisplayObjectActions],
-        auto_open=False,
-        open_controls=True,
-    ):
-        self.display_actions = display_actions
-        self.open_controls = open_controls
-        self._init()
-        self.auto_open = auto_open
-        # make_new_path
-
-    def _init(self):
-        super().__init__()
-        self._init_form()
-        self._init_controls()
+    show_openfile = traitlets.Bool(default_value=True)
+    show_openfolder = traitlets.Bool(default_value=True)
+    show_exists = traitlets.Bool(default_value=True)
+    show_openpreview = traitlets.Bool(default_value=True)
+    # TODO: 
+    # maybe we don't actually need the "show_" traits 
+    # as stuff can be hidden using "order"...
+    
+    order = traitlets.Tuple()
 
     @traitlets.observe("auto_open")
     def _observe_auto_open(self, change):
@@ -203,6 +214,65 @@ class DisplayObject(widgets.VBox):
         else:
             self.openpreview.value = False
 
+    @traitlets.observe("show_openfile")
+    def _observe_show_openfile(self, change):
+        if change["new"] and self.display_actions.open_file():
+            self.openfile.layout.display = ""
+        else:
+            self.openfile.layout.display = "None"
+
+    @traitlets.observe("show_openfolder")
+    def _observe_show_openfolder(self, change):
+        if change["new"]:
+            self.openfolder.layout.display = ""
+        else:
+            self.openfolder.layout.display = "None"
+
+    @traitlets.observe("show_exists")
+    def _observe_exists(self, change):
+        if change["new"]:
+            self.exists.layout.display = ""
+        else:
+            self.exists.layout.display = "None"
+
+    @traitlets.observe("show_openpreview")
+    def _observe_show_openpreview(self, change):
+        if change["new"]:
+            self.openpreview.layout.display = ""
+        else:
+            self.openpreview.layout.display = "None"
+
+    @traitlets.validate("order")
+    def _validate_order(self, proposal):
+        for l in proposal["value"]:
+            if l not in self.default_order:
+                raise ValueError(
+                    """
+                    order must include the following: ("exists", "openpreview", "openfile", "openfolder", "name")
+                """
+                )
+        return proposal["value"]
+
+    @traitlets.observe("order")
+    def _observe_order(self, change):
+        self.bx_bar.children = [getattr(self, l) for l in change["new"]]
+
+    def __init__(
+        self,
+        display_actions: typing.Type[DisplayObjectActions],
+        auto_open=False,
+    ):
+        self.default_order = ("exists", "openpreview", "openfile", "openfolder", "name")
+        self.display_actions = display_actions
+        self._init()
+        self.auto_open = auto_open
+        self.order = self.default_order
+
+    def _init(self):
+        super().__init__()
+        self._init_form()
+        self._init_controls()
+
     @classmethod
     def from_path(
         cls,
@@ -210,27 +280,20 @@ class DisplayObject(widgets.VBox):
         newroot=pathlib.PureWindowsPath("J:/"),
         file_renderers=None,
         auto_open=False,
-        open_controls=True,
     ):
         if file_renderers is not None:
             file_renderers = merge_file_renderers(file_renderers)
         else:
             file_renderers = DEFAULT_FILE_RENDERERS
         display_actions = DisplayFromPath(
-            path=path, newroot=newroot, map_file_renderers=file_renderers
+            path=path, newroot=newroot, map_renderers=file_renderers
         )
-        return cls(display_actions, auto_open=auto_open, open_controls=open_controls)
+        return cls(display_actions, auto_open=auto_open)
 
     # TODO: create a from_request classmethod
     @classmethod
     def from_request(cls, path):
         pass
-
-    # IP_ADDRESS="http://127.0.0.1:8000"
-    # skip=0
-    # limit=10
-    # p = f"{IP_ADDRESS}/properties_base/?skip={skip}&limit={limit}"
-    # wcPath(p) #for p in proposal["value"] if not pathlib.Path(p).is_dir()]
 
     def tooltip_openpath(self, path):
         return str(make_new_path(path, newroot=self.display_actions.newroot))
@@ -240,6 +303,7 @@ class DisplayObject(widgets.VBox):
             value=False,
             disabled=True,
             readout="-",
+            tooltip="indicates if file exists",
             layout=widgets.Layout(width="20px", height=BUTTON_HEIGHT_MIN),
         )
         self.openpreview = widgets.ToggleButton(**KWARGS_OPENPREVIEW)
@@ -249,23 +313,12 @@ class DisplayObject(widgets.VBox):
             "<b>{0}</b>".format(self.display_actions.name),
             layout=widgets.Layout(justify_items="center"),
         )
-        # data = widgets.HBox(layout=widgets.Layout(justify_items="center"))
         self.out_caller = widgets.Output()
         self.out = widgets.Output()
         self.out_caller.layout.display = "none"
         self.out.layout.display = "none"
         self.bx_bar = widgets.HBox()
-        if (
-            isinstance(self.display_actions.path, pathlib.PurePath)
-            and self.open_controls
-        ):
-            children = [
-                self.exists,
-                self.openpreview,
-                self.openfile,
-                self.openfolder,
-                self.name,
-            ]
+        if isinstance(self.display_actions.path, pathlib.PurePath):
             self.openfile.tooltip = f"""
 open file:
 {self.tooltip_openpath(self.display_actions.path)}
@@ -274,9 +327,6 @@ open file:
 open folder:
 {self.tooltip_openpath(self.display_actions.path.parent)}
 """
-        else:
-            children = [self.exists, self.openpreview, self.name]
-        self.bx_bar.children = children
         self.bx_out = widgets.VBox()
         self.bx_out.children = [self.out_caller, self.out]
         self.children = [self.bx_bar, self.bx_out]
@@ -305,7 +355,7 @@ open folder:
             with self.out:
                 if (
                     hasattr(self.display_actions, "path")
-                    and self.display_actions.path.is_file()
+                    and self.display_actions.check_exists()
                 ):
                     display(self.display_actions.renderer())
                 else:
@@ -316,9 +366,7 @@ open folder:
             with self.out:
                 clear_output()
 
-    def _openfile(
-        self, sender
-    ):  # TODO: use ipyevents to update file information and display in tooltip on mouseover?
+    def _openfile(self, sender):
         self.out_caller.layout.display = ""
         with self.out_caller:
             clear_output()
@@ -337,7 +385,32 @@ open folder:
         self.out_caller.layout.display = "none"
 
 
-# -
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.autoui import AutoUi
+    from ipyautoui.constants import load_test_constants
+
+    tests_constants = load_test_constants()
+    DIR_FILETYPES = load_test_constants().DIR_FILETYPES
+    paths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
+    path = paths[6]
+    d = DisplayObject.from_path(path)
+    display(d)
+
+if __name__ == "__main__":
+    d.order = ("exists", "name", "openpreview", "openfile", "openfolder")
+    d.show_exists = False
+
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestAutoLogic
+
+    user_file_renderers = AutoUi.create_autodisplay_map(
+        ext=".aui.json", schema=TestAutoLogic
+    )
+    path1 = tests_constants.PATH_TEST_AUI
+
+    d = DisplayObject.from_path(path1, file_renderers=user_file_renderers)
+    display(d)
 
 
 class AutoDisplay(traitlets.HasTraits):
@@ -423,9 +496,7 @@ class AutoDisplay(traitlets.HasTraits):
             paths = [pathlib.Path(paths)]
 
         display_objects_actions = [
-            DisplayFromPath(
-                path=path, newroot=newroot, map_file_renderers=file_renderers
-            )
+            DisplayFromPath(path=path, newroot=newroot, map_renderers=file_renderers)
             for path in paths
         ]
         return cls(
