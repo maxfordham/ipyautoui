@@ -337,7 +337,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
                 width="100%",
                 display="flex",
                 flex="flex-grow",
-                #border="solid LightCyan 2px",
+                # border="solid LightCyan 2px",
             )
         )  # main container
         self.rows_box = BOX[not self.orient_rows](
@@ -746,11 +746,11 @@ class AutoArray(Array):
     def _validate_schema(self, proposal):
         if "type" and "items" not in list(proposal.value.keys()):
             raise ValueError(f"not valid array schema")
-            if proposal.value["type"] != "array":
-                raise ValueError(f"not valid array schema")
-            item = list(proposal.value["items"].keys())[0]
-            if item in ["oneOf", "anyOf", "allOf", "not"]:
-                raise ValueError(f"'{item}' not currently supported for array items")
+        if proposal.value["type"] != "array":
+            raise ValueError(f"not valid array schema")
+        item = list(proposal.value["items"].keys())[0]
+        if item in ["oneOf", "anyOf", "allOf", "not"]:
+            raise ValueError(f"'{item}' not currently supported for array items")
         return proposal
 
     def __init__(
@@ -1019,6 +1019,3 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     arr.value = [{"None": False}, {"ads": True}, {"asdf": False}]
-
-
-
