@@ -38,7 +38,7 @@ import traitlets
 # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:07:55 PM
 # use traitlets_paths or not... pull request to main traitlets?
 import typing
-from ipyautoui.constants import load_test_constants, DOWNARROW_BUTTON_KWARGS
+from ipyautoui.constants import DOWNARROW_BUTTON_KWARGS
 
 from ipyautoui.custom.showhide import ShowHide
 import ipyautoui.automapschema as aumap
@@ -504,7 +504,7 @@ if __name__ == "__main__":
     doctest.testmod()
 
 if __name__ == "__main__":
-
+    from ipyautoui.constants import load_test_constants
     from ipyautoui.test_schema import TestAutoLogicSimple
 
     test_constants = load_test_constants()
