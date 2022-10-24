@@ -11,6 +11,8 @@ dependencies:
   - numpy
   - pandas
   - jupyterlab>=3.0.14
+  - jupyterlab-lsp
+  - jupyter-lsp-python
   - xeus-python
   - ipywidgets
   - ipyfilechooser
