@@ -1,7 +1,5 @@
 [build-system]
-requires = [
-    "hatchling>=1.10.0", "hatch-vcs"
-]
+requires = ["hatchling>=1.10.0", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
@@ -9,12 +7,8 @@ name = "ipyautoui"
 dynamic = ["version"]
 description = "wrapper that sits on top of ipywidgets and other ipy widget libraries to template / automate the creation of widget forms. Uses pydantic to create defined data-container and serialisation to JSON. Includes example patterns for adding new custom widgets."
 readme = "README.md"
-authors = [
-    { name = "John Gunstone", email = "gunstone.john@gmail.com" },
-]
-keywords = [
-    "ipyautoui",
-]
+authors = [{ name = "John Gunstone", email = "gunstone.john@gmail.com" }]
+keywords = ["ipyautoui"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
@@ -22,14 +16,12 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
 ]
 dependencies = [
-    "ConfigParser",
-    "cx_Freeze",
     "immutables",
-    "ipydatagrid",
-    "ipyfilechooser",
     "ipython",
-    "ipyvuetify",
     "ipywidgets",
+    "ipydatagrid",     # make optional
+    "ipyfilechooser",  # make optional
+    "ipyvuetify",      # make optional
     "Markdown",
     "numpy",
     "openpyxl",
@@ -44,6 +36,7 @@ dependencies = [
     "traitlets_paths",
     "wcmatch",
     "xmltodict",
+    "seedir"
 ]
 
 [project.urls]
@@ -54,6 +47,9 @@ source = "vcs"
 version-file = "_version.py"
 
 [tool.hatch.build.targets.sdist]
-include = [
-    "/src",
-]
+include = ["/src/ipyautoui"]
+
+# [tool.hatch.envs.ipyautoui-dev]
+# type = "conda"
+# command = "mamba"
+# ^ don't understand how this works...
