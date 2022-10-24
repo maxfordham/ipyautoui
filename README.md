@@ -52,7 +52,7 @@ class LineGraph(BaseModel):
     y_range: tuple[int, int] = Field(default=(0,5), ge=0, le=50, description='y-range for chart')
     
 lg = LineGraph()
-ui = AutoUi(pydantic_obj=lg)
+ui = AutoUi(schema=lg)
 ui
 ```
 ![](images/autoui-linegraph.png)
@@ -76,7 +76,7 @@ AutoUi.parse_file #  init ui with data from .json file
 
 - AutoUi uses [__pydantic__](https://github.com/samuelcolvin/pydantic/) to define the schema of User Input form, and then infers the widget to use based on type and user-directives
 - `ipyautoui.custom.` provides useful widgets (e.g. iterable) that aren't included within the core ipywidgets library
-- ipyautoui defines a best practice for creating and integrating custom widgets, and as default includes some widgets from other opular widget libraries (e.g. ipydatagrid, ipyfilechooser). 
+- ipyautoui defines a best practice for creating and integrating custom widgets, and as default includes some widgets from other popular widget libraries (e.g. ipydatagrid, ipyfilechooser). 
 - ipyautoui handles observing the values, and maintains a stateful and validated `.value` parameter for the whole user input form.  
 - TODO: AutoUi also allows the user to specify the usage of [__ipyvuetify__](https://github.com/widgetti/ipyvuetify) and 
     - __note__. this is the recommended approach for simple and generic input forms. Where custom UI objects are required these can be built using the ipyautoui core library.
@@ -121,7 +121,7 @@ The main benefit of AutoUi (and main the reason for continuing to develop it), i
 
 ## Dependencies
 
-This package intends to be high-level, and unifies many other ipy- libraries under a simple and familliar API.
+This package intends to be high-level, and unifies many other ipy- libraries under a simple and familiar API. 
 
 - [pydantic](https://github.com/samuelcolvin/pydantic/) 
 - [ipywidgets](https://github.com/jupyter-widgets/ipywidgets)
@@ -135,7 +135,6 @@ It is also obviously wholly dependent on the excellent json-schema specification
 - [json-schema](https://json-schema.org/)
 
 ## Development installation
-
 
 ```sh
 $ git clone https://github.com/maxfordham/ipyautoui
