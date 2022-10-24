@@ -34,10 +34,19 @@ class UrlImageLink(w.HBox):
     font_size = t.Integer(allow_none=True)
     description = t.Unicode(allow_none=True)
 
-    def __init__(self, url, path_image, tooltip=None, description=None, font_size=None, width=40, height=40):
+    def __init__(
+        self,
+        url,
+        path_image,
+        tooltip=None,
+        description=None,
+        font_size=None,
+        width=40,
+        height=40,
+    ):
         super().__init__()
         self.out = w.Output()
-        #self._description = w.HTML(description)
+        # self._description = w.HTML(description)
         self.children = [self.out]
         self.url = url
         self.path_image = path_image
@@ -51,7 +60,18 @@ class UrlImageLink(w.HBox):
         self.update("")
 
     def _init_controls(self):
-        self.observe(self.update, names=["url", "path_image", "width", "height", "tooltip", "font_size", "description"])
+        self.observe(
+            self.update,
+            names=[
+                "url",
+                "path_image",
+                "width",
+                "height",
+                "tooltip",
+                "font_size",
+                "description",
+            ],
+        )
 
     @property
     def html(self):
@@ -70,10 +90,9 @@ class UrlImageLink(w.HBox):
                     </p>
                     </html>
                     """
-        else: 
+        else:
             html = self.html_image
-            
-        
+
         return HTML(html)
 
     def update(self, onchange):
