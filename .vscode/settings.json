@@ -1,8 +1,10 @@
 {
-    "python.testing.pytestArgs": [],
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.envFile": "${workspaceFolder}/.vscode/dev.env",
+    "python.envFile": "${workspaceFolder}/.env",
     "python.linting.enabled": true,
     "jupyter.notebookFileRoot": "${fileDirname}"
 }

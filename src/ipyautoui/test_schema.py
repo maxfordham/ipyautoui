@@ -33,14 +33,6 @@ DATAGRID_TEST_VALUE = [
 ]
 
 
-class GenderEnum(str, Enum):
-    """available genders. this is just an example."""
-
-    male = "male"
-    female = "female"
-    other = "other"
-    not_given = "not_given"
-
 
 class NestedObject(BaseModel):
     """description in docstring"""
@@ -72,6 +64,14 @@ class TestDataFrame(BaseModel):
     dataframe: typing.List[DataFrameCols] = Field(
         default_factory=lambda: [], format="dataframe"
     )
+    
+class GenderEnum(str, Enum):
+    """available genders. this is just an example."""
+
+    male = "male"
+    female = "female"
+    other = "other"
+    not_given = "not_given"
 
 
 class TestAutoLogicSimple(BaseModel):

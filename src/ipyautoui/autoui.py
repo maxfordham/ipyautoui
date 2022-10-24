@@ -321,7 +321,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
         docstring = f"AutoRenderer for {get_schema_title(schema)}"
 
         class AutoRenderer(cls):
-            def __init__(self, path: pathlib.Path = path):
+            def __init__(self, path: pathlib.Path = None):
                 f"""{docstring}"""
                 if path is None:
                     raise ValueError("must give path")

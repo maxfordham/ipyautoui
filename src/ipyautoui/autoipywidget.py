@@ -38,7 +38,7 @@ import traitlets
 # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:07:55 PM
 # use traitlets_paths or not... pull request to main traitlets?
 import typing
-from ipyautoui.constants import load_test_constants, DOWNARROW_BUTTON_KWARGS
+from ipyautoui.constants import DOWNARROW_BUTTON_KWARGS
 
 from ipyautoui.custom.showhide import ShowHide
 import ipyautoui.automapschema as aumap
@@ -90,7 +90,7 @@ def _init_model_schema(schema, by_alias=False):
 
 # + tags=[]
 def _get_value_trait(obj_with_traits):
-    """gets the trait type for a given object (looks for "_value" and 
+    """gets the trait type for a given object (looks for "_value" and
     "value" allowing use of setters and getters)
 
     Args:
@@ -228,10 +228,8 @@ class AutoObject(widgets.VBox):
                 raise ValueError("set(self.default_order) != set(proposal['value'])")
         return v
 
-    @traitlets.validate("nested_widgets")
-    def _valid_nested_widgets(self, proposal):
-        if proposal["value"] is None:
-            proposal["value"] = []
+    @traitlets.default("nested_widgets")
+    def _default_nested_widgets(self):
         from ipyautoui.autowidgets import AutoMarkdown  # , EditGrid
         from ipyautoui.custom.iterable import AutoArray
         from ipyautoui.custom.editgrid import EditGrid  # as EditGridCore
@@ -245,7 +243,11 @@ class AutoObject(widgets.VBox):
             AutoUi,
             AutoObject,
         ]
-        return list(set(proposal["value"] + default_nested))
+        return default_nested
+
+    @traitlets.validate("nested_widgets")
+    def _valid_nested_widgets(self, proposal):
+        return proposal["value"]
 
     @traitlets.validate("_value")
     def _valid_value(self, proposal):
@@ -287,14 +289,13 @@ class AutoObject(widgets.VBox):
             order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
             insert_rows (dict): e.g. {3:widgets.Button()}. allows user to insert a widget into the rows. its presence
                 is ignored by the widget otherwise.
-            nested_widgets (list): e.g. [FileUploadToDir]. allows user to indicate widgets that should be show / hide 
-                type 
+            nested_widgets (list): e.g. [FileUploadToDir]. allows user to indicate widgets that should be show / hide
+                type
 
-        Returns: 
+        Returns:
             AutoIpywidget(widgets.VBox)
         """
         setdefault = lambda val, default: default if val is None else val
-        self.nested_widgets = setdefault(nested_widgets, [])
         self.insert_rows = insert_rows
         self.update_map_widgets = update_map_widgets
         self.fdir = fdir
@@ -330,7 +331,11 @@ class AutoObject(widgets.VBox):
 
     def _init_form(self):
         super().__init__(
-            layout=widgets.Layout(width="100%", display="flex", flex="flex-grow",)
+            layout=widgets.Layout(
+                width="100%",
+                display="flex",
+                flex="flex-grow",
+            )
         )
         self._format_rows()
 
@@ -504,7 +509,7 @@ if __name__ == "__main__":
     doctest.testmod()
 
 if __name__ == "__main__":
-
+    from ipyautoui.constants import load_test_constants
     from ipyautoui.test_schema import TestAutoLogicSimple
 
     test_constants = load_test_constants()

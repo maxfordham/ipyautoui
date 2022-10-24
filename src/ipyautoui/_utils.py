@@ -23,6 +23,7 @@ def make_new_path(path, *args, **kwargs):
 
 
 try:
+    # TODO: remove these. 
     from mf_file_utilities import go as open_file
     from mf_file_utilities.applauncher_wrapper import make_new_path
 except:

@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.5
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -68,6 +68,8 @@ def get_projects():
     return [p.stem for p in list(pathlib.Path(FDIR_PROJECTS_ROOT).glob(pattern="*"))]
 
 
+# PROJECTS = get_projects()
+
 # +
 class RibaStages(str, Enum):
     stage1 = "Stage1"
@@ -116,7 +118,6 @@ class WorkingDir(BaseModel):
     @validator("key", always=True, pre=True)
     def _key(cls, v, values):
         return (
-            # ("J" + str(values["project_number"]))
             values["project_number"]
             + "-"
             + values["process_type"]
@@ -140,7 +141,7 @@ class WorkingDirs(BaseModel):
 
 # + tags=[]
 def get_user():
-    """get user. gets JUPYTERHUB_USER if present."""
+    """get user. gets JUPYTERHUB_USER if present (i.e. if notebook served via a JupyterHub)"""
     nm = "JUPYTERHUB_USER"
     if nm in list(os.environ.keys()):
         return os.environ[nm]
@@ -300,6 +301,7 @@ class WorkingDirsUi(widgets.HBox):
     """
     a programmable UI object to load new working directories for ipyrun.runshell # TODO: move to ipyrun
     """
+
     value = traitlets.Dict()
     setup = widgets.ToggleButton(icon="ellipsis-v", layout={"width": BUTTON_WIDTH_MIN})
     load = widgets.Button(**LOAD_BUTTON_KWARGS)
@@ -372,9 +374,7 @@ class WorkingDirsUi(widgets.HBox):
         self.fpth_working_dirs = fpth_working_dirs
         self.model_dirs = model_dirs
         self.fn_onload = fn_onload
-        super().__init__(
-            layout=widgets.Layout(justify_content="flex-end")
-        )
+        super().__init__(layout=widgets.Layout(justify_content="flex-end"))
         self.vbx_main = widgets.VBox()
         self.out = widgets.Output(
             layout=widgets.Layout(justify_content="flex-end", align_content="flex-end")

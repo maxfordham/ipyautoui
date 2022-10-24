@@ -18,7 +18,6 @@
 # %load_ext lab_black
 import typing
 from pydantic import BaseModel, Field
-from ipywidgets import widgets
 import ipywidgets as widgets
 import ipyautoui.autowidgets as auiwidgets
 from ipyautoui._utils import frozenmap, obj_from_importstr
@@ -60,7 +59,12 @@ def attach_schema_refs(schema, schema_base=None):
 
     """
     if schema_base is None:
-        schema_base = schema
+        schema_base = schema.copy()
+    try:
+        schema = schema.copy()
+    except:
+        pass
+    # ^ copying to avoid pydantic schema being modified "in-place"
     if type(schema) == list:
         for n, s in enumerate(schema):
             schema[n] = attach_schema_refs(s, schema_base=schema_base)
@@ -78,7 +82,8 @@ def attach_schema_refs(schema, schema_base=None):
                     and len(v["allOf"]) == 1
                     and "$ref" in v["allOf"][0].keys()
                 ):
-                    # ^ this is an edge case for setting enums with Field values (probs unique to how pydantic does it)
+                    # ^ this is an edge case for setting enums with Field values 
+                    #   (probs unique to how pydantic does it)
                     li_filt = v["allOf"][0]["$ref"].split("/")[1:]
                     ref = recursive_search_schema(schema_base, li_filt)
                     schema[k] = {
