@@ -16,7 +16,7 @@
 # +
 # %run __init__.py
 # %load_ext lab_black
-import typing
+import typing as ty
 from pydantic import BaseModel, Field
 import ipywidgets as widgets
 import ipyautoui.autowidgets as auiwidgets
@@ -82,7 +82,7 @@ def attach_schema_refs(schema, schema_base=None):
                     and len(v["allOf"]) == 1
                     and "$ref" in v["allOf"][0].keys()
                 ):
-                    # ^ this is an edge case for setting enums with Field values 
+                    # ^ this is an edge case for setting enums with Field values
                     #   (probs unique to how pydantic does it)
                     li_filt = v["allOf"][0]["$ref"].split("/")[1:]
                     ref = recursive_search_schema(schema_base, li_filt)
@@ -497,7 +497,8 @@ def widgets_map(di_update=None):
     WIDGETS_MAP = frozenmap(
         **{
             "AutoOveride": WidgetMapper(
-                fn_filt=is_AutoOveride, widget=auiwidgets.AutoPlaceholder,
+                fn_filt=is_AutoOveride,
+                widget=auiwidgets.AutoPlaceholder,
             ),
             "IntText": WidgetMapper(fn_filt=is_IntText, widget=auiwidgets.IntText),
             "IntSlider": WidgetMapper(

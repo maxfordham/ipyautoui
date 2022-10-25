@@ -37,7 +37,7 @@ from halo import HaloNotebook
 from enum import Enum, IntEnum
 import pathlib
 from pydantic import BaseModel, ValidationError
-import typing
+import typing as ty
 from datetime import datetime
 import zipfile
 import logging

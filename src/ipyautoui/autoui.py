@@ -42,7 +42,7 @@ import immutables
 import json
 import traitlets as tr
 import traitlets_paths
-import typing
+import typing as ty
 from enum import Enum
 
 from ipyautoui._utils import display_python_string

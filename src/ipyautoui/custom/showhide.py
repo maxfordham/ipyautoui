@@ -23,7 +23,7 @@ import ipywidgets as widgets
 import traitlets as t
 from IPython.display import clear_output, display
 from ipyautoui.constants import KWARGS_COLLAPSE, KWARGS_DISPLAY
-import typing
+import typing as ty
 
 
 class ShowHide(widgets.VBox):
@@ -47,7 +47,7 @@ class ShowHide(widgets.VBox):
         Args:
             fn_display: widget our output to display. it is displayed like this:
                 `display(self.fn_display())`
-            title: 
+            title:
         """
         self.button_width = button_width
         self._init_form()
@@ -99,6 +99,8 @@ class ShowHide(widgets.VBox):
                 }
                 self.out.layout.display = "None"
                 clear_output()
+
+
 # -
 if __name__ == "__main__":
     d = ShowHide(auto_open=True)

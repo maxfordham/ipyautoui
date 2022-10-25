@@ -22,7 +22,7 @@
 # %load_ext lab_black
 
 import traitlets as tr
-import typing
+import typing as ty
 import collections
 import traceback
 

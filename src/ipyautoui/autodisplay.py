@@ -47,7 +47,7 @@ from IPython.display import (
     Markdown,
 )  # , Image JSON, HTML, IFrame,
 import time
-import typing
+import typing as ty
 import ipywidgets as widgets
 import traitlets as tr
 from pydantic import BaseModel, validator, HttpUrl

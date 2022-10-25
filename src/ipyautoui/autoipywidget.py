@@ -37,7 +37,7 @@ import traitlets as tr
 
 # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:07:55 PM
 # use traitlets_paths or not... pull request to main traitlets?
-import typing
+import typing as ty
 from ipyautoui.constants import DOWNARROW_BUTTON_KWARGS
 
 from ipyautoui.custom.showhide import ShowHide

@@ -36,7 +36,7 @@ from halo import HaloNotebook
 from enum import Enum, IntEnum
 import pathlib
 from pydantic import BaseModel, ValidationError
-import typing
+import typing as ty
 from datetime import datetime
 import zipfile
 import logging
@@ -45,6 +45,7 @@ from ipyautoui._utils import obj_to_importstr, getuser
 from ipyautoui.custom.decision_branch import DecisionUi, TreeModel
 
 from ipyautoui._utils import make_new_path
+
 # -
 
 try:
@@ -305,7 +306,3 @@ if __name__ == "__main__":
     )
     display(sdir)
 # -
-
-
-
-

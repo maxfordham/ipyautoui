@@ -1,7 +1,7 @@
 import ipywidgets as widgets
 import random
 import traitlets as tr
-import typing
+import typing as ty
 from pydantic import BaseModel, Field
 
 

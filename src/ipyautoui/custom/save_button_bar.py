@@ -29,7 +29,7 @@ from markdown import markdown
 import immutables
 import json
 import traitlets as tr
-import typing
+import typing as ty
 from enum import Enum
 
 from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET, BUTTON_WIDTH_MIN

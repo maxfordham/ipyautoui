@@ -1,7 +1,7 @@
 """
 An example schema definition that demonstrates the current capability of the AutoUi class
 """
-import typing
+import typing as ty
 from enum import Enum
 from pydantic import Field, conint, constr
 from ipyautoui.basemodel import BaseModel
@@ -31,7 +31,6 @@ DATAGRID_TEST_VALUE = [
     {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
     {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
 ]
-
 
 
 class NestedObject(BaseModel):
@@ -64,7 +63,8 @@ class TestDataFrame(BaseModel):
     dataframe: typing.List[DataFrameCols] = Field(
         default_factory=lambda: [], format="dataframe"
     )
-    
+
+
 class GenderEnum(str, Enum):
     """available genders. this is just an example."""
 
@@ -75,7 +75,7 @@ class GenderEnum(str, Enum):
 
 
 class TestAutoLogicSimple(BaseModel):
-    """this is a test UI form to demonstrate how pydantic class can be used to generate an ipywidget input form. 
+    """this is a test UI form to demonstrate how pydantic class can be used to generate an ipywidget input form.
     only simple datatypes used (i.e. not lists/arrays or objects)
     """
 
@@ -94,7 +94,9 @@ class TestAutoLogicSimple(BaseModel):
     )
     dropdown_simple: str = Field(default="asd", enum=["asd", "asdf"])
     combobox: str = Field(
-        default="asd", enum=["asd", "asdf"], autoui="ipyautoui.autowidgets.Combobox",
+        default="asd",
+        enum=["asd", "asdf"],
+        autoui="ipyautoui.autowidgets.Combobox",
     )
     text: constr(min_length=0, max_length=20) = "short text"
     text_area: constr(min_length=0, max_length=800) = Field(
@@ -146,7 +148,9 @@ class TestAutoLogic(TestAutoLogicSimple):
     objects_array: typing.List[NestedObject] = Field(default=[], max_items=5)
     # file_upload # TODO: how best to implement this? could auto-save to another location...
     run_name: str = Field(
-        default="000-lean-description", autoui="ipyautoui.autowidgets.RunName", zfill=3,
+        default="000-lean-description",
+        autoui="ipyautoui.autowidgets.RunName",
+        zfill=3,
     )
     datagrid: typing.List[DataFrameCols] = Field(
         default=DATAGRID_TEST_VALUE,

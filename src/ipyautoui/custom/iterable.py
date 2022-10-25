@@ -24,7 +24,7 @@ Example:
     see below of simple example usage::
     
         import traitlets as tr
-        import typing
+        import typing as ty
 
         from ipywidgets import widgets
         from IPython.display import Markdown
@@ -76,7 +76,7 @@ Example:
 import ipywidgets as widgets
 import traitlets as tr
 from traitlets import validate
-import typing
+import typing as ty
 import immutables
 from IPython.display import display
 

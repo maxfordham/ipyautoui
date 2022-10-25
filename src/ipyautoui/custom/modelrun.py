@@ -18,10 +18,11 @@ import re
 import ipywidgets as widgets
 from traitlets import HasTraits, Unicode, default, validate, TraitError
 from dataclasses import dataclass, asdict
-import typing
+import typing as ty
 
 
 # +
+
 
 @dataclass
 class RunNameInputs:
@@ -62,9 +63,10 @@ class RunNameInputs:
 
 # -
 
+
 class RunName(widgets.HBox):
     """widget for creating an modelling iteration name to a defined format from component parts
-    
+
     Example:
         value = '000-lean-short_description_of_model-run'
         enum = ['lean', 'clean', 'green']
@@ -89,7 +91,7 @@ class RunName(widgets.HBox):
 
     @value.setter
     def value(self, value: Unicode):
-        """The setter allows a user to pass a new value field to the class. This also updates the 
+        """The setter allows a user to pass a new value field to the class. This also updates the
         `selected` argument used by RunName"""
         if value is not None:
             self._value = value

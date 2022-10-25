@@ -6,7 +6,7 @@ from markdown import markdown
 from IPython.display import display
 from pydantic import BaseModel, validator, Field
 import pathlib
-import typing
+import typing as ty
 import stringcase
 from datetime import datetime
 import traitlets as tr
