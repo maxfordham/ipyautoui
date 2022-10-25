@@ -66,7 +66,7 @@ frozenmap = immutables.Map
 class BaseForm(widgets.VBox):
     _value = traitlets.Dict()
     _cls_ui = traitlets.Callable(default_value=None, allow_none=True)
-    #_row_edit_index = traitlets.Any(default_value=None)
+    # _row_edit_index = traitlets.Any(default_value=None)
 
     def __init__(
         self,
@@ -567,20 +567,37 @@ class GridWrapper(DataGrid):
     def di_field_to_titles(self):
         return {field: di["title"] for field, di in self.di_cols_properties.items()}
 
-    @property
-    def selected_rows(self):
-        """Get position of rows selected. (not the index / key). returns index of filtered df"""
-        _selected_rows = set()
-        for di in self.selections:
-            r1 = di["r1"]
-            r2 = di["r2"]
-            if r1 == r2:
-                _selected_rows.add(r1)
-            else:
-                for i in range(r1, r2 + 1):
-                    _selected_rows.add(i)
-        return list(_selected_rows)
+    # @property
+    # def selected_rows(self):
+    #     """Get position of rows selected. (not the index / key). returns index of filtered df"""
+    #     _selected_rows = set()
+    #     for di in self.selections:
+    #         r1 = di["r1"]
+    #         r2 = di["r2"]
+    #         if r1 == r2:
+    #             _selected_rows.add(r1)
+    #         else:
+    #             for i in range(r1, r2 + 1):
+    #                 _selected_rows.add(i)
+    #     return list(_selected_rows)
 
+    @property
+    def selected_visible_cell_iterator(self):
+        """
+        An iterator to traverse selected cells one by one.
+        """
+        # Copy of the front-end data model
+        view_data = self.get_visible_data()
+
+        # Get primary key from dataframe
+        index_key = self.get_dataframe_index(view_data)
+
+        # Serielize to JSON table schema
+        view_data_object = self.generate_data_object(view_data, "ipydguuid", index_key)
+
+        return SelectionHelper(view_data_object, self.selections, self.selection_mode)
+
+    
     @property
     def selected_rows_data(self):
         """Get the data selected in the table which is returned as a dataframe."""
@@ -590,7 +607,7 @@ class GridWrapper(DataGrid):
 
     @property
     def selected_keys(self):
-        """Return the keys of the selected rows."""
+        """Return the keys of the selected rows. still works if transform applied."""
         s = self.selected_visible_cell_iterator
         index = self.get_dataframe_index(self.data)
         rows = set([l["r"] for l in s])
@@ -630,22 +647,6 @@ class GridWrapper(DataGrid):
             setattr(self, k, v)
 
     @property
-    def selected_visible_cell_iterator(self):
-        """
-        An iterator to traverse selected cells one by one.
-        """
-        # Copy of the front-end data model
-        view_data = self.get_visible_data()
-
-        # Get primary key from dataframe
-        index_key = self.get_dataframe_index(view_data)
-
-        # Serielize to JSON table schema
-        view_data_object = self.generate_data_object(view_data, "ipydguuid", index_key)
-
-        return SelectionHelper(view_data_object, self.selections, self.selection_mode)
-
-    @property
     def value(self):
         return self._value
 
@@ -669,13 +670,13 @@ class GridWrapper(DataGrid):
                 ]
                 df = df[order_cols]
             if self.idx_start_from_one is True:
+                ind = self.grid.get_dataframe_index(self.grid.data)
                 df = df.set_index(
                     pd.Index(
-                        range(1, len(df) + 1), dtype="int64", name="idx"
+                        range(1, len(df) + 1), dtype="int64", name=ind
                     )  # BUG: hardcoded + application specific
                 )
             self.data = self._round_sig_figs(df)
-
 
 if __name__ == "__main__":
 
@@ -832,7 +833,7 @@ class EditGrid(widgets.VBox):
 
     def _update_baseform(self, onchange):
         if (
-            len(self.grid.selected_rows) == 1
+            len(self.grid.selected_keys) == 1
             and self.baseform.layout.display == "block"
         ):
             print(self.di_row_value)
@@ -937,7 +938,7 @@ class EditGrid(widgets.VBox):
             traceback.print_exc()
 
     def _check_one_row_selected(self):
-        if len(self.grid.selected_rows) > 1:
+        if len(self.grid.selected_keys) > 1:
             raise Exception(
                 markdown("  👇 _Please only select ONLY one row from the table!_")
             )
@@ -1093,6 +1094,21 @@ if __name__ == "__main__":
         schema=TestDataFrame, description=description, ui_add=None, ui_edit=AutoUi
     )
     editgrid.value = AUTO_GRID_DEFAULT_VALUE
+
     display(editgrid)
+
+editgrid.grid.selected_rows_data
+
+editgrid.grid.selected_rows
+
+editgrid.grid.selected_keys
+
+editgrid.grid.get_dataframe_index(editgrid.grid.data)
+
+editgrid.grid._data["data"]
+
+editgrid.grid._data["schema"]
+
+editgrid.grid._data["fields"]
 
 
