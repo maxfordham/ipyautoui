@@ -31,10 +31,10 @@ from ipyautoui.autoipywidget import _init_model_schema
 
 class Vjsf(v.VuetifyTemplate):
     template_file = str(PATH_VJSF_TEMPLATE)
-    vjsf_loaded = traitlets.Bool(False).tag(sync=True)
-    value = traitlets.Dict(default_value={}).tag(sync=True)
-    schema = traitlets.Dict().tag(sync=True)
-    valid = traitlets.Bool(False).tag(sync=True)
+    vjsf_loaded = tr.Bool(False).tag(sync=True)
+    value = tr.Dict(default_value={}).tag(sync=True)
+    schema = tr.Dict().tag(sync=True)
+    valid = tr.Bool(False).tag(sync=True)
 
 
 # -
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
 
 class AutoVjsf(widgets.VBox, AutoUiCommonMethods):
-    _value = traitlets.Dict()
+    _value = tr.Dict()
     """create a vuetify form using ipyvuetify using VJSF """
 
     def __init__(

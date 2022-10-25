@@ -145,7 +145,7 @@ def markdown_buttons():
 class MarkdownWidget(widgets.VBox):
     """a simple markdown widget for editing snippets of markdown text"""
 
-    _value = traitlets.Unicode(allow_none=True)  # default=""
+    _value = tr.Unicode(allow_none=True)  # default=""
 
     def __init__(self, value=None):
         self._init_form()

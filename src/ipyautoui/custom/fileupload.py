@@ -56,9 +56,9 @@ class File(BaseModel):
 
 
 class FileUi(widgets.HBox):
-    _value = traitlets.Dict()
+    _value = tr.Dict()
 
-    # @traitlets.validate("_value")
+    # @tr.validate("_value")
     # def _valid_value(self, proposal):
     #     return json.loads(File(**proposal["value"]).json())
 
@@ -131,8 +131,8 @@ def add_files(upld_value, fdir=pathlib.Path(".")):
 
 
 class FileUploadToDir(widgets.VBox):
-    _value = traitlets.Dict(default_value={})
-    _fdir = traitlets.Unicode()
+    _value = tr.Dict(default_value={})
+    _fdir = tr.Unicode()
 
     def __init__(
         self,

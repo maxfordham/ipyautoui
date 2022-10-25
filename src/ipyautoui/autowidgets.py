@@ -176,8 +176,8 @@ class ColorPicker(widgets.ColorPicker):
         super().__init__(**self.caller)
 
 
-class DatePickerString(widgets.HBox, traitlets.HasTraits):
-    _value = traitlets.Unicode(allow_none=True, default_value=None)
+class DatePickerString(widgets.HBox, tr.HasTraits):
+    _value = tr.Unicode(allow_none=True, default_value=None)
 
     def __init__(self, schema):
         """thin wrapper around ipywidgets.DatePicker that stores "value" as

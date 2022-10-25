@@ -87,7 +87,7 @@ class FilesInDir(BaseModel):
 
 # +
 class ListStrings(widgets.VBox, HasTraits):
-    value = traitlets.List()
+    value = tr.List()
 
     def __init__(self, value):
         self._init_form()
@@ -139,7 +139,7 @@ class MatchStrings(ListStrings):
 
 
 class FindFiles(widgets.VBox, HasTraits):
-    value = traitlets.Dict()
+    value = tr.Dict()
 
     def __init__(
         self,

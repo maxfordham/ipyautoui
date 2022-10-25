@@ -65,9 +65,9 @@ frozenmap = immutables.Map
 
 
 class BaseForm(widgets.VBox):
-    _value = traitlets.Dict()
-    _cls_ui = traitlets.Callable(default_value=None, allow_none=True)
-    # _row_edit_index = traitlets.Any(default_value=None)
+    _value = tr.Dict()
+    _cls_ui = tr.Callable(default_value=None, allow_none=True)
+    # _row_edit_index = tr.Any(default_value=None)
 
     def __init__(
         self,
@@ -328,7 +328,7 @@ def is_incremental(li):
 
 
 class GridWrapper(DataGrid):
-    _value = traitlets.List()
+    _value = tr.List()
 
     def __init__(
         self,
@@ -733,7 +733,7 @@ class RowUiCallables(BaseModel):
 # object and the EditGrid object up-to-date. or maybe GridWrapper
 # doesn't require a _value trait as it is never used within EditGrid.
 class EditGrid(widgets.VBox):
-    _value = traitlets.List()
+    _value = tr.List()
 
     def __init__(
         self,

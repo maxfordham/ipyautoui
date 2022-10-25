@@ -42,8 +42,8 @@ class MultiSelectSearch(widgets.VBox):
             https://gist.github.com/MattJBritton/9dc26109acb4dfe17820cf72d82f1e6f
     """
 
-    _options = traitlets.List(default_value=[])
-    _value = traitlets.List(default_value=[])
+    _options = tr.List(default_value=[])
+    _value = tr.List(default_value=[])
 
     def __init__(self, options=[], value=[]):
         super().__init__()

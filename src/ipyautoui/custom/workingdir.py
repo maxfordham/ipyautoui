@@ -302,13 +302,13 @@ class WorkingDirsUi(widgets.HBox):
     a programmable UI object to load new working directories for ipyrun.runshell # TODO: move to ipyrun
     """
 
-    value = traitlets.Dict()
+    value = tr.Dict()
     setup = widgets.ToggleButton(icon="ellipsis-v", layout={"width": BUTTON_WIDTH_MIN})
     load = widgets.Button(**LOAD_BUTTON_KWARGS)
     project_number = widgets.Combobox(
         value="J5001", ensure_option=True, layout={"width": "80px"}
     )
-    projects = traitlets.List(default_value=[])
+    projects = tr.List(default_value=[])
     process_type = widgets.Dropdown(
         value="Calcs",
         options=["Calcs", "Schedule"],
@@ -330,15 +330,15 @@ class WorkingDirsUi(widgets.HBox):
     fdir_win = widgets.HTML()
     fdir_win_proposed = widgets.HTML()
 
-    @traitlets.observe("projects")
+    @tr.observe("projects")
     def _projects(self, change):
         self.project_number.options = self.projects
 
-    @traitlets.observe("value")
+    @tr.observe("value")
     def _observe_value_key(self, change):
         self.key.value = self.value["key"]
 
-    @traitlets.observe("value")
+    @tr.observe("value")
     def _observe_value_fdir_win_proposed(self, change):
         self.fdir_win_proposed.value = f"<i>{self.fdir_display}</i>"
 

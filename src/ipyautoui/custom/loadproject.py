@@ -42,10 +42,10 @@ LI_PROJECTS = [
 ]
 
 
-class LoadProject(widgets.HBox, traitlets.HasTraits):
-    value = traitlets.Unicode()
+class LoadProject(widgets.HBox, tr.HasTraits):
+    value = tr.Unicode()
 
-    @traitlets.validate("value")
+    @tr.validate("value")
     def _valid_value(self, proposal):
         val = proposal["value"]
         matched = re.match(self.pattern, val)  #

@@ -196,53 +196,53 @@ class DisplayFromRequest(DisplayObjectActions):
 #       this probably means having DisplayObject as a base class and extending it for display file...
 class DisplayObject(widgets.VBox):
 
-    auto_open = traitlets.Bool(default_value=False)
-    show_openfile = traitlets.Bool(default_value=True)
-    show_openfolder = traitlets.Bool(default_value=True)
-    show_exists = traitlets.Bool(default_value=True)
-    show_openpreview = traitlets.Bool(default_value=True)
+    auto_open = tr.Bool(default_value=False)
+    show_openfile = tr.Bool(default_value=True)
+    show_openfolder = tr.Bool(default_value=True)
+    show_exists = tr.Bool(default_value=True)
+    show_openpreview = tr.Bool(default_value=True)
     # TODO:
     # maybe we don't actually need the "show_" traits
     # as stuff can be hidden using "order"...
 
-    order = traitlets.Tuple()
+    order = tr.Tuple()
 
-    @traitlets.observe("auto_open")
+    @tr.observe("auto_open")
     def _observe_auto_open(self, change):
         if change["new"]:
             self.openpreview.value = True
         else:
             self.openpreview.value = False
 
-    @traitlets.observe("show_openfile")
+    @tr.observe("show_openfile")
     def _observe_show_openfile(self, change):
         if change["new"] and self.display_actions.open_file():
             self.openfile.layout.display = ""
         else:
             self.openfile.layout.display = "None"
 
-    @traitlets.observe("show_openfolder")
+    @tr.observe("show_openfolder")
     def _observe_show_openfolder(self, change):
         if change["new"]:
             self.openfolder.layout.display = ""
         else:
             self.openfolder.layout.display = "None"
 
-    @traitlets.observe("show_exists")
+    @tr.observe("show_exists")
     def _observe_exists(self, change):
         if change["new"]:
             self.exists.layout.display = ""
         else:
             self.exists.layout.display = "None"
 
-    @traitlets.observe("show_openpreview")
+    @tr.observe("show_openpreview")
     def _observe_show_openpreview(self, change):
         if change["new"]:
             self.openpreview.layout.display = ""
         else:
             self.openpreview.layout.display = "None"
 
-    @traitlets.validate("order")
+    @tr.validate("order")
     def _validate_order(self, proposal):
         for l in proposal["value"]:
             if l not in self.default_order:
@@ -253,7 +253,7 @@ class DisplayObject(widgets.VBox):
                 )
         return proposal["value"]
 
-    @traitlets.observe("order")
+    @tr.observe("order")
     def _observe_order(self, change):
         self.bx_bar.children = [getattr(self, l) for l in change["new"]]
 
@@ -413,7 +413,7 @@ if __name__ == "__main__":
     display(d)
 
 
-class AutoDisplay(traitlets.HasTraits):
+class AutoDisplay(tr.HasTraits):
     """
     displays the contents of a file in the notebook.
     comes with the following default renderers:
@@ -442,7 +442,7 @@ class AutoDisplay(traitlets.HasTraits):
     if you want to display the data in a specific way.
     """
 
-    #     _paths = traitlets.List()
+    #     _paths = tr.List()
 
     #     @validate("_paths")
     #     def _valid_value(self, proposal):

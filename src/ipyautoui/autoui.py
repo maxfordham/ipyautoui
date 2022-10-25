@@ -126,24 +126,24 @@ def get_schema_title(schema):
 # IDEA: Possible implementations -@jovyan at 7/18/2022, 6:02:03 PM
 # instead of having a general `AutoUiCommonMethods`, split into specific task
 # orientated classes. e.g. AutoUiShowRaw
-class AutoUiCommonMethods(traitlets.HasTraits):
+class AutoUiCommonMethods(tr.HasTraits):
     """methods for:
     - reading and writing to file
     - showing raw json form data
     - creating displayfile_renderer and autoui_renderer
     """
 
-    save_controls = traitlets.UseEnum(SaveControls)  # default is save_on_edit
+    save_controls = tr.UseEnum(SaveControls)  # default is save_on_edit
     path = traitlets_paths.Path(allow_none=True)
-    show_raw = traitlets.Bool(default_value=True)
-    show_description = traitlets.Bool(default_value=True)
+    show_raw = tr.Bool(default_value=True)
+    show_description = tr.Bool(default_value=True)
 
-    @traitlets.validate("path")
+    @tr.validate("path")
     def _path(self, proposal):
         if proposal["value"] is not None:
             return pathlib.Path(proposal["value"])
 
-    @traitlets.validate("save_controls")
+    @tr.validate("save_controls")
     def _save_controls(self, proposal):
         if self.path is not None:
             map_save_dialogue = immutables.Map(

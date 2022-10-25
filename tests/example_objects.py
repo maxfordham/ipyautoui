@@ -46,8 +46,8 @@ def fn_add():
     return TestItem(di=get_di())
 
 
-class TestItem(widgets.HBox, traitlets.HasTraits):
-    value = traitlets.Dict()
+class TestItem(widgets.HBox, tr.HasTraits):
+    value = tr.Dict()
 
     def __init__(self, di: typing.Dict = get_di()):
         self.value = di

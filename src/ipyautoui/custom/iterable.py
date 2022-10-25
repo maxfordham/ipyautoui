@@ -32,8 +32,8 @@ Example:
         from ipyautoui.custom.iterable import IterableItem, Array, Dictionary
 
 
-        class TestItem(widgets.HBox, traitlets.HasTraits):
-            value = traitlets.Dict()
+        class TestItem(widgets.HBox, tr.HasTraits):
+            value = tr.Dict()
 
             def __init__(self, di: typing.Dict):
                 self.value = di
@@ -173,14 +173,14 @@ class IterableItem(BaseModel):
 
 
 # # +
-class Array(widgets.VBox, traitlets.HasTraits):
+class Array(widgets.VBox, tr.HasTraits):
     """generic iterable. pass a list of items"""
 
     # -----------------------------------------------------------------------------------
-    _value = traitlets.List()
-    _show_hash = traitlets.Unicode(allow_none=True)
-    _add_remove_controls = traitlets.Unicode(allow_none=True)
-    _sort_on = traitlets.Unicode(allow_none=True)
+    _value = tr.List()
+    _show_hash = tr.Unicode(allow_none=True)
+    _add_remove_controls = tr.Unicode(allow_none=True)
+    _sort_on = tr.Unicode(allow_none=True)
 
     @validate("show_hash")
     def _validate_show_hash(self, proposal):
@@ -659,7 +659,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
 
 
 class Dictionary(Array):
-    value = traitlets.Dict()
+    value = tr.Dict()
 
     def _update_value(self, onchange):
         self.value = {a.key: a.item.value for a in self.iterable}
@@ -740,7 +740,7 @@ def validate_items(sch_arr):
 
 
 class AutoArray(Array):
-    _schema = traitlets.Dict()
+    _schema = tr.Dict()
 
     @validate("_schema")
     def _validate_schema(self, proposal):
@@ -851,7 +851,7 @@ if __name__ == "__main__":
             return TestItem(di=value)
 
     class TestItem(widgets.HBox):
-        _value = traitlets.Dict()
+        _value = tr.Dict()
 
         def __init__(self, di: typing.Dict = get_di()):
             self._value = di

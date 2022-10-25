@@ -94,7 +94,7 @@ def _get_value_trait(obj_with_traits):
     "value" allowing use of setters and getters)
 
     Args:
-        obj_with_traits (traitlets.Type): obj with traits
+        obj_with_traits (tr.Type): obj with traits
 
     Raises:
         ValueError: if "_value" or "value" traits don't exist
@@ -193,15 +193,15 @@ def create_row(
 class AutoObject(widgets.VBox):
     """creates an ipywidgets form from a json-schema or pydantic model. datatype must be "object" """
 
-    _value = traitlets.Dict(allow_none=True)
-    fdir = traitlets.Unicode(allow_none=True)
-    align_horizontal = traitlets.Bool(default_value=True)
-    auto_open = traitlets.Bool(default_value=False)
-    nested_widgets = traitlets.List()
-    order = traitlets.List(default_value=None, allow_none=True)
-    insert_rows = traitlets.Dict(default_value=None, allow_none=True)
+    _value = tr.Dict(allow_none=True)
+    fdir = tr.Unicode(allow_none=True)
+    align_horizontal = tr.Bool(default_value=True)
+    auto_open = tr.Bool(default_value=False)
+    nested_widgets = tr.List()
+    order = tr.List(default_value=None, allow_none=True)
+    insert_rows = tr.Dict(default_value=None, allow_none=True)
 
-    @traitlets.validate("insert_rows")
+    @tr.validate("insert_rows")
     def _insert_rows(self, proposal):
         fn_checkisintkeys = (
             lambda di: True
@@ -218,7 +218,7 @@ class AutoObject(widgets.VBox):
                 raise ValueError("keys of insert_rows must be integers")
         return v
 
-    @traitlets.validate("order")
+    @tr.validate("order")
     def _order(self, proposal):
         v = proposal["value"]
         if v is None:
@@ -228,7 +228,7 @@ class AutoObject(widgets.VBox):
                 raise ValueError("set(self.default_order) != set(proposal['value'])")
         return v
 
-    @traitlets.default("nested_widgets")
+    @tr.default("nested_widgets")
     def _default_nested_widgets(self):
         from ipyautoui.autowidgets import AutoMarkdown  # , EditGrid
         from ipyautoui.custom.iterable import AutoArray
@@ -245,11 +245,11 @@ class AutoObject(widgets.VBox):
         ]
         return default_nested
 
-    @traitlets.validate("nested_widgets")
+    @tr.validate("nested_widgets")
     def _valid_nested_widgets(self, proposal):
         return proposal["value"]
 
-    @traitlets.validate("_value")
+    @tr.validate("_value")
     def _valid_value(self, proposal):
         return proposal["value"]
 
@@ -434,7 +434,7 @@ class AutoObject(widgets.VBox):
 class AutoIpywidget(widgets.VBox):
     """Automatically generates the widget based on an input schema"""
 
-    fdir = traitlets.Unicode(allow_none=True)
+    fdir = tr.Unicode(allow_none=True)
     # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:06:04 PM
     # consider changing name `update_map_widgets` to `update_widgets_mapper`
 
