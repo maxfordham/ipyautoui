@@ -50,15 +50,15 @@ frozenmap = immutables.Map
 
 # +
 def _init_widgets_and_labels(
-    pr: typing.Dict,
-) -> tuple((typing.List[widgets.HBox], typing.Dict)):
+    pr: ty.Dict,
+) -> tuple((ty.List[widgets.HBox], ty.Dict)):
     """initiates widget for from dict built from schema
 
     Args:
-        pr (typing.Dict): schema properties - sanitised for ipywidgets
+        pr (ty.Dict): schema properties - sanitised for ipywidgets
 
     Returns:
-        (widgets.VBox, typing.Dict): box with widgets, di of widgets
+        (widgets.VBox, ty.Dict): box with widgets, di of widgets
     """
 
     _init_widget = lambda v: aumap.widgetcaller(v)
@@ -100,7 +100,7 @@ def _get_value_trait(obj_with_traits):
         ValueError: if "_value" or "value" traits don't exist
 
     Returns:
-        typing.Type: trait type of traitlet
+        ty.Type: trait type of traitlet
     """
     if "_value" in obj_with_traits.traits().keys():
         return obj_with_traits.traits()["_value"]

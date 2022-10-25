@@ -15,7 +15,7 @@ class ExampleDataFrameCols(BaseModel):
 
 
 class ExampleDataFrameSchema(BaseModel):
-    dataframe: typing.List[ExampleDataFrameCols] = Field(
+    dataframe: ty.List[ExampleDataFrameCols] = Field(
         default_factory=lambda: [], format="dataframe"
     )
 
@@ -49,7 +49,7 @@ def fn_add():
 class TestItem(widgets.HBox, tr.HasTraits):
     value = tr.Dict()
 
-    def __init__(self, di: typing.Dict = get_di()):
+    def __init__(self, di: ty.Dict = get_di()):
         self.value = di
         self._init_form()
         self._init_controls()

@@ -31,13 +31,14 @@ import ipywidgets as w
 import typing as ty
 import traitlets as tr
 
+
 class TreeModel(BaseModel):
     """generic tree model."""
 
     title: str = None
     description: str = ""
     options: list
-    value: ty.Union[str, float, int] = None  # typing.Union[str, float, int]
+    value: ty.Union[str, float, int] = None  # ty.Union[str, float, int]
     children: ty.Union[TreeModel] = None
     disabled: bool = False
     placeholder: str = ""
@@ -113,7 +114,6 @@ class DecisionUi(w.HBox):
 
 if __name__ == "__main__":
 
-    
     t = TreeModel(
         **{
             "options": PROJECTS,
@@ -133,5 +133,3 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     ui.value = ["J0001", "Calcs", "WUFI"]
     ui.disabled = [False, False, True]
-
-

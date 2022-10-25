@@ -106,10 +106,10 @@ def displayfile_renderer(path, renderer=None):
 
 
 def jsonschema_to_pydantic(
-    schema: typing.Type,  #: JsonSchemaObject
+    schema: ty.Type,  #: JsonSchemaObject
     *,
-    config: typing.Type = None,  # = JsonSchemaConfig
-) -> typing.Type[BaseModel]:
+    config: ty.Type = None,  # = JsonSchemaConfig
+) -> ty.Type[BaseModel]:
     pass  # TODO: https://github.com/samuelcolvin/pydantic/issues/1638
 
 
@@ -309,12 +309,10 @@ class AutoUiCommonMethods(tr.HasTraits):
     @classmethod
     def create_autoui_renderer(
         cls,
-        schema: typing.Union[typing.Type[BaseModel], dict],
+        schema: ty.Union[ty.Type[BaseModel], dict],
         save_controls: SaveControls = SaveControls.save_buttonbar,
         show_raw: bool = True,
-        fn_onsave: typing.Union[
-            typing.Callable, typing.List[typing.Callable]
-        ] = lambda: None,
+        fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
         path=None,
     ):
         # ext = path.suffixes.join(".")
@@ -339,13 +337,11 @@ class AutoUiCommonMethods(tr.HasTraits):
     @classmethod
     def create_autodisplay_map(
         cls,
-        schema: typing.Union[typing.Type[BaseModel], dict],
+        schema: ty.Union[ty.Type[BaseModel], dict],
         ext=".json",
         save_controls: SaveControls = SaveControls.save_buttonbar,
         show_raw: bool = True,
-        fn_onsave: typing.Union[
-            typing.Callable, typing.List[typing.Callable]
-        ] = lambda: None,
+        fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
     ):
         AutoRenderer = cls.create_autoui_renderer(
             schema, save_controls=save_controls, show_raw=show_raw, fn_onsave=fn_onsave
@@ -395,14 +391,12 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
 
     def __init__(
         self,
-        schema: typing.Union[typing.Type[BaseModel], dict],
+        schema: ty.Union[ty.Type[BaseModel], dict],
         value: dict = None,
         path: pathlib.Path = None,  # TODO: generalise data retrieval?
         save_controls: SaveControls = SaveControls.save_buttonbar,
         show_raw: bool = True,
-        fn_onsave: typing.Union[
-            typing.Callable, typing.List[typing.Callable]
-        ] = lambda: None,
+        fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
         validate_onchange=True,  # TODO: sort out how the validation works
         update_fdir_to_path_parent=True,
     ):

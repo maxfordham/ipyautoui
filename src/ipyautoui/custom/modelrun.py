@@ -29,7 +29,7 @@ class RunNameInputs:
     index: int = 1
     disabled_index: bool = False
     zfill: int = 2
-    enum: typing.List = None
+    enum: ty.List = None
     delimiter: str = "-"
     description_length: int = None
     allow_spaces: bool = False
@@ -103,7 +103,7 @@ class RunName(widgets.HBox):
         index: int = 1,
         disabled_index: bool = True,
         zfill: int = 2,
-        enum: typing.List = ["lean", "clean", "green"],
+        enum: ty.List = ["lean", "clean", "green"],
         delimiter: str = "-",
         description_length: int = 30,
         allow_spaces: bool = False,

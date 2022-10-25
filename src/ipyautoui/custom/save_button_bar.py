@@ -47,19 +47,17 @@ def revert():
 class SaveButtonBar(widgets.HBox):
     def __init__(
         self,
-        save: typing.Callable = save,
-        revert: typing.Callable = revert,
-        fn_onsave: typing.Union[
-            typing.Callable, typing.List[typing.Callable]
-        ] = lambda: None,
+        save: ty.Callable = save,
+        revert: ty.Callable = revert,
+        fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
     ):
         """
         UI save dialogue
 
         Args:
-            save: typing.Callable, zero input fn called on click of save button
-            revert: typing.Callable, zero input fn called on click of revert button
-            fn_onsave: typing.Callable, additional action that can be added to save button click
+            save: ty.Callable, zero input fn called on click of save button
+            revert: ty.Callable, zero input fn called on click of revert button
+            fn_onsave: ty.Callable, additional action that can be added to save button click
 
         """
         self.fn_save = save
@@ -108,7 +106,7 @@ class SaveButtonBar(widgets.HBox):
             f'_changes saved: {datetime.now().strftime("%H:%M:%S")}_'
         )
         self._unsaved_changes(False)
-        if isinstance(self.fn_onsave, typing.Callable):
+        if isinstance(self.fn_onsave, ty.Callable):
             self.fn_onsave()
         elif isinstance(self.fn_onsave, list):
             [f() for f in self.fn_onsave]

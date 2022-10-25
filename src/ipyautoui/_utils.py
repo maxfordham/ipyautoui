@@ -59,7 +59,7 @@ yaml.representer.SafeRepresenter.add_representer(
 
 
 def display_pydantic_json(
-    pydantic_obj: typing.Type[BaseModel], as_yaml=False, sort_keys=False
+    pydantic_obj: ty.Type[BaseModel], as_yaml=False, sort_keys=False
 ):
     parsed = json.loads(pydantic_obj.json())
     if as_yaml:
@@ -301,7 +301,7 @@ def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
 
 
 # TODO: use obj_to_importstr and obj_from_importstr rather than load_PyObj
-def obj_to_importstr(obj: typing.Callable):  # NOT IN USE
+def obj_to_importstr(obj: ty.Callable):  # NOT IN USE
     """
     given a callable callable object this will return the
     import string to. From the string the object can be
@@ -309,7 +309,7 @@ def obj_to_importstr(obj: typing.Callable):  # NOT IN USE
     defining a function or class in a json serializable manner
 
     Args:
-        obj: typing.Callable
+        obj: ty.Callable
     Returns:
         str: import string
 
@@ -331,7 +331,7 @@ def obj_to_importstr(obj: typing.Callable):  # NOT IN USE
     return mod + "." + nm
 
 
-def obj_from_importstr(importstr: str) -> typing.Type:
+def obj_from_importstr(importstr: str) -> ty.Type:
     """
     given the import string of an object this function and returns the Obj.
 
@@ -353,13 +353,13 @@ def obj_from_importstr(importstr: str) -> typing.Type:
 
 
 class SerializableCallable(BaseModel):  # NOT IN USE
-    callable_str: typing.Union[typing.Callable, str] = Field(
+    callable_str: ty.Union[ty.Callable, str] = Field(
         ...,
         description="import string that can use importlib\
                                                               to create a python obj. Note. if a Callable object\
                                                               is given it will be converted into a string",
     )
-    callable_obj: typing.Union[typing.Callable, typing.Type] = Field(None, exclude=True)
+    callable_obj: ty.Union[ty.Callable, ty.Type] = Field(None, exclude=True)
 
     @validator("callable_str", always=True)
     def _callable_str(cls, v, values):
@@ -379,7 +379,7 @@ class SerializableCallable(BaseModel):  # NOT IN USE
 
 
 def create_pydantic_json_file(
-    pyobj: typing.Union[str, PyObj], path: pathlib.Path, **kwargs
+    pyobj: ty.Union[str, PyObj], path: pathlib.Path, **kwargs
 ):
     """
     loads a pyobj (which must be a pydantic model) and then saves the default Json to file.
@@ -414,7 +414,7 @@ def create_pydantic_json_file(
     return path
 
 
-def remove_non_present_kwargs(callable_: typing.Callable, di: dict):
+def remove_non_present_kwargs(callable_: ty.Callable, di: dict):
     """do this if required (get allowed args from callable)"""
     args = inspect.getfullargspec(callable_).args
     return {k_: v_ for k_, v_ in di.items() if k_ in args}

@@ -24,15 +24,15 @@ from ipyautoui._utils import frozenmap, obj_from_importstr
 
 # +
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
-def recursive_search_schema(schema: typing.Dict, li: typing.List) -> typing.Dict:
+def recursive_search_schema(schema: ty.Dict, li: ty.List) -> ty.Dict:
     """searches down schema tree to retrieve definitions
 
     Args:
-        schema (typing.Dict): json schema made from pydantic
-        li (typing.List): list of keys to search down tree
+        schema (ty.Dict): json schema made from pydantic
+        li (ty.List): list of keys to search down tree
 
     Returns:
-        typing.Dict: definition retrieved from schema
+        ty.Dict: definition retrieved from schema
     """
     f = li[0]
     if len(li) > 1:
@@ -432,15 +432,15 @@ class WidgetMapper(BaseModel):
     json schema to find appropriate objects, the objects are then passed to the "widget" for the ui
     """
 
-    fn_filt: typing.Callable
-    widget: typing.Callable
+    fn_filt: ty.Callable
+    widget: ty.Callable
 
 
 class WidgetCaller(BaseModel):
-    schema_: typing.Dict
-    autoui: typing.Callable  # TODO: change name autoui --> widget?
-    args: typing.List = Field(default_factory=lambda: [])
-    kwargs: typing.Dict = Field(default_factory=lambda: {})
+    schema_: ty.Dict
+    autoui: ty.Callable  # TODO: change name autoui --> widget?
+    args: ty.List = Field(default_factory=lambda: [])
+    kwargs: ty.Dict = Field(default_factory=lambda: {})
 
 
 def widgetcaller(caller: WidgetCaller, show_errors=True):

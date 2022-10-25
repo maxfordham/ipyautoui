@@ -102,7 +102,7 @@ class WorkingDir(BaseModel):
     riba_stage: RibaStages
     fdir: pathlib.Path = None
     key: str = None
-    usage: typing.List[Usage] = Field(default_factory=lambda: [])
+    usage: ty.List[Usage] = Field(default_factory=lambda: [])
     dir_model: str
 
     @validator("fdir", always=True, pre=True)
@@ -136,7 +136,7 @@ a list of all the active working directories used for jupyter / ipyrun based ana
 class WorkingDirs(BaseModel):
     name: str = "working dirs"
     description: str = description
-    dirs: typing.Dict[str, WorkingDir] = Field(default_factory=lambda: {})
+    dirs: ty.Dict[str, WorkingDir] = Field(default_factory=lambda: {})
 
 
 # + tags=[]
@@ -207,7 +207,7 @@ class AnalysisDir(BaseModel):
 
 
 def add_working_dir(
-    wdir: typing.Union[dict, WorkingDir],
+    wdir: ty.Union[dict, WorkingDir],
     # dir_model=AnalysisDir,
     path: pathlib.Path = FPTH_WORKING_DIRS,
 ):
@@ -227,7 +227,7 @@ def add_working_dir(
     return None
 
 
-def is_templated_dir(adir: typing.Type[BaseModel]):
+def is_templated_dir(adir: ty.Type[BaseModel]):
     for k, v in adir.dict().items():
         if not v.exists():
             return False
@@ -357,10 +357,8 @@ class WorkingDirsUi(widgets.HBox):
 
     def __init__(
         self,
-        fn_onload: typing.Union[typing.Callable, typing.List] = lambda value: print(
-            "fn_onload"
-        ),
-        model_dirs: typing.Type[BaseModel] = AnalysisDir,
+        fn_onload: ty.Union[ty.Callable, ty.List] = lambda value: print("fn_onload"),
+        model_dirs: ty.Type[BaseModel] = AnalysisDir,
         fix_attributes={},
         projects=None,
         fdir_projects_root=FDIR_PROJECTS_ROOT,
@@ -404,11 +402,11 @@ class WorkingDirsUi(widgets.HBox):
     @fn_onload.setter
     def fn_onload(self, value):
 
-        if isinstance(value, typing.Callable):
+        if isinstance(value, ty.Callable):
             value = [value]
-        elif isinstance(value, typing.List):
+        elif isinstance(value, ty.List):
             for v in value:
-                if not isinstance(v, typing.Callable):
+                if not isinstance(v, ty.Callable):
                     raise ValueError(
                         "fn_onload must be a Callable or list of Callables"
                     )

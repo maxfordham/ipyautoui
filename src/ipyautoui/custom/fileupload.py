@@ -62,7 +62,7 @@ class FileUi(widgets.HBox):
     # def _valid_value(self, proposal):
     #     return json.loads(File(**proposal["value"]).json())
 
-    def __init__(self, value: typing.Union[dict, File]):
+    def __init__(self, value: ty.Union[dict, File]):
         self._init_form()
         if isinstance(value, File):
             value = json.loads(value.json())
@@ -137,7 +137,7 @@ class FileUploadToDir(widgets.VBox):
     def __init__(
         self,
         schema=None,
-        value: typing.Union[typing.Dict[str, File], dict] = None,
+        value: ty.Union[ty.Dict[str, File], dict] = None,
         fdir="linked_files",
     ):
         self.fdir = fdir
@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     class Ui(BaseModel):
         name: str
-        files: typing.Dict[str, File] = Field(
+        files: ty.Dict[str, File] = Field(
             autoui="__main__.FileUploadToDir", maximumItems=1, minimumItems=0
         )
         description: str

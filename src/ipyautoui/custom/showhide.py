@@ -38,7 +38,7 @@ class ShowHide(widgets.VBox):
 
     def __init__(
         self,
-        fn_display: typing.Callable = lambda: widgets.HTML("😲"),
+        fn_display: ty.Callable = lambda: widgets.HTML("😲"),
         title: str = "title",
         auto_open: bool = False,
         button_width: str = None,

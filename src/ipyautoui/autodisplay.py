@@ -95,12 +95,12 @@ class DisplayObjectActions(BaseModel):
     """base object with callables for creating a display object"""
 
     map_renderers: frozenmap = DEFAULT_FILE_RENDERERS
-    path: typing.Union[str, pathlib.Path, HttpUrl]
+    path: ty.Union[str, pathlib.Path, HttpUrl]
     ext: str = None
     name: str = None
-    check_exists: typing.Callable = None
-    renderer: typing.Callable = lambda: print("renderer")
-    check_date_modified: typing.Callable = None
+    check_exists: ty.Callable = None
+    renderer: ty.Callable = lambda: print("renderer")
+    check_date_modified: ty.Callable = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -116,8 +116,8 @@ def check_exists(path):
 class DisplayFromPath(DisplayObjectActions):
     newroot: pathlib.PureWindowsPath = pathlib.PureWindowsPath("J:/")
     path_new: pathlib.Path = None
-    open_file: typing.Callable = None
-    open_folder: typing.Callable = None
+    open_file: ty.Callable = None
+    open_folder: ty.Callable = None
 
     @validator("path", always=True)
     def _path(cls, v, values):
@@ -259,7 +259,7 @@ class DisplayObject(widgets.VBox):
 
     def __init__(
         self,
-        display_actions: typing.Type[DisplayObjectActions],
+        display_actions: ty.Type[DisplayObjectActions],
         auto_open=False,
     ):
         self.default_order = ("exists", "openpreview", "openfile", "openfolder", "name")
@@ -451,8 +451,8 @@ class AutoDisplay(tr.HasTraits):
 
     def __init__(
         self,
-        display_objects_actions: typing.List[DisplayObjectActions],
-        patterns: typing.Union[str, typing.List] = None,
+        display_objects_actions: ty.List[DisplayObjectActions],
+        patterns: ty.Union[str, ty.List] = None,
         title: str = None,
         display_showhide: bool = True,
     ):
@@ -460,7 +460,7 @@ class AutoDisplay(tr.HasTraits):
 
 
         Args:
-            paths (typing.List[pathlib.Path]): list of paths to display
+            paths (ty.List[pathlib.Path]): list of paths to display
             default_file_renderers: default renderers
             user_file_renderers: default = {}, custom user-defined file renderers
             newroot: passed to open_file
@@ -481,10 +481,10 @@ class AutoDisplay(tr.HasTraits):
     @classmethod
     def from_paths(
         cls,
-        paths: typing.List[pathlib.Path],
+        paths: ty.List[pathlib.Path],
         newroot=pathlib.PureWindowsPath("J:/"),
         file_renderers=None,
-        patterns: typing.Union[str, typing.List] = None,
+        patterns: ty.Union[str, ty.List] = None,
         title: str = None,
         display_showhide: bool = True,
     ):

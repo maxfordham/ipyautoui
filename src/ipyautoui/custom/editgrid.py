@@ -73,12 +73,12 @@ class BaseForm(widgets.VBox):
         self,
         schema: dict,
         value: dict = None,
-        cls_ui: typing.Callable = None,
+        cls_ui: ty.Callable = None,
         update_map_widgets=None,
         fdir=None,
-        save: typing.Callable = lambda: print("SAVE"),
-        revert: typing.Callable = lambda: print("REVERT"),
-        fn_onsave: typing.Callable = lambda: None,
+        save: ty.Callable = lambda: print("SAVE"),
+        revert: ty.Callable = lambda: print("REVERT"),
+        fn_onsave: ty.Callable = lambda: None,
     ):
         self.fn_save = save
         self.fn_revert = revert
@@ -174,7 +174,7 @@ if __name__ == "__main__":
         something_else: float = Field(324, aui_column_width=100)
 
     class TestDataFrame(BaseModel):
-        dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
+        dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
 
     schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"][
         "items"
@@ -191,11 +191,11 @@ if __name__ == "__main__":
 class ButtonBar(widgets.HBox):
     def __init__(
         self,
-        add: typing.Callable,
-        edit: typing.Callable,
-        copy: typing.Callable,
-        delete: typing.Callable,
-        backward: typing.Callable,
+        add: ty.Callable,
+        edit: ty.Callable,
+        copy: ty.Callable,
+        delete: ty.Callable,
+        backward: ty.Callable,
         show_message: bool = True,
     ):
         self.show_message = show_message
@@ -675,8 +675,8 @@ if __name__ == "__main__":
         )
 
     class TestDataFrame(BaseModel):
-        # dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
-        __root__: typing.List[DataFrameCols] = Field(..., format="dataframe")
+        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
+        __root__: ty.List[DataFrameCols] = Field(..., format="dataframe")
 
     # schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
 
@@ -713,16 +713,16 @@ if __name__ == "__main__":
 
 # +
 class DataHandler(BaseModel):
-    fn_get_all_data: typing.Callable
-    fn_post: typing.Callable
-    fn_patch: typing.Callable
-    fn_delete: typing.Callable
-    fn_copy: typing.Callable
+    fn_get_all_data: ty.Callable
+    fn_post: ty.Callable
+    fn_patch: ty.Callable
+    fn_delete: ty.Callable
+    fn_copy: ty.Callable
 
 
 class RowUiCallables(BaseModel):
-    add: typing.Callable
-    edit: typing.Callable
+    add: ty.Callable
+    edit: ty.Callable
 
 
 # -
@@ -738,17 +738,17 @@ class EditGrid(widgets.VBox):
     def __init__(
         self,
         schema: dict,
-        value: typing.Optional[dict] = None,
+        value: ty.Optional[dict] = None,
         by_alias: bool = False,
         datahandler: DataHandler = None,
-        ui_add: typing.Callable = None,
-        ui_edit: typing.Callable = None,
+        ui_add: ty.Callable = None,
+        ui_edit: ty.Callable = None,
         kwargs_datagrid_default: frozenmap = {},
         kwargs_datagrid_update: frozenmap = {},
         order_cols: list = [],
         ignore_cols: list = [],
         description: str = "",
-        fn_on_copy: typing.Callable = None,
+        fn_on_copy: ty.Callable = None,
     ):
         self.ui_add = ui_add
         self.ui_edit = ui_edit
@@ -1038,7 +1038,7 @@ if __name__ == "__main__":
     class TestDataFrameOnly(BaseModel):
         """a description of TestDataFrame"""
 
-        __root__: typing.List[DataFrameCols] = Field(
+        __root__: ty.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
         )
 
@@ -1056,7 +1056,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
 
     class TestDataFrame(BaseModel):
-        __root__: typing.List[DataFrameCols] = Field(
+        __root__: ty.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
         )
 
