@@ -159,7 +159,6 @@ if __name__ == "__main__":
         print("Reverted.")
 
     ui = BaseForm(schema=TestModel, save=test_save, revert=test_revert)
-    # AutoUi(schema=TestModel.schema())
     display(ui)
 
 if __name__ == "__main__":
@@ -739,9 +738,9 @@ class EditGrid(widgets.VBox):
     def __init__(
         self,
         schema: dict,
-        value: dict = None,
+        value: typing.Optional[dict] = None,
         by_alias: bool = False,
-        datahandler: typing.Type[BaseModel] = None,
+        datahandler: DataHandler = None,
         ui_add: typing.Callable = None,
         ui_edit: typing.Callable = None,
         kwargs_datagrid_default: frozenmap = {},
@@ -1002,7 +1001,7 @@ class EditGrid(widgets.VBox):
         self._value = self.grid.value
 
     @property
-    def di_row_value(self):
+    def di_row_value(self):  # TODO: remove THIS
         try:
             self._check_one_row_selected()  # Performing checks to see if only one row is selected
             di = self.grid.selected_rows_data[0]
