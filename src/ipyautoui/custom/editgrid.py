@@ -63,6 +63,7 @@ frozenmap = immutables.Map
 #       Can BaseForm inherit autoipywidget.AutoObject directly?
 # -
 
+
 class BaseForm(widgets.VBox):
     _value = traitlets.Dict()
     _cls_ui = traitlets.Callable(default_value=None, allow_none=True)
@@ -339,12 +340,10 @@ class GridWrapper(DataGrid):
         kwargs_datagrid_update: frozenmap = frozenmap(),
         order_cols: list = [],  # TODO: this should be a trait
         ignore_cols: list = [],  # TODO: this should be a trait
-        idx_start_from_one: bool = False,  # FIXME: don't think this is required.
     ):
         # accept schema or pydantic schema
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         self.kwargs_datagrid_default = kwargs_datagrid_default
-        self.idx_start_from_one = idx_start_from_one
         self.di_cols_properties = self.schema["items"][
             "properties"
         ]  # Obtain each column's properties
@@ -378,10 +377,6 @@ class GridWrapper(DataGrid):
                 col for col in df.columns if col not in self.order_cols
             ]
             df = df[order_cols]
-        if self.idx_start_from_one is True:
-            df = df.set_index(
-                pd.Index(range(1, len(df) + 1), dtype="int64", name="idx")
-            )
         self.df_empty = df
 
     def _init_form(self):
@@ -420,11 +415,7 @@ class GridWrapper(DataGrid):
             )
 
         for column, v in value_with_titles.items():
-            if self.idx_start_from_one is True:
-                # ^ If idx start from one then we must add one to the key
-                self.set_cell_value(column, key + 1, v)
-            else:
-                self.set_cell_value(column, key, v)
+            self.set_cell_value(column, key, v)
 
         self._value[key] = {k: v for k, v in value.items()}
 
@@ -597,7 +588,6 @@ class GridWrapper(DataGrid):
 
         return SelectionHelper(view_data_object, self.selections, self.selection_mode)
 
-    
     @property
     def selected_rows_data(self):
         """Get the data selected in the table which is returned as a dataframe."""
@@ -669,14 +659,8 @@ class GridWrapper(DataGrid):
                     col for col in df.columns if col not in self.order_cols
                 ]
                 df = df[order_cols]
-            if self.idx_start_from_one is True:
-                ind = self.grid.get_dataframe_index(self.grid.data)
-                df = df.set_index(
-                    pd.Index(
-                        range(1, len(df) + 1), dtype="int64", name=ind
-                    )  # BUG: hardcoded + application specific
-                )
             self.data = self._round_sig_figs(df)
+
 
 if __name__ == "__main__":
 
@@ -1110,5 +1094,3 @@ editgrid.grid._data["data"]
 editgrid.grid._data["schema"]
 
 editgrid.grid._data["fields"]
-
-
