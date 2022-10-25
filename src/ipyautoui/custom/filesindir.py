@@ -22,7 +22,7 @@ import pathlib
 from wcmatch.pathlib import Path as wcPath
 from traitlets_paths import PurePath  # TODO: create conda recipe for this package
 import ipywidgets as widgets
-import traitlets
+import traitlets as tr
 from traitlets import HasTraits, default, validate
 from typing import List
 import immutables
@@ -87,7 +87,7 @@ class FilesInDir(BaseModel):
 
 # +
 class ListStrings(widgets.VBox, HasTraits):
-    value = traitlets.List()
+    value = tr.List()
 
     def __init__(self, value):
         self._init_form()
@@ -139,7 +139,7 @@ class MatchStrings(ListStrings):
 
 
 class FindFiles(widgets.VBox, HasTraits):
-    value = traitlets.Dict()
+    value = tr.Dict()
 
     def __init__(
         self,
@@ -327,5 +327,3 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     ff.editable_patterns = False
-
-

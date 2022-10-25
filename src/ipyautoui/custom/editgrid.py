@@ -21,8 +21,8 @@
 # %run ../__init__.py
 # %load_ext lab_black
 
-import traitlets
-import typing
+import traitlets as tr
+import typing as ty
 import collections
 import traceback
 
@@ -65,20 +65,20 @@ frozenmap = immutables.Map
 
 
 class BaseForm(widgets.VBox):
-    _value = traitlets.Dict()
-    _cls_ui = traitlets.Callable(default_value=None, allow_none=True)
-    # _row_edit_index = traitlets.Any(default_value=None)
+    _value = tr.Dict()
+    _cls_ui = tr.Callable(default_value=None, allow_none=True)
+    # _row_edit_index = tr.Any(default_value=None)
 
     def __init__(
         self,
         schema: dict,
         value: dict = None,
-        cls_ui: typing.Callable = None,
+        cls_ui: ty.Callable = None,
         update_map_widgets=None,
         fdir=None,
-        save: typing.Callable = lambda: print("SAVE"),
-        revert: typing.Callable = lambda: print("REVERT"),
-        fn_onsave: typing.Callable = lambda: None,
+        save: ty.Callable = lambda: print("SAVE"),
+        revert: ty.Callable = lambda: print("REVERT"),
+        fn_onsave: ty.Callable = lambda: None,
     ):
         self.fn_save = save
         self.fn_revert = revert
@@ -159,7 +159,6 @@ if __name__ == "__main__":
         print("Reverted.")
 
     ui = BaseForm(schema=TestModel, save=test_save, revert=test_revert)
-    # AutoUi(schema=TestModel.schema())
     display(ui)
 
 if __name__ == "__main__":
@@ -175,7 +174,7 @@ if __name__ == "__main__":
         something_else: float = Field(324, aui_column_width=100)
 
     class TestDataFrame(BaseModel):
-        dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
+        dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
 
     schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"][
         "items"
@@ -192,11 +191,11 @@ if __name__ == "__main__":
 class ButtonBar(widgets.HBox):
     def __init__(
         self,
-        add: typing.Callable,
-        edit: typing.Callable,
-        copy: typing.Callable,
-        delete: typing.Callable,
-        backward: typing.Callable,
+        add: ty.Callable,
+        edit: ty.Callable,
+        copy: ty.Callable,
+        delete: ty.Callable,
+        backward: ty.Callable,
         show_message: bool = True,
     ):
         self.show_message = show_message
@@ -329,7 +328,7 @@ def is_incremental(li):
 
 
 class GridWrapper(DataGrid):
-    _value = traitlets.List()
+    _value = tr.List()
 
     def __init__(
         self,
@@ -676,8 +675,8 @@ if __name__ == "__main__":
         )
 
     class TestDataFrame(BaseModel):
-        # dataframe: typing.List[DataFrameCols] = Field(..., format="dataframe")
-        __root__: typing.List[DataFrameCols] = Field(..., format="dataframe")
+        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
+        __root__: ty.List[DataFrameCols] = Field(..., format="dataframe")
 
     # schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
 
@@ -714,16 +713,16 @@ if __name__ == "__main__":
 
 # +
 class DataHandler(BaseModel):
-    fn_get_all_data: typing.Callable
-    fn_post: typing.Callable
-    fn_patch: typing.Callable
-    fn_delete: typing.Callable
-    fn_copy: typing.Callable
+    fn_get_all_data: ty.Callable
+    fn_post: ty.Callable
+    fn_patch: ty.Callable
+    fn_delete: ty.Callable
+    fn_copy: ty.Callable
 
 
 class RowUiCallables(BaseModel):
-    add: typing.Callable
-    edit: typing.Callable
+    add: ty.Callable
+    edit: ty.Callable
 
 
 # -
@@ -734,22 +733,22 @@ class RowUiCallables(BaseModel):
 # object and the EditGrid object up-to-date. or maybe GridWrapper
 # doesn't require a _value trait as it is never used within EditGrid.
 class EditGrid(widgets.VBox):
-    _value = traitlets.List()
+    _value = tr.List()
 
     def __init__(
         self,
         schema: dict,
-        value: dict = None,
+        value: ty.Optional[dict] = None,
         by_alias: bool = False,
-        datahandler: typing.Type[BaseModel] = None,
-        ui_add: typing.Callable = None,
-        ui_edit: typing.Callable = None,
+        datahandler: DataHandler = None,
+        ui_add: ty.Callable = None,
+        ui_edit: ty.Callable = None,
         kwargs_datagrid_default: frozenmap = {},
         kwargs_datagrid_update: frozenmap = {},
         order_cols: list = [],
         ignore_cols: list = [],
         description: str = "",
-        fn_on_copy: typing.Callable = None,
+        fn_on_copy: ty.Callable = None,
     ):
         self.ui_add = ui_add
         self.ui_edit = ui_edit
@@ -1002,7 +1001,7 @@ class EditGrid(widgets.VBox):
         self._value = self.grid.value
 
     @property
-    def di_row_value(self):
+    def di_row_value(self):  # TODO: remove THIS
         try:
             self._check_one_row_selected()  # Performing checks to see if only one row is selected
             di = self.grid.selected_rows_data[0]
@@ -1039,7 +1038,7 @@ if __name__ == "__main__":
     class TestDataFrameOnly(BaseModel):
         """a description of TestDataFrame"""
 
-        __root__: typing.List[DataFrameCols] = Field(
+        __root__: ty.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
         )
 
@@ -1057,7 +1056,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
 
     class TestDataFrame(BaseModel):
-        __root__: typing.List[DataFrameCols] = Field(
+        __root__: ty.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
         )
 
@@ -1081,16 +1080,16 @@ if __name__ == "__main__":
 
     display(editgrid)
 
-editgrid.grid.selected_rows_data
+# editgrid.grid.selected_rows_data
 
-editgrid.grid.selected_rows
+# editgrid.grid.selected_rows
 
-editgrid.grid.selected_keys
+# editgrid.grid.selected_keys
 
-editgrid.grid.get_dataframe_index(editgrid.grid.data)
+# editgrid.grid.get_dataframe_index(editgrid.grid.data)
 
-editgrid.grid._data["data"]
+# editgrid.grid._data["data"]
 
-editgrid.grid._data["schema"]
+# editgrid.grid._data["schema"]
 
-editgrid.grid._data["fields"]
+# editgrid.grid._data["fields"]

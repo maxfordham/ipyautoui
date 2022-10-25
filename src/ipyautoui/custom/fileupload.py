@@ -6,10 +6,10 @@ from markdown import markdown
 from IPython.display import display
 from pydantic import BaseModel, validator, Field
 import pathlib
-import typing
+import typing as ty
 import stringcase
 from datetime import datetime
-import traitlets
+import traitlets as tr
 import json
 import traitlets_paths
 
@@ -28,6 +28,7 @@ IS_IPYWIDGETS8 = (lambda: True if "8" in widgets.__version__ else False)()
 # TODO: add "required files" to the upload that detects name and type
 # TODO: add optional description to linked files
 # -
+
 
 class File(BaseModel):
     name: str
@@ -54,15 +55,14 @@ class File(BaseModel):
         return values["fdir"] / values["name"]
 
 
-
 class FileUi(widgets.HBox):
-    _value = traitlets.Dict()
+    _value = tr.Dict()
 
-    # @traitlets.validate("_value")
+    # @tr.validate("_value")
     # def _valid_value(self, proposal):
     #     return json.loads(File(**proposal["value"]).json())
 
-    def __init__(self, value: typing.Union[dict, File]):
+    def __init__(self, value: ty.Union[dict, File]):
         self._init_form()
         if isinstance(value, File):
             value = json.loads(value.json())
@@ -131,13 +131,13 @@ def add_files(upld_value, fdir=pathlib.Path(".")):
 
 
 class FileUploadToDir(widgets.VBox):
-    _value = traitlets.Dict(default_value={})
-    _fdir = traitlets.Unicode()
+    _value = tr.Dict(default_value={})
+    _fdir = tr.Unicode()
 
     def __init__(
         self,
         schema=None,
-        value: typing.Union[typing.Dict[str, File], dict] = None,
+        value: ty.Union[ty.Dict[str, File], dict] = None,
         fdir="linked_files",
     ):
         self.fdir = fdir
@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     class Ui(BaseModel):
         name: str
-        files: typing.Dict[str, File] = Field(
+        files: ty.Dict[str, File] = Field(
             autoui="__main__.FileUploadToDir", maximumItems=1, minimumItems=0
         )
         description: str
@@ -257,5 +257,3 @@ if __name__ == "__main__":
 #         },
 #     }
 # -
-
-

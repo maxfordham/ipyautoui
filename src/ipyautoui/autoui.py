@@ -40,9 +40,9 @@ from pydantic import BaseModel, Field
 from markdown import markdown
 import immutables
 import json
-import traitlets
+import traitlets as tr
 import traitlets_paths
-import typing
+import typing as ty
 from enum import Enum
 
 from ipyautoui._utils import display_python_string
@@ -63,8 +63,8 @@ class SaveControls(str, Enum):
 
 
 def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
-    """recursive function to replace all keys beginning x_ --> x- 
-    this allows schema Field keys to be definied in pydantic and then 
+    """recursive function to replace all keys beginning x_ --> x-
+    this allows schema Field keys to be definied in pydantic and then
     converted to vjsf compliant schema"""
 
     if type(obj) == list:
@@ -106,10 +106,10 @@ def displayfile_renderer(path, renderer=None):
 
 
 def jsonschema_to_pydantic(
-    schema: typing.Type,  #: JsonSchemaObject
+    schema: ty.Type,  #: JsonSchemaObject
     *,
-    config: typing.Type = None,  # = JsonSchemaConfig
-) -> typing.Type[BaseModel]:
+    config: ty.Type = None,  # = JsonSchemaConfig
+) -> ty.Type[BaseModel]:
     pass  # TODO: https://github.com/samuelcolvin/pydantic/issues/1638
 
 
@@ -126,24 +126,24 @@ def get_schema_title(schema):
 # IDEA: Possible implementations -@jovyan at 7/18/2022, 6:02:03 PM
 # instead of having a general `AutoUiCommonMethods`, split into specific task
 # orientated classes. e.g. AutoUiShowRaw
-class AutoUiCommonMethods(traitlets.HasTraits):
-    """methods for: 
+class AutoUiCommonMethods(tr.HasTraits):
+    """methods for:
     - reading and writing to file
     - showing raw json form data
     - creating displayfile_renderer and autoui_renderer
     """
 
-    save_controls = traitlets.UseEnum(SaveControls)  # default is save_on_edit
+    save_controls = tr.UseEnum(SaveControls)  # default is save_on_edit
     path = traitlets_paths.Path(allow_none=True)
-    show_raw = traitlets.Bool(default_value=True)
-    show_description = traitlets.Bool(default_value=True)
+    show_raw = tr.Bool(default_value=True)
+    show_description = tr.Bool(default_value=True)
 
-    @traitlets.validate("path")
+    @tr.validate("path")
     def _path(self, proposal):
         if proposal["value"] is not None:
             return pathlib.Path(proposal["value"])
 
-    @traitlets.validate("save_controls")
+    @tr.validate("save_controls")
     def _save_controls(self, proposal):
         if self.path is not None:
             map_save_dialogue = immutables.Map(
@@ -309,12 +309,10 @@ class AutoUiCommonMethods(traitlets.HasTraits):
     @classmethod
     def create_autoui_renderer(
         cls,
-        schema: typing.Union[typing.Type[BaseModel], dict],
+        schema: ty.Union[ty.Type[BaseModel], dict],
         save_controls: SaveControls = SaveControls.save_buttonbar,
         show_raw: bool = True,
-        fn_onsave: typing.Union[
-            typing.Callable, typing.List[typing.Callable]
-        ] = lambda: None,
+        fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
         path=None,
     ):
         # ext = path.suffixes.join(".")
@@ -339,13 +337,11 @@ class AutoUiCommonMethods(traitlets.HasTraits):
     @classmethod
     def create_autodisplay_map(
         cls,
-        schema: typing.Union[typing.Type[BaseModel], dict],
+        schema: ty.Union[ty.Type[BaseModel], dict],
         ext=".json",
         save_controls: SaveControls = SaveControls.save_buttonbar,
         show_raw: bool = True,
-        fn_onsave: typing.Union[
-            typing.Callable, typing.List[typing.Callable]
-        ] = lambda: None,
+        fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
     ):
         AutoRenderer = cls.create_autoui_renderer(
             schema, save_controls=save_controls, show_raw=show_raw, fn_onsave=fn_onsave
@@ -360,7 +356,9 @@ class AutoUiCommonMethods(traitlets.HasTraits):
 
     def call_save_buttonbar(self):
         self.save_buttonbar = SaveButtonBar(
-            save=self.file, revert=self._revert, fn_onsave=self.fn_onsave,
+            save=self.file,
+            revert=self._revert,
+            fn_onsave=self.fn_onsave,
         )
         self.hbx_savecontrols.children = [self.save_buttonbar]
         self.fn_onvaluechange = functools.partial(
@@ -388,19 +386,17 @@ class AutoUiCommonMethods(traitlets.HasTraits):
 
 
 class AutoUi(AutoIpywidget, AutoUiCommonMethods):
-    """extends AutoIpywidget and AutoUiCommonMethods to create an 
+    """extends AutoIpywidget and AutoUiCommonMethods to create an
     AutoUi capable of interacting with a json file"""
 
     def __init__(
         self,
-        schema: typing.Union[typing.Type[BaseModel], dict],
+        schema: ty.Union[ty.Type[BaseModel], dict],
         value: dict = None,
         path: pathlib.Path = None,  # TODO: generalise data retrieval?
         save_controls: SaveControls = SaveControls.save_buttonbar,
         show_raw: bool = True,
-        fn_onsave: typing.Union[
-            typing.Callable, typing.List[typing.Callable]
-        ] = lambda: None,
+        fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
         validate_onchange=True,  # TODO: sort out how the validation works
         update_fdir_to_path_parent=True,
     ):
@@ -420,7 +416,10 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
 
         # init app
         super().__init__(
-            schema=schema, value=value, update_map_widgets=None, fdir=self.fdir,
+            schema=schema,
+            value=value,
+            update_map_widgets=None,
+            fdir=self.fdir,
         )
         self._init_AutoUiCommonMethods()
         self.save_controls = save_controls
@@ -468,4 +467,3 @@ if __name__ == "__main__":
 
     aui = AutoUi(AnalysisPaths, show_raw=True)
     display(aui)
-

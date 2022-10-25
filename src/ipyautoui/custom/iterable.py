@@ -23,8 +23,8 @@ that trait is automatically watched / observed for
 Example:
     see below of simple example usage::
     
-        import traitlets
-        import typing
+        import traitlets as tr
+        import typing as ty
 
         from ipywidgets import widgets
         from IPython.display import Markdown
@@ -32,10 +32,10 @@ Example:
         from ipyautoui.custom.iterable import IterableItem, Array, Dictionary
 
 
-        class TestItem(widgets.HBox, traitlets.HasTraits):
-            value = traitlets.Dict()
+        class TestItem(widgets.HBox, tr.HasTraits):
+            value = tr.Dict()
 
-            def __init__(self, di: typing.Dict):
+            def __init__(self, di: ty.Dict):
                 self.value = di
                 self._init_form()
                 self._init_controls()
@@ -74,9 +74,9 @@ Example:
 # %run __init__.py
 # %load_ext lab_black
 import ipywidgets as widgets
-import traitlets
+import traitlets as tr
 from traitlets import validate
-import typing
+import typing as ty
 import immutables
 from IPython.display import display
 
@@ -111,13 +111,13 @@ from ipyautoui.autoipywidget import AutoIpywidget
 # +
 class IterableItem(BaseModel):
     index: int
-    key: typing.Union[UUID, str, int, float, bool] = None
-    item: typing.Any = None
-    add: typing.Any = None
-    remove: typing.Any = None
-    label: typing.Any = None
+    key: ty.Union[UUID, str, int, float, bool] = None
+    item: ty.Any = None
+    add: ty.Any = None
+    remove: ty.Any = None
+    label: ty.Any = None
     orient_rows: bool = True
-    row: typing.Any = None
+    row: ty.Any = None
 
     @validator("key", always=True)
     def _key(cls, v, values):
@@ -173,14 +173,14 @@ class IterableItem(BaseModel):
 
 
 # # +
-class Array(widgets.VBox, traitlets.HasTraits):
+class Array(widgets.VBox, tr.HasTraits):
     """generic iterable. pass a list of items"""
 
     # -----------------------------------------------------------------------------------
-    _value = traitlets.List()
-    _show_hash = traitlets.Unicode(allow_none=True)
-    _add_remove_controls = traitlets.Unicode(allow_none=True)
-    _sort_on = traitlets.Unicode(allow_none=True)
+    _value = tr.List()
+    _show_hash = tr.Unicode(allow_none=True)
+    _add_remove_controls = tr.Unicode(allow_none=True)
+    _sort_on = tr.Unicode(allow_none=True)
 
     @validate("show_hash")
     def _validate_show_hash(self, proposal):
@@ -218,14 +218,14 @@ class Array(widgets.VBox, traitlets.HasTraits):
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
-        value: typing.List = None,
-        items: typing.List = None,
+        value: ty.List = None,
+        items: ty.List = None,
         toggle=False,
         title=None,
-        fn_add: typing.Callable = lambda: display("add item"),
-        fn_add_dialogue: typing.Callable = None,
-        fn_remove: typing.Callable = lambda: display("remove item"),
-        # fn_remove_dialogue: typing.Callable = lambda: display(f"are you sure you want to remove {item}"), #TODO
+        fn_add: ty.Callable = lambda: display("add item"),
+        fn_add_dialogue: ty.Callable = None,
+        fn_remove: ty.Callable = lambda: display("remove item"),
+        # fn_remove_dialogue: ty.Callable = lambda: display(f"are you sure you want to remove {item}"), #TODO
         watch_value: bool = True,
         minlen: int = 0,
         maxlen: int = 100,
@@ -294,7 +294,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         return self._value
 
     @value.setter
-    def value(self, value: typing.List):
+    def value(self, value: ty.List):
         self.items = [self.fn_add() for v in value]
         for n, v in enumerate(value):
             self.items[n].value = v
@@ -305,7 +305,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         return [i.item for i in self.iterable]
 
     @items.setter
-    def items(self, value: typing.List):
+    def items(self, value: ty.List):
         self.iterable = self._init_iterable(value)
         self._update_rows_box()
         self._update_rows()
@@ -508,7 +508,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         return self._title
 
     @title.setter
-    def title(self, value: typing.Union[str, None]):
+    def title(self, value: ty.Union[str, None]):
         self._title = value
         if self.title is None:
             self.html_title = widgets.HTML(self.title)
@@ -659,7 +659,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
 
 
 class Dictionary(Array):
-    value = traitlets.Dict()
+    value = tr.Dict()
 
     def _update_value(self, onchange):
         self.value = {a.key: a.item.value for a in self.iterable}
@@ -667,13 +667,13 @@ class Dictionary(Array):
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
-        value: typing.Dict = None,
-        items: typing.Dict = None,
+        value: ty.Dict = None,
+        items: ty.Dict = None,
         toggle=False,
         title=None,
-        fn_add: typing.Callable = lambda: display("add item"),
-        fn_add_dialogue: typing.Callable = None,
-        fn_remove: typing.Callable = lambda: display("remove item"),
+        fn_add: ty.Callable = lambda: display("add item"),
+        fn_add_dialogue: ty.Callable = None,
+        fn_remove: ty.Callable = lambda: display("remove item"),
         watch_value: bool = True,
         minlen: int = 0,
         maxlen: int = None,
@@ -710,7 +710,7 @@ class Dictionary(Array):
         return {i.key: i.item for i in self.iterable}
 
     @items.setter
-    def items(self, value: typing.List):
+    def items(self, value: ty.List):
         self.iterable = self._init_iterable(value)
         self._update_rows_box()
         self._update_rows()
@@ -740,7 +740,7 @@ def validate_items(sch_arr):
 
 
 class AutoArray(Array):
-    _schema = traitlets.Dict()
+    _schema = tr.Dict()
 
     @validate("_schema")
     def _validate_schema(self, proposal):
@@ -755,16 +755,16 @@ class AutoArray(Array):
 
     def __init__(
         self,
-        schema: typing.Dict,
+        schema: ty.Dict,
         value=None,
         toggle=False,
-        fn_remove: typing.Callable = lambda: None,
+        fn_remove: ty.Callable = lambda: None,
         watch_value: bool = True,
         add_remove_controls: str = "add_remove",
         show_hash: str = "index",
         sort_on="index",
         orient_rows=True,
-        fn_add_dialogue: typing.Callable = None,
+        fn_add_dialogue: ty.Callable = None,
     ):
 
         self.fn_add_dialogue = fn_add_dialogue
@@ -851,9 +851,9 @@ if __name__ == "__main__":
             return TestItem(di=value)
 
     class TestItem(widgets.HBox):
-        _value = traitlets.Dict()
+        _value = tr.Dict()
 
-        def __init__(self, di: typing.Dict = get_di()):
+        def __init__(self, di: ty.Dict = get_di()):
             self._value = di
             self._init_form()
             self._init_controls()

@@ -20,7 +20,7 @@
 # +
 import ipywidgets as widgets
 import functools
-import traitlets
+import traitlets as tr
 from IPython.display import Markdown, clear_output, display
 import immutables
 
@@ -145,7 +145,7 @@ def markdown_buttons():
 class MarkdownWidget(widgets.VBox):
     """a simple markdown widget for editing snippets of markdown text"""
 
-    _value = traitlets.Unicode(allow_none=True)  # default=""
+    _value = tr.Unicode(allow_none=True)  # default=""
 
     def __init__(self, value=None):
         self._init_form()
@@ -219,4 +219,3 @@ class MarkdownWidget(widgets.VBox):
 if __name__ == "__main__":
     ui = MarkdownWidget()
     display(ui)
-

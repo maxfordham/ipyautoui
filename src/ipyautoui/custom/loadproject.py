@@ -18,7 +18,7 @@
 # %load_ext lab_black
 
 # %%
-import traitlets
+import traitlets as tr
 import re
 import ipywidgets as widgets
 from ipyautoui.constants import BUTTON_WIDTH_MIN
@@ -42,10 +42,10 @@ LI_PROJECTS = [
 ]
 
 
-class LoadProject(widgets.HBox, traitlets.HasTraits):
-    value = traitlets.Unicode()
+class LoadProject(widgets.HBox, tr.HasTraits):
+    value = tr.Unicode()
 
-    @traitlets.validate("value")
+    @tr.validate("value")
     def _valid_value(self, proposal):
         val = proposal["value"]
         matched = re.match(self.pattern, val)  #

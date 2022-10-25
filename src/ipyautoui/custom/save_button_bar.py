@@ -28,8 +28,8 @@ from pydantic import BaseModel
 from markdown import markdown
 import immutables
 import json
-import traitlets
-import typing
+import traitlets as tr
+import typing as ty
 from enum import Enum
 
 from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET, BUTTON_WIDTH_MIN
@@ -47,20 +47,18 @@ def revert():
 class SaveButtonBar(widgets.HBox):
     def __init__(
         self,
-        save: typing.Callable = save,
-        revert: typing.Callable = revert,
-        fn_onsave: typing.Union[
-            typing.Callable, typing.List[typing.Callable]
-        ] = lambda: None,
+        save: ty.Callable = save,
+        revert: ty.Callable = revert,
+        fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
     ):
         """
-        UI save dialogue 
-        
-        Args: 
-            save: typing.Callable, zero input fn called on click of save button
-            revert: typing.Callable, zero input fn called on click of revert button
-            fn_onsave: typing.Callable, additional action that can be added to save button click
-        
+        UI save dialogue
+
+        Args:
+            save: ty.Callable, zero input fn called on click of save button
+            revert: ty.Callable, zero input fn called on click of revert button
+            fn_onsave: ty.Callable, additional action that can be added to save button click
+
         """
         self.fn_save = save
         self.fn_revert = revert
@@ -108,7 +106,7 @@ class SaveButtonBar(widgets.HBox):
             f'_changes saved: {datetime.now().strftime("%H:%M:%S")}_'
         )
         self._unsaved_changes(False)
-        if isinstance(self.fn_onsave, typing.Callable):
+        if isinstance(self.fn_onsave, ty.Callable):
             self.fn_onsave()
         elif isinstance(self.fn_onsave, list):
             [f() for f in self.fn_onsave]
@@ -137,4 +135,3 @@ class SaveButtonBar(widgets.HBox):
 if __name__ == "__main__":
     save_button_bar = SaveButtonBar()
     display(save_button_bar)
-

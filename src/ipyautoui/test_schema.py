@@ -1,7 +1,7 @@
 """
 An example schema definition that demonstrates the current capability of the AutoUi class
 """
-import typing
+import typing as ty
 from enum import Enum
 from pydantic import Field, conint, constr
 from ipyautoui.basemodel import BaseModel
@@ -33,7 +33,6 @@ DATAGRID_TEST_VALUE = [
 ]
 
 
-
 class NestedObject(BaseModel):
     """description in docstring"""
 
@@ -61,10 +60,11 @@ class DataFrameCols(BaseModel):
 class TestDataFrame(BaseModel):
     """a description of TestDataFrame"""
 
-    dataframe: typing.List[DataFrameCols] = Field(
+    dataframe: ty.List[DataFrameCols] = Field(
         default_factory=lambda: [], format="dataframe"
     )
-    
+
+
 class GenderEnum(str, Enum):
     """available genders. this is just an example."""
 
@@ -75,7 +75,7 @@ class GenderEnum(str, Enum):
 
 
 class TestAutoLogicSimple(BaseModel):
-    """this is a test UI form to demonstrate how pydantic class can be used to generate an ipywidget input form. 
+    """this is a test UI form to demonstrate how pydantic class can be used to generate an ipywidget input form.
     only simple datatypes used (i.e. not lists/arrays or objects)
     """
 
@@ -94,7 +94,9 @@ class TestAutoLogicSimple(BaseModel):
     )
     dropdown_simple: str = Field(default="asd", enum=["asd", "asdf"])
     combobox: str = Field(
-        default="asd", enum=["asd", "asdf"], autoui="ipyautoui.autowidgets.Combobox",
+        default="asd",
+        enum=["asd", "asdf"],
+        autoui="ipyautoui.autowidgets.Combobox",
     )
     text: constr(min_length=0, max_length=20) = "short text"
     text_area: constr(min_length=0, max_length=800) = Field(
@@ -112,10 +114,10 @@ class TestTypesWithComplexSerialisation(BaseModel):
     file_chooser: pathlib.Path = pathlib.Path(
         "."
     )  # TODO: serialisation / parsing round trip not working...
-    date_picker: typing.Optional[
+    date_picker: ty.Optional[
         date
     ] = date.today()  # TODO: serialisation / parsing round trip not working...
-    datetime_picker: typing.Optional[
+    datetime_picker: ty.Optional[
         datetime
     ] = datetime.now()  # TODO: update with ipywidgets-v8
     color_picker_ipywidgets: Color = "#f5f595"
@@ -125,16 +127,16 @@ class TestAutoLogic(TestAutoLogicSimple):
     """this is a test UI form to demonstrate how pydantic class can be used to generate an ipywidget input form"""
 
     complex_serialisation: TestTypesWithComplexSerialisation = Field(default=None)
-    select_multiple_non_constrained: typing.List[GenderEnum] = Field(
+    select_multiple_non_constrained: ty.List[GenderEnum] = Field(
         default=["male", "female"],
         description="select multiple, non-constrained, allows duplicates",
     )  # TODO: make this work. requires handling the "anyOf" JSON link
-    select_multiple_from_list: typing.List[str] = Field(
+    select_multiple_from_list: ty.List[str] = Field(
         default=["male", "female"],
         enum=["male", "female", "other", "not_given"],
         description="simple select multiple from list",
     )
-    # select_multiple_search: typing.List[str] = Field(
+    # select_multiple_search: ty.List[str] = Field(
     #     default=["male", "female"],
     #     enum=["male", "female", "other", "not_given"],
     #     autoui="ipyautoui.custom.multiselect_search.MultiSelectSearch",
@@ -142,13 +144,15 @@ class TestAutoLogic(TestAutoLogicSimple):
     # FIXME: Needing refactor or cleanup -@jovyan at 8/23/2022, 10:28:36 PM
     # select_multiple_search needs a wrapper that calls it from a schema var
 
-    array: typing.List[str] = Field(default=[], max_items=5)
-    objects_array: typing.List[NestedObject] = Field(default=[], max_items=5)
+    array: ty.List[str] = Field(default=[], max_items=5)
+    objects_array: ty.List[NestedObject] = Field(default=[], max_items=5)
     # file_upload # TODO: how best to implement this? could auto-save to another location...
     run_name: str = Field(
-        default="000-lean-description", autoui="ipyautoui.autowidgets.RunName", zfill=3,
+        default="000-lean-description",
+        autoui="ipyautoui.autowidgets.RunName",
+        zfill=3,
     )
-    datagrid: typing.List[DataFrameCols] = Field(
+    datagrid: ty.List[DataFrameCols] = Field(
         default=DATAGRID_TEST_VALUE,
         # default_factory=lambda: DATAGRID_TEST_VALUE, # TODO: AutoUi isn't getting data when set using default_factory. make this work!
         format="DataFrame",
@@ -171,17 +175,15 @@ class TestObjects(BaseModel):
 
 
 class TestArrays(BaseModel):
-    array_strings: typing.List[str] = Field(
-        default=["f", "d"], max_items=5, min_items=2
-    )
-    array_strings1: typing.List[str] = Field(default=[], max_length=5, min_length=2)
-    array_objects: typing.List[NestedObject] = Field(default=[], max_items=5)
-    # array_mixed: typing.List[typing.Union[NestedObject, str]] = Field(default=[], max_items=5)
+    array_strings: ty.List[str] = Field(default=["f", "d"], max_items=5, min_items=2)
+    array_strings1: ty.List[str] = Field(default=[], max_length=5, min_length=2)
+    array_objects: ty.List[NestedObject] = Field(default=[], max_items=5)
+    # array_mixed: ty.List[ty.Union[NestedObject, str]] = Field(default=[], max_items=5)
     # TODO: do we want to support this?
 
 
 class TestVjsf(BaseModel):
-    objects_array_styled: typing.List[NestedObject] = Field(
+    objects_array_styled: ty.List[NestedObject] = Field(
         description="styled array, only works with AutoVjsf",
         default=[],
         max_items=5,

@@ -45,7 +45,7 @@ import json
 import ipydatagrid as ipg
 import ipywidgets as widgets
 import importlib.util
-import traitlets
+import traitlets as tr
 import traitlets_paths
 
 #  local imports
@@ -177,17 +177,17 @@ def preview_csv(path):
 
 class PreviewExcel(widgets.VBox):
     path = traitlets_paths.Path()
-    xl = traitlets.Instance(klass="pandas.ExcelFile")
+    xl = tr.Instance(klass="pandas.ExcelFile")
 
     def __init__(self, path):
         super().__init__()
         self.path = path
 
-    @traitlets.observe("path")
+    @tr.observe("path")
     def _observe_path(self, change):
         self.xl = pd.ExcelFile(self.path)
 
-    @traitlets.observe("xl")
+    @tr.observe("xl")
     def _observe_xl(self, change):
         self.children = [
             ShowHide(title=name, fn_display=lambda: default_grid(self.xl.parse(name)))

@@ -16,7 +16,7 @@
 # +
 # %run __init__.py
 # %load_ext lab_black
-import typing
+import typing as ty
 from pydantic import BaseModel, Field
 import ipywidgets as widgets
 import ipyautoui.autowidgets as auiwidgets
@@ -24,15 +24,15 @@ from ipyautoui._utils import frozenmap, obj_from_importstr
 
 # +
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
-def recursive_search_schema(schema: typing.Dict, li: typing.List) -> typing.Dict:
+def recursive_search_schema(schema: ty.Dict, li: ty.List) -> ty.Dict:
     """searches down schema tree to retrieve definitions
 
     Args:
-        schema (typing.Dict): json schema made from pydantic
-        li (typing.List): list of keys to search down tree
+        schema (ty.Dict): json schema made from pydantic
+        li (ty.List): list of keys to search down tree
 
     Returns:
-        typing.Dict: definition retrieved from schema
+        ty.Dict: definition retrieved from schema
     """
     f = li[0]
     if len(li) > 1:
@@ -82,7 +82,7 @@ def attach_schema_refs(schema, schema_base=None):
                     and len(v["allOf"]) == 1
                     and "$ref" in v["allOf"][0].keys()
                 ):
-                    # ^ this is an edge case for setting enums with Field values 
+                    # ^ this is an edge case for setting enums with Field values
                     #   (probs unique to how pydantic does it)
                     li_filt = v["allOf"][0]["$ref"].split("/")[1:]
                     ref = recursive_search_schema(schema_base, li_filt)
@@ -432,15 +432,15 @@ class WidgetMapper(BaseModel):
     json schema to find appropriate objects, the objects are then passed to the "widget" for the ui
     """
 
-    fn_filt: typing.Callable
-    widget: typing.Callable
+    fn_filt: ty.Callable
+    widget: ty.Callable
 
 
 class WidgetCaller(BaseModel):
-    schema_: typing.Dict
-    autoui: typing.Callable  # TODO: change name autoui --> widget?
-    args: typing.List = Field(default_factory=lambda: [])
-    kwargs: typing.Dict = Field(default_factory=lambda: {})
+    schema_: ty.Dict
+    autoui: ty.Callable  # TODO: change name autoui --> widget?
+    args: ty.List = Field(default_factory=lambda: [])
+    kwargs: ty.Dict = Field(default_factory=lambda: {})
 
 
 def widgetcaller(caller: WidgetCaller, show_errors=True):
@@ -497,7 +497,8 @@ def widgets_map(di_update=None):
     WIDGETS_MAP = frozenmap(
         **{
             "AutoOveride": WidgetMapper(
-                fn_filt=is_AutoOveride, widget=auiwidgets.AutoPlaceholder,
+                fn_filt=is_AutoOveride,
+                widget=auiwidgets.AutoPlaceholder,
             ),
             "IntText": WidgetMapper(fn_filt=is_IntText, widget=auiwidgets.IntText),
             "IntSlider": WidgetMapper(

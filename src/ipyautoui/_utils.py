@@ -9,7 +9,7 @@ import ipywidgets as widgets
 from IPython.display import display, Markdown
 import codecs
 from pydantic import BaseModel, validator, Field
-import typing
+import typing as ty
 import importlib.util
 import inspect
 import immutables
@@ -23,7 +23,7 @@ def make_new_path(path, *args, **kwargs):
 
 
 try:
-    # TODO: remove these. 
+    # TODO: remove these.
     from mf_file_utilities import go as open_file
     from mf_file_utilities.applauncher_wrapper import make_new_path
 except:
@@ -59,7 +59,7 @@ yaml.representer.SafeRepresenter.add_representer(
 
 
 def display_pydantic_json(
-    pydantic_obj: typing.Type[BaseModel], as_yaml=False, sort_keys=False
+    pydantic_obj: ty.Type[BaseModel], as_yaml=False, sort_keys=False
 ):
     parsed = json.loads(pydantic_obj.json())
     if as_yaml:
@@ -89,7 +89,7 @@ def write_json(data, fpth="data.json", sort_keys=True, indent=4):
         ** sort_keys = True
         ** indent=4
         ** fpth='data.json'
-        
+
     Code:
         out=json.dumps(data, sort_keys=sort_keys, indent=indent)
         f = open(fpth,"w")
@@ -114,7 +114,7 @@ def read_json(fpth, encoding="utf8"):
 
 def del_cols(df, cols):
     """delete a pandas column if it is in
-    the column index otherwise ignore it. """
+    the column index otherwise ignore it."""
     if type(cols) == str:
         try:
             del df[cols]
@@ -184,7 +184,7 @@ def display_python_module(mod, show=True, return_str=False):
 def read_txt(fpth, encoding="utf-8", delim=None, read_lines=True):
     """
     read a .txt file
-    
+
     Args:
         fpth(string): filepath
         encoding(string): https://docs.python.org/3/library/codecs.html, examples:
@@ -227,10 +227,10 @@ def file(self: Type[BaseModel], path: pathlib.Path, **json_kwargs):
     """
     this is a method that is added to the pydantic BaseModel within AutoUi using
     "setattr".
-    
+
     Example:
         ```setattr(self.config_autoui.pydantic_model, 'file', file)```
-        
+
     Args:
         self (pydantic.BaseModel): instance
         path (pathlib.Path): to write file to
@@ -271,19 +271,19 @@ def load_PyObj(obj: PyObj):
 
 def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
     """
-    loads a pyobj (which must be a pydantic model) and then saves the default Json to file. 
-    this requires defaults for all pydantic attributes. 
-    
+    loads a pyobj (which must be a pydantic model) and then saves the default Json to file.
+    this requires defaults for all pydantic attributes.
+
     Todo:
         could extend the functionality to cover models that don't have defaults
         using [pydantic-factories](https://github.com/Goldziher/pydantic-factories)
-    
+
     Args:
         pyobj (PyObj): definition of where to get a pydantic model
         path (pathlib.Path): where to save the pydantic json
         **kwargs : passed to the pydantic model upon initiation
-        
-    Returns: 
+
+    Returns:
         path
     """
     obj = load_PyObj(pyobj)
@@ -301,18 +301,18 @@ def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
 
 
 # TODO: use obj_to_importstr and obj_from_importstr rather than load_PyObj
-def obj_to_importstr(obj: typing.Callable):  # NOT IN USE
+def obj_to_importstr(obj: ty.Callable):  # NOT IN USE
     """
-    given a callable callable object this will return the 
-    import string to. From the string the object can be 
-    initiated again using importlib. This is useful for 
+    given a callable callable object this will return the
+    import string to. From the string the object can be
+    initiated again using importlib. This is useful for
     defining a function or class in a json serializable manner
-    
+
     Args:
-        obj: typing.Callable
-    Returns: 
+        obj: ty.Callable
+    Returns:
         str: import string
-        
+
     Example:
         >>> obj_from_importstr(pathlib.Path)
         'pathlib.Path'
@@ -331,18 +331,18 @@ def obj_to_importstr(obj: typing.Callable):  # NOT IN USE
     return mod + "." + nm
 
 
-def obj_from_importstr(importstr: str) -> typing.Type:
+def obj_from_importstr(importstr: str) -> ty.Type:
     """
-    given the import string of an object this function and returns the Obj. 
-    
+    given the import string of an object this function and returns the Obj.
+
     makes it easy to define class used as a string in a json
     object and then use this class to re-initite it.
-    
+
     Args:
         import_string: == obj.__module__ + '.' + obj.__name__
-    Returns: 
+    Returns:
         obj
-        
+
     Example:
         >>> obj_from_importstr('pathlib.Path')
         pathlib.Path
@@ -353,13 +353,13 @@ def obj_from_importstr(importstr: str) -> typing.Type:
 
 
 class SerializableCallable(BaseModel):  # NOT IN USE
-    callable_str: typing.Union[typing.Callable, str] = Field(
+    callable_str: ty.Union[ty.Callable, str] = Field(
         ...,
         description="import string that can use importlib\
                                                               to create a python obj. Note. if a Callable object\
                                                               is given it will be converted into a string",
     )
-    callable_obj: typing.Union[typing.Callable, typing.Type] = Field(None, exclude=True)
+    callable_obj: ty.Union[ty.Callable, ty.Type] = Field(None, exclude=True)
 
     @validator("callable_str", always=True)
     def _callable_str(cls, v, values):
@@ -379,22 +379,22 @@ class SerializableCallable(BaseModel):  # NOT IN USE
 
 
 def create_pydantic_json_file(
-    pyobj: typing.Union[str, PyObj], path: pathlib.Path, **kwargs
+    pyobj: ty.Union[str, PyObj], path: pathlib.Path, **kwargs
 ):
     """
-    loads a pyobj (which must be a pydantic model) and then saves the default Json to file. 
-    this requires defaults for all pydantic attributes. 
-    
+    loads a pyobj (which must be a pydantic model) and then saves the default Json to file.
+    this requires defaults for all pydantic attributes.
+
     Todo:
         could extend the functionality to cover models that don't have defaults
         using [pydantic-factories](https://github.com/Goldziher/pydantic-factories)
-    
+
     Args:
         pyobj (SerializableCallable): definition of where to get a pydantic model
         path (pathlib.Path): where to save the pydantic json
         **kwargs : passed to the pydantic model upon initiation
-        
-    Returns: 
+
+    Returns:
         path
     """
     if type(pyobj) == str:
@@ -414,7 +414,7 @@ def create_pydantic_json_file(
     return path
 
 
-def remove_non_present_kwargs(callable_: typing.Callable, di: dict):
+def remove_non_present_kwargs(callable_: ty.Callable, di: dict):
     """do this if required (get allowed args from callable)"""
     args = inspect.getfullargspec(callable_).args
     return {k_: v_ for k_, v_ in di.items() if k_ in args}

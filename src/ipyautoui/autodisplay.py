@@ -47,9 +47,9 @@ from IPython.display import (
     Markdown,
 )  # , Image JSON, HTML, IFrame,
 import time
-import typing
+import typing as ty
 import ipywidgets as widgets
-import traitlets
+import traitlets as tr
 from pydantic import BaseModel, validator, HttpUrl
 
 #  local imports
@@ -95,12 +95,12 @@ class DisplayObjectActions(BaseModel):
     """base object with callables for creating a display object"""
 
     map_renderers: frozenmap = DEFAULT_FILE_RENDERERS
-    path: typing.Union[str, pathlib.Path, HttpUrl]
+    path: ty.Union[str, pathlib.Path, HttpUrl]
     ext: str = None
     name: str = None
-    check_exists: typing.Callable = None
-    renderer: typing.Callable = lambda: print("renderer")
-    check_date_modified: typing.Callable = None
+    check_exists: ty.Callable = None
+    renderer: ty.Callable = lambda: print("renderer")
+    check_date_modified: ty.Callable = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -116,8 +116,8 @@ def check_exists(path):
 class DisplayFromPath(DisplayObjectActions):
     newroot: pathlib.PureWindowsPath = pathlib.PureWindowsPath("J:/")
     path_new: pathlib.Path = None
-    open_file: typing.Callable = None
-    open_folder: typing.Callable = None
+    open_file: ty.Callable = None
+    open_folder: ty.Callable = None
 
     @validator("path", always=True)
     def _path(cls, v, values):
@@ -126,7 +126,7 @@ class DisplayFromPath(DisplayObjectActions):
     @validator("path_new", always=True)
     def _path_new(cls, v, values):
         return make_new_path(values["path"], newroot=values["newroot"])
-    
+
     @validator("name", always=True)
     def _name(cls, v, values):
         if values["path"] is not None:
@@ -193,56 +193,56 @@ class DisplayFromRequest(DisplayObjectActions):
 
 # TODO: separate out the bit that is display data and display from path...
 # TODO: probs useful to have a `value` trait (allowing the object to be updated instead of remade)
-#       this probably means having DisplayObject as a base class and extending it for display file... 
+#       this probably means having DisplayObject as a base class and extending it for display file...
 class DisplayObject(widgets.VBox):
 
-    auto_open = traitlets.Bool(default_value=False)
-    show_openfile = traitlets.Bool(default_value=True)
-    show_openfolder = traitlets.Bool(default_value=True)
-    show_exists = traitlets.Bool(default_value=True)
-    show_openpreview = traitlets.Bool(default_value=True)
-    # TODO: 
-    # maybe we don't actually need the "show_" traits 
+    auto_open = tr.Bool(default_value=False)
+    show_openfile = tr.Bool(default_value=True)
+    show_openfolder = tr.Bool(default_value=True)
+    show_exists = tr.Bool(default_value=True)
+    show_openpreview = tr.Bool(default_value=True)
+    # TODO:
+    # maybe we don't actually need the "show_" traits
     # as stuff can be hidden using "order"...
-    
-    order = traitlets.Tuple()
 
-    @traitlets.observe("auto_open")
+    order = tr.Tuple()
+
+    @tr.observe("auto_open")
     def _observe_auto_open(self, change):
         if change["new"]:
             self.openpreview.value = True
         else:
             self.openpreview.value = False
 
-    @traitlets.observe("show_openfile")
+    @tr.observe("show_openfile")
     def _observe_show_openfile(self, change):
         if change["new"] and self.display_actions.open_file():
             self.openfile.layout.display = ""
         else:
             self.openfile.layout.display = "None"
 
-    @traitlets.observe("show_openfolder")
+    @tr.observe("show_openfolder")
     def _observe_show_openfolder(self, change):
         if change["new"]:
             self.openfolder.layout.display = ""
         else:
             self.openfolder.layout.display = "None"
 
-    @traitlets.observe("show_exists")
+    @tr.observe("show_exists")
     def _observe_exists(self, change):
         if change["new"]:
             self.exists.layout.display = ""
         else:
             self.exists.layout.display = "None"
 
-    @traitlets.observe("show_openpreview")
+    @tr.observe("show_openpreview")
     def _observe_show_openpreview(self, change):
         if change["new"]:
             self.openpreview.layout.display = ""
         else:
             self.openpreview.layout.display = "None"
 
-    @traitlets.validate("order")
+    @tr.validate("order")
     def _validate_order(self, proposal):
         for l in proposal["value"]:
             if l not in self.default_order:
@@ -253,13 +253,13 @@ class DisplayObject(widgets.VBox):
                 )
         return proposal["value"]
 
-    @traitlets.observe("order")
+    @tr.observe("order")
     def _observe_order(self, change):
         self.bx_bar.children = [getattr(self, l) for l in change["new"]]
 
     def __init__(
         self,
-        display_actions: typing.Type[DisplayObjectActions],
+        display_actions: ty.Type[DisplayObjectActions],
         auto_open=False,
     ):
         self.default_order = ("exists", "openpreview", "openfile", "openfolder", "name")
@@ -413,7 +413,7 @@ if __name__ == "__main__":
     display(d)
 
 
-class AutoDisplay(traitlets.HasTraits):
+class AutoDisplay(tr.HasTraits):
     """
     displays the contents of a file in the notebook.
     comes with the following default renderers:
@@ -442,7 +442,7 @@ class AutoDisplay(traitlets.HasTraits):
     if you want to display the data in a specific way.
     """
 
-    #     _paths = traitlets.List()
+    #     _paths = tr.List()
 
     #     @validate("_paths")
     #     def _valid_value(self, proposal):
@@ -451,8 +451,8 @@ class AutoDisplay(traitlets.HasTraits):
 
     def __init__(
         self,
-        display_objects_actions: typing.List[DisplayObjectActions],
-        patterns: typing.Union[str, typing.List] = None,
+        display_objects_actions: ty.List[DisplayObjectActions],
+        patterns: ty.Union[str, ty.List] = None,
         title: str = None,
         display_showhide: bool = True,
     ):
@@ -460,7 +460,7 @@ class AutoDisplay(traitlets.HasTraits):
 
 
         Args:
-            paths (typing.List[pathlib.Path]): list of paths to display
+            paths (ty.List[pathlib.Path]): list of paths to display
             default_file_renderers: default renderers
             user_file_renderers: default = {}, custom user-defined file renderers
             newroot: passed to open_file
@@ -481,10 +481,10 @@ class AutoDisplay(traitlets.HasTraits):
     @classmethod
     def from_paths(
         cls,
-        paths: typing.List[pathlib.Path],
+        paths: ty.List[pathlib.Path],
         newroot=pathlib.PureWindowsPath("J:/"),
         file_renderers=None,
-        patterns: typing.Union[str, typing.List] = None,
+        patterns: ty.Union[str, ty.List] = None,
         title: str = None,
         display_showhide: bool = True,
     ):
