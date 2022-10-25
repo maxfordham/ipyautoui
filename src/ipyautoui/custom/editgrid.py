@@ -21,7 +21,7 @@
 # %run ../__init__.py
 # %load_ext lab_black
 
-import traitlets
+import traitlets as tr
 import typing
 import collections
 import traceback

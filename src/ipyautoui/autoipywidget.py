@@ -33,7 +33,7 @@ import logging
 import functools
 import ipywidgets as widgets
 from IPython.display import display
-import traitlets
+import traitlets as tr
 
 # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:07:55 PM
 # use traitlets_paths or not... pull request to main traitlets?

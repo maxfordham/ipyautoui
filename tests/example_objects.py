@@ -1,22 +1,23 @@
 import ipywidgets as widgets
 import random
-import traitlets
+import traitlets as tr
 import typing
 from pydantic import BaseModel, Field
 
 
 class ExampleSchema(BaseModel):
     text: str = Field(default="Test", description="This test is important")
-    
+
+
 class ExampleDataFrameCols(BaseModel):
     string: str = Field("string", aui_column_width=100)
     floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
 
+
 class ExampleDataFrameSchema(BaseModel):
     dataframe: typing.List[ExampleDataFrameCols] = Field(
-            default_factory=lambda: [], format="dataframe"
-        )
-
+        default_factory=lambda: [], format="dataframe"
+    )
 
 
 def get_di():

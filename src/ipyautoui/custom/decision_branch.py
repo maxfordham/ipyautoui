@@ -31,7 +31,6 @@ import ipywidgets as w
 import typing as ty
 import traitlets as tr
 
-
 class TreeModel(BaseModel):
     """generic tree model."""
 

@@ -29,7 +29,7 @@ from ipyautoui._utils import file
 import shutil
 import traitlets_paths
 import ipywidgets as widgets
-import traitlets
+import traitlets as tr
 
 from getpass import getuser
 import os
@@ -463,4 +463,3 @@ if __name__ == "__main__":
     wdir = WorkingDirsUi(fix_attributes=fix_attributes)
     display(wdir)
 # -
-

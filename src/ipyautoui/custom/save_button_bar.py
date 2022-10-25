@@ -28,7 +28,7 @@ from pydantic import BaseModel
 from markdown import markdown
 import immutables
 import json
-import traitlets
+import traitlets as tr
 import typing
 from enum import Enum
 
@@ -54,13 +54,13 @@ class SaveButtonBar(widgets.HBox):
         ] = lambda: None,
     ):
         """
-        UI save dialogue 
-        
-        Args: 
+        UI save dialogue
+
+        Args:
             save: typing.Callable, zero input fn called on click of save button
             revert: typing.Callable, zero input fn called on click of revert button
             fn_onsave: typing.Callable, additional action that can be added to save button click
-        
+
         """
         self.fn_save = save
         self.fn_revert = revert
@@ -137,4 +137,3 @@ class SaveButtonBar(widgets.HBox):
 if __name__ == "__main__":
     save_button_bar = SaveButtonBar()
     display(save_button_bar)
-

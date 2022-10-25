@@ -40,7 +40,7 @@ from pydantic import BaseModel, Field
 from markdown import markdown
 import immutables
 import json
-import traitlets
+import traitlets as tr
 import traitlets_paths
 import typing
 from enum import Enum
@@ -63,8 +63,8 @@ class SaveControls(str, Enum):
 
 
 def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
-    """recursive function to replace all keys beginning x_ --> x- 
-    this allows schema Field keys to be definied in pydantic and then 
+    """recursive function to replace all keys beginning x_ --> x-
+    this allows schema Field keys to be definied in pydantic and then
     converted to vjsf compliant schema"""
 
     if type(obj) == list:
@@ -127,7 +127,7 @@ def get_schema_title(schema):
 # instead of having a general `AutoUiCommonMethods`, split into specific task
 # orientated classes. e.g. AutoUiShowRaw
 class AutoUiCommonMethods(traitlets.HasTraits):
-    """methods for: 
+    """methods for:
     - reading and writing to file
     - showing raw json form data
     - creating displayfile_renderer and autoui_renderer
@@ -360,7 +360,9 @@ class AutoUiCommonMethods(traitlets.HasTraits):
 
     def call_save_buttonbar(self):
         self.save_buttonbar = SaveButtonBar(
-            save=self.file, revert=self._revert, fn_onsave=self.fn_onsave,
+            save=self.file,
+            revert=self._revert,
+            fn_onsave=self.fn_onsave,
         )
         self.hbx_savecontrols.children = [self.save_buttonbar]
         self.fn_onvaluechange = functools.partial(
@@ -388,7 +390,7 @@ class AutoUiCommonMethods(traitlets.HasTraits):
 
 
 class AutoUi(AutoIpywidget, AutoUiCommonMethods):
-    """extends AutoIpywidget and AutoUiCommonMethods to create an 
+    """extends AutoIpywidget and AutoUiCommonMethods to create an
     AutoUi capable of interacting with a json file"""
 
     def __init__(
@@ -420,7 +422,10 @@ class AutoUi(AutoIpywidget, AutoUiCommonMethods):
 
         # init app
         super().__init__(
-            schema=schema, value=value, update_map_widgets=None, fdir=self.fdir,
+            schema=schema,
+            value=value,
+            update_map_widgets=None,
+            fdir=self.fdir,
         )
         self._init_AutoUiCommonMethods()
         self.save_controls = save_controls
@@ -468,4 +473,3 @@ if __name__ == "__main__":
 
     aui = AutoUi(AnalysisPaths, show_raw=True)
     display(aui)
-

@@ -45,7 +45,7 @@ import json
 import ipydatagrid as ipg
 import ipywidgets as widgets
 import importlib.util
-import traitlets
+import traitlets as tr
 import traitlets_paths
 
 #  local imports

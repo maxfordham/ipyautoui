@@ -23,7 +23,7 @@ that trait is automatically watched / observed for
 Example:
     see below of simple example usage::
     
-        import traitlets
+        import traitlets as tr
         import typing
 
         from ipywidgets import widgets
@@ -74,7 +74,7 @@ Example:
 # %run __init__.py
 # %load_ext lab_black
 import ipywidgets as widgets
-import traitlets
+import traitlets as tr
 from traitlets import validate
 import typing
 import immutables

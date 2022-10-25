@@ -18,7 +18,7 @@
 # %load_ext lab_black
 
 # %%
-import traitlets
+import traitlets as tr
 import re
 import ipywidgets as widgets
 from ipyautoui.constants import BUTTON_WIDTH_MIN

@@ -18,7 +18,7 @@
 # %load_ext lab_black
 
 import ipyvuetify as v
-import traitlets
+import traitlets as tr
 import ipywidgets as widgets
 
 from ipyautoui.constants import PATH_VJSF_TEMPLATE

@@ -20,7 +20,7 @@
 # +
 import ipywidgets as widgets
 import functools
-import traitlets
+import traitlets as tr
 from IPython.display import Markdown, clear_output, display
 import immutables
 
@@ -219,4 +219,3 @@ class MarkdownWidget(widgets.VBox):
 if __name__ == "__main__":
     ui = MarkdownWidget()
     display(ui)
-

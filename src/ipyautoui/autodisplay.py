@@ -49,7 +49,7 @@ from IPython.display import (
 import time
 import typing
 import ipywidgets as widgets
-import traitlets
+import traitlets as tr
 from pydantic import BaseModel, validator, HttpUrl
 
 #  local imports
@@ -126,7 +126,7 @@ class DisplayFromPath(DisplayObjectActions):
     @validator("path_new", always=True)
     def _path_new(cls, v, values):
         return make_new_path(values["path"], newroot=values["newroot"])
-    
+
     @validator("name", always=True)
     def _name(cls, v, values):
         if values["path"] is not None:
@@ -193,7 +193,7 @@ class DisplayFromRequest(DisplayObjectActions):
 
 # TODO: separate out the bit that is display data and display from path...
 # TODO: probs useful to have a `value` trait (allowing the object to be updated instead of remade)
-#       this probably means having DisplayObject as a base class and extending it for display file... 
+#       this probably means having DisplayObject as a base class and extending it for display file...
 class DisplayObject(widgets.VBox):
 
     auto_open = traitlets.Bool(default_value=False)
@@ -201,10 +201,10 @@ class DisplayObject(widgets.VBox):
     show_openfolder = traitlets.Bool(default_value=True)
     show_exists = traitlets.Bool(default_value=True)
     show_openpreview = traitlets.Bool(default_value=True)
-    # TODO: 
-    # maybe we don't actually need the "show_" traits 
+    # TODO:
+    # maybe we don't actually need the "show_" traits
     # as stuff can be hidden using "order"...
-    
+
     order = traitlets.Tuple()
 
     @traitlets.observe("auto_open")

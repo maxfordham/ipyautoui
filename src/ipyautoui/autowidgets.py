@@ -23,7 +23,7 @@ extends standard ipywidgets to facilitate initialisation from jsonschema
 
 from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET
 import ipywidgets as widgets
-import traitlets
+import traitlets as tr
 from copy import deepcopy
 from ipyautoui._utils import obj_from_importstr
 from ipyautoui.custom import modelrun, markdown_widget, editgrid
@@ -40,8 +40,8 @@ def update_keys(di, di_map=MAP_JSONSCHEMA_TO_IPYWIDGET):
 
 def create_widget_caller(schema, calling=None):
     """
-    creates a "caller" object from the schema. 
-    this renames schema keys as follows to match ipywidgets: 
+    creates a "caller" object from the schema.
+    this renames schema keys as follows to match ipywidgets:
         ```
         {
             'minimum': 'min',
@@ -52,17 +52,17 @@ def create_widget_caller(schema, calling=None):
         }
         ```
 
-    
-    Args: 
+
+    Args:
         schema: dict, json schema
-        calling, default=None: the class that will be called by the 
+        calling, default=None: the class that will be called by the
             returned "caller" object. if not None, args not present in the class
             are removed from "caller"
-    
-    Returns: 
-        caller: dict, object that is passed the "calling" widget 
+
+    Returns:
+        caller: dict, object that is passed the "calling" widget
             initialised like ```calling(**caller)```
-            
+
     """
     caller = deepcopy(schema)
     caller = update_keys(schema)
@@ -89,11 +89,11 @@ class IntSlider(widgets.IntSlider):
 
 class FloatText(widgets.FloatText):
     """Example:
-        >>> from ipyautoui.test_schema import TestAutoLogic
-        >>> import ipywidgets as widgets
-        >>> sch = TestAutoLogic.schema()["properties"]['float_text']
-        >>> FloatText(sch)
-        FloatText(value=2.2)
+    >>> from ipyautoui.test_schema import TestAutoLogic
+    >>> import ipywidgets as widgets
+    >>> sch = TestAutoLogic.schema()["properties"]['float_text']
+    >>> FloatText(sch)
+    FloatText(value=2.2)
     """
 
     def __init__(self, schema):
@@ -180,7 +180,7 @@ class DatePickerString(widgets.HBox, traitlets.HasTraits):
     _value = traitlets.Unicode(allow_none=True, default_value=None)
 
     def __init__(self, schema):
-        """thin wrapper around ipywidgets.DatePicker that stores "value" as 
+        """thin wrapper around ipywidgets.DatePicker that stores "value" as
         json serializable Unicode"""
         self.picker = widgets.DatePicker()
         self.schema = schema

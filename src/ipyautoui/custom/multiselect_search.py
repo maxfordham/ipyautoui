@@ -25,7 +25,7 @@ Reference:
 # %run ../__init__.py
 import sys
 import ipywidgets as widgets
-import traitlets
+import traitlets as tr
 import requests
 import random
 
@@ -35,13 +35,13 @@ BUTTON_WIDTH_MIN = "50px"
 # +
 class MultiSelectSearch(widgets.VBox):
     """
-    multi-checkbox select widget with search 
-    
+    multi-checkbox select widget with search
+
     Reference:
         multi-select widget:
             https://gist.github.com/MattJBritton/9dc26109acb4dfe17820cf72d82f1e6f
     """
-    
+
     _options = traitlets.List(default_value=[])
     _value = traitlets.List(default_value=[])
 
@@ -68,16 +68,16 @@ class MultiSelectSearch(widgets.VBox):
         self.options = options
         self.value = value
         self._init_controls()
-        
+
     def _init_controls(self):
         self.check_all.on_click(self._check_all)
         self.uncheck_all.on_click(self._uncheck_all)
         self.delete.on_click(self._delete_checked)
-    
+
     @property
     def options(self):
         return self._options
-    
+
     @options.setter
     def options(self, value):
         self._options = value
@@ -89,12 +89,16 @@ class MultiSelectSearch(widgets.VBox):
         }
         self.ui = self.multi_checkbox_widget(self.options_dict)
         self.children = [self.ui]
-    
+
     @property
     def value(self):
-        self._value = [name for name, checkbox in self.options_dict.items() if checkbox.value is True]
+        self._value = [
+            name
+            for name, checkbox in self.options_dict.items()
+            if checkbox.value is True
+        ]
         return self._value
-    
+
     @value.setter
     def value(self, value):
         self._value = value
@@ -104,16 +108,16 @@ class MultiSelectSearch(widgets.VBox):
     def _check_all(self, onchange):
         for name, checkbox in self.options_dict.items():
             checkbox.value = True
-            
+
     def _uncheck_all(self, onchange):
         for name, checkbox in reversed(self.options_dict.items()):
             checkbox.value = False
-        
+
     def _delete_checked(self, onchange):
         self.options = [option for option in self.options if option not in self.value]
-        
+
     def multi_checkbox_widget(self, options_dict):
-        """ Widget with a search field and lots of checkboxes """
+        """Widget with a search field and lots of checkboxes"""
         search_widget = widgets.Text()
         output_widget = widgets.Output()
         options = [x for x in options_dict.values()]
@@ -126,7 +130,14 @@ class MultiSelectSearch(widgets.VBox):
             display="flex",
         )
         options_widget = widgets.VBox(options, layout=options_layout)
-        multi_select = widgets.VBox([widgets.HBox([search_widget, self.check_all, self.uncheck_all, self.delete]), options_widget])
+        multi_select = widgets.VBox(
+            [
+                widgets.HBox(
+                    [search_widget, self.check_all, self.uncheck_all, self.delete]
+                ),
+                options_widget,
+            ]
+        )
 
         @output_widget.capture()
         def on_checkbox_change(change):
@@ -203,7 +214,3 @@ Abel
     m = MultiSelectSearch(options=descriptions)
     display(m)
 # -
-
-
-
-

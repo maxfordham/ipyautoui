@@ -9,7 +9,7 @@ import pathlib
 import typing
 import stringcase
 from datetime import datetime
-import traitlets
+import traitlets as tr
 import json
 import traitlets_paths
 
@@ -28,6 +28,7 @@ IS_IPYWIDGETS8 = (lambda: True if "8" in widgets.__version__ else False)()
 # TODO: add "required files" to the upload that detects name and type
 # TODO: add optional description to linked files
 # -
+
 
 class File(BaseModel):
     name: str
@@ -52,7 +53,6 @@ class File(BaseModel):
     @validator("path", always=True, pre=True)
     def _path(cls, v, values):
         return values["fdir"] / values["name"]
-
 
 
 class FileUi(widgets.HBox):
@@ -257,5 +257,3 @@ if __name__ == "__main__":
 #         },
 #     }
 # -
-
-
