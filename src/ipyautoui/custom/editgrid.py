@@ -1080,16 +1080,16 @@ if __name__ == "__main__":
 
     display(editgrid)
 
-editgrid.grid.selected_rows_data
+# editgrid.grid.selected_rows_data
 
-editgrid.grid.selected_rows
+# editgrid.grid.selected_rows
 
-editgrid.grid.selected_keys
+# editgrid.grid.selected_keys
 
-editgrid.grid.get_dataframe_index(editgrid.grid.data)
+# editgrid.grid.get_dataframe_index(editgrid.grid.data)
 
-editgrid.grid._data["data"]
+# editgrid.grid._data["data"]
 
-editgrid.grid._data["schema"]
+# editgrid.grid._data["schema"]
 
-editgrid.grid._data["fields"]
+# editgrid.grid._data["fields"]
