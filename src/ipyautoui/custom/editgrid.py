@@ -338,7 +338,6 @@ class GridWrapper(DataGrid):
         kwargs_datagrid_default: frozenmap = frozenmap(),
         kwargs_datagrid_update: frozenmap = frozenmap(),
         order_cols: list = [],  # TODO: this should be a trait
-        ignore_cols: list = [],  # TODO: this should be a trait
     ):
         # accept schema or pydantic schema
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
@@ -346,7 +345,6 @@ class GridWrapper(DataGrid):
         self.di_cols_properties = self.schema["items"][
             "properties"
         ]  # Obtain each column's properties
-        self.ignore_cols = ignore_cols
         self.order_cols = order_cols
         self._init_df()
         self._init_form()
@@ -367,10 +365,6 @@ class GridWrapper(DataGrid):
         df = df.drop(
             df.index
         )  # Empty dataframe to revert to when everything is deleted
-        if self.ignore_cols:
-            df = df.drop(
-                columns=self.ignore_cols
-            )  # Drop columns we want to ignore from datagrid
         if self.order_cols:
             order_cols = self.order_cols + [
                 col for col in df.columns if col not in self.order_cols
@@ -611,7 +605,7 @@ class GridWrapper(DataGrid):
         self._aui_sig_figs = {
             col_data["title"]: col_data["aui_sig_fig"]
             for col_name, col_data in self.di_cols_properties.items()
-            if "aui_sig_fig" in col_data and col_data["title"] not in self.ignore_cols
+            if "aui_sig_fig" in col_data
         }
         return self._aui_sig_figs
 
@@ -621,7 +615,6 @@ class GridWrapper(DataGrid):
             col_data["title"]: col_data["aui_column_width"]
             for col_name, col_data in self.di_cols_properties.items()
             if "aui_column_width" in col_data
-            and col_data["title"] not in self.ignore_cols
         }  # Obtaining column widths from schema object
         return self._aui_column_widths
 
@@ -649,10 +642,6 @@ class GridWrapper(DataGrid):
             self._value = value
             data = self._set_titles(self._value)
             df = pd.DataFrame.from_dict(data)
-            if self.ignore_cols:
-                df = df.drop(
-                    columns=self.ignore_cols
-                )  # Drop columns we want to ignore from datagrid
             if self.order_cols:
                 order_cols = self.order_cols + [
                     col for col in df.columns if col not in self.order_cols
@@ -683,6 +672,10 @@ if __name__ == "__main__":
     grid = GridWrapper(schema=TestDataFrame)
     display(grid)
 
+grid.value
+
+TestDataFrame.schema(by_alias=True)
+
 if __name__ == "__main__":
     eg_value = [
         {
@@ -705,7 +698,6 @@ if __name__ == "__main__":
     grid = GridWrapper(
         schema=TestDataFrame,
         value=eg_value,
-        ignore_cols=["Important String"],
         order_cols=["Floater", "Integer of somesort"],
     )
     display(grid)
@@ -746,7 +738,6 @@ class EditGrid(widgets.VBox):
         kwargs_datagrid_default: frozenmap = {},
         kwargs_datagrid_update: frozenmap = {},
         order_cols: list = [],
-        ignore_cols: list = [],
         description: str = "",
         fn_on_copy: ty.Callable = None,
     ):
@@ -764,7 +755,6 @@ class EditGrid(widgets.VBox):
             kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
             order_cols=order_cols,
-            ignore_cols=ignore_cols,
             description=description,
         )
         self._init_controls()
@@ -777,7 +767,6 @@ class EditGrid(widgets.VBox):
         kwargs_datagrid_default,
         kwargs_datagrid_update,
         order_cols,
-        ignore_cols,
         description,
     ):
         super().__init__(layout={"width": "100%"})  # main container
@@ -796,7 +785,6 @@ class EditGrid(widgets.VBox):
             kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
             order_cols=order_cols,
-            ignore_cols=ignore_cols,
         )
         self.baseform = BaseForm(
             schema=self.schema["items"],
