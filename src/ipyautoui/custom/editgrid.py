@@ -168,10 +168,10 @@ if __name__ == "__main__":
     # With nested object
 
     class DataFrameCols(BaseModel):
-        string: str = Field("string", aui_column_width=100)
-        integer: int = Field(1, aui_column_width=80)
-        floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
-        something_else: float = Field(324, aui_column_width=100)
+        string: str = Field("string", column_width=100)
+        integer: int = Field(1, column_width=80)
+        floater: float = Field(3.1415, column_width=70, aui_sig_fig=3)
+        something_else: float = Field(324, column_width=100)
 
     class TestDataFrame(BaseModel):
         dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
@@ -335,6 +335,25 @@ def is_incremental(li):
 
 class GridWrapper(DataGrid):
     _value = tr.List()
+    schema = tr.Dict()
+
+    @tr.observe("schema")
+    def _update_from_schema(self, change):
+        self.map_name_title = self.get_name_title_map()
+        self.column_widths = self.get_column_widths_from_schema()
+
+    @tr.validate("schema")
+    def _valid_schema(self, proposal):
+        if "type" in proposal["value"] and proposal["value"]["type"] == "array":
+            if (
+                "items" in proposal["value"]
+                and "properties" in proposal["value"]["items"]
+            ):
+                return proposal["value"]
+            else:
+                raise tr.TraitError("schema have items and properties")
+        else:
+            raise tr.TraitError('schema must be of of type == "array"')
 
     def __init__(
         self,
@@ -343,14 +362,43 @@ class GridWrapper(DataGrid):
         by_alias: bool = False,
         kwargs_datagrid_default: frozenmap = frozenmap(),
         kwargs_datagrid_update: frozenmap = frozenmap(),
+        **kwargs,
     ):
         # accept schema or pydantic schema
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
+        self.kwargs = kwargs
         self.kwargs_datagrid_default = kwargs_datagrid_default
         self._init_df()
         self._init_form()
         self.kwargs_datagrid_update = kwargs_datagrid_update
         self.value = value
+
+    def get_column_widths_from_schema(self):
+        """Set the column widths of the data grid based on column_width given in the schema."""
+
+        # start with setting in properties
+        column_widths = {
+            v["title"]: v["column_width"]
+            for v in self.properties.values()
+            if "column_width" in v
+        }
+
+        # override with high level schema props
+        if "column_widths" in self.schema:
+            column_widths = column_widths | self.schema["column_widths"]
+
+        # overide with args passed
+        if "column_widths" in self.kwargs:
+            _ = {
+                self.map_name_title[k]: v
+                for k, v in self.kwargs["column_widths"].items()
+            }
+            column_widths = column_widths | _
+
+        return column_widths
+
+    def get_name_title_map(self):
+        return {k: v["title"] for k, v in self.properties.items()}
 
     @property
     def properties(self):
@@ -382,8 +430,6 @@ class GridWrapper(DataGrid):
             selection_mode="row",
             **self.kwargs_datagrid_default,
         )  # main container. # TODO: may be causing "DeprecationWarning: Passing unrecognized arguments..." in pytest
-        if self.aui_column_widths:
-            self._set_column_widths()
         if self.aui_sig_figs and self._data["data"] != []:
             self._round_sig_figs(self.data)  # Rounds any specified fields in schema
 
@@ -424,10 +470,6 @@ class GridWrapper(DataGrid):
         for k, v in self.aui_sig_figs.items():
             df.loc[:, k] = df.loc[:, k].apply(lambda x: round_sig_figs(x, sig_figs=v))
         return df
-
-    def _set_column_widths(self):
-        """Set the column widths of the data grid based on aui_column_widths given in the schema."""
-        self.column_widths = self.aui_column_widths  # Set column widths for data grid.
 
     def _check_value(self, value: list):
         """Checking column names in value passed match those within the dataframe.
@@ -613,15 +655,6 @@ class GridWrapper(DataGrid):
         return self._aui_sig_figs
 
     @property
-    def aui_column_widths(self):
-        self._aui_column_widths = {
-            col_data["title"]: col_data["aui_column_width"]
-            for col_name, col_data in self.properties.items()
-            if "aui_column_width" in col_data
-        }  # Obtaining column widths from schema object
-        return self._aui_column_widths
-
-    @property
     def kwargs_datagrid_update(self):
         return self._kwargs_datagrid_update
 
@@ -656,12 +689,10 @@ if __name__ == "__main__":
         string: str = Field(
             "string",
             title="Important String",
-            aui_column_width=120,
+            column_width=120,
         )
-        integer: int = Field(40, title="Integer of somesort", aui_column_width=150)
-        floater: float = Field(
-            1.33, title="Floater", aui_column_width=70, aui_sig_fig=3
-        )
+        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        floater: float = Field(1.33, title="Floater", column_width=70, aui_sig_fig=3)
 
     class TestDataFrame(BaseModel):
         # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
@@ -672,7 +703,6 @@ if __name__ == "__main__":
     grid = GridWrapper(schema=TestDataFrame)
     display(grid)
 
-grid.schema
 
 if __name__ == "__main__":
     eg_value = [
@@ -1012,9 +1042,9 @@ if __name__ == "__main__":
     ]
 
     class DataFrameCols(BaseModel):
-        string: str = Field("string", aui_column_width=100)
-        integer: int = Field(1, aui_column_width=80)
-        floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
+        string: str = Field("string", column_width=100)
+        integer: int = Field(1, column_width=80)
+        floater: float = Field(3.1415, column_width=70, aui_sig_fig=3)
 
     class TestDataFrameOnly(BaseModel):
         """a description of TestDataFrame"""
