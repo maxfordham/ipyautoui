@@ -337,7 +337,6 @@ class GridWrapper(DataGrid):
         by_alias: bool = False,
         kwargs_datagrid_default: frozenmap = frozenmap(),
         kwargs_datagrid_update: frozenmap = frozenmap(),
-        order_cols: list = [],  # TODO: this should be a trait
     ):
         # accept schema or pydantic schema
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
@@ -345,7 +344,6 @@ class GridWrapper(DataGrid):
         self.di_cols_properties = self.schema["items"][
             "properties"
         ]  # Obtain each column's properties
-        self.order_cols = order_cols
         self._init_df()
         self._init_form()
         self.kwargs_datagrid_update = kwargs_datagrid_update
@@ -365,11 +363,6 @@ class GridWrapper(DataGrid):
         df = df.drop(
             df.index
         )  # Empty dataframe to revert to when everything is deleted
-        if self.order_cols:
-            order_cols = self.order_cols + [
-                col for col in df.columns if col not in self.order_cols
-            ]
-            df = df[order_cols]
         self.df_empty = df
 
     def _init_form(self):
@@ -642,11 +635,6 @@ class GridWrapper(DataGrid):
             self._value = value
             data = self._set_titles(self._value)
             df = pd.DataFrame.from_dict(data)
-            if self.order_cols:
-                order_cols = self.order_cols + [
-                    col for col in df.columns if col not in self.order_cols
-                ]
-                df = df[order_cols]
             self.data = self._round_sig_figs(df)
 
 
@@ -672,10 +660,6 @@ if __name__ == "__main__":
     grid = GridWrapper(schema=TestDataFrame)
     display(grid)
 
-grid.value
-
-TestDataFrame.schema(by_alias=True)
-
 if __name__ == "__main__":
     eg_value = [
         {
@@ -698,7 +682,6 @@ if __name__ == "__main__":
     grid = GridWrapper(
         schema=TestDataFrame,
         value=eg_value,
-        order_cols=["Floater", "Integer of somesort"],
     )
     display(grid)
 
@@ -737,7 +720,6 @@ class EditGrid(widgets.VBox):
         ui_edit: ty.Callable = None,
         kwargs_datagrid_default: frozenmap = {},
         kwargs_datagrid_update: frozenmap = {},
-        order_cols: list = [],
         description: str = "",
         fn_on_copy: ty.Callable = None,
     ):
@@ -754,7 +736,6 @@ class EditGrid(widgets.VBox):
             schema=self.schema,
             kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
-            order_cols=order_cols,
             description=description,
         )
         self._init_controls()
@@ -766,7 +747,6 @@ class EditGrid(widgets.VBox):
         value,
         kwargs_datagrid_default,
         kwargs_datagrid_update,
-        order_cols,
         description,
     ):
         super().__init__(layout={"width": "100%"})  # main container
@@ -784,7 +764,6 @@ class EditGrid(widgets.VBox):
             value=value,
             kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
-            order_cols=order_cols,
         )
         self.baseform = BaseForm(
             schema=self.schema["items"],
