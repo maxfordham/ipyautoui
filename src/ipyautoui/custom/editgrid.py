@@ -322,9 +322,15 @@ if __name__ == "__main__":
     display(button_bar)
 
 
+# +
 # TODO: Move to utils
 def is_incremental(li):
     return li == list(range(li[0], li[0] + len(li)))
+
+
+# ui.schema
+
+# +
 
 
 class GridWrapper(DataGrid):
@@ -333,7 +339,7 @@ class GridWrapper(DataGrid):
     def __init__(
         self,
         schema: dict,
-        value: list = None,
+        value: ty.Optional[list] = None,
         by_alias: bool = False,
         kwargs_datagrid_default: frozenmap = frozenmap(),
         kwargs_datagrid_update: frozenmap = frozenmap(),
@@ -341,13 +347,18 @@ class GridWrapper(DataGrid):
         # accept schema or pydantic schema
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         self.kwargs_datagrid_default = kwargs_datagrid_default
-        self.di_cols_properties = self.schema["items"][
-            "properties"
-        ]  # Obtain each column's properties
         self._init_df()
         self._init_form()
         self.kwargs_datagrid_update = kwargs_datagrid_update
         self.value = value
+
+    @property
+    def properties(self):
+        return self.schema["items"]["properties"]
+
+    # @properties.setter
+    # def properties(self, value):
+    #     self.schema["items"]["properties"] = value
 
     def _init_df(self):
         """Preparing initial empty dataframe."""
@@ -356,13 +367,12 @@ class GridWrapper(DataGrid):
                 col_data["title"]: (
                     col_data["default"] if "default" in col_data.keys() else None
                 )
-                for col_name, col_data in self.di_cols_properties.items()
+                for col_name, col_data in self.properties.items()
             }
         ]  # default value
         df = pd.DataFrame.from_dict(li_default_value)
-        df = df.drop(
-            df.index
-        )  # Empty dataframe to revert to when everything is deleted
+        df = df.drop(df.index)
+        #  ^ Empty dataframe to revert to when everything is deleted
         self.df_empty = df
 
     def _init_form(self):
@@ -537,12 +547,12 @@ class GridWrapper(DataGrid):
         """Obtain default value given in schema."""
         return {
             col_name: (col_data["default"] if "default" in col_data.keys() else None)
-            for col_name, col_data in self.di_cols_properties.items()
+            for col_name, col_data in self.properties.items()
         }
 
     @property
     def di_field_to_titles(self):
-        return {field: di["title"] for field, di in self.di_cols_properties.items()}
+        return {field: di["title"] for field, di in self.properties.items()}
 
     # @property
     # def selected_rows(self):
@@ -591,13 +601,13 @@ class GridWrapper(DataGrid):
 
     @property
     def li_field_names(self):
-        return [col_name for col_name, col_data in self.di_cols_properties.items()]
+        return [col_name for col_name, col_data in self.properties.items()]
 
     @property
     def aui_sig_figs(self):
         self._aui_sig_figs = {
             col_data["title"]: col_data["aui_sig_fig"]
-            for col_name, col_data in self.di_cols_properties.items()
+            for col_name, col_data in self.properties.items()
             if "aui_sig_fig" in col_data
         }
         return self._aui_sig_figs
@@ -606,7 +616,7 @@ class GridWrapper(DataGrid):
     def aui_column_widths(self):
         self._aui_column_widths = {
             col_data["title"]: col_data["aui_column_width"]
-            for col_name, col_data in self.di_cols_properties.items()
+            for col_name, col_data in self.properties.items()
             if "aui_column_width" in col_data
         }  # Obtaining column widths from schema object
         return self._aui_column_widths
@@ -638,6 +648,8 @@ class GridWrapper(DataGrid):
             self.data = self._round_sig_figs(df)
 
 
+# -
+
 if __name__ == "__main__":
 
     class DataFrameCols(BaseModel):
@@ -659,6 +671,8 @@ if __name__ == "__main__":
 
     grid = GridWrapper(schema=TestDataFrame)
     display(grid)
+
+grid.schema
 
 if __name__ == "__main__":
     eg_value = [
@@ -1046,6 +1060,7 @@ if __name__ == "__main__":
     editgrid.value = AUTO_GRID_DEFAULT_VALUE
 
     display(editgrid)
+
 
 # editgrid.grid.selected_rows_data
 
