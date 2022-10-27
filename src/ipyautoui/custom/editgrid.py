@@ -71,7 +71,7 @@ class BaseForm(widgets.VBox):
 
     def __init__(
         self,
-        schema: dict,
+        schema: ty.Union[dict, ty.Type[BaseModel]],
         value: dict = None,
         cls_ui: ty.Callable = None,
         update_map_widgets=None,
@@ -186,6 +186,8 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     di = {"string": "update", "integer": 10, "floater": 3.123, "something_else": 444}
     baseform.value = di
+
+# TODO: rename "add" to "fn_add" so not ambiguous...
 
 
 class ButtonBar(widgets.HBox):
@@ -328,9 +330,47 @@ def is_incremental(li):
     return li == list(range(li[0], li[0] + len(li)))
 
 
+def get_grid_column_properties_from_schema(schema):
+    return schema["items"]["properties"]
+
+
 # ui.schema
+def get_default_row_data_from_schema_properties(properties: dict) -> dict:
+    """pulls default value from schema. intended for a dataframe (i.e. rows
+    of known columns only). assumes all fields have a 'title' (true when using
+    pydantic)
+
+    Args:
+        properties (dict): schema["items"]["properties"]
+
+    Returns:
+        list: list of dictionary column values
+    """
+    return {
+        col_data["title"]: (
+            col_data["default"] if "default" in col_data.keys() else None
+        )
+        for col_data in properties.values()
+    }
+
 
 # +
+def get_default_grid_data_from_schema(schema: dict) -> list:
+    """pulls default value from schema. intended for a dataframe (i.e. rows
+    of known columns only). assumes all fields have a 'title' (true when using
+    pydantic)
+
+    Args:
+        properties (dict): schema["items"]["properties"]
+
+    Returns:
+        list: list of dictionary column values
+    """
+    if "default" in schema.keys():
+        return schema["default"]
+    else:
+        properties = get_grid_column_properties_from_schema(schema)
+        return [get_default_row_data_from_schema_properties(properties)]
 
 
 class GridWrapper(DataGrid):
@@ -365,13 +405,18 @@ class GridWrapper(DataGrid):
         **kwargs,
     ):
         # accept schema or pydantic schema
-        self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         self.kwargs = kwargs
+        self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
+
         self.kwargs_datagrid_default = kwargs_datagrid_default
         self._init_df()
         self._init_form()
         self.kwargs_datagrid_update = kwargs_datagrid_update
         self.value = value
+
+    def _init_value(self, value):
+        if value is None:
+            pass
 
     def get_column_widths_from_schema(self):
         """Set the column widths of the data grid based on column_width given in the schema."""
@@ -402,23 +447,20 @@ class GridWrapper(DataGrid):
 
     @property
     def properties(self):
-        return self.schema["items"]["properties"]
+        return get_grid_column_properties_from_schema(self.schema)
 
     # @properties.setter
     # def properties(self, value):
     #     self.schema["items"]["properties"] = value
 
+    def _init_data(self, value):
+        if value is None:
+            pass
+
     def _init_df(self):
         """Preparing initial empty dataframe."""
-        li_default_value = [
-            {
-                col_data["title"]: (
-                    col_data["default"] if "default" in col_data.keys() else None
-                )
-                for col_name, col_data in self.properties.items()
-            }
-        ]  # default value
-        df = pd.DataFrame.from_dict(li_default_value)
+        li = get_default_grid_data_from_schema(self.properties)
+        df = pd.DataFrame(li)
         df = df.drop(df.index)
         #  ^ Empty dataframe to revert to when everything is deleted
         self.df_empty = df
