@@ -15,8 +15,8 @@ class ExampleDataFrameCols(BaseModel):
 
 
 class ExampleDataFrameSchema(BaseModel):
-    dataframe: ty.List[ExampleDataFrameCols] = Field(
-        default_factory=lambda: [], format="dataframe"
+    __root__: ty.List[ExampleDataFrameCols] = Field(
+        [ExampleDataFrameCols()], format="dataframe"
     )
 
 
