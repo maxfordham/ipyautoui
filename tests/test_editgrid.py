@@ -14,7 +14,7 @@ from .example_objects import (
     ExampleDataFrameSchema1,
     ExampleDataFrameSchema2,
 )
-from ipyautoui.custom.editgrid import BaseForm, GridWrapper, EditGrid, ButtonBar
+from ipyautoui.custom.editgrid import BaseForm, AutoGrid, EditGrid, ButtonBar
 
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
@@ -69,7 +69,7 @@ class TestEditGrid:
     def test_grid_wrapper_init_data(self):
 
         # initiate empty grid
-        grid = GridWrapper(schema=ExampleDataFrameSchema)
+        grid = AutoGrid(schema=ExampleDataFrameSchema)
         assert grid._data["data"] == []
         assert grid._data["schema"]["fields"] == [
             {"name": "key", "type": "string"},
@@ -79,13 +79,13 @@ class TestEditGrid:
         ]
 
         # get default data from top-level schema defaults
-        grid1 = GridWrapper(schema=ExampleDataFrameSchema1)
+        grid1 = AutoGrid(schema=ExampleDataFrameSchema1)
         assert grid1._data["data"] == [
             {"key": 0, "String": "test", "Floater": 1.5, "ipydguuid": 0}
         ]
 
         # get default data from schema property defaults
-        grid2 = GridWrapper(schema=ExampleDataFrameSchema2)
+        grid2 = AutoGrid(schema=ExampleDataFrameSchema2)
         assert grid2._data["data"] == [
             {"key": 0, "String": "string", "Floater": 3.14, "ipydguuid": 0}
         ]
@@ -93,14 +93,14 @@ class TestEditGrid:
         # get default data passed as kwarg, titles as column headers
 
         df = pd.DataFrame([{"String": "test2", "Floater": 2.2}])
-        grid3 = GridWrapper(schema=ExampleDataFrameSchema2, data=df)
+        grid3 = AutoGrid(schema=ExampleDataFrameSchema2, data=df)
         assert grid3._data["data"] == [
             {"key": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
         ]
 
         # get default data passed as kwarg, keys as column headers. maps to titles
         df = pd.DataFrame([{"string": "test2", "floater": 2.2}])
-        grid4 = GridWrapper(schema=ExampleDataFrameSchema2, data=df)
+        grid4 = AutoGrid(schema=ExampleDataFrameSchema2, data=df)
         assert grid4._data["data"] == [
             {"key": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
         ]

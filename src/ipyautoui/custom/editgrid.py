@@ -501,7 +501,7 @@ def create_grid_caller(schema: dict, **kwargs) -> dict:
     return kwargs_
 
 
-class GridWrapper(DataGrid):
+class AutoGrid(DataGrid):
     """a thin wrapper around DataGrid that makes makes it possible to initiate the
     grid from a json-schema / pydantic model"""
 
@@ -855,7 +855,7 @@ if __name__ == "__main__":
 
     # schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
 
-    grid = GridWrapper(schema=TestDataFrame)
+    grid = AutoGrid(schema=TestDataFrame)
     display(grid)
 
 
@@ -878,7 +878,7 @@ if __name__ == "__main__":
     grid.value = eg_value * 10
 
 if __name__ == "__main__":
-    grid = GridWrapper(
+    grid = AutoGrid(
         schema=TestDataFrame,
         value=eg_value,
     )
@@ -902,9 +902,9 @@ class RowUiCallables(BaseModel):
 # -
 
 # IDEA: Possible implementations -@jovyan at 9/3/2022, 11:29:20 AM
-# review having both GridWrapper and EditGrid. This means an additional
-# nesting that requires keeping the _value of both the GridWrapper
-# object and the EditGrid object up-to-date. or maybe GridWrapper
+# review having both AutoGrid and EditGrid. This means an additional
+# nesting that requires keeping the _value of both the AutoGrid
+# object and the EditGrid object up-to-date. or maybe AutoGrid
 # doesn't require a _value trait as it is never used within EditGrid.
 class EditGrid(widgets.VBox):
     _value = tr.List()
@@ -958,7 +958,7 @@ class EditGrid(widgets.VBox):
             show_message=False,
         )
         self.description = widgets.HTML(description)
-        self.grid = GridWrapper(
+        self.grid = AutoGrid(
             schema=schema,
             value=value,
             selection_mode="row",
