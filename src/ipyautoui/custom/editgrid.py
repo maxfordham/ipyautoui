@@ -627,7 +627,6 @@ class AutoGrid(DataGrid):
         value: ty.Optional[list] = None,
         by_alias: bool = False,
         by_title: bool = True,
-        kwargs_datagrid_update: frozenmap = frozenmap(),
         **kwargs,
     ):
         # accept schema or pydantic schema
@@ -848,16 +847,6 @@ class AutoGrid(DataGrid):
         return [col_name for col_name, col_data in self.properties.items()]
 
     @property
-    def kwargs_datagrid_update(self):
-        return self._kwargs_datagrid_update
-
-    @kwargs_datagrid_update.setter
-    def kwargs_datagrid_update(self, value):
-        self._kwargs_datagrid_update = value
-        for k, v in value.items():
-            setattr(self, k, v)
-
-    @property
     def value(self):
         return self._value
 
@@ -954,10 +943,10 @@ class EditGrid(widgets.VBox):
         schema: ty.Union[dict, ty.Type[BaseModel]],
         value: ty.Optional[dict] = None,
         by_alias: bool = False,
+        by_title: bool = True,
         datahandler: DataHandler = None,
         ui_add: ty.Callable = None,
         ui_edit: ty.Callable = None,
-        kwargs_datagrid_update: frozenmap = {},
         description: str = "",
         fn_on_copy: ty.Callable = None,
     ):
@@ -972,7 +961,6 @@ class EditGrid(widgets.VBox):
         self._init_form(
             value=value,
             schema=self.schema,
-            kwargs_datagrid_update=kwargs_datagrid_update,
             description=description,
         )
         self._init_controls()
@@ -982,7 +970,6 @@ class EditGrid(widgets.VBox):
         self,
         schema,
         value,
-        kwargs_datagrid_update,
         description,
     ):
         super().__init__(layout={"width": "100%"})  # main container
@@ -999,7 +986,6 @@ class EditGrid(widgets.VBox):
             schema=schema,
             value=value,
             selection_mode="row",
-            kwargs_datagrid_update=kwargs_datagrid_update,
         )
         self.baseform = BaseForm(
             schema=self.schema["items"],
