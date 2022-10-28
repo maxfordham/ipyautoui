@@ -20,7 +20,6 @@
 # %run __init__.py
 # %run ../__init__.py
 # %load_ext lab_black
-
 import traitlets as tr
 import typing as ty
 import collections
@@ -350,7 +349,9 @@ def get_property_types(properties):
 
 
 # ui.schema
-def get_default_row_data_from_schema_properties(properties: dict) -> ty.Optional[dict]:
+def get_default_row_data_from_schema_properties(
+    properties: dict, property_types: dict
+) -> ty.Optional[dict]:
     """pulls default value from schema. intended for a dataframe (i.e. rows
     of known columns only). assumes all fields have a 'title' (true when using
     pydantic)
@@ -366,31 +367,38 @@ def get_default_row_data_from_schema_properties(properties: dict) -> ty.Optional
         if "default" in v.keys():
             di[k] = v["default"]
         else:
-            return None
+            di[k] = property_types[k]
     return di
 
 
-# +
-def get_default_grid_data_from_schema(schema: dict) -> pd.DataFrame:
-    """pulls default value from schema. intended for a dataframe (i.e. rows
-    of known columns only). assumes all fields have a 'title' (true when using
-    pydantic)
-
-    Args:
-        properties (dict): schema["items"]["properties"]
-
-    Returns:
-        list: list of dictionary column values
-    """
+def get_default_row_data_from_schema_root(schema):
     if "default" in schema.keys():
-        return pd.DataFrame(schema["default"])
+        return schema["default"]
     else:
-        properties = get_grid_column_properties_from_schema(schema)
-        data = get_default_row_data_from_schema_properties(properties)
-        if data is not None:
-            return pd.DataFrame([data])
-        else:
-            return pd.DataFrame(get_property_types(properties), index=[])
+        return None
+
+
+# +
+# def get_default_grid_data_from_schema(schema: dict, property_types: dict) -> pd.DataFrame:
+#     """pulls default value from schema. intended for a dataframe (i.e. rows
+#     of known columns only). assumes all fields have a 'title' (true when using
+#     pydantic)
+
+#     Args:
+#         properties (dict): schema["items"]["properties"]
+
+#     Returns:
+#         list: list of dictionary column values
+#     """
+#     if "default" in schema.keys():
+#         return pd.DataFrame(schema["default"])
+#     else:
+#         properties = get_grid_column_properties_from_schema(schema)
+#         data = get_default_row_data_from_schema_properties(properties, property_types: dict)
+#         if data is not None:
+#             return pd.DataFrame([data])
+#         else:
+#             return pd.DataFrame(get_property_types(properties), index=[])
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_title, **kwargs):
@@ -478,40 +486,80 @@ def get_global_renderers_from_schema(schema, **kwargs) -> dict:
     return {k: v for k, v in renderers.items() if v is not None}
 
 
-def create_grid_caller(schema: dict, **kwargs) -> dict:
-    """analagous to `ipyautoui.autowidgets.create_widget_caller`
+def try_getattr(obj, name):
+    try:
+        return getattr(obj, name)
+    except:
+        pass
 
-    Args:
-        schema (_type_): _description_
-    """
-    kwargs_ = kwargs.copy()
-    column_properties = get_grid_column_properties_from_schema(schema)
-    map_name_title = get_name_title_map_from_schema_properties(column_properties)
 
-    kwargs_["column_widths"] = get_column_widths_from_schema(
-        schema, column_properties, map_name_title, **kwargs
-    )
+class GridSchema:
+    def __init__(self, schema, get_traits=None, **kwargs):
+        self.schema = schema
+        self.get_traits = get_traits
+        self.map_name_title = get_name_title_map_from_schema_properties(self.properties)
+        {
+            setattr(self, k, v)
+            for k, v in get_global_renderers_from_schema(self.schema, **kwargs)
+        }
+        # ^ sets: ["default_renderer", "header_renderer", "corner_renderer"]
+        self.renderers = get_column_renderers_from_schema(
+            schema,
+            column_properties=self.properties,
+            map_name_title=self.map_name_title,
+            **kwargs,
+        )
+        self.column_widths = get_column_widths_from_schema(
+            schema, self.properties, self.map_name_title, **kwargs
+        )
+        self.column_property_types = get_property_types(self.properties)
+        self.default_data = self._get_default_data()
+        self.default_row = self._get_default_row()
 
-    kwargs_["renderers"] = get_column_renderers_from_schema(
-        schema, column_properties, map_name_title, **kwargs
-    )
+    @property
+    def datagrid_traits(self) -> dict[str, ty.Any]:
+        if self.get_traits is None:
+            return {}
+        else:
+            return {t: try_getattr(self, t) for t in self.get_traits}
 
-    kwargs_ = kwargs_ | get_global_renderers_from_schema(schema, **kwargs)
+    def _get_default_data(self):
+        return get_default_row_data_from_schema_root(self.schema)
 
-    return kwargs_
+    def _get_default_row(self):
+        row = get_default_row_data_from_schema_properties(
+            self.properties, self.column_property_types
+        )
+        if self.default_data is not None:
+            if len(self.default_data) == 1:
+                return self.default_data[0]
+            else:
+                return row
+        else:
+            self.default_data = [row]
+            return row
+
+    @property
+    def properties(self):
+        return get_grid_column_properties_from_schema(self.schema)
 
 
 class AutoGrid(DataGrid):
     """a thin wrapper around DataGrid that makes makes it possible to initiate the
-    grid from a json-schema / pydantic model"""
+    grid from a json-schema / pydantic model.
+
+    Traits that can be set in a DataGrid instance can be reviewed using gr.traits().
+    Note that of these traits, `column_widths` and `renderers` have the format
+    {'column_name': <setting>}.
+
+    """
 
     _value = tr.List()
     schema = tr.Dict()
 
     @tr.observe("schema")
     def _update_from_schema(self, change):
-        self.map_name_title = get_name_title_map_from_schema_properties(self.properties)
-        self.kwargs_merge_schema = create_grid_caller(self.schema)
+        self.gridschema = GridSchema(self.schema, **self.kwargs)
 
     @tr.validate("schema")
     def _valid_schema(self, proposal):
@@ -542,24 +590,42 @@ class AutoGrid(DataGrid):
         self.by_title = by_title
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         data = self._init_data(data)
-        super().__init__(
-            data,
-            **self.kwargs_merge_schema,
-        )
+        super().__init__(data)
+        self.gridschema.get_traits = self.datagrid_trait_names
+        {
+            setattr(self, k, v)
+            for k, v in self.gridschema.datagrid_traits.items()
+            if v is not None
+        }
+
+    @property
+    def datagrid_trait_names(self):
+        li = self.trait_names()
+        li = [l for l in li if l[0] != "_"]
+        li.remove("schema")
+        return li
+
+    @property
+    def properties(self):
+        return self.gridschema.properties
+
+    @property
+    def datagrid_schema_fields(self):
+        return self._data["schema"]["fields"]
+
+    @property
+    def map_name_title(self):
+        return self.gridschema.map_name_title
 
     def _init_data(self, data) -> pd.DataFrame:
         if data is None:
-            data = get_default_grid_data_from_schema(self.schema)
+            data = pd.DataFrame(self.gridschema.default_data)
             if self.by_title:
                 data = data.rename(columns=self.map_name_title)
         else:
             if set(data.columns) == set(self.map_name_title.keys()):
                 data = data.rename(columns=self.map_name_title)
         return data
-
-    @property
-    def properties(self):
-        return get_grid_column_properties_from_schema(self.schema)
 
     def set_row_value(self, key: int, value: dict):
         """Set a chosen row using the key and a value given.
@@ -713,7 +779,7 @@ class AutoGrid(DataGrid):
     # ----------------
 
     @property
-    def di_default_value(self):
+    def di_default_value(self):  # DEPRECATE
         """Obtain default value given in schema."""
         return {
             col_name: (col_data["default"] if "default" in col_data.keys() else None)
@@ -721,7 +787,7 @@ class AutoGrid(DataGrid):
         }
 
     @property
-    def di_field_to_titles(self):
+    def di_field_to_titles(self):  # TODO: deprecate?
         return {field: di["title"] for field, di in self.properties.items()}
 
     @property
@@ -806,11 +872,15 @@ if __name__ == "__main__":
             column_width=120,
         )
         integer: int = Field(40, title="Integer of somesort", column_width=150)
-        floater: float = Field(1.33, title="Floater", column_width=70, aui_sig_fig=3)
+        floater: float = Field(
+            1.3398234, title="Floater", column_width=70, renderer={"format": ".2f"}
+        )
 
     class TestDataFrame(BaseModel):
         # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
-        __root__: ty.List[DataFrameCols] = Field(..., format="dataframe")
+        __root__: ty.List[DataFrameCols] = Field(
+            ..., format="dataframe", renderer={"format": ".2f"}
+        )
 
     # schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
 
