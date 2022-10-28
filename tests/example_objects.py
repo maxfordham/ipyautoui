@@ -10,14 +10,33 @@ class ExampleSchema(BaseModel):
 
 
 class ExampleDataFrameCols(BaseModel):
+    string: str = Field(aui_column_width=100)
+    floater: float = Field(aui_column_width=70, aui_sig_fig=3)
+
+
+class ExampleDataFrameCols1(BaseModel):
     string: str = Field("string", aui_column_width=100)
-    floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
+    floater: float = Field(3.14, aui_column_width=70, aui_sig_fig=3)
 
 
 class ExampleDataFrameSchema(BaseModel):
+    """no default"""
+
+    __root__: ty.List[ExampleDataFrameCols] = Field(format="dataframe")
+
+
+class ExampleDataFrameSchema1(BaseModel):
+    """default."""
+
     __root__: ty.List[ExampleDataFrameCols] = Field(
-        [ExampleDataFrameCols()], format="dataframe"
+        [ExampleDataFrameCols1(string="test", floater=1.5)], format="dataframe"
     )
+
+
+class ExampleDataFrameSchema2(BaseModel):
+    """no default. but properties have default"""
+
+    __root__: ty.List[ExampleDataFrameCols1] = Field(format="dataframe")
 
 
 def get_di():
