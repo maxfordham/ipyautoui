@@ -648,6 +648,10 @@ class AutoGrid(DataGrid):
             ]
 
     @property
+    def default_row(self):
+        return self.gridschema.default_row
+
+    @property
     def datagrid_trait_names(self):
         return [l for l in self.trait_names() if l[0] != "_" and l != "schema"]
 
@@ -809,14 +813,6 @@ class AutoGrid(DataGrid):
         ]
 
     # ----------------
-
-    @property
-    def di_default_value(self):  # DEPRECATE
-        """Obtain default value given in schema."""
-        return {
-            col_name: (col_data["default"] if "default" in col_data.keys() else None)
-            for col_name, col_data in self.properties.items()
-        }
 
     @property
     def di_field_to_titles(self):  # TODO: deprecate?
@@ -1053,8 +1049,8 @@ class EditGrid(widgets.VBox):
         try:
             self._edit_bool = False  # Editing mode is False, therefore addition mode
             self.grid.clear_selection()  # Clear selection of data grid. We don't want to replace an existing value by accident.
-            self.initial_value = self.grid.di_default_value
-            self.baseform.value = self.grid.di_default_value
+            self.initial_value = self.grid.default_row
+            self.baseform.value = self.grid.default_row
             self.baseform.save_button_bar._unsaved_changes(False)
             self._display_baseform()
             self.button_bar.message.value = markdown("  ➕ _Adding Value_ ")
