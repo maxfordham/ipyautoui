@@ -25,9 +25,8 @@ from ipyautoui.automapschema import attach_schema_refs
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
-shutil.rmtree(
-    DIR_TEST_DATA
-)  #  remove previous data. this allows tests to check if files exist.
+shutil.rmtree(DIR_TEST_DATA)
+# ^ remove previous data. this allows tests to check if files exist.
 
 
 class TestCustom:
