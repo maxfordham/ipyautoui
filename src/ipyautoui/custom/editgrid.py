@@ -36,7 +36,7 @@ from ipydatagrid.datagrid import SelectionHelper
 
 import ipyautoui.autoipywidget as aui
 import ipyautoui.custom.save_button_bar as sb
-from ipyautoui._utils import round_sig_figs, obj_from_importstr
+from ipyautoui._utils import obj_from_importstr
 from ipyautoui.automapschema import attach_schema_refs
 
 # from ipyautoui.autoipywidget import AutoIpywidget
@@ -569,8 +569,9 @@ class GridSchema:
     @property
     def properties(self):
         return get_grid_column_properties_from_schema(self.schema)
-# -
 
+
+# -
 
 
 class AutoGrid(DataGrid):
@@ -690,25 +691,11 @@ class AutoGrid(DataGrid):
         value_with_titles = {
             self.di_field_to_titles.get(name): v for name, v in value.items()
         }
-        for col, sig_fig in self.aui_sig_figs.items():
-            value_with_titles[col] = round_sig_figs(
-                value_with_titles[col], sig_figs=sig_fig
-            )
 
         for column, v in value_with_titles.items():
             self.set_cell_value(column, key, v)
 
         self._value[key] = {k: v for k, v in value.items()}
-
-    def _round_sig_figs(self, df):
-        """Round values in dataframe to desired significant figures as given in the schema.
-
-        Args:
-            df (pd.DataFrame): dataframe to round sig figs on.
-        """
-        for k, v in self.aui_sig_figs.items():
-            df.loc[:, k] = df.loc[:, k].apply(lambda x: round_sig_figs(x, sig_figs=v))
-        return df
 
     def _check_value(self, value: list):
         """Checking column names in value passed match those within the dataframe.
@@ -871,15 +858,6 @@ class AutoGrid(DataGrid):
         return [col_name for col_name, col_data in self.properties.items()]
 
     @property
-    def aui_sig_figs(self):
-        self._aui_sig_figs = {
-            col_data["title"]: col_data["aui_sig_fig"]
-            for col_name, col_data in self.properties.items()
-            if "aui_sig_fig" in col_data
-        }
-        return self._aui_sig_figs
-
-    @property
     def kwargs_datagrid_update(self):
         return self._kwargs_datagrid_update
 
@@ -903,7 +881,7 @@ class AutoGrid(DataGrid):
             self._value = value
             data = self._set_titles(self._value)
             df = pd.DataFrame.from_dict(data)
-            self.data = self._round_sig_figs(df)
+            self.data = df
 
 
 if __name__ == "__main__":
