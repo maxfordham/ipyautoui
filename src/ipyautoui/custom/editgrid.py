@@ -544,7 +544,6 @@ class GridWrapper(DataGrid):
         data = self._init_data(data)
         super().__init__(
             data,
-            selection_mode="row",
             **self.kwargs_merge_schema,
         )
         # self.kwargs_datagrid_default = kwargs_datagrid_default
@@ -583,7 +582,6 @@ class GridWrapper(DataGrid):
         """Initialise grid and apply schema properties."""
         super().__init__(
             self.df_empty,
-            selection_mode="row",
             **self.kwargs_datagrid_default,
         )
         # ^ main container. # TODO: may be causing "DeprecationWarning: Passing unrecognized arguments..." in pytest
@@ -963,6 +961,7 @@ class EditGrid(widgets.VBox):
         self.grid = GridWrapper(
             schema=schema,
             value=value,
+            selection_mode="row",
             kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
         )
