@@ -509,6 +509,8 @@ class GridSchema:
             map_name_title=self.map_name_title,
             **kwargs,
         )
+        if len(self.renderers) == 0:
+            self.renderers = None
         self.column_widths = get_column_widths_from_schema(
             schema, self.properties, self.map_name_title, **kwargs
         )
@@ -516,12 +518,37 @@ class GridSchema:
         self.default_data = self._get_default_data()
         self.default_row = self._get_default_row()
 
+        # set any other kwargs ignoring ones that are handled above
+        ignore_kwargs = [
+            "default_renderer",
+            "header_renderer",
+            "corner_renderer",
+            "renderers",
+            "column_widths",
+        ]
+        {setattr(self, k, v) for k, v in kwargs.items() if k not in ignore_kwargs}
+
+        # set any other field attributes ignoring ones that are handled above
+        ignore_schema_keys = [
+            "title",
+            "format",
+            "type",
+            "items",
+            "definitions",
+        ]
+        {
+            setattr(self, k, v)
+            for k, v in self.schema.items()
+            if k not in ignore_schema_keys
+        }
+
     @property
     def datagrid_traits(self) -> dict[str, ty.Any]:
         if self.get_traits is None:
             return {}
         else:
-            return {t: try_getattr(self, t) for t in self.get_traits}
+            _ = {t: try_getattr(self, t) for t in self.get_traits}
+            return {k: v for k, v in _.items() if v is not None}
 
     def _get_default_data(self):
         return get_default_row_data_from_schema_root(self.schema)
@@ -542,6 +569,8 @@ class GridSchema:
     @property
     def properties(self):
         return get_grid_column_properties_from_schema(self.schema)
+# -
+
 
 
 class AutoGrid(DataGrid):
@@ -556,6 +585,22 @@ class AutoGrid(DataGrid):
 
     _value = tr.List()
     schema = tr.Dict()
+    global_decimal_places = tr.Int(default_value=None, allow_none=True)
+
+    @tr.observe("global_decimal_places")
+    def _global_decimal_places(self, change):
+        newfmt = f".{str(self.global_decimal_places)}f"
+        number_cols = [
+            f["name"] for f in self.datagrid_schema_fields if f["type"] == "number"
+        ]
+        di = {}
+        for col in number_cols:
+            if col in self.renderers.keys():
+                if self.renderers[col].format is None:  # no overwrite format if set
+                    self.renderers[col].format = newfmt
+            else:
+                di[col] = TextRenderer(format=newfmt)
+        self.renderers = self.renderers | di
 
     @tr.observe("schema")
     def _update_from_schema(self, change):
@@ -588,22 +633,22 @@ class AutoGrid(DataGrid):
         # accept schema or pydantic schema
         self.kwargs = kwargs
         self.by_title = by_title
+
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         data = self._init_data(data)
         super().__init__(data)
         self.gridschema.get_traits = self.datagrid_trait_names
-        {
-            setattr(self, k, v)
-            for k, v in self.gridschema.datagrid_traits.items()
-            if v is not None
-        }
+        {setattr(self, k, v) for k, v in self.gridschema.datagrid_traits.items()}
+
+        # annoyingly have to add this due to renderers being overwritten...
+        if "global_decimal_places" in self.gridschema.datagrid_traits.keys():
+            self.global_decimal_places = self.gridschema.datagrid_traits[
+                "global_decimal_places"
+            ]
 
     @property
     def datagrid_trait_names(self):
-        li = self.trait_names()
-        li = [l for l in li if l[0] != "_"]
-        li.remove("schema")
-        return li
+        return [l for l in self.trait_names() if l[0] != "_" and l != "schema"]
 
     @property
     def properties(self):
@@ -861,8 +906,6 @@ class AutoGrid(DataGrid):
             self.data = self._round_sig_figs(df)
 
 
-# -
-
 if __name__ == "__main__":
 
     class DataFrameCols(BaseModel):
@@ -873,13 +916,13 @@ if __name__ == "__main__":
         )
         integer: int = Field(40, title="Integer of somesort", column_width=150)
         floater: float = Field(
-            1.3398234, title="Floater", column_width=70, renderer={"format": ".2f"}
+            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
         )
 
     class TestDataFrame(BaseModel):
         # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
         __root__: ty.List[DataFrameCols] = Field(
-            ..., format="dataframe", renderer={"format": ".2f"}
+            ..., format="dataframe", global_decimal_places=2
         )
 
     # schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
