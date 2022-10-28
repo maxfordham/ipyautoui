@@ -693,7 +693,7 @@ class AutoGrid(DataGrid):
 
         # value_with_titles is used for datagrid
         value_with_titles = {
-            self.di_field_to_titles.get(name): v for name, v in value.items()
+            self.map_name_title.get(name): v for name, v in value.items()
         }
 
         for column, v in value_with_titles.items():
@@ -725,7 +725,7 @@ class AutoGrid(DataGrid):
         """
         data = [
             {
-                self.di_field_to_titles.get(name): value
+                self.map_name_title.get(name): value
                 for name, value in di_value.items()
             }  # Replace name from value with title from schema
             for di_value in value
@@ -813,10 +813,6 @@ class AutoGrid(DataGrid):
         ]
 
     # ----------------
-
-    @property
-    def di_field_to_titles(self):  # TODO: deprecate?
-        return {field: di["title"] for field, di in self.properties.items()}
 
     @property
     def selected_visible_cell_iterator(self):
