@@ -44,7 +44,7 @@ from ipyautoui.automapschema import attach_schema_refs
 from ipyautoui.constants import (
     BUTTON_WIDTH_MIN,
     TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT,
-    KWARGS_DATAGRID_DEFAULT,
+    # KWARGS_DATAGRID_DEFAULT,
 )
 
 frozenmap = immutables.Map
@@ -627,7 +627,6 @@ class AutoGrid(DataGrid):
         value: ty.Optional[list] = None,
         by_alias: bool = False,
         by_title: bool = True,
-        kwargs_datagrid_default: frozenmap = frozenmap(),
         kwargs_datagrid_update: frozenmap = frozenmap(),
         **kwargs,
     ):
@@ -725,8 +724,7 @@ class AutoGrid(DataGrid):
         """
         data = [
             {
-                self.map_name_title.get(name): value
-                for name, value in di_value.items()
+                self.map_name_title.get(name): value for name, value in di_value.items()
             }  # Replace name from value with title from schema
             for di_value in value
         ]
@@ -959,7 +957,6 @@ class EditGrid(widgets.VBox):
         datahandler: DataHandler = None,
         ui_add: ty.Callable = None,
         ui_edit: ty.Callable = None,
-        kwargs_datagrid_default: frozenmap = {},
         kwargs_datagrid_update: frozenmap = {},
         description: str = "",
         fn_on_copy: ty.Callable = None,
@@ -975,7 +972,6 @@ class EditGrid(widgets.VBox):
         self._init_form(
             value=value,
             schema=self.schema,
-            kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
             description=description,
         )
@@ -986,7 +982,6 @@ class EditGrid(widgets.VBox):
         self,
         schema,
         value,
-        kwargs_datagrid_default,
         kwargs_datagrid_update,
         description,
     ):
@@ -1004,7 +999,6 @@ class EditGrid(widgets.VBox):
             schema=schema,
             value=value,
             selection_mode="row",
-            kwargs_datagrid_default=kwargs_datagrid_default,
             kwargs_datagrid_update=kwargs_datagrid_update,
         )
         self.baseform = BaseForm(
