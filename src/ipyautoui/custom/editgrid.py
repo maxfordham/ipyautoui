@@ -546,11 +546,6 @@ class AutoGrid(DataGrid):
             data,
             **self.kwargs_merge_schema,
         )
-        # self.kwargs_datagrid_default = kwargs_datagrid_default
-        # self._init_df()
-        # self._init_form()
-        # self.kwargs_datagrid_update = kwargs_datagrid_update
-        # self.value = value
 
     def _init_data(self, data) -> pd.DataFrame:
         if data is None:
@@ -562,31 +557,9 @@ class AutoGrid(DataGrid):
                 data = data.rename(columns=self.map_name_title)
         return data
 
-    def _init_value(self, value):
-        if value is None:
-            pass
-
     @property
     def properties(self):
         return get_grid_column_properties_from_schema(self.schema)
-
-    def _init_df(self):
-        """Preparing initial empty dataframe."""
-        li = get_default_grid_data_from_schema(self.properties)
-        df = pd.DataFrame(li)
-        df = df.drop(df.index)
-        #  ^ Empty dataframe to revert to when everything is deleted
-        self.df_empty = df
-
-    def _init_form(self):
-        """Initialise grid and apply schema properties."""
-        super().__init__(
-            self.df_empty,
-            **self.kwargs_datagrid_default,
-        )
-        # ^ main container. # TODO: may be causing "DeprecationWarning: Passing unrecognized arguments..." in pytest
-        if self.aui_sig_figs and self._data["data"] != []:
-            self._round_sig_figs(self.data)  # Rounds any specified fields in schema
 
     def set_row_value(self, key: int, value: dict):
         """Set a chosen row using the key and a value given.
@@ -750,20 +723,6 @@ class AutoGrid(DataGrid):
     @property
     def di_field_to_titles(self):
         return {field: di["title"] for field, di in self.properties.items()}
-
-    # @property
-    # def selected_rows(self):
-    #     """Get position of rows selected. (not the index / key). returns index of filtered df"""
-    #     _selected_rows = set()
-    #     for di in self.selections:
-    #         r1 = di["r1"]
-    #         r2 = di["r2"]
-    #         if r1 == r2:
-    #             _selected_rows.add(r1)
-    #         else:
-    #             for i in range(r1, r2 + 1):
-    #                 _selected_rows.add(i)
-    #     return list(_selected_rows)
 
     @property
     def selected_visible_cell_iterator(self):
