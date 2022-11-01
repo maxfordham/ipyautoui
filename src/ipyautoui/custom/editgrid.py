@@ -62,106 +62,6 @@ frozenmap = immutables.Map
 # -
 
 
-class BaseForm(widgets.VBox):
-    _value = tr.Dict()
-    _cls_ui = tr.Callable(default_value=None, allow_none=True)
-    # _row_edit_index = tr.Any(default_value=None)
-
-    def __init__(
-        self,
-        schema: ty.Union[dict, ty.Type[BaseModel]],
-        value: dict = None,
-        cls_ui: ty.Callable = None,
-        update_map_widgets=None,
-        fdir=None,
-        save: ty.Callable = lambda: print("SAVE"),
-        revert: ty.Callable = lambda: print("REVERT"),
-        fn_onsave: ty.Callable = lambda: None,
-    ):
-        self.fn_save = save
-        self.fn_revert = revert
-        self.fn_onsave = fn_onsave
-        self.schema = schema
-        self.update_map_widgets = update_map_widgets
-        self.fdir = fdir
-        self._update_BaseForm()
-        super().__init__()
-        self.cls_ui = cls_ui
-        self.out = widgets.Output()
-        if value is not None:
-            self.value = value
-
-    def _init_ui(self):
-        self.ui = self.cls_ui(
-            self.schema,
-            value=self.value,
-            # update_map_widgets=self.update_map_widgets,
-            # fdir=self.fdir,
-        )
-        self.children = [self.title, self.save_button_bar, self.ui]
-        self.save_button_bar._unsaved_changes(False)
-
-    @property
-    def cls_ui(self):
-        return self._cls_ui
-
-    @cls_ui.setter
-    def cls_ui(self, cls_ui):
-        if self._cls_ui != cls_ui or self._cls_ui is None:
-            if cls_ui is None:
-                self._cls_ui = aui.AutoObject
-            else:
-                self._cls_ui = cls_ui
-            self._init_ui()
-            self._update_BaseForm_controls()
-        else:
-            pass
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        self.ui.value = value
-
-    def _update_BaseForm(self):
-        self.save_button_bar = sb.SaveButtonBar(
-            save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
-        )
-        self.title = widgets.HTML()
-        self.save_button_bar._unsaved_changes(False)
-
-    def _update_BaseForm_controls(self):
-        self.ui.observe(self._update_value, "_value")
-        self.observe(self._watch_BaseForm_change, "_value")
-
-    def _watch_BaseForm_change(self, change):
-        self.save_button_bar._unsaved_changes(True)
-
-    def _update_value(self, change):
-        self._value = self.ui.value
-
-
-if __name__ == "__main__":
-
-    class TestModel(BaseModel):
-        string: str = Field("string", title="Important String")
-        integer: int = Field(40, title="Integer of somesort")
-        floater: float = Field(1.33, title="floater")
-
-    def test_save():
-        print("Saved.")
-
-    def test_revert():
-        print("Reverted.")
-
-    ui = BaseForm(schema=TestModel, save=test_save, revert=test_revert)
-    display(ui)
-
-if __name__ == "__main__":
-    ui.value = {"string": "adfs", "integer": 2, "floater": 1.22}
-
 if __name__ == "__main__":
     # With nested object
 
@@ -376,31 +276,7 @@ def get_default_row_data_from_schema_root(schema):
         return schema["default"]
     else:
         return None
-
-
-# +
-# def get_default_grid_data_from_schema(schema: dict, property_types: dict) -> pd.DataFrame:
-#     """pulls default value from schema. intended for a dataframe (i.e. rows
-#     of known columns only). assumes all fields have a 'title' (true when using
-#     pydantic)
-
-#     Args:
-#         properties (dict): schema["items"]["properties"]
-
-#     Returns:
-#         list: list of dictionary column values
-#     """
-#     if "default" in schema.keys():
-#         return pd.DataFrame(schema["default"])
-#     else:
-#         properties = get_grid_column_properties_from_schema(schema)
-#         data = get_default_row_data_from_schema_properties(properties, property_types: dict)
-#         if data is not None:
-#             return pd.DataFrame([data])
-#         else:
-#             return pd.DataFrame(get_property_types(properties), index=[])
-
-
+    
 def get_column_widths_from_schema(schema, column_properties, map_name_title, **kwargs):
     """Set the column widths of the data grid based on column_width given in the schema."""
 
@@ -498,6 +374,7 @@ class GridSchema:
         self.schema = schema
         self.get_traits = get_traits
         self.map_name_title = get_name_title_map_from_schema_properties(self.properties)
+        self.map_title_name = {v: k for k, v in self.map_name_title.items()}
         {
             setattr(self, k, v)
             for k, v in get_global_renderers_from_schema(self.schema, **kwargs)
@@ -584,7 +461,7 @@ class AutoGrid(DataGrid):
 
     """
 
-    _value = tr.List()
+    # _value = tr.List()
     schema = tr.Dict()
     global_decimal_places = tr.Int(default_value=None, allow_none=True)
 
@@ -624,7 +501,7 @@ class AutoGrid(DataGrid):
         self,
         schema: ty.Union[dict, ty.Type[BaseModel]],
         data: ty.Optional[pd.DataFrame] = None,
-        value: ty.Optional[list] = None,
+        # value: ty.Optional[list] = None,
         by_alias: bool = False,
         by_title: bool = True,
         **kwargs,
@@ -665,15 +542,29 @@ class AutoGrid(DataGrid):
     def map_name_title(self):
         return self.gridschema.map_name_title
 
+    @property
+    def map_title_name(self):
+        return self.gridschema.map_title_name
+
+    def get_default_data(self):
+        data = pd.DataFrame(self.gridschema.default_data)
+        if self.by_title:
+            data = data.rename(columns=self.map_name_title)
+        return data
+
+    def map_titles_to_data(self, data):
+        if set(data.columns) == set(self.map_name_title.keys()):
+            return data.rename(columns=self.map_name_title)
+        elif set(data.columns) == set(self.map_name_title.values()):
+            return data
+        else:
+            raise ValueError("input data does not match specified schema")
+
     def _init_data(self, data) -> pd.DataFrame:
         if data is None:
-            data = pd.DataFrame(self.gridschema.default_data)
-            if self.by_title:
-                data = data.rename(columns=self.map_name_title)
+            return self.get_default_data()
         else:
-            if set(data.columns) == set(self.map_name_title.keys()):
-                data = data.rename(columns=self.map_name_title)
-        return data
+            return self.map_titles_to_data(data)
 
     def set_row_value(self, key: int, value: dict):
         """Set a chosen row using the key and a value given.
@@ -684,50 +575,17 @@ class AutoGrid(DataGrid):
             key (int): The key of the row.
             value (dict): The data we want to input into the row.
         """
-        if set([col for col, v in value.items()]) != set(
-            [col for col, v in self.value[0].items()]
-        ):
+        if set(value.keys()) == set(self.map_name_title.keys()):
+            # value_with_titles is used for datagrid
+            value = {self.map_name_title.get(name): v for name, v in value.items()}
+        elif set(value.keys()) == set(self.map_name_title.values()):
+            pass
+        else:
             raise Exception("Columns of value given do not match with value keys.")
-
-        # value_with_titles is used for datagrid
-        value_with_titles = {
-            self.map_name_title.get(name): v for name, v in value.items()
-        }
-
-        for column, v in value_with_titles.items():
+        for column, v in value.items():
             self.set_cell_value(column, key, v)
 
         self._value[key] = {k: v for k, v in value.items()}
-
-    def _check_value(self, value: list):
-        """Checking column names in value passed match those within the dataframe.
-
-        Args:
-            value (list): list of dicts.
-        """
-        for di_value in value:
-            columns = [name for name in di_value.keys()]
-            if not collections.Counter(columns) == collections.Counter(
-                self.li_field_names
-            ):
-                raise Exception(
-                    "Schema fields and data fields do not match.\nRejected Columns:"
-                    f" {set(columns) ^ set(self.li_field_names)}"
-                )
-
-    def _set_titles(self, value: list):
-        """Replace field names with titles in value passed.
-
-        Args:
-            value (list): Replace all the keys in the dictionaries with associated titles from schema.
-        """
-        data = [
-            {
-                self.map_name_title.get(name): value for name, value in di_value.items()
-            }  # Replace name from value with title from schema
-            for di_value in value
-        ]
-        return data
 
     def filter_by_column_name(self, column_name: str, li_filter: list):
         """Filter rows to display based on a column name and a list of objects belonging to that column.
@@ -810,7 +668,9 @@ class AutoGrid(DataGrid):
         ]
 
     # ----------------
-
+    # ----------------
+    # https://github.com/bloomberg/ipydatagrid/issues/340
+    # selecting when a transform is applied...
     @property
     def selected_visible_cell_iterator(self):
         """
@@ -828,11 +688,33 @@ class AutoGrid(DataGrid):
         return SelectionHelper(view_data_object, self.selections, self.selection_mode)
 
     @property
-    def selected_rows_data(self):
+    def selected_row(self):
+        """Get the data selected in the table which is returned as a dataframe."""
+        try:
+            return self.selected_rows[0]
+        except:
+            return None
+
+    def apply_map_name_title(self, row_data):
+        return {
+            self.map_title_name[k]: v
+            for k, v in row_data.items()
+            if k in self.map_title_name.keys()
+        }
+
+    @property
+    def selected_rows(self):
         """Get the data selected in the table which is returned as a dataframe."""
         s = self.selected_visible_cell_iterator
         rows = set([l["r"] for l in s])
-        return [s._data["data"][r] for r in rows]
+        return [self.apply_map_name_title(s._data["data"][r]) for r in rows]
+
+    @property
+    def selected_key(self):
+        try:
+            return self.selected_keys[0]
+        except:
+            return None
 
     @property
     def selected_keys(self):
@@ -842,26 +724,12 @@ class AutoGrid(DataGrid):
         rows = set([l["r"] for l in s])
         return [s._data["data"][r][index] for r in rows]
 
-    @property
-    def li_field_names(self):
-        return [col_name for col_name, col_data in self.properties.items()]
+    # ----------------
 
-    @property
-    def value(self):
-        return self._value
 
-    @value.setter
-    def value(self, value):
-        if value == [] or value is None:
-            self._value = []
-            self.data = self.df_empty
-        else:
-            self._check_value(value)
-            self._value = value
-            data = self._set_titles(self._value)
-            df = pd.DataFrame.from_dict(data)
-            self.data = df
-
+# +
+# grid.map_title_name
+# -
 
 if __name__ == "__main__":
 
@@ -904,17 +772,9 @@ if __name__ == "__main__":
         {"string": "morning", "integer": 5, "floater": 3.14},
         {"string": "number", "integer": 3, "floater": 3.14},
     ]
-    grid.value = eg_value * 10
-
-if __name__ == "__main__":
-    grid = AutoGrid(
-        schema=TestDataFrame,
-        value=eg_value,
-    )
-    display(grid)
+    grid.data = pd.DataFrame(eg_value * 10)
 
 
-# +
 class DataHandler(BaseModel):
     fn_get_all_data: ty.Callable
     fn_post: ty.Callable
@@ -923,18 +783,113 @@ class DataHandler(BaseModel):
     fn_copy: ty.Callable
 
 
-class RowUiCallables(BaseModel):
-    add: ty.Callable
-    edit: ty.Callable
+
+class BaseForm(widgets.VBox):
+    _value = tr.Dict()
+    _cls_ui = tr.Callable(default_value=None, allow_none=True)
+    # _row_edit_index = tr.Any(default_value=None)
+
+    def __init__(
+        self,
+        schema: ty.Union[dict, ty.Type[BaseModel]],
+        value: dict = None,
+        cls_ui: ty.Callable = None,
+        update_map_widgets=None,
+        fdir=None,
+        save: ty.Callable = lambda: print("SAVE"),
+        revert: ty.Callable = lambda: print("REVERT"),
+        fn_onsave: ty.Callable = lambda: None,
+    ):
+        self.fn_save = save
+        self.fn_revert = revert
+        self.fn_onsave = fn_onsave
+        self.schema = schema
+        self.update_map_widgets = update_map_widgets
+        self.fdir = fdir
+        self._update_BaseForm()
+        super().__init__()
+        self.cls_ui = cls_ui
+        self.out = widgets.Output()
+        if value is not None:
+            self.value = value
+        self._update_value("")
+
+    def _init_ui(self):
+        self.ui = self.cls_ui(
+            self.schema,
+            value=self.value,
+            # update_map_widgets=self.update_map_widgets,
+            # fdir=self.fdir,
+        )
+        self.children = [self.title, self.save_button_bar, self.ui]
+        self.save_button_bar._unsaved_changes(False)
+
+    @property
+    def cls_ui(self):
+        return self._cls_ui
+
+    @cls_ui.setter
+    def cls_ui(self, cls_ui):
+        if self._cls_ui != cls_ui or self._cls_ui is None:
+            if cls_ui is None:
+                self._cls_ui = aui.AutoObject
+            else:
+                self._cls_ui = cls_ui
+            self._init_ui()
+            self._update_BaseForm_controls()
+        else:
+            pass
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self.ui.value = value
+
+    def _update_BaseForm(self):
+        self.save_button_bar = sb.SaveButtonBar(
+            save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
+        )
+        self.title = widgets.HTML()
+        self.save_button_bar._unsaved_changes(False)
+
+    def _update_BaseForm_controls(self):
+        self.ui.observe(self._update_value, "_value")
+        self.observe(self._watch_BaseForm_change, "_value")
+
+    def _watch_BaseForm_change(self, change):
+        self.save_button_bar._unsaved_changes(True)
+
+    def _update_value(self, change):
+        self._value = self.ui.value
 
 
-# -
+if __name__ == "__main__":
 
-# IDEA: Possible implementations -@jovyan at 9/3/2022, 11:29:20 AM
-# review having both AutoGrid and EditGrid. This means an additional
-# nesting that requires keeping the _value of both the AutoGrid
-# object and the EditGrid object up-to-date. or maybe AutoGrid
-# doesn't require a _value trait as it is never used within EditGrid.
+    class TestModel(BaseModel):
+        string: str = Field("string", title="Important String")
+        integer: int = Field(40, title="Integer of somesort")
+        floater: float = Field(1.33, title="floater")
+
+    def test_save():
+        print("Saved.")
+
+    def test_revert():
+        print("Reverted.")
+
+    ui = BaseForm(schema=TestModel, save=test_save, revert=test_revert)
+    display(ui)
+
+if __name__ == "__main__":
+    display(ui.value)
+
+if __name__ == "__main__":
+    ui.value = {"string": "adfs", "integer": 2, "floater": 1.22}
+
+
+# +
 class EditGrid(widgets.VBox):
     _value = tr.List()
 
@@ -1008,17 +963,13 @@ class EditGrid(widgets.VBox):
             len(self.grid.selected_keys) == 1
             and self.baseform.layout.display == "block"
         ):
-            print(self.di_row_value)
-            self.baseform.value = self.di_row_value
+            print(self.grid.selected_row)
+            self.baseform.value = self.grid.selected_row
             self.baseform.save_button_bar._unsaved_changes(False)
 
     def _update_baseform_ui(self, cls_ui):
         if type(self.baseform) != cls_ui:
             self.baseform.cls_ui = cls_ui
-
-    @property
-    def selected_row(self):
-        return self.grid.selected_keys[0]
 
     def _add(self):
         self.baseform.cls_ui = self.ui_add
@@ -1040,8 +991,8 @@ class EditGrid(widgets.VBox):
             self._check_one_row_selected()
             if len(self.grid.selected_keys) == 0:
                 raise ValueError("you must select a row")
-            self.initial_value = self.di_row_value
-            self.baseform.value = self.di_row_value  # Set values in fields
+            self.initial_value = self.grid.selected_row
+            self.baseform.value = self.grid.selected_row  # Set values in fields
             self.baseform.save_button_bar._unsaved_changes(
                 False
             )  # Set unsaved changes button back to False
@@ -1123,7 +1074,7 @@ class EditGrid(widgets.VBox):
                 self._reload_all_data()
             else:
                 value = self.value
-                value[self.selected_row] = self.baseform.value
+                value[self.grid.selected_key] = self.baseform.value
                 self.value = value
                 # ^ Call setter
         else:  # Else, if adding values, use post
@@ -1179,28 +1130,78 @@ class EditGrid(widgets.VBox):
         if self.datahandler is not None:
             self.value = self.datahandler.fn_get_all_data()
 
+    # --------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------
+
+    def _check_value(self, value: list):
+        """Checking column names in value passed match those within the dataframe.
+
+        Args:
+            value (list): list of dicts.
+        """
+        for di_value in value:
+            columns = [name for name in di_value.keys()]
+            if not collections.Counter(columns) == collections.Counter(
+                self.li_field_names
+            ):
+                raise Exception(
+                    "Schema fields and data fields do not match.\nRejected Columns:"
+                    f" {set(columns) ^ set(self.li_field_names)}"
+                )
+
+    def _set_titles(self, value: list):
+        """Replace field names with titles in value passed.
+
+        Args:
+            value (list): Replace all the keys in the dictionaries with associated titles from schema.
+        """
+        data = [
+            {
+                self.map_name_title.get(name): value for name, value in di_value.items()
+            }  # Replace name from value with title from schema
+            for di_value in value
+        ]
+        return data
+
+    @property
+    def li_field_names(self):
+        return [col_name for col_name, col_data in self.properties.items()]
+
+    def get_value(self):
+        return self.grid.data.rename(columns=self.grid.map_title_name).to_dict(
+            orient="records"
+        )
+
     @property
     def value(self):
-        self._value = self.grid._value
+        self._value = self.get_value()
+        # _value trait updated called every time the data is retrieved...
+        # probs not the best way in the long run...
         return self._value
 
     @value.setter
     def value(self, value):
-        self.grid.value = value
-        self._value = self.grid.value
+        if value == [] or value is None:
+            self.grid.data = self.grid.get_default_data()
+            self._value = self.get_value()
+        else:
+            df = pd.DataFrame(value)
+            self.data = self.grid.map_titles_to_data(df)
+            self._value = self.get_value()
 
-    @property
-    def di_row_value(self):  # TODO: remove THIS
-        try:
-            self._check_one_row_selected()  # Performing checks to see if only one row is selected
-            di = self.grid.selected_rows_data[0]
-            cols = [v["title"] for k, v in self.baseform.schema["properties"].items()]
-            return {c: di[c] for c in cols}
+    # old
 
-        except Exception as e:
-            self.button_bar.message.value = markdown(f"_{e}_")
-            traceback.print_exc()
 
+#     @property
+#     def value(self):
+#         self._value = self.grid._value
+#         return self._value
+
+#     @value.setter
+#     def value(self, value):
+#         self.grid.value = value
+#         self._value = self.grid.value
+# -
 
 if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = [
@@ -1270,7 +1271,7 @@ if __name__ == "__main__":
     display(editgrid)
 
 
-# editgrid.grid.selected_rows_data
+# editgrid.grid.selected_rows
 
 # editgrid.grid.selected_rows
 
