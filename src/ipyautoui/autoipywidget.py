@@ -304,6 +304,7 @@ class AutoObject(widgets.VBox):
         self.order = setdefault(order, None)
         if value is not None:
             self.value = value
+        self._watch_change('start')
 
     def _init_ui(self):
         self._init_widgets()
@@ -406,7 +407,7 @@ class AutoObject(widgets.VBox):
                 self.di_widgets[k].value = v
             else:
                 logging.critical(
-                    f"no widget created for {k}, with value {str(v)}. fix this in the schema! TODO: fix the schema reader and UI to support nesting. or use ipyvuetify"
+                    f"no widget created for {k}, with value {str(v)}. fix this in the schema!"
                 )
 
     @property
