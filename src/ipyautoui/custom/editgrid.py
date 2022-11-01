@@ -35,7 +35,7 @@ from ipydatagrid import CellRenderer, DataGrid, TextRenderer, Expr, VegaExpr
 from ipydatagrid.datagrid import SelectionHelper
 
 import ipyautoui.autoipywidget as aui
-import ipyautoui.custom.save_button_bar as sb
+import ipyautoui.custom.save_buttonbar as sb
 from ipyautoui._utils import obj_from_importstr
 from ipyautoui.automapschema import attach_schema_refs
 
@@ -211,7 +211,7 @@ if __name__ == "__main__":
     def backward():
         print("BACK")
 
-    button_bar = ButtonBar(
+    buttonbar = ButtonBar(
         add=add,
         edit=edit,
         copy=copy,
@@ -219,7 +219,7 @@ if __name__ == "__main__":
         backward=backward,
     )
 
-    display(button_bar)
+    display(buttonbar)
 
 
 # +
@@ -821,8 +821,8 @@ class BaseForm(widgets.VBox):
             # update_map_widgets=self.update_map_widgets,
             # fdir=self.fdir,
         )
-        self.children = [self.title, self.save_button_bar, self.ui]
-        self.save_button_bar._unsaved_changes(False)
+        self.children = [self.title, self.save_buttonbar, self.ui]
+        self.save_buttonbar._unsaved_changes(False)
 
     @property
     def cls_ui(self):
@@ -849,18 +849,18 @@ class BaseForm(widgets.VBox):
         self.ui.value = value
 
     def _update_BaseForm(self):
-        self.save_button_bar = sb.SaveButtonBar(
+        self.save_buttonbar = sb.SaveButtonBar(
             save=self.fn_save, revert=self.fn_revert, fn_onsave=self.fn_onsave
         )
         self.title = widgets.HTML()
-        self.save_button_bar._unsaved_changes(False)
+        self.save_buttonbar._unsaved_changes(False)
 
     def _update_BaseForm_controls(self):
         self.ui.observe(self._update_value, "_value")
         self.observe(self._watch_BaseForm_change, "_value")
 
     def _watch_BaseForm_change(self, change):
-        self.save_button_bar._unsaved_changes(True)
+        self.save_buttonbar._unsaved_changes(True)
 
     def _update_value(self, change):
         self._value = self.ui.value
@@ -928,7 +928,7 @@ class EditGrid(widgets.VBox):
         description,
     ):
         super().__init__(layout={"width": "100%"})  # main container
-        self.button_bar = ButtonBar(
+        self.buttonbar = ButtonBar(
             add=self._add,
             edit=self._edit,
             copy=self._copy,
@@ -949,11 +949,23 @@ class EditGrid(widgets.VBox):
             fn_onsave=self._onsave,
         )
         self.baseform.title.value = ""
-        self.button_bar.layout = widgets.Layout(padding="0px 20px")
-        self.baseform.save_button_bar.layout = widgets.Layout(padding="0px 20px")
+        self.buttonbar.layout = widgets.Layout(padding="0px 20px")
+        self.baseform.save_buttonbar.layout = widgets.Layout(padding="0px 20px")
         self.baseform.layout = widgets.Layout(padding="0px 0px 40px 0px")
-        self.children = [self.description, self.button_bar, self.baseform, self.grid]
+        self.children = [self.description, self.buttonbar, self.baseform, self.grid]
         self.baseform.layout.display = "none"  # Hide base form menu
+        
+    def _init_editable_row(self):
+        self.editable_row
+        self.vbx_editable_row = w.VBox()
+        self.button
+        pass
+    
+    
+        
+    # @property
+    # def baseform(self):
+    #     return
 
     def _init_controls(self):
         self.grid.observe(self._update_baseform, "selections")
@@ -965,7 +977,7 @@ class EditGrid(widgets.VBox):
         ):
             print(self.grid.selected_row)
             self.baseform.value = self.grid.selected_row
-            self.baseform.save_button_bar._unsaved_changes(False)
+            self.baseform.save_buttonbar._unsaved_changes(False)
 
     def _update_baseform_ui(self, cls_ui):
         if type(self.baseform) != cls_ui:
@@ -978,11 +990,11 @@ class EditGrid(widgets.VBox):
             self.grid.clear_selection()  # Clear selection of data grid. We don't want to replace an existing value by accident.
             self.initial_value = self.grid.default_row
             self.baseform.value = self.grid.default_row
-            self.baseform.save_button_bar._unsaved_changes(False)
+            self.baseform.save_buttonbar._unsaved_changes(False)
             self._display_baseform()
-            self.button_bar.message.value = markdown("  ➕ _Adding Value_ ")
+            self.buttonbar.message.value = markdown("  ➕ _Adding Value_ ")
         except Exception as e:
-            self.button_bar.message.value = markdown("  ☠️ _Failed to add_")
+            self.buttonbar.message.value = markdown("  ☠️ _Failed to add_")
             traceback.print_exc()
 
     def _edit(self):
@@ -993,15 +1005,15 @@ class EditGrid(widgets.VBox):
                 raise ValueError("you must select a row")
             self.initial_value = self.grid.selected_row
             self.baseform.value = self.grid.selected_row  # Set values in fields
-            self.baseform.save_button_bar._unsaved_changes(
+            self.baseform.save_buttonbar._unsaved_changes(
                 False
             )  # Set unsaved changes button back to False
             self._display_baseform()
-            self.button_bar.message.value = markdown("  ✏️ _Editing Value_ ")
+            self.buttonbar.message.value = markdown("  ✏️ _Editing Value_ ")
             self._edit_bool = True  # Editing mode is True
         except Exception as e:
-            self.button_bar.edit.value = False
-            self.button_bar.message.value = markdown(
+            self.buttonbar.edit.value = False
+            self.buttonbar.message.value = markdown(
                 "  👇 _Please select one row from the table!_ "
             )
             traceback.print_exc()
@@ -1009,7 +1021,7 @@ class EditGrid(widgets.VBox):
     def _copy(self):
         try:
             if self.grid.selected_keys == set():
-                self.button_bar.message.value = markdown(
+                self.buttonbar.message.value = markdown(
                     "  👇 _Please select a row from the table!_ "
                 )
             else:
@@ -1026,10 +1038,10 @@ class EditGrid(widgets.VBox):
                     self.value += li_values_selected
                     # ^ add copied values
 
-                self.button_bar.message.value = markdown("  📝 _Copied Data_ ")
+                self.buttonbar.message.value = markdown("  📝 _Copied Data_ ")
                 self._edit_bool = False  # Want to add the values
         except Exception as e:
-            self.button_bar.message.value = markdown(
+            self.buttonbar.message.value = markdown(
                 "  👇 _Please select a row from the table!_ "
             )
             traceback.print_exc()
@@ -1051,10 +1063,10 @@ class EditGrid(widgets.VBox):
                         if i not in self.grid.selected_keys
                     ]
                     # ^ Only set for values NOT in self.grid.selected_keys
-                self.button_bar.message.value = markdown("  🗑️ _Deleted Row_ ")
+                self.buttonbar.message.value = markdown("  🗑️ _Deleted Row_ ")
 
             else:
-                self.button_bar.message.value = markdown(
+                self.buttonbar.message.value = markdown(
                     "  👇 _Please select one row from the table!_"
                 )
         except Exception as e:
@@ -1095,11 +1107,11 @@ class EditGrid(widgets.VBox):
         self._display_grid()
         self._set_toggle_buttons_to_false()
         if self._edit_bool:  # If editing
-            self.button_bar.message.value = markdown(
+            self.buttonbar.message.value = markdown(
                 "  💾 _Successfully updated row_ "
             )  # TODO: Make generic
         else:
-            self.button_bar.message.value = markdown(
+            self.buttonbar.message.value = markdown(
                 "  💾 _Successfully added row_ "
             )  # TODO: Make generic
 
@@ -1110,13 +1122,13 @@ class EditGrid(widgets.VBox):
         self.baseform.value = self.initial_value
 
     def _set_toggle_buttons_to_false(self):
-        if self.button_bar.add.value is True:
-            self.button_bar.add.value = False
-        elif self.button_bar.edit.value is True:
-            self.button_bar.edit.value = False
+        if self.buttonbar.add.value is True:
+            self.buttonbar.add.value = False
+        elif self.buttonbar.edit.value is True:
+            self.buttonbar.edit.value = False
 
     def _display_grid(self):
-        if self.button_bar.edit.value or self.button_bar.add.value:
+        if self.buttonbar.edit.value or self.buttonbar.add.value:
             # ^ Don't remove display of base form if already showing when going from edit to add (or vice versa).
             pass
         else:
