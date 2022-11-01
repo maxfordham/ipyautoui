@@ -1,6 +1,8 @@
 # +
 """file upload wrapper"""
 # %load_ext lab_black
+# %run __init__.py
+# %run ../__init__.py
 import ipywidgets as widgets
 from markdown import markdown
 from IPython.display import display
@@ -55,6 +57,7 @@ class File(BaseModel):
         return values["fdir"] / values["name"]
 
 
+# +
 class FileUi(widgets.HBox):
     _value = tr.Dict()
 
@@ -92,6 +95,11 @@ class FileUi(widgets.HBox):
         self.value["caption"] = self.caption.value
 
 
+if __name__ == "__main__":
+    f = File(name="__init__.py")
+    display(FileUi(f))
+
+
 # +
 def read_file_upload_item(di: dict, fdir=pathlib.Path("."), added_by=None):
     if added_by is None:
@@ -103,11 +111,16 @@ def read_file_upload_item(di: dict, fdir=pathlib.Path("."), added_by=None):
     return File(**_)
 
 
+def add_file(upld_item, fdir=pathlib.Path(".")):
+    f = read_file_upload_item(upld_item, fdir=fdir)
+    f.path.write_bytes(v["content"])
+    return f
+
+
 def add_files_ipywidgets7(upld_value, fdir=pathlib.Path(".")):
     di = {}
     for k, v in upld_value.items():
-        f = read_file_upload_item(v, fdir=fdir)
-        f.path.write_bytes(v["content"])
+        f = add_file(v, fdir=fdir)
         di[k] = f
     return di
 
@@ -115,8 +128,7 @@ def add_files_ipywidgets7(upld_value, fdir=pathlib.Path(".")):
 def add_files_ipywidgets8(upld_value, fdir=pathlib.Path(".")):
     di = {}
     for l in upld_value:
-        f = read_file_upload_item(l, fdir=fdir)
-        f.path.write_bytes(l.content.tobytes())
+        f = add_file(v, fdir=fdir)
         di[k] = f
     return di
 
@@ -130,7 +142,7 @@ def add_files(upld_value, fdir=pathlib.Path(".")):
         return add_files_ipywidgets7(upld_value, fdir=fdir)
 
 
-class FileUploadToDir(widgets.VBox):
+class FilesUploadToDir(widgets.VBox):
     _value = tr.Dict(default_value={})
     _fdir = tr.Unicode()
 
@@ -211,6 +223,94 @@ class FileUploadToDir(widgets.VBox):
 
 
 if __name__ == "__main__":
+    upld = FilesUploadToDir()
+    display(upld)
+# -
+
+from ipyautoui.autodisplayfile_renderers import preview_image, render_file
+
+
+# +
+# TODO: inherit same base as FilesUploadToDir
+class FileUploadToDir(widgets.VBox):
+    _value = tr.Dict(default_value={})
+    _fdir = tr.Unicode()
+
+    def __init__(
+        self,
+        schema=None,
+        value: ty.Union[ty.Dict[str, File], dict] = None,
+        fdir="linked_files",
+        delete_old=True,
+    ):
+        self.fdir = fdir
+        self.delete_old = delete_old
+        self._init_form()
+        self._init_controls()
+        if value is None:
+            value = {}
+
+    @property
+    def fdir(self):
+        return self._fdir
+
+    @fdir.setter
+    def fdir(self, value):
+        self._fdir = value
+
+    @staticmethod
+    def convert_to_dict(item):
+        if isinstance(item, File):
+            return json.loads(item.json())
+        else:
+            return item
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if self.delete_old:
+            self.arr_files.children = []
+            try:
+
+                p = pathlib.Path(self.upld_path)
+                if p.is_file():
+                    p.unlink()
+            except:
+                pass
+        self._value = value  # {k: self.convert_to_dict(v) for k, v in value.items()}
+
+    def _init_form(self):
+        super().__init__(layout={"border": "solid LightCyan 2px"})
+        self.vbx_buttons = widgets.VBox()
+        self.upld = widgets.FileUpload(multiple=False, layout={"width": "300px"})
+        self.vbx_buttons.children = [self.upld]
+        self.arr_files = w.Box()
+        self.children = [self.vbx_buttons, self.arr_files]
+
+    def _init_controls(self):
+        self.upld.observe(self._upld, names="value")
+
+    @property
+    def upld_path(self):
+        try:
+            return list(self.value.values())[0]["path"]
+        except:
+            pass
+
+    def add_files(self, files):
+        self.value = {k: json.loads(v.json()) for k, v in files.items()}
+        self.arr_files.children = [render_file(self.upld_path)]
+
+    def _upld(self, onchange):
+        upload_files = add_files(self.upld.value, fdir=self.fdir)
+        self.add_files(upload_files)
+        self.upld._counter = 0
+
+
+if __name__ == "__main__":
     upld = FileUploadToDir()
     display(upld)
 # -
@@ -221,7 +321,7 @@ if __name__ == "__main__":
     class Ui(BaseModel):
         name: str
         files: ty.Dict[str, File] = Field(
-            autoui="__main__.FileUploadToDir", maximumItems=1, minimumItems=0
+            autoui="__main__.FilesUploadToDir", maximumItems=1, minimumItems=0
         )
         description: str
 
@@ -256,4 +356,3 @@ if __name__ == "__main__":
 #             },
 #         },
 #     }
-# -
