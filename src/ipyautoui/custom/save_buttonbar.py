@@ -50,6 +50,7 @@ class SaveButtonBar(widgets.HBox):
         save: ty.Callable = save,
         revert: ty.Callable = revert,
         fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
+        unsaved_changes: bool = False,
     ):
         """
         UI save dialogue
@@ -66,6 +67,7 @@ class SaveButtonBar(widgets.HBox):
         self.out = widgets.Output()
         self._init_form()
         self._init_controls()
+        self.unsaved_changes.value = unsaved_changes
 
     def _init_form(self):
         super().__init__()
@@ -99,6 +101,7 @@ class SaveButtonBar(widgets.HBox):
     def _init_controls(self):
         self.save.on_click(self._save)
         self.revert.on_click(self._revert)
+        self.unsaved_changes.observe(self._observe_unsaved_changes, "value")
 
     def _save(self, click):
         self.fn_save()
@@ -118,9 +121,8 @@ class SaveButtonBar(widgets.HBox):
         self.message.value = markdown(f"_UI reverted to last save_")
         self._unsaved_changes(False)
 
-    def _unsaved_changes(self, istrue: bool):
-        self.unsaved_changes.value = istrue
-        if istrue:
+    def _observe_unsaved_changes(self, onchange):
+        if self.unsaved_changes.value:
             self.unsaved_changes.button_style = "danger"
             self.unsaved_changes.icon = "circle"
             self.tooltip = "DANGER: changes have been made since the last save"
@@ -128,6 +130,9 @@ class SaveButtonBar(widgets.HBox):
             self.unsaved_changes.button_style = "success"
             self.unsaved_changes.icon = "check"
             self.tooltip = "SAFE: no changes have been made since the last save"
+
+    def _unsaved_changes(self, istrue: bool):  # TODO: deprecate this fn
+        self.unsaved_changes.value = istrue
 
 
 # -

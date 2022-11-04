@@ -59,12 +59,11 @@ frozenmap = immutables.Map
 
 # TODO: Tasks pending completion -@jovyan at 9/22/2022, 9:25:53 PM
 #       Can BaseForm inherit autoipywidget.AutoObject directly?
-# -
-
-# TODO: rename "add" to "fn_add" so not ambiguous...
 
 # TODO: give ButtonBar its own module
 
+# TODO: rename "add" to "fn_add" so not ambiguous...
+# -
 
 class ButtonBar(widgets.HBox):
     def __init__(
@@ -502,10 +501,13 @@ class AutoGrid(DataGrid):
                 "global_decimal_places"
             ]
 
-    def records(self):
-        return self.data.rename(columns=self.grid.map_title_name).to_dict(
-            orient="records"
-        )
+    def records(self, keys_as_title=False):
+        if keys_as_title:
+            return self.data.to_dict(orient="records")
+        else:
+            return self.data.rename(columns=self.map_title_name).to_dict(
+                orient="records"
+            )
 
     @property
     def default_row(self):
@@ -781,7 +783,7 @@ if __name__ == "__main__":
     def test_revert():
         print("Reverted.")
 
-    ui = AutoObject(schema=TestModel, save=test_save, revert=test_revert)
+    ui = aui.AutoObject(schema=TestModel)
     display(ui)
 
 if __name__ == "__main__":
@@ -789,8 +791,6 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     ui.value = {"string": "adfs", "integer": 2, "floater": 1.22}
-
-# -
 
 
 class RowEditor:
@@ -890,6 +890,14 @@ class EditGrid(widgets.VBox):
             self.grid,
         ]
         self.setview_default()
+        self._init_controls()
+
+    def _init_controls(self):
+        self.grid.observe(self._observe_selections, "selections")
+
+    def _observe_selections(self, onchange):
+        if self.buttonbar_grid.edit.value:
+            self._set_ui_edit_to_selected_row()
 
     def setview_add(self):
         self.buttonbar_row.layout.display = ""
@@ -962,7 +970,10 @@ class EditGrid(widgets.VBox):
         self.setview_default()
 
     def _set_ui_add_to_default_row(self):
-        self.ui_add.value = self.grid.default_row
+        if self.ui_add.value == self.grid.default_row:
+            self.buttonbar_row.unsaved_changes.value = False
+        else:
+            self.buttonbar_row.unsaved_changes.value = True
 
     def _post(self):
         if self.datahandler is not None:
@@ -1015,7 +1026,6 @@ class EditGrid(widgets.VBox):
                 "  👇 _Please select a row from the table!_ "
             )
             traceback.print_exc()
-
     # --------------------------------------------------------------------------
 
     # delete
@@ -1057,7 +1067,7 @@ class EditGrid(widgets.VBox):
             traceback.print_exc()
 
 
-# -
+# +
 
 if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = [
@@ -1096,6 +1106,7 @@ if __name__ == "__main__":
         schema=TestDataFrameOnly, description=description, ui_add=None, ui_edit=AutoUi
     )
     display(editgrid)
+
 
 
 # +
