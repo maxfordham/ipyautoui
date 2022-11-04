@@ -31,7 +31,7 @@ import ipywidgets as widgets
 from typing import List
 from markdown import markdown
 from pydantic import BaseModel, Field
-from ipydatagrid import CellRenderer, DataGrid, TextRenderer, Expr, VegaExpr
+from ipydatagrid import CellRenderer, DataGrid, TextRenderer
 from ipydatagrid.datagrid import SelectionHelper
 
 import ipyautoui.autoipywidget as aui
@@ -61,31 +61,9 @@ frozenmap = immutables.Map
 #       Can BaseForm inherit autoipywidget.AutoObject directly?
 # -
 
-
-if __name__ == "__main__":
-    # With nested object
-
-    class DataFrameCols(BaseModel):
-        string: str = Field("string", column_width=100)
-        integer: int = Field(1, column_width=80)
-        floater: float = Field(3.1415, column_width=70, aui_sig_fig=3)
-        something_else: float = Field(324, column_width=100)
-
-    class TestDataFrame(BaseModel):
-        dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
-
-    schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"][
-        "items"
-    ]
-
-    baseform = aui.AutoObject(schema=TestDataFrame)
-    display(baseform)
-
-if __name__ == "__main__":
-    di = {"string": "update", "integer": 10, "floater": 3.123, "something_else": 444}
-    baseform.value = di
-
 # TODO: rename "add" to "fn_add" so not ambiguous...
+
+# TODO: give ButtonBar its own module
 
 
 class ButtonBar(widgets.HBox):
@@ -504,7 +482,6 @@ class AutoGrid(DataGrid):
         self,
         schema: ty.Union[dict, ty.Type[BaseModel]],
         data: ty.Optional[pd.DataFrame] = None,
-        # value: ty.Optional[list] = None,
         by_alias: bool = False,
         by_title: bool = True,
         **kwargs,
@@ -886,7 +863,7 @@ if __name__ == "__main__":
     def test_revert():
         print("Reverted.")
 
-    ui = BaseForm(schema=TestModel, save=test_save, revert=test_revert)
+    ui = AutoObject(schema=TestModel, save=test_save, revert=test_revert)
     display(ui)
 
 if __name__ == "__main__":
@@ -894,25 +871,6 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     ui.value = {"string": "adfs", "integer": 2, "floater": 1.22}
-
-bbar = ButtonBar(
-    lambda: "add", lambda: "edit", lambda: "copy", lambda: "delete", lambda: "backward"
-)
-bbar
-
-
-# +
-class UiSettings(tr.HasTraits):
-    description = tr.Unicode()
-
-
-class MyBox(widgets.VBox, UiSettings):
-    def __init__(self):
-        self.description = "asdfasdf"
-        super().__init__()
-        self.children = [widgets.Text(self.description)]
-        self.button = widgets.Button()
-
 
 # -
 
@@ -1622,18 +1580,3 @@ if __name__ == "__main__":
     editgrid.value = AUTO_GRID_DEFAULT_VALUE
 
     display(editgrid)
-
-
-# editgrid.grid.selected_rows
-
-# editgrid.grid.selected_rows
-
-# editgrid.grid.selected_keys
-
-# editgrid.grid.get_dataframe_index(editgrid.grid.data)
-
-# editgrid.grid._data["data"]
-
-# editgrid.grid._data["schema"]
-
-# editgrid.grid._data["fields"]
