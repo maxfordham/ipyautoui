@@ -86,8 +86,10 @@ class IntSlider(widgets.IntSlider):
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
 
+
 # TODO: add `schema` as a `tr.Dict()` with a validator and observe
-#       on_change re-initialize the widget... 
+#       on_change re-initialize the widget...
+
 
 class FloatText(widgets.FloatText):
     """Example:
@@ -165,13 +167,6 @@ class SelectMultiple(widgets.SelectMultiple):
 
 
 class Checkbox(widgets.Checkbox):
-    def __init__(self, schema):
-        self.schema = schema
-        self.caller = create_widget_caller(schema)
-        super().__init__(**self.caller)
-
-
-class ColorPicker(widgets.ColorPicker):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
