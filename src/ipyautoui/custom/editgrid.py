@@ -41,11 +41,6 @@ from ipyautoui.automapschema import attach_schema_refs
 
 # from ipyautoui.autoipywidget import AutoIpywidget
 
-from ipyautoui.constants import (
-    BUTTON_WIDTH_MIN,
-    TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT,
-    # KWARGS_DATAGRID_DEFAULT,
-)
 
 frozenmap = immutables.Map
 
@@ -63,7 +58,6 @@ frozenmap = immutables.Map
 # TODO: give ButtonBar its own module
 
 # TODO: rename "add" to "fn_add" so not ambiguous...
-# -
 
 
 # +
@@ -296,18 +290,9 @@ class GridSchema:
 # -
 
 
-class AutoGrid(DataGrid):
-    """a thin wrapper around DataGrid that makes makes it possible to initiate the
-    grid from a json-schema / pydantic model.
+class DataGrid(DataGrid):
+    """extends DataGrid with useful generic functions"""
 
-    Traits that can be set in a DataGrid instance can be reviewed using gr.traits().
-    Note that of these traits, `column_widths` and `renderers` have the format
-    {'column_name': <setting>}.
-
-    """
-
-    # _value = tr.List()
-    schema = tr.Dict()
     global_decimal_places = tr.Int(default_value=None, allow_none=True)
 
     @tr.observe("global_decimal_places")
@@ -324,6 +309,24 @@ class AutoGrid(DataGrid):
             else:
                 di[col] = TextRenderer(format=newfmt)
         self.renderers = self.renderers | di
+
+    @property
+    def datagrid_schema_fields(self):
+        return self._data["schema"]["fields"]
+
+
+class AutoGrid(DataGrid):
+    """a thin wrapper around DataGrid that makes makes it possible to initiate the
+    grid from a json-schema / pydantic model.
+
+    Traits that can be set in a DataGrid instance can be reviewed using gr.traits().
+    Note that of these traits, `column_widths` and `renderers` have the format
+    {'column_name': <setting>}.
+
+    """
+
+    # _value = tr.List()
+    schema = tr.Dict()
 
     @tr.observe("schema")
     def _update_from_schema(self, change):
@@ -385,10 +388,6 @@ class AutoGrid(DataGrid):
     @property
     def properties(self):
         return self.gridschema.properties
-
-    @property
-    def datagrid_schema_fields(self):
-        return self._data["schema"]["fields"]
 
     @property
     def map_name_title(self):
@@ -891,6 +890,7 @@ class EditGrid(widgets.VBox):
                 "  👇 _Please select a row from the table!_ "
             )
             traceback.print_exc()
+
     # --------------------------------------------------------------------------
 
     # delete
@@ -932,7 +932,7 @@ class EditGrid(widgets.VBox):
             traceback.print_exc()
 
 
-# +
+# -
 
 if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = [
@@ -971,7 +971,6 @@ if __name__ == "__main__":
         schema=TestDataFrameOnly, description=description, ui_add=None, ui_edit=AutoUi
     )
     display(editgrid)
-
 
 
 # +
