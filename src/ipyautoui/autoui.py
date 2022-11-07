@@ -47,6 +47,7 @@ from ipyautoui._utils import display_python_string
 from ipyautoui.custom import SaveButtonBar  #  Grid, FileChooser,
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 from ipyautoui.autoipywidget import AutoObject
+
 # from ipyautoui.autovjsf import AutoVjsf
 
 
@@ -57,8 +58,10 @@ class SaveControls(str, Enum):
     disable_edits = "disable_edits"  #  TODO: implement this
     # archive_versions = 'archive_versions' #  TODO: implement this?
 
+
 class SaveActions(BaseModel):
     fn_onsave: ty.Callable
+
 
 def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
     """recursive function to replace all keys beginning x_ --> x-
@@ -109,10 +112,6 @@ def jsonschema_to_pydantic(
 ) -> ty.Optional[ty.Type[BaseModel]]:
     pass  # TODO: https://github.com/samuelcolvin/pydantic/issues/1638
 
-# -
-
-
-
 
 # +
 # IDEA: Possible implementations -@jovyan at 7/18/2022, 6:02:03 PM
@@ -129,8 +128,10 @@ class AutoUiCommonMethods(tr.HasTraits):
     - showing raw json form data
     - creating displayfile_renderer and autoui_renderer
     """
+
     save_controls = tr.UseEnum(SaveControls)  # default is save_on_edit
     path = traitlets_paths.Path(allow_none=True)
+    # request = traitlets.HTML() # for making requests to API... how does it work with 2 roots?
 
     @tr.validate("path")
     def _path(self, proposal):
@@ -150,7 +151,6 @@ class AutoUiCommonMethods(tr.HasTraits):
             logging.info("self.path == None. must be a valid path to save as json")
 
         return proposal["value"]
-
 
     def _get_path(self, path=None):
         if path is None:
@@ -213,7 +213,12 @@ class AutoUiCommonMethods(tr.HasTraits):
         fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
         path=None,
     ):
-        docstring = f"AutoRenderer for {get_schema_title(schema)}"
+        if isinstance(schema, dict):
+            docstring = f"AutoRenderer for {get_from_schema_root(schema, 'title')}"
+        else:
+            docstring = (
+                f"AutoRenderer for {get_from_schema_root(schema.schema(), 'title')}"
+            )
 
         class AutoRenderer(cls):
             def __init__(self, path: pathlib.Path = None):
@@ -243,7 +248,12 @@ class AutoUiCommonMethods(tr.HasTraits):
         AutoRenderer = cls.create_autoui_renderer(
             schema, save_controls=save_controls, show_raw=show_raw, fn_onsave=fn_onsave
         )
-        docstring = f"AutoRenderer for {get_schema_title(schema)}"
+        if isinstance(schema, dict):
+            docstring = f"AutoRenderer for {get_from_schema_root(schema, 'title')}"
+        else:
+            docstring = (
+                f"AutoRenderer for {get_from_schema_root(schema.schema(), 'title')}"
+            )
         return {ext: AutoRenderer}
 
     def _revert(self):  # TODO: check this!
@@ -257,7 +267,7 @@ class AutoUiCommonMethods(tr.HasTraits):
             revert=self._revert,
             fn_onsave=self.fn_onsave,
         )
-        self.hbx_savecontrols.children = [self.save_buttonbar]
+        self.hbx_savebuttonbar.children = [self.save_buttonbar]
         self.fn_onvaluechange = functools.partial(
             self.save_buttonbar._unsaved_changes, True
         )
@@ -294,7 +304,6 @@ class AutoUi(AutoObject, AutoUiCommonMethods):  # AutoIpywidget
             self.fdir = str(self.path.parent)  # TODO: use traitlets_paths
         else:
             self.fdir = None
-        self.show_raw = show_raw
 
         # list of actions to be called on save
         self.fn_onsave = fn_onsave
@@ -306,8 +315,8 @@ class AutoUi(AutoObject, AutoUiCommonMethods):  # AutoIpywidget
             update_map_widgets=None,
             fdir=self.fdir,
         )
-        self._init_AutoUiCommonMethods()
         self.save_controls = save_controls
+        self.show_raw = show_raw
 
 
 # -
@@ -315,21 +324,25 @@ class AutoUi(AutoObject, AutoUiCommonMethods):  # AutoIpywidget
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
 
-    schema = TestAutoLogicSimple.schema()
     aui = AutoUi(
         TestAutoLogicSimple,
         path="test.json",
-        # show_raw=True,
+        show_raw=True,
         fn_onsave=lambda: print("test onsave"),
     )
     display(aui)
 
+if __name__ == "__main__":
+    aui.show_description = False
+    aui.show_title = False
+    aui.show_raw = False
+
 # + tags=[]
 if __name__ == "__main__":
     # Renderer = AutoUi.create_autoui_renderer(schema)
-    Renderer = AutoUi.create_autoui_renderer(
-        TestAutoLogic, path="test.json", show_raw=False
-    )
+    from ipyautoui.autoipywidget import get_from_schema_root
+
+    Renderer = AutoUi.create_autoui_renderer(TestAutoLogic, show_raw=False)
     display(Renderer(path="test1.json"))
 
 
