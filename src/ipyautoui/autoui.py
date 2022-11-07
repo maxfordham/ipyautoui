@@ -48,7 +48,7 @@ from enum import Enum
 from ipyautoui._utils import display_python_string
 from ipyautoui.custom import SaveButtonBar  #  Grid, FileChooser,
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-from ipyautoui.autoipywidget import AutoObject, AutoIpywidget, _init_model_schema
+from ipyautoui.autoipywidget import AutoObject, AutoIpywidget, _init_model_schema, 
 
 # from ipyautoui.autovjsf import AutoVjsf
 
@@ -110,6 +110,9 @@ def jsonschema_to_pydantic(
 ) -> ty.Optional[ty.Type[BaseModel]]:
     pass  # TODO: https://github.com/samuelcolvin/pydantic/issues/1638
 
+# -
+
+
 
 
 # +
@@ -130,8 +133,6 @@ class AutoUiCommonMethods(tr.HasTraits):
 
     save_controls = tr.UseEnum(SaveControls)  # default is save_on_edit
     path = traitlets_paths.Path(allow_none=True)
-    show_raw = tr.Bool(default_value=True)
-    show_description = tr.Bool(default_value=True)
 
     @tr.validate("path")
     def _path(self, proposal):
@@ -152,63 +153,6 @@ class AutoUiCommonMethods(tr.HasTraits):
 
         return proposal["value"]
 
-    @property
-    def json(self):
-        if self.model is not None:
-            return self.model(**self.value).json(indent=4)
-        else:
-            return json.dumps(self.value, indent=4)
-
-    def _init_AutoUiCommonMethods(self):
-        self._init_autoui_form()
-        self._init_bn_showraw_controls()
-        self._init_observe_show_raw()
-
-    def _init_observe_show_raw(self):
-        self.observe(self._show_raw, "show_raw")
-
-    def _show_raw(self, onchange):
-        self._update_show_raw()
-
-    def _init_autoui_form(self):
-        self._init_titlebox()
-        self._init_bn_showraw()
-        li = list(self.children)
-        li = [self.vbx_header] + li + [self.vbx_raw]
-        self.children = li
-
-    def _init_bn_showraw(self):
-        self.vbx_raw = widgets.VBox()
-        self.out_raw = widgets.Output()
-        self.vbx_raw.children = [self.out_raw]
-
-    def _init_titlebox(self):
-        # init containers
-        self.vbx_header = widgets.VBox()  #  overall header container
-        self.hbx_savecontrols = widgets.HBox()  #  with save controls
-        self.hbx_title_toggle = widgets.HBox()  #  with show_raw toggle and title
-        self.hbx_description = widgets.HBox()  #  with description
-        self.vbx_header.children = [
-            self.hbx_savecontrols,
-            self.hbx_title_toggle,
-            self.hbx_description,
-        ]
-
-        # init content
-        self.title = widgets.HTML(f"<big><b>{self.schema['title']}</b></big>")
-        self.bn_showraw = widgets.ToggleButton(
-            icon="code",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
-            tooltip="show raw data",
-            style={"font_weight": "bold", "button_color": None},
-        )
-        self._update_show_raw()
-        self.description = widgets.HTML()
-        self._init_description()
-
-        # fill containers
-        self.hbx_title_toggle.children = [self.bn_showraw, self.title]
-        self.hbx_description.children = [self.description]
 
     def _get_path(self, path=None):
         if path is None:
@@ -271,7 +215,6 @@ class AutoUiCommonMethods(tr.HasTraits):
         fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
         path=None,
     ):
-        # ext = path.suffixes.join(".")
         docstring = f"AutoRenderer for {get_schema_title(schema)}"
 
         class AutoRenderer(cls):
@@ -331,14 +274,6 @@ class AutoUiCommonMethods(tr.HasTraits):
 
     def call_disable_edits(self):
         pass  # TODO - call_disable_edits
-
-    # def _init_model_schema(self, schema):
-    #     if type(schema) == dict:
-    #         model = None  # jsonschema_to_pydantic(schema)  # TODO: do this!
-    #     else:
-    #         model = schema  # the "model" passed is a pydantic model
-    #         schema = model.schema(by_alias=False)
-    #     return model, schema
 
 
 class AutoUi(AutoObject, AutoUiCommonMethods):  # AutoIpywidget
