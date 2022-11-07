@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.8
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -48,13 +48,12 @@ from enum import Enum
 from ipyautoui._utils import display_python_string
 from ipyautoui.custom import SaveButtonBar  #  Grid, FileChooser,
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-from ipyautoui.autoipywidget import AutoIpywidget, _init_model_schema
+from ipyautoui.autoipywidget import AutoObject, AutoIpywidget, _init_model_schema
 
 # from ipyautoui.autovjsf import AutoVjsf
 
-# -
 
-
+# +
 class SaveControls(str, Enum):
     save_buttonbar = "save_buttonbar"
     save_on_edit = "save_on_edit"  #  TODO: test this
@@ -98,7 +97,6 @@ def parse_json_file(path: pathlib.Path, model=None):
         return json.loads(p.read_text())
 
 
-# +
 def displayfile_renderer(path, renderer=None):
     if renderer is None:
         raise ValueError("renderer must not be None")
@@ -109,23 +107,20 @@ def jsonschema_to_pydantic(
     schema: ty.Type,  #: JsonSchemaObject
     *,
     config: ty.Type = None,  # = JsonSchemaConfig
-) -> ty.Type[BaseModel]:
+) -> ty.Optional[ty.Type[BaseModel]]:
     pass  # TODO: https://github.com/samuelcolvin/pydantic/issues/1638
 
 
-def get_schema_title(schema):
 
-    if type(schema) != dict:
-        schema = schema.schema()
-    if "title" in schema.keys():
-        return schema["title"]
-    else:
-        return ""
-
-
+# +
 # IDEA: Possible implementations -@jovyan at 7/18/2022, 6:02:03 PM
-# instead of having a general `AutoUiCommonMethods`, split into specific task
-# orientated classes. e.g. AutoUiShowRaw
+#       instead of having a general `AutoUiCommonMethods`, split into specific task
+#       orientated classes. e.g. AutoUiShowRaw
+
+# class AutoUiFileHandler(tr.HasTraits):
+#     path = traitlets_paths.Path(allow_none=True)
+
+
 class AutoUiCommonMethods(tr.HasTraits):
     """methods for:
     - reading and writing to file
@@ -215,45 +210,6 @@ class AutoUiCommonMethods(tr.HasTraits):
         self.hbx_title_toggle.children = [self.bn_showraw, self.title]
         self.hbx_description.children = [self.description]
 
-    def _init_description(self):
-        if "description" in self.schema.keys():
-            self.description.value = markdown(f"{self.schema['description']}")
-        if self.show_description:
-            self.description.layout.display = ""
-        else:
-            self.description.layout.display = "None"
-
-    def _update_show_raw(self):
-        if self.show_raw:
-            self.bn_showraw.layout.display = ""
-        else:
-            self.bn_showraw.layout.display = "None"
-
-    def _init_bn_showraw_controls(self):
-        self.bn_showraw.observe(self._bn_showraw, "value")
-
-    def _bn_showraw(self, onchange):
-        if self.bn_showraw.value:
-            self.bn_showraw.tooltip = "show user interface"
-            self.bn_showraw.icon = "user-edit"
-            self.autowidget.layout.display = "None"
-            self.vbx_raw.layout.display = ""
-
-            with self.out_raw:
-                clear_output()
-                try:
-                    js = self.json
-                    display_python_string(self.json)
-                except:
-                    print("value is not valid json")
-                    display_pretty(self.value)
-
-        else:
-            self.bn_showraw.tooltip = "show raw data"
-            self.bn_showraw.icon = "code"
-            self.autowidget.layout.display = ""
-            self.vbx_raw.layout.display = "None"
-
     def _get_path(self, path=None):
         if path is None:
             if self.path is not None:
@@ -264,7 +220,7 @@ class AutoUiCommonMethods(tr.HasTraits):
         else:
             return path
 
-    def _get_value(self, v, p):
+    def _get_value(self, v, p):  # TODO: check this... wasn't working...
         """
         Args:
             v: value
@@ -385,7 +341,7 @@ class AutoUiCommonMethods(tr.HasTraits):
     #     return model, schema
 
 
-class AutoUi(AutoIpywidget, AutoUiCommonMethods):
+class AutoUi(AutoObject, AutoUiCommonMethods):  # AutoIpywidget
     """extends AutoIpywidget and AutoUiCommonMethods to create an
     AutoUi capable of interacting with a json file"""
 
@@ -434,7 +390,7 @@ if __name__ == "__main__":
     aui = AutoUi(
         TestAutoLogicSimple,
         path="test.json",
-        show_raw=False,
+        # show_raw=True,
         fn_onsave=lambda: print("test onsave"),
     )
     display(aui)

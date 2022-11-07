@@ -21,11 +21,12 @@ shutil.rmtree(
 )  #  remove previous data. this allows tests to check if files exist.
 
 
-class TestUi:
+class TestAutoUi:
     def test_auto_ui(self):
         auto_ui_eg = ExampleSchema()
         ui = AutoUi(auto_ui_eg)
-        assert ui.caller.schema_["type"] == "object"
+        assert ui.value == {"text": "Test"}
+        print("done")
 
     # def test_display_file(self):
     #     fpths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
