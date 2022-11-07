@@ -5,6 +5,9 @@ import typing as ty
 from pydantic import BaseModel, Field
 
 
+class ExampleRoot(BaseModel):
+    __root__: str = Field(default="Test", description="This test is important")
+
 class ExampleSchema(BaseModel):
     text: str = Field(default="Test", description="This test is important")
 
