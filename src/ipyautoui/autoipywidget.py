@@ -257,31 +257,37 @@ def make_bold(s: str) -> str:
     return f"<big><b>{s}</b></big>"
 
 
+def show_hide_widget(widget, show: bool):
+    try:
+        if show:
+            widget.layout.display = ""
+        else:
+            widget.layout.display = "None"
+    except:
+        ValueError(str(widget) + "failed to change layout.display")
+
+
 class AutoObjectFormLayout(AutoObjectShowRaw):
     show_raw = tr.Bool()
     show_description = tr.Bool()
     show_title = tr.Bool()
+    show_savebuttonbar = tr.Bool()
 
     @tr.observe("show_raw")
     def _observe_show_raw(self, change):
-        if self.show_raw:
-            self.hbx_title.children = [self.bn_showraw, self.title]
-        else:
-            self.hbx_title.children = [self.title]
+        show_hide_widget(self.bn_showraw, self.show_raw)
 
     @tr.observe("show_description")
     def _observe_show_description(self, change):
-        if self.show_description:
-            self.description.layout.display = ""
-        else:
-            self.description.layout.display = "None"
+        show_hide_widget(self.description, self.show_description)
 
     @tr.observe("show_title")
     def _observe_show_title(self, change):
-        if self.show_title:
-            self.title.layout.display = ""
-        else:
-            self.title.layout.display = "None"
+        show_hide_widget(self.title, self.show_title)
+
+    @tr.observe("show_savebuttonbar")
+    def _observe_show_savebuttonbar(self, change):
+        show_hide_widget(self.hbx_savebuttonbar, self.show_savebuttonbar)
 
     def __init__(self):
         super().__init__()
@@ -293,11 +299,13 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
     def _init_form(self):
         self.autowidget = widgets.VBox()
         self.hbx_title = widgets.HBox()
+        self.hbx_savebuttonbar = widgets.HBox()
         self.title = widgets.HTML()
-        self.hbx_title.children = [self.title]
-        self.description = widgets.HTML()
         self._init_bn_showraw()
+        self.hbx_title.children = [self.bn_showraw, self.title]
+        self.description = widgets.HTML()  #
         self.children = [
+            self.hbx_savebuttonbar,
             self.hbx_title,
             self.description,
             self.autowidget,
@@ -307,36 +315,55 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
     def display_ui(self):
         self.autowidget.layout.display = ""
 
-    def display_showraw(self):  # overwrite this in AutoObject
+    def display_showraw(self):  # NOTE: this overwritten this in AutoObject
         self.autowidget.layout.display = "None"
         return '{"test": "json"}'
 
 
 def demo_autoobject_form(title="test", description="a description of the title"):
     """for docs and testing only..."""
+    from ipyautoui.custom.save_buttonbar import SaveButtonBar
 
     form = AutoObjectFormLayout()
     form.title.value = make_bold(title)
     form.description.value = description
-    form.show_raw = False
-    form.hbx_title.layout = {"border": "solid red 2px"}
+    form.show_raw = True
+    form.show_description = True
+    form.show_title = True
+    form.show_savebuttonbar = True
+    form.hbx_savebuttonbar.layout = {"border": "solid red 2px"}
+    form.hbx_savebuttonbar.children = [SaveButtonBar()]
+    form.hbx_title.layout = {"border": "solid blue 2px"}
     form.autowidget.layout = {"border": "solid green 2px", "height": "200px"}
     form.autowidget.children = [widgets.Button(description="PlaceHolder Widget")]
     form.vbx_showraw.layout = {
-        "border": "solid green 2px",
+        "border": "solid orange 2px",
         "height": "200px",
     }
     form.layout = {"border": "solid yellow 2px"}
+    form._bn_showraw("d")
     return form
 
 
 if __name__ == "__main__":
     form = demo_autoobject_form()
-    form.show_raw = True
     display(form)
 
 
 # -
+
+
+if __name__ == "__main__":
+    form.show_savebuttonbar = False
+    form.show_description = False
+    form.show_title = False
+    form.show_raw = False
+
+if __name__ == "__main__":
+    form.show_savebuttonbar = True
+    form.show_description = True
+    form.show_title = True
+    form.show_raw = True
 
 
 class AutoObject(AutoObjectFormLayout):  # widgets.VBox
@@ -349,8 +376,6 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
     nested_widgets = tr.List()
     order = tr.List(default_value=None, allow_none=True)
     insert_rows = tr.Dict(default_value=None, allow_none=True)
-    show_description = tr.Bool()
-    show_title = tr.Bool()
 
     @tr.validate("insert_rows")
     def validate_insert_rows(self, proposal):
