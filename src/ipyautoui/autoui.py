@@ -59,10 +59,6 @@ class SaveControls(str, Enum):
     # archive_versions = 'archive_versions' #  TODO: implement this?
 
 
-class SaveActions(BaseModel):
-    fn_onsave: ty.Callable
-
-
 def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
     """recursive function to replace all keys beginning x_ --> x-
     this allows schema Field keys to be definied in pydantic and then
@@ -263,9 +259,8 @@ class AutoUiCommonMethods(tr.HasTraits):
 
     def call_save_buttonbar(self):
         self.save_buttonbar = SaveButtonBar(
-            save=self.file,
+            save=[self.file, self.fn_onsave],
             revert=self._revert,
-            fn_onsave=self.fn_onsave,
         )
         self.hbx_savebuttonbar.children = [self.save_buttonbar]
         self.fn_onvaluechange = functools.partial(

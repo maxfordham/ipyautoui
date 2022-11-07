@@ -32,114 +32,142 @@ import traitlets as tr
 import typing as ty
 from enum import Enum
 
-from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET, BUTTON_WIDTH_MIN
+from ipyautoui.constants import (
+    MAP_JSONSCHEMA_TO_IPYWIDGET,
+    BUTTON_WIDTH_MIN,
+    TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT,
+)
 
 
 # +
-def save():
-    print("save")
 
 
-def revert():
-    print("revert")
+def merge_callables(callables: ty.Union[ty.Callable, ty.List[ty.Callable]]):
+    if isinstance(callables, ty.Callable):
+        return callables
+    elif isinstance(callables, ty.List):
+        return lambda: [c() for c in callables if isinstance(c, ty.Callable)]
+    else:
+        raise ValueError("callables must be a callable or list of callables")
 
 
-class SaveButtonBar(widgets.HBox):
-    def __init__(
-        self,
-        save: ty.Callable = save,
-        revert: ty.Callable = revert,
-        fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
-        unsaved_changes: bool = False,
-    ):
-        """
-        UI save dialogue
+class SaveActions(tr.HasTraits):
+    unsaved_changes = tr.Bool()
+    fn_save = tr.Union([tr.List(trait=tr.Callable()), tr.Callable()])
+    fn_revert = tr.Union([tr.List(trait=tr.Callable()), tr.Callable()])
+    fn_load = tr.Union([tr.List(trait=tr.Callable()), tr.Callable()])
 
-        Args:
-            save: ty.Callable, zero input fn called on click of save button
-            revert: ty.Callable, zero input fn called on click of revert button
-            fn_onsave: ty.Callable, additional action that can be added to save button click
+    @tr.default("fn_save")
+    def _default_fn_save(self):
+        return lambda: print("fn_save")
 
-        """
-        self.fn_save = save
-        self.fn_revert = revert
-        self.fn_onsave = fn_onsave
-        self.out = widgets.Output()
+    @tr.default("fn_revert")
+    def _default_fn_revert(self):
+        return lambda: print("fn_revert")
+
+    @tr.default("fn_load")
+    def _default_fn_load(self):
+        return lambda: print("fn_load")
+
+    @tr.validate("fn_save")
+    def _validate_fn_save(self, proposal):
+        return merge_callables(proposal["value"])
+
+    @tr.validate("fn_revert")
+    def _validate_fn_revert(self, proposal):
+        return merge_callables(proposal["value"])
+
+    @tr.validate("fn_load")
+    def _validate_fn_load(self, proposal):
+        return merge_callables(proposal["value"])
+
+
+if __name__ == "__main__":
+    actions = SaveActions()
+    actions.fn_save = [lambda: print("asdf"), lambda: print(";asdf")]
+    actions.fn_save()
+
+# +
+
+
+class SaveButtonBar(widgets.HBox, SaveActions):
+    @tr.observe("unsaved_changes")
+    def _observe_unsaved_changes(self, change):
+        self.tgl_unsaved_changes.value = self.unsaved_changes
+
+    def __init__(self, **kwargs):
+        super().__init__()
         self._init_form()
         self._init_controls()
-        self.unsaved_changes.value = unsaved_changes
+        [setattr(self, k, v) for k, v in kwargs.items()]
 
     def _init_form(self):
-        super().__init__()
-        self.unsaved_changes = widgets.ToggleButton(
+        self.tgl_unsaved_changes = widgets.ToggleButton(
             disabled=True, layout=widgets.Layout(width=BUTTON_WIDTH_MIN)
         )
-        self.revert = widgets.Button(
-            icon="fa-undo",
-            tooltip="revert to last save",
-            button_style="warning",
-            style={"font_weight": "bold"},
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
-        )  # ,button_style='success'
-        self.save = widgets.Button(
+        self.bn_save = widgets.Button(
             icon="fa-save",
             tooltip="save changes",
             button_style="success",
             layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.showraw = widgets.ToggleButton(
-            icon="code",
+        self.bn_revert = widgets.Button(
+            icon="fa-undo",
+            tooltip="revert to last save",
+            button_style="warning",
+            style={"font_weight": "bold"},
             layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
-            tooltip="show raw text data",
-            style={"font_weight": "bold", "button_color": None},
         )
         self.message = widgets.HTML("")
-        children = [self.unsaved_changes, self.revert, self.save]
-        children.append(self.message)
-        self.children = children
+        self.children = [
+            self.tgl_unsaved_changes,
+            self.bn_revert,
+            self.bn_save,
+            self.message,
+        ]
+        self.unsaved_changes = True
+        self._observe_tgl_unsaved_changes("change")
 
     def _init_controls(self):
-        self.save.on_click(self._save)
-        self.revert.on_click(self._revert)
-        self.unsaved_changes.observe(self._observe_unsaved_changes, "value")
+        self.bn_save.on_click(self._save)
+        self.bn_revert.on_click(self._revert)
+        self.tgl_unsaved_changes.observe(self._observe_tgl_unsaved_changes, "value")
 
     def _save(self, click):
         self.fn_save()
         self.message.value = markdown(
             f'_changes saved: {datetime.now().strftime("%H:%M:%S")}_'
         )
-        self._unsaved_changes(False)
-        if isinstance(self.fn_onsave, ty.Callable):
-            self.fn_onsave()
-        elif isinstance(self.fn_onsave, list):
-            [f() for f in self.fn_onsave]
-        else:
-            ValueError("fn_onsave must be zero-order func or list of zero-order funcs")
+        self.unsaved_changes = False
 
     def _revert(self, click):
         self.fn_revert()
         self.message.value = markdown(f"_UI reverted to last save_")
-        self._unsaved_changes(False)
+        self.unsaved_changes = False
 
-    def _observe_unsaved_changes(self, onchange):
-        if self.unsaved_changes.value:
-            self.unsaved_changes.button_style = "danger"
-            self.unsaved_changes.icon = "circle"
-            self.tooltip = "DANGER: changes have been made since the last save"
+    def _observe_tgl_unsaved_changes(self, onchange):
+        if self.tgl_unsaved_changes.value:
+            self.tgl_unsaved_changes.button_style = "danger"
+            self.tgl_unsaved_changes.icon = "circle"
+            self.tgl_unsaved_changes.tooltip = (
+                "DANGER: changes have been made since the last save"
+            )
         else:
-            self.unsaved_changes.button_style = "success"
-            self.unsaved_changes.icon = "check"
-            self.tooltip = "SAFE: no changes have been made since the last save"
+            self.tgl_unsaved_changes.button_style = "success"
+            self.tgl_unsaved_changes.icon = "check"
+            self.tgl_unsaved_changes.tooltip = (
+                "SAFE: no changes have been made since the last save"
+            )
 
-    def _unsaved_changes(self, istrue: bool):  # TODO: deprecate this fn
-        self.unsaved_changes.value = istrue
 
+if __name__ == "__main__":
+    sb = SaveButtonBar()
+    display(sb)
 
 # -
 
 if __name__ == "__main__":
-    save_button_bar = SaveButtonBar()
-    display(save_button_bar)
+    sb.unsaved_changes = False
 
 
 class ButtonBar(widgets.HBox):
@@ -276,4 +304,3 @@ if __name__ == "__main__":
     )
 
     display(buttonbar)
-

@@ -458,7 +458,7 @@ class AutoGrid(DataGrid):
 
     # move rows around
     # ----------------
-    def _swap_rows(self, key_a: int, key_b: int):
+    def _swap_rows(self, key_a: int, key_b: int): # TODO: fix!
         """Swap two rows by giving their keys.
 
         Args:
@@ -806,8 +806,7 @@ class EditGrid(widgets.VBox):
         try:
             self._validate_edit_click()
             self._set_ui_edit_to_selected_row()
-            self.buttonbar_row.fn_save = self._save_edit_to_grid
-            self.buttonbar_row.fn_onsave = self._patch
+            self.buttonbar_row.fn_save = [self._save_edit_to_grid, self._patch]
             self.buttonbar_row.fn_revert = self._set_ui_edit_to_selected_row
             self.buttonbar_grid.message.value = markdown("  ✏️ _Editing Value_ ")
             self.setview_edit()
@@ -846,8 +845,7 @@ class EditGrid(widgets.VBox):
     def _add(self):
         try:
             self._set_ui_add_to_default_row()
-            self.buttonbar_row.fn_save = self._save_add_to_grid
-            self.buttonbar_row.fn_onsave = self._post
+            self.buttonbar_row.fn_save = [self._save_add_to_grid, self._post]
             self.buttonbar_row.fn_revert = self._set_ui_add_to_default_row
             self.buttonbar_grid.message.value = markdown("  ✏️ _Editing Value_ ")
             self.setview_add()
@@ -1037,17 +1035,6 @@ class EditGrid(widgets.VBox):
             selection_mode="row",
         )
 
-        # self.baseform = BaseForm(
-        #     schema=self.schema["items"],
-        #     save=self._save,
-        #     revert=self._revert,
-        #     fn_onsave=self._onsave,
-        # )
-        # self.baseform.title.value = ""
-        # self.baseform.save_buttonbar.layout = widgets.Layout(padding="0px 20px")
-        # self.baseform.layout = widgets.Layout(padding="0px 0px 40px 0px")
-        # self.baseform.layout.display = "none"  # Hide base form menu
-
         self.children = [self.description, self.buttonbar, self.baseform, self.grid]
 
     @property
@@ -1073,7 +1060,7 @@ class EditGrid(widgets.VBox):
 
     def _init_editrow(self):
         self.buttonbar_editrow = sb.SaveButtonBar(
-            save=self._save, revert=self._revert, fn_onsave=self._onsave
+            save=[self._save, self._onsave], revert=self._revert
         )
         self.buttonbar_editrow.layout = widgets.Layout(padding="0px 20px")
         self.vbx_baseform = widgets.VBox()
@@ -1082,7 +1069,7 @@ class EditGrid(widgets.VBox):
 
     def _init_addrow(self):
         self.buttonbar_addrow = sb.SaveButtonBar(
-            save=self._save, revert=self._revert, fn_onsave=self._onsave
+            save=[self._save, self._onsave], revert=self._revert
         )
         self.buttonbar_addrow.layout = widgets.Layout(padding="0px 20px")
         self.vbx_baseform = widgets.VBox()
