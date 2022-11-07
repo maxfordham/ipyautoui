@@ -116,6 +116,10 @@ def _get_value_trait(obj_with_traits):
         )
 
 
+def get_from_schema_root(schema: ty.Dict, key: ty.AnyStr) -> ty.AnyStr:
+    return schema[key] if key in schema.keys() else ""
+
+
 def add_fdir_to_widgetcaller(caller, fdir: str):  #: aumap.WidgetCaller
     """_summary_
 
@@ -334,6 +338,7 @@ if __name__ == "__main__":
 
 # -
 
+
 class AutoObject(AutoObjectFormLayout):  # widgets.VBox
     """creates an ipywidgets form from a json-schema or pydantic model. datatype must be "object" """
 
@@ -475,10 +480,10 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
             return json.dumps(self.value, indent=4)
 
     def get_description(self):
-        return self.schema["description"] if "description" in self.schema.keys() else ""
+        return get_from_schema_root(self.schema, "description")
 
     def get_title(self):
-        return self.schema["title"] if "title" in self.schema.keys() else ""
+        return get_from_schema_root(self.schema, "title")
 
     def _init_ui(self):
         self._init_widgets()
