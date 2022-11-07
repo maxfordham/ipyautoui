@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.8
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -39,11 +39,15 @@ import traitlets as tr
 # use traitlets_paths or not... pull request to main traitlets?
 import typing as ty
 from ipyautoui.constants import DOWNARROW_BUTTON_KWARGS
-
 from ipyautoui.custom.showhide import ShowHide
 import ipyautoui.automapschema as aumap
 import immutables
 import inspect
+from ipyautoui._utils import obj_from_importstr
+import json
+from ipyautoui.constants import BUTTON_WIDTH_MIN
+from IPython.display import display, Markdown, clear_output, display_pretty
+from ipyautoui._utils import display_python_string
 
 frozenmap = immutables.Map
 
@@ -51,7 +55,7 @@ frozenmap = immutables.Map
 # +
 def _init_widgets_and_labels(
     pr: ty.Dict,
-) -> tuple((ty.List[widgets.HBox], ty.Dict)):
+) -> tuple[ty.Dict[str, widgets.HBox], ty.Dict]:
     """initiates widget for from dict built from schema
 
     Args:
@@ -190,7 +194,147 @@ def create_row(
         return vertical_row(widget, label)
 
 
-class AutoObject(widgets.VBox):
+# +
+class AutoObjectShowRaw(widgets.VBox):
+    fn_onshowraw = tr.Callable(default_value=lambda: "{'test':'json'}")
+    fn_onhideraw = tr.Callable(default_value=lambda: None)
+
+    def __init__(self):
+        super().__init__(
+            layout=widgets.Layout(
+                width="100%",
+                display="flex",
+                flex="flex-grow",
+            )
+        )
+        self._init_bn_showraw()
+        self._init_bn_showraw_controls()
+
+    def _init_bn_showraw(self):
+        self.bn_showraw = widgets.ToggleButton(
+            icon="code",
+            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            tooltip="show raw data",
+            style={"font_weight": "bold", "button_color": None},
+        )
+        self.vbx_showraw = widgets.VBox()
+        self.out_raw = widgets.Output()
+        self.vbx_showraw.children = [self.out_raw]
+
+    def _init_bn_showraw_controls(self):
+        self.bn_showraw.observe(self._bn_showraw, "value")
+
+    def _bn_showraw(self, onchange):
+        if self.bn_showraw.value:
+            self.bn_showraw.tooltip = "show user interface"
+            self.bn_showraw.icon = "user-edit"
+            di = self.fn_onshowraw()
+            self.vbx_showraw.layout.display = ""
+
+            with self.out_raw:
+                clear_output()
+                display_python_string(di)
+
+        else:
+            self.bn_showraw.tooltip = "show raw data"
+            self.bn_showraw.icon = "code"
+            self.fn_onhideraw()
+            self.vbx_showraw.layout.display = "None"
+
+
+if __name__ == "__main__":
+    ui_showraw = AutoObjectShowRaw()
+    display(ui_showraw.bn_showraw)
+    display(ui_showraw.vbx_showraw)
+
+
+# +
+def make_bold(s: str) -> str:
+    return f"<big><b>{s}</b></big>"
+
+
+class AutoObjectFormLayout(AutoObjectShowRaw):
+    show_raw = tr.Bool()
+    show_description = tr.Bool()
+    show_title = tr.Bool()
+
+    @tr.observe("show_raw")
+    def _observe_show_raw(self, change):
+        if self.show_raw:
+            self.hbx_title.children = [self.bn_showraw, self.title]
+        else:
+            self.hbx_title.children = [self.title]
+
+    @tr.observe("show_description")
+    def _observe_show_description(self, change):
+        if self.show_description:
+            self.description.layout.display = ""
+        else:
+            self.description.layout.display = "None"
+
+    @tr.observe("show_title")
+    def _observe_show_title(self, change):
+        if self.show_title:
+            self.title.layout.display = ""
+        else:
+            self.title.layout.display = "None"
+
+    def __init__(self):
+        super().__init__()
+        self._init_form()
+        self._init_bn_showraw_controls()
+        self.fn_onshowraw = self.display_showraw
+        self.fn_onhideraw = self.display_ui
+
+    def _init_form(self):
+        self.autowidget = widgets.VBox()
+        self.hbx_title = widgets.HBox()
+        self.title = widgets.HTML()
+        self.hbx_title.children = [self.title]
+        self.description = widgets.HTML()
+        self._init_bn_showraw()
+        self.children = [
+            self.hbx_title,
+            self.description,
+            self.autowidget,
+            self.vbx_showraw,
+        ]
+
+    def display_ui(self):
+        self.autowidget.layout.display = ""
+
+    def display_showraw(self):  # overwrite this in AutoObject
+        self.autowidget.layout.display = "None"
+        return '{"test": "json"}'
+
+
+def demo_autoobject_form(title="test", description="a description of the title"):
+    """for docs and testing only..."""
+
+    form = AutoObjectFormLayout()
+    form.title.value = make_bold(title)
+    form.description.value = description
+    form.show_raw = False
+    form.hbx_title.layout = {"border": "solid red 2px"}
+    form.autowidget.layout = {"border": "solid green 2px", "height": "200px"}
+    form.autowidget.children = [widgets.Button(description="PlaceHolder Widget")]
+    form.vbx_showraw.layout = {
+        "border": "solid green 2px",
+        "height": "200px",
+    }
+    form.layout = {"border": "solid yellow 2px"}
+    return form
+
+
+if __name__ == "__main__":
+    form = demo_autoobject_form()
+    form.show_raw = True
+    display(form)
+
+
+# -
+
+class AutoObject(AutoObjectFormLayout):  # widgets.VBox
     """creates an ipywidgets form from a json-schema or pydantic model. datatype must be "object" """
 
     _value = tr.Dict(allow_none=True)
@@ -200,9 +344,11 @@ class AutoObject(widgets.VBox):
     nested_widgets = tr.List()
     order = tr.List(default_value=None, allow_none=True)
     insert_rows = tr.Dict(default_value=None, allow_none=True)
+    show_description = tr.Bool()
+    show_title = tr.Bool()
 
     @tr.validate("insert_rows")
-    def _insert_rows(self, proposal):
+    def validate_insert_rows(self, proposal):
         fn_checkisintkeys = (
             lambda di: True
             if [isinstance(l, int) == True for l in di.keys()]
@@ -236,7 +382,6 @@ class AutoObject(widgets.VBox):
         from ipyautoui import AutoUi
 
         default_nested = [
-            AutoIpywidget,
             AutoArray,
             AutoMarkdown,
             EditGrid,
@@ -247,10 +392,12 @@ class AutoObject(widgets.VBox):
 
     @tr.validate("nested_widgets")
     def _valid_nested_widgets(self, proposal):
-        return proposal["value"]
+        fn = lambda s: obj_from_importstr(s) if isinstance(s, str) else s
+        return [fn(p) for p in proposal["value"]]
 
     @tr.validate("_value")
     def _valid_value(self, proposal):
+        # TODO: add validation?
         return proposal["value"]
 
     @property
@@ -278,6 +425,8 @@ class AutoObject(widgets.VBox):
         order=None,
         insert_rows=None,
         nested_widgets=None,
+        show_description: bool = True,
+        show_title: bool = True,
     ):
         """creates a widget input form from schema. datatype must be "object"
 
@@ -295,20 +444,44 @@ class AutoObject(widgets.VBox):
         Returns:
             AutoIpywidget(widgets.VBox)
         """
-        setdefault = lambda val, default: default if val is None else val
+        super().__init__()
         self.insert_rows = insert_rows
         self.update_map_widgets = update_map_widgets
         self.fdir = fdir
         self._init_schema(schema, by_alias=by_alias)
         self._init_ui()
+        self._format_rows()
+        setdefault = lambda val, default: default if val is None else val
         self.order = setdefault(order, None)
+        self.show_description = show_description
+        self.show_title = show_title
+        self.title.value = make_bold(self.get_title())
+        self.description.value = self.get_description()
         if value is not None:
             self.value = value
-        self._watch_change('start')
+        else:
+            self._value = self.di_widgets_value
+        self._watch_change("start")
+
+    def display_showraw(self):
+        self.autowidget.layout.display = "None"
+        return self.json
+
+    @property
+    def json(self):
+        if self.model is not None:
+            return self.model(**self.value).json(indent=4)
+        else:
+            return json.dumps(self.value, indent=4)
+
+    def get_description(self):
+        return self.schema["description"] if "description" in self.schema.keys() else ""
+
+    def get_title(self):
+        return self.schema["title"] if "title" in self.schema.keys() else ""
 
     def _init_ui(self):
         self._init_widgets()
-        self._init_form()
         self._init_controls()
 
     def _init_schema(self, schema, by_alias=False):
@@ -317,7 +490,10 @@ class AutoObject(widgets.VBox):
             raise ValueError(
                 '"type" must be in schema keys and "type" must == "object"'
             )
-        pr = self.schema["properties"]
+        if "properties" in self.schema.keys():
+            pr = self.schema["properties"]
+        else:
+            pr = {"__root__": self.schema}
         self.pr = {
             k: aumap.map_widget(v, widgets_map=self.widgets_map) for k, v in pr.items()
         }
@@ -327,18 +503,8 @@ class AutoObject(widgets.VBox):
 
     def _init_widgets(self):
         self.di_labels, self.di_widgets = _init_widgets_and_labels(self.pr)
-        self._value = self.di_widgets_value
-        self._update_widgets_from_value()
-
-    def _init_form(self):
-        super().__init__(
-            layout=widgets.Layout(
-                width="100%",
-                display="flex",
-                flex="flex-grow",
-            )
-        )
-        self._format_rows()
+        # self._value = self.di_widgets_value
+        # self._update_widgets_from_value()
 
     def _insert_rows(self):
         if self.insert_rows is not None:
@@ -359,7 +525,7 @@ class AutoObject(widgets.VBox):
             for row in order
         ]
         self._insert_rows()
-        self.children = self.rows
+        self.autowidget.children = self.rows
 
     def _init_controls(self):
         self._init_watch_widgets()
@@ -391,13 +557,14 @@ class AutoObject(widgets.VBox):
                 "auto_open",
                 "insert_rows",
                 "nested_widgets",
-            ],
+            ],  # type: ignore
         )
 
     def _watch_change(self, change, key=None, watch="value"):
         self._value = self.di_widgets_value
         # NOTE: it is required to set the whole "_value" otherwise
-        # traitlets doesn't register the change. -@jovyan at 7/18/2022, 12:45:48 PM
+        #       traitlets doesn't register the change.
+        #       -@jovyan at 7/18/2022, 12:45:48 PM
 
     def _update_widgets_from_value(self):
         for k, v in self.value.items():
@@ -431,7 +598,27 @@ class AutoObject(widgets.VBox):
         self.widgets_map = aumap.widgets_map(value)
 
 
-# -
+if __name__ == "__main__":
+    from ipyautoui.constants import load_test_constants
+    from ipyautoui.test_schema import TestAutoLogicSimple
+
+    test_constants = load_test_constants()
+    test = TestAutoLogicSimple()
+    schema = test.schema()
+    ui = AutoObject(schema)
+    display(ui)
+
+if __name__ == "__main__":
+    ui.show_raw = True
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod()
+
+
+# +
+# TODO: deprecate
 class AutoIpywidget(widgets.VBox):
     """Automatically generates the widget based on an input schema"""
 
@@ -505,22 +692,18 @@ class AutoIpywidget(widgets.VBox):
 
 
 if __name__ == "__main__":
-    import doctest
+    from pydantic import BaseModel
 
-    doctest.testmod()
+    class Test(BaseModel):
+        """sadfasdf"""
 
-if __name__ == "__main__":
-    from ipyautoui.constants import load_test_constants
-    from ipyautoui.test_schema import TestAutoLogicSimple
+        __root__: list[str] = ["string"]
 
-    test_constants = load_test_constants()
-    test = TestAutoLogicSimple()
-    schema = test.schema()
-    ui = AutoObject(schema)
+    ui = AutoIpywidget(Test)
     display(ui)
 
-if __name__ == "__main__":
-    display(schema)
+    ui_ = AutoObject(Test, nested_widgets=[])  # TODO fix nested_widgets!
+    display(ui_)
 
 if __name__ == "__main__":
     li = ui.default_order.copy()
@@ -543,6 +726,59 @@ if __name__ == "__main__":
 #     schema = test.schema()
 #     ui = AutoIpywidget(schema)
 #     display(ui)
+# -
+
+
+class AutoTest(AutoObject):
+    """Automatically generates the widget based on an input schema"""
+
+    _value = tr.Integer()
+
+    def __init__(
+        self,
+        schema,
+        value=None,
+        by_alias=False,
+        update_map_widgets=None,
+        fdir=None,
+        order=None,
+        insert_rows=None,
+        nested_widgets=None,
+    ):
+        """creates a widget input form from schema. datatype must be "object"
+
+        Args:
+            schema (dict): json schema defining widget to generate
+            value (dict, optional): value of json. Defaults to None.
+            update_map_widgets (frozenmap, optional): frozen dict of widgets to map to schema items. Defaults to None.
+            fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
+            order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
+            insert_rows (dict): e.g. {3:widgets.Button()}. allows user to insert a widget into the rows. its presence
+                is ignored by the widget otherwise.
+            nested_widgets (list): e.g. [FileUploadToDir]. allows user to indicate widgets that should be show / hide
+                type
+
+        Returns:
+            AutoIpywidget(widgets.VBox)
+        """
+        setdefault = lambda val, default: default if val is None else val
+        self.insert_rows = insert_rows
+        self.update_map_widgets = update_map_widgets
+        self.fdir = fdir
+        self._init_schema(schema, by_alias=by_alias)
+        self._init_ui()
+        self.order = setdefault(order, None)
+        if value is not None:
+            self.value = value
+        else:
+            self._value = self.di_widgets_value
+        self._watch_change("start")
+
+    def _init_trait(self):
+        # NOTE: see test for add_traits that demos usage  -@jovyan at 7/18/2022, 12:11:39 PM
+        # https://github.com/ipython/ipython/commit/5105f02df27456cc54867dfbe4cef60d91021f92
+        trait_type = tr.Unicode  # type(_get_value_trait(self))
+        # self.add_traits(**{"_value": trait_type()})
 
 
 # + active=""
