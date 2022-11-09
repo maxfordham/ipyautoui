@@ -23,7 +23,7 @@ This information can also be stored to file.
 Example:
     see example for a pydantic schema that can be automatically converted into a 
     ipywidgets UI. Currently nesting is not supported::
-    
+
         from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
         DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
 """
@@ -46,7 +46,7 @@ from enum import Enum
 from ipyautoui._utils import display_python_string
 from ipyautoui.custom import SaveButtonBar  #  Grid, FileChooser,
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-from ipyautoui.autoipywidget import AutoObject
+from ipyautoui.autoipywidget import AutoObject, get_from_schema_root
 
 # from ipyautoui.autovjsf import AutoVjsf
 
@@ -109,44 +109,21 @@ def jsonschema_to_pydantic(
     pass  # TODO: https://github.com/samuelcolvin/pydantic/issues/1638
 
 
-# +
-# IDEA: Possible implementations -@jovyan at 7/18/2022, 6:02:03 PM
-#       instead of having a general `AutoUiCommonMethods`, split into specific task
-#       orientated classes. e.g. AutoUiShowRaw
-
-# class AutoUiFileHandler(tr.HasTraits):
-#     path = traitlets_paths.Path(allow_none=True)
+# -
 
 
-class AutoUiCommonMethods(tr.HasTraits):
-    """methods for:
-    - reading and writing to file
-    - showing raw json form data
-    - creating displayfile_renderer and autoui_renderer
-    """
-
-    save_controls = tr.UseEnum(SaveControls)  # default is save_on_edit
+class AutoUiFileMethods(tr.HasTraits):
     path = traitlets_paths.Path(allow_none=True)
-    # request = traitlets.HTML() # for making requests to API... how does it work with 2 roots?
 
     @tr.validate("path")
     def _path(self, proposal):
         if proposal["value"] is not None:
             return pathlib.Path(proposal["value"])
 
-    @tr.validate("save_controls")
-    def _save_controls(self, proposal):
-        if self.path is not None:
-            map_save_dialogue = immutables.Map(
-                save_buttonbar=self.call_save_buttonbar,  # only this one currently works
-                save_on_edit=self.call_save_on_edit,
-                disable_edits=self.call_disable_edits,
-            )
-            map_save_dialogue[proposal["value"]]()
-        else:
-            logging.info("self.path == None. must be a valid path to save as json")
-
-        return proposal["value"]
+    @tr.observe("path")
+    def _observe_path(self, proposal):
+        self.save_actions.fns_onsave_add_action(self.file)
+        self.save_actions.fns_onrevert_add_action(self.load_file)
 
     def _get_path(self, path=None):
         if path is None:
@@ -185,28 +162,40 @@ class AutoUiCommonMethods(tr.HasTraits):
     def file(self, path=None):
         p = self._get_path(path=path)
         p.write_text(self.json, encoding="utf-8")
+        self.save_actions.unsaved_changes = False
 
-    def parse_file(self, path=None):
-        if self.path is not None and self.path.is_file():
+    def parse_file(self, path=None) -> dict:
+        p = self._get_path(path=path)
+        if p.is_file():
             return parse_json_file(self.path, model=self.model)
         else:
-            raise ValueError("self.path is not None and self.path.is_file() == False")
+            raise ValueError("path.is_file() == False")
+
+    def load_value(self, value, unsaved_changes=False):
+        self.value = value
+        if unsaved_changes:
+            self.save_actions.unsaved_changes = False
+        else:
+            self.save_actions.unsaved_changes = True
 
     def load_file(self, path=None):
         p = self._get_path(path=path)
-        self.value = parse_json_file(p, model=self.model)
-        try:
-            self.save_buttonbar._unsaved_changes(False)
-        except:
-            pass
+        if path is None:
+            unsaved_changes = False
+        else:
+            unsaved_changes = True
+        self.load_value(parse_json_file(p, model=self.model), unsaved_changes)
 
+
+# +
+
+
+class AutoRenderMethods:
     @classmethod
     def create_autoui_renderer(
         cls,
         schema: ty.Union[ty.Type[BaseModel], dict],
-        save_controls: SaveControls = SaveControls.save_buttonbar,
         show_raw: bool = True,
-        fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
         path=None,
     ):
         if isinstance(schema, dict):
@@ -217,7 +206,7 @@ class AutoUiCommonMethods(tr.HasTraits):
             )
 
         class AutoRenderer(cls):
-            def __init__(self, path: pathlib.Path = None):
+            def __init__(self, path: pathlib.Path = path):
                 f"""{docstring}"""
                 if path is None:
                     raise ValueError("must give path")
@@ -225,9 +214,7 @@ class AutoUiCommonMethods(tr.HasTraits):
                     schema,
                     path=path,
                     value=None,
-                    save_controls=save_controls,
                     show_raw=show_raw,
-                    fn_onsave=fn_onsave,
                 )
 
         return AutoRenderer
@@ -237,13 +224,9 @@ class AutoUiCommonMethods(tr.HasTraits):
         cls,
         schema: ty.Union[ty.Type[BaseModel], dict],
         ext=".json",
-        save_controls: SaveControls = SaveControls.save_buttonbar,
         show_raw: bool = True,
-        fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
     ):
-        AutoRenderer = cls.create_autoui_renderer(
-            schema, save_controls=save_controls, show_raw=show_raw, fn_onsave=fn_onsave
-        )
+        AutoRenderer = cls.create_autoui_renderer(schema, show_raw=show_raw)
         if isinstance(schema, dict):
             docstring = f"AutoRenderer for {get_from_schema_root(schema, 'title')}"
         else:
@@ -252,34 +235,9 @@ class AutoUiCommonMethods(tr.HasTraits):
             )
         return {ext: AutoRenderer}
 
-    def _revert(self):  # TODO: check this!
-        assert self.path is not None, f"self.path = {self.path}. must not be None"
-        self.load_file(self.path)
-        self.save_buttonbar._unsaved_changes(False)
 
-    def call_save_buttonbar(self):
-        self.save_buttonbar = SaveButtonBar(
-            save=[self.file, self.fn_onsave],
-            revert=self._revert,
-        )
-        self.hbx_savebuttonbar.children = [self.save_buttonbar]
-        self.fn_onvaluechange = functools.partial(
-            self.save_buttonbar._unsaved_changes, True
-        )
-        self.save_buttonbar._unsaved_changes(False)
-        self.observe(self.call_unsaved_changes, "_value")
-
-    def call_unsaved_changes(self, on_change):
-        self.fn_onvaluechange()
-
-    def call_save_on_edit(self):
-        pass  # TODO - call_save_on_edit
-
-    def call_disable_edits(self):
-        pass  # TODO - call_disable_edits
-
-
-class AutoUi(AutoObject, AutoUiCommonMethods):  # AutoIpywidget
+# +
+class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):  # AutoIpywidget
     """extends AutoIpywidget and AutoUiCommonMethods to create an
     AutoUi capable of interacting with a json file"""
 
@@ -288,33 +246,68 @@ class AutoUi(AutoObject, AutoUiCommonMethods):  # AutoIpywidget
         schema: ty.Union[ty.Type[BaseModel], dict],
         value: dict = None,
         path: pathlib.Path = None,  # TODO: generalise data retrieval?
-        save_controls: SaveControls = SaveControls.save_buttonbar,
         show_raw: bool = True,
-        fn_onsave: ty.Union[ty.Callable, ty.List[ty.Callable]] = lambda: None,
         validate_onchange=True,  # TODO: sort out how the validation works
         update_fdir_to_path_parent=True,
+        **kwargs,
     ):
-        self.path = path
-        if self.path is not None:
-            self.fdir = str(self.path.parent)  # TODO: use traitlets_paths
-        else:
-            self.fdir = None
 
-        # list of actions to be called on save
-        self.fn_onsave = fn_onsave
+        if path is not None:
+            fdir = str(pathlib.Path(path).parent)  # TODO: use traitlets_paths
+        else:
+            fdir = None
 
         # init app
         super().__init__(
-            schema=schema,
-            value=value,
-            update_map_widgets=None,
-            fdir=self.fdir,
+            schema, value=value, update_map_widgets=None, fdir=fdir, **kwargs
         )
-        self.save_controls = save_controls
+        self.path = path
         self.show_raw = show_raw
 
 
-# -
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
+
+    aui = AutoUi(
+        TestAutoLogicSimple,
+        path="test.json",
+        show_raw=True,
+    )
+    aui.show_savebuttonbar = True
+    display(aui)
+
+# + active=""
+# aui.save_actions.fns_onrevert[1]()
+
+# + active=""
+# aui.value = parse_json_file(aui._get_path(), model=aui.model)
+
+# + active=""
+# v = {'string': 'asdfasdfasdfasdf',
+#  'int_slider': 1,
+#  'int_text': 1,
+#  'int_range_slider': (0, 3),
+#  'float_slider': 2,
+#  'float_text': 2.2,
+#  'float_text_locked': 2.2,
+#  'float_range_slider': (0.0, 2.2),
+#  'checkbox': True,
+#  'dropdown': 'male',
+#  'dropdown_edge_case': 'female',
+#  'dropdown_simple': 'asd',
+#  'combobox': 'asd',
+#  'text': 'short text',
+#  'text_area': 'long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ',
+#  'markdown': '\nSee details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. \n'}
+
+# +
+
+if __name__ == "__main__":
+    TestRenderer = AutoUi.create_autoui_renderer(TestAutoLogicSimple, path="test.json")
+    r = TestRenderer()
+    r.show_savebuttonbar = True
+    display(r)
+
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
@@ -326,6 +319,7 @@ if __name__ == "__main__":
         fn_onsave=lambda: print("test onsave"),
     )
     display(aui)
+# -
 
 if __name__ == "__main__":
     aui.show_description = False
@@ -342,21 +336,3 @@ if __name__ == "__main__":
 
 
 # -
-
-
-if __name__ == "__main__":
-
-    class AnalysisPaths(BaseModel):
-        analysis_type: str = Field(
-            default=None,
-            enum=["Overheating", "PartL", "Daylighting", "WUFI"],
-            autoui="ipyautoui.autowidgets.Combobox",
-        )
-        project_stage: str = Field(
-            default=None,
-            enum=["Stage1", "Stage2", "Stage3", "Stage4"],
-            autoui="ipyautoui.autowidgets.Combobox",
-        )
-
-    aui = AutoUi(AnalysisPaths, show_raw=True)
-    display(aui)
