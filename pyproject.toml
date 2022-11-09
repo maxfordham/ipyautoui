@@ -36,7 +36,7 @@ dependencies = [
     "traitlets_paths",
     "wcmatch",
     "xmltodict",
-    "seedir"
+    "seedir",
 ]
 
 [project.urls]
@@ -53,3 +53,7 @@ include = ["/src/ipyautoui"]
 # type = "conda"
 # command = "mamba"
 # ^ don't understand how this works...
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+testpaths = ["tests"]
