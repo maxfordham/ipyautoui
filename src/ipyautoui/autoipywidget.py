@@ -49,6 +49,8 @@ from ipyautoui.constants import BUTTON_WIDTH_MIN
 from IPython.display import display, Markdown, clear_output, display_pretty
 from ipyautoui._utils import display_python_string
 
+from ipyautoui.custom.save_buttonbar import SaveButtonBar, SaveActions
+
 frozenmap = immutables.Map
 
 
@@ -198,10 +200,25 @@ def create_row(
         return vertical_row(widget, label)
 
 
+def show_hide_widget(widget, show: bool):
+    try:
+        if show:
+            widget.layout.display = ""
+        else:
+            widget.layout.display = "None"
+    except:
+        ValueError(str(widget) + "failed to change layout.display")
+
+
 # +
 class AutoObjectShowRaw(widgets.VBox):
     fn_onshowraw = tr.Callable(default_value=lambda: "{'test':'json'}")
     fn_onhideraw = tr.Callable(default_value=lambda: None)
+    show_raw = tr.Bool(default_value=False)
+
+    @tr.observe("show_raw")
+    def _observe_show_raw(self, change):
+        show_hide_widget(self.bn_showraw, self.show_raw)
 
     def __init__(self):
         super().__init__(
@@ -217,7 +234,7 @@ class AutoObjectShowRaw(widgets.VBox):
     def _init_bn_showraw(self):
         self.bn_showraw = widgets.ToggleButton(
             icon="code",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            layout=widgets.Layout(width=BUTTON_WIDTH_MIN, display="None"),
             tooltip="show raw data",
             style={"font_weight": "bold", "button_color": None},
         )
@@ -250,6 +267,10 @@ if __name__ == "__main__":
     ui_showraw = AutoObjectShowRaw()
     display(ui_showraw.bn_showraw)
     display(ui_showraw.vbx_showraw)
+# -
+
+if __name__ == "__main__":
+    ui_showraw.show_raw = True
 
 
 # +
@@ -257,25 +278,11 @@ def make_bold(s: str) -> str:
     return f"<big><b>{s}</b></big>"
 
 
-def show_hide_widget(widget, show: bool):
-    try:
-        if show:
-            widget.layout.display = ""
-        else:
-            widget.layout.display = "None"
-    except:
-        ValueError(str(widget) + "failed to change layout.display")
-
-
 class AutoObjectFormLayout(AutoObjectShowRaw):
-    show_raw = tr.Bool()
-    show_description = tr.Bool()
-    show_title = tr.Bool()
-    show_savebuttonbar = tr.Bool()
 
-    @tr.observe("show_raw")
-    def _observe_show_raw(self, change):
-        show_hide_widget(self.bn_showraw, self.show_raw)
+    show_description = tr.Bool(default_value=True)
+    show_title = tr.Bool(default_value=True)
+    show_savebuttonbar = tr.Bool(default_value=False)
 
     @tr.observe("show_description")
     def _observe_show_description(self, change):
@@ -287,7 +294,7 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
 
     @tr.observe("show_savebuttonbar")
     def _observe_show_savebuttonbar(self, change):
-        show_hide_widget(self.hbx_savebuttonbar, self.show_savebuttonbar)
+        show_hide_widget(self.savebuttonbar, self.show_savebuttonbar)
 
     def __init__(self):
         super().__init__()
@@ -299,13 +306,14 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
     def _init_form(self):
         self.autowidget = widgets.VBox()
         self.hbx_title = widgets.HBox()
-        self.hbx_savebuttonbar = widgets.HBox()
+        self.savebuttonbar = SaveButtonBar()
+        self.savebuttonbar.layout.display = "None"
         self.title = widgets.HTML()
         self._init_bn_showraw()
         self.hbx_title.children = [self.bn_showraw, self.title]
         self.description = widgets.HTML()  #
         self.children = [
-            self.hbx_savebuttonbar,
+            self.savebuttonbar,
             self.hbx_title,
             self.description,
             self.autowidget,
@@ -331,8 +339,8 @@ def demo_autoobject_form(title="test", description="a description of the title")
     form.show_description = True
     form.show_title = True
     form.show_savebuttonbar = True
-    form.hbx_savebuttonbar.layout = {"border": "solid red 2px"}
-    form.hbx_savebuttonbar.children = [SaveButtonBar()]
+    form.savebuttonbar.layout = {"border": "solid red 2px"}
+    form.savebuttonbar.children = [SaveButtonBar()]
     form.hbx_title.layout = {"border": "solid blue 2px"}
     form.autowidget.layout = {"border": "solid green 2px", "height": "200px"}
     form.autowidget.children = [widgets.Button(description="PlaceHolder Widget")]
@@ -504,6 +512,14 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
         else:
             return json.dumps(self.value, indent=4)
 
+    @property
+    def save_actions(self):
+        return self.savebuttonbar.save_actions
+
+    @save_actions.setter
+    def save_actions(self, value: SaveActions):
+        self.savebuttonbar.save_actions = value
+
     def get_description(self):
         return get_from_schema_root(self.schema, "description")
 
@@ -592,6 +608,7 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
 
     def _watch_change(self, change, key=None, watch="value"):
         self._value = self.di_widgets_value
+        self.save_actions.unsaved_changes = True
         # NOTE: it is required to set the whole "_value" otherwise
         #       traitlets doesn't register the change.
         #       -@jovyan at 7/18/2022, 12:45:48 PM
@@ -635,10 +652,19 @@ if __name__ == "__main__":
     test_constants = load_test_constants()
     test = TestAutoLogicSimple()
     schema = test.schema()
-    ui = AutoObject(schema)
+    ui = AutoObject(TestAutoLogicSimple)
     display(ui)
 
 if __name__ == "__main__":
+    ui.show_savebuttonbar = False
+    ui.show_description = False
+    ui.show_title = False
+    ui.show_raw = False
+
+if __name__ == "__main__":
+    ui.show_savebuttonbar = True
+    ui.show_description = True
+    ui.show_title = True
     ui.show_raw = True
 
 if __name__ == "__main__":
