@@ -24,6 +24,7 @@ import traitlets as tr
 import typing as ty
 import collections
 import traceback
+import functools
 
 import immutables
 import pandas as pd
@@ -33,6 +34,7 @@ from markdown import markdown
 from pydantic import BaseModel, Field
 from ipydatagrid import CellRenderer, DataGrid, TextRenderer
 from ipydatagrid.datagrid import SelectionHelper
+
 
 import ipyautoui.autoipywidget as aui
 import ipyautoui.custom.save_buttonbar as sb
@@ -651,6 +653,7 @@ if __name__ == "__main__":
     display(ui)
 
 if __name__ == "__main__":
+    ui.show_savebuttonbar = True
     display(ui.value)
 
 if __name__ == "__main__":
@@ -663,11 +666,6 @@ class RowEditor:
     fn_move: ty.Callable
     fn_copy: ty.Callable
     fn_delete: ty.Callable
-
-
-# +
-from ipyautoui.autoipywidget import AutoObject
-import functools
 
 
 class EditGrid(widgets.VBox):
@@ -711,13 +709,22 @@ class EditGrid(widgets.VBox):
             schema, value=value, selection_mode="row", by_alias=self.by_alias
         )
         set_cls_editable_row = (
-            lambda v: functools.partial(AutoObject, self.row_schema)
+            lambda v: functools.partial(aui.AutoObject, self.row_schema)
             if v is None
             else functools.partial(v, self.row_schema)
         )
         self.ui_add = set_cls_editable_row(ui_add)()  # widgets.Box()  #
         self.ui_edit = set_cls_editable_row(ui_edit)()  # widgets.Box()  #
         self._init_form()
+        self.
+
+    def _init_row_controls(self):
+        self.ui_edit.show_savebuttonbar = True
+        self.ui_edit.savebuttonbar.fns_onsave = [self._save_edit_to_grid, self._patch]
+        self.ui_edit.savebuttonbar.fns_onrevert = [self._set_ui_edit_to_selected_row]
+        self.ui_add.show_savebuttonbar = True
+        self.ui_add.savebuttonbar.fns_onsave = [self._save_add_to_grid, self._post]
+        self.ui_add.savebuttonbar.fns_onrevert = [self._set_ui_add_to_default_row]
 
     @property
     def schema(self):
@@ -742,13 +749,13 @@ class EditGrid(widgets.VBox):
             show_message=False,
             # layout=widgets.Layout(padding="0px 0px 40px 0px"),
         )
-        self.buttonbar_row = sb.SaveButtonBar()
+        # self.buttonbar_row = sb.SaveButtonBar()
         self.addrow = widgets.VBox()
         self.editrow = widgets.VBox()
         self.children = [
             self.description,
             self.buttonbar_grid,
-            self.buttonbar_row,
+            # self.buttonbar_row,
             self.ui_add,
             self.ui_edit,
             self.grid,
@@ -764,15 +771,15 @@ class EditGrid(widgets.VBox):
             self._set_ui_edit_to_selected_row()
 
     def setview_add(self):
-        self.buttonbar_row.layout.display = ""
+        # self.buttonbar_row.layout.display = ""
         self.ui_add.layout.display = ""
 
     def setview_edit(self):
-        self.buttonbar_row.layout.display = ""
+        # self.buttonbar_row.layout.display = ""
         self.ui_edit.layout.display = ""
 
     def setview_default(self):
-        self.buttonbar_row.layout.display = "None"
+        # self.buttonbar_row.layout.display = "None"
         self.ui_edit.layout.display = "None"
         self.ui_add.layout.display = "None"
         self.buttonbar_grid.add.value = False
@@ -806,8 +813,8 @@ class EditGrid(widgets.VBox):
         try:
             self._validate_edit_click()
             self._set_ui_edit_to_selected_row()
-            self.buttonbar_row.fns_onsave = [self._save_edit_to_grid, self._patch]
-            self.buttonbar_row.fns_onrevert = self._set_ui_edit_to_selected_row
+            # self.buttonbar_row.fns_onsave = [self._save_edit_to_grid, self._patch]
+            # self.buttonbar_row.fns_onrevert = self._set_ui_edit_to_selected_row
             self.buttonbar_grid.message.value = markdown("  ✏️ _Editing Value_ ")
             self.setview_edit()
 
@@ -834,9 +841,9 @@ class EditGrid(widgets.VBox):
 
     def _set_ui_add_to_default_row(self):
         if self.ui_add.value == self.grid.default_row:
-            self.buttonbar_row.unsaved_changes.value = False
+            self.ui_add.savebuttonbar.unsaved_changes = False
         else:
-            self.buttonbar_row.unsaved_changes.value = True
+            self.ui_add.savebuttonbar.unsaved_changes = True
 
     def _post(self):
         if self.datahandler is not None:
@@ -845,8 +852,8 @@ class EditGrid(widgets.VBox):
     def _add(self):
         try:
             self._set_ui_add_to_default_row()
-            self.buttonbar_row.fns_onsave = [self._save_add_to_grid, self._post]
-            self.buttonbar_row.fns_onrevert = self._set_ui_add_to_default_row
+            # self.buttonbar_row.fns_onsave = [self._save_add_to_grid, self._post]
+            # self.buttonbar_row.fns_onrevert = [self._set_ui_add_to_default_row]
             self.buttonbar_grid.message.value = markdown("  ✏️ _Editing Value_ ")
             self.setview_add()
 
@@ -930,8 +937,6 @@ class EditGrid(widgets.VBox):
             traceback.print_exc()
 
 
-# -
-
 if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = [
         {
@@ -972,6 +977,9 @@ if __name__ == "__main__":
 
 
 # +
+# editgrid.ui_add.show_savebuttonbar = True
+
+# +
 # editgrid.grid.selected_keys == []
 
 # +
@@ -994,7 +1002,7 @@ class EditGrid(widgets.VBox):
         self.fn_on_copy = fn_on_copy
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         set_cls_editable_row = (
-            lambda v: functools.partial(AutoObject, self.schema) if v is None else v
+            lambda v: functools.partial(aui.AutoObject, self.schema) if v is None else v
         )
         self.ui_add = set_cls_editable_row(ui_add)
         self.ui_edit = set_cls_editable_row(ui_edit)
@@ -1329,7 +1337,7 @@ class EditGrid(widgets.VBox):
 if __name__ == "__main__":
     model, schema = aui._init_model_schema(schema, by_alias=True)
     set_cls_editable_row = (
-        lambda v: functools.partial(AutoObject, schema) if v is None else v
+        lambda v: functools.partial(aui.AutoObject, schema) if v is None else v
     )
     ui_add = set_cls_editable_row(None)
     ui_add()
