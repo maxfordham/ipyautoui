@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.8
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -31,6 +31,7 @@ import json
 import traitlets as tr
 import typing as ty
 from enum import Enum
+import logging
 
 from ipyautoui.constants import (
     MAP_JSONSCHEMA_TO_IPYWIDGET,
@@ -40,8 +41,6 @@ from ipyautoui.constants import (
 
 
 # +
-
-
 def merge_callables(callables: ty.Union[ty.Callable, ty.List[ty.Callable]]):
     if isinstance(callables, ty.Callable):
         return callables
@@ -52,48 +51,83 @@ def merge_callables(callables: ty.Union[ty.Callable, ty.List[ty.Callable]]):
 
 
 class SaveActions(tr.HasTraits):
-    unsaved_changes = tr.Bool()
-    fn_save = tr.Union([tr.List(trait=tr.Callable()), tr.Callable()])
-    fn_revert = tr.Union([tr.List(trait=tr.Callable()), tr.Callable()])
-    fn_load = tr.Union([tr.List(trait=tr.Callable()), tr.Callable()])
+    unsaved_changes = tr.Bool(default_value=False)
+    fns_onsave = tr.List(trait=tr.Callable())
+    fns_onrevert = tr.List(trait=tr.Callable())
 
-    @tr.default("fn_save")
-    def _default_fn_save(self):
-        return lambda: print("fn_save")
+    @tr.default("fns_onsave")
+    def _default_fns_onsave(self):
+        s = f"fns_onsave - action called @ {datetime.now().strftime('%H:%M:%S')}"
+        log_fns_onsave = lambda: logging.info(s)
+        log_fns_onsave.__name__ = "log_fns_onsave"
+        print_fns_onsave = lambda: print(s)
+        print_fns_onsave.__name__ = "print_fns_onsave"
+        return [log_fns_onsave, print_fns_onsave]
 
-    @tr.default("fn_revert")
+    @tr.default("fns_onrevert")
     def _default_fn_revert(self):
-        return lambda: print("fn_revert")
+        s = f"log_fns_onrevert - action called @ {datetime.now().strftime('%H:%M:%S')}"
+        log_fns_onrevert = lambda: logging.info(s)
+        log_fns_onrevert.__name__ = "log_fns_onrevert"
+        print_fns_onrevert = lambda: print(s)
+        print_fns_onrevert.__name__ = "print_fns_onrevert"
+        return [log_fns_onrevert, print_fns_onrevert]
 
-    @tr.default("fn_load")
-    def _default_fn_load(self):
-        return lambda: print("fn_load")
+    def fn_save(self):
+        """do not edit"""
+        merge_callables(self.fns_onsave)()
 
-    @tr.validate("fn_save")
-    def _validate_fn_save(self, proposal):
-        return merge_callables(proposal["value"])
+    def fn_revert(self):
+        merge_callables(self.fns_onrevert)()
 
-    @tr.validate("fn_revert")
-    def _validate_fn_revert(self, proposal):
-        return merge_callables(proposal["value"])
+    def _add_action(self, action_name, fn_add, avoid_dupes=True, overwrite_dupes=True):
+        fns = getattr(self, action_name)
+        if avoid_dupes:
+            names = [f.__name__ for f in getattr(self, action_name)]
+            if fn_add.__name__ in names:
+                if not overwrite_dupes:
+                    raise ValueError(
+                        f"ERROR: appending to {action_name}: {fn_add.__name__ } already exists in function names: {str(names)}"
+                    )
+                else:
+                    fns = [f for f in fns if f.__name__ != fn_add.__name__]
 
-    @tr.validate("fn_load")
-    def _validate_fn_load(self, proposal):
-        return merge_callables(proposal["value"])
+        setattr(self, action_name, fns + [fn_add])
+
+    def fns_onsave_add_action(
+        self, fn: ty.Callable, avoid_dupes: bool = True, overwrite_dupes: bool = True
+    ):
+        self._add_action(
+            "fns_onsave", fn, avoid_dupes=avoid_dupes, overwrite_dupes=overwrite_dupes
+        )
+
+    def fns_onrevert_add_action(
+        self, fn: ty.Callable, avoid_dupes: bool = True, overwrite_dupes: bool = True
+    ):
+        self._add_action(
+            "fns_onrevert", fn, avoid_dupes=avoid_dupes, overwrite_dupes=overwrite_dupes
+        )
 
 
 if __name__ == "__main__":
     actions = SaveActions()
-    actions.fn_save = [lambda: print("asdf"), lambda: print(";asdf")]
+    f = lambda: print("test")
+    f.__name__ = "asdf"
+    f1 = lambda: print("test1")
+    f1.__name__ = "asdf"
+
+    actions.fns_onsave_add_action(f)
+    actions.fns_onsave_add_action(f1)
     actions.fn_save()
 
+    actions.fns_onrevert_add_action(f)
+    actions.fns_onrevert_add_action(f1)
+    actions.fn_revert()
+
+
 # +
-
-
-class SaveButtonBar(widgets.HBox, SaveActions):
-    @tr.observe("unsaved_changes")
-    def _observe_unsaved_changes(self, change):
-        self.tgl_unsaved_changes.value = self.unsaved_changes
+class SaveButtonBar(widgets.HBox):
+    save_actions = tr.Instance(klass=SaveActions, default_value=SaveActions())
 
     def __init__(self, **kwargs):
         super().__init__()
@@ -131,19 +165,25 @@ class SaveButtonBar(widgets.HBox, SaveActions):
     def _init_controls(self):
         self.bn_save.on_click(self._save)
         self.bn_revert.on_click(self._revert)
+        self.save_actions.observe(
+            self._observe_save_actions_unsaved_changes, "unsaved_changes"
+        )
         self.tgl_unsaved_changes.observe(self._observe_tgl_unsaved_changes, "value")
 
     def _save(self, click):
-        self.fn_save()
+        self.save_actions.fn_save()
         self.message.value = markdown(
             f'_changes saved: {datetime.now().strftime("%H:%M:%S")}_'
         )
-        self.unsaved_changes = False
+        self.save_actions.unsaved_changes = False
 
     def _revert(self, click):
-        self.fn_revert()
+        self.save_actions.fn_revert()
         self.message.value = markdown(f"_UI reverted to last save_")
-        self.unsaved_changes = False
+        self.save_actions.unsaved_changes = False
+
+    def _observe_save_actions_unsaved_changes(self, onchange):
+        self.tgl_unsaved_changes.value = self.save_actions.unsaved_changes
 
     def _observe_tgl_unsaved_changes(self, onchange):
         if self.tgl_unsaved_changes.value:
@@ -163,11 +203,10 @@ class SaveButtonBar(widgets.HBox, SaveActions):
 if __name__ == "__main__":
     sb = SaveButtonBar()
     display(sb)
-
 # -
 
 if __name__ == "__main__":
-    sb.unsaved_changes = False
+    sb.save_actions.unsaved_changes = True
 
 
 class ButtonBar(widgets.HBox):
@@ -304,3 +343,5 @@ if __name__ == "__main__":
     )
 
     display(buttonbar)
+
+

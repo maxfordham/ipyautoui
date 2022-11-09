@@ -458,7 +458,7 @@ class AutoGrid(DataGrid):
 
     # move rows around
     # ----------------
-    def _swap_rows(self, key_a: int, key_b: int): # TODO: fix!
+    def _swap_rows(self, key_a: int, key_b: int):  # TODO: fix!
         """Swap two rows by giving their keys.
 
         Args:
@@ -806,8 +806,8 @@ class EditGrid(widgets.VBox):
         try:
             self._validate_edit_click()
             self._set_ui_edit_to_selected_row()
-            self.buttonbar_row.fn_save = [self._save_edit_to_grid, self._patch]
-            self.buttonbar_row.fn_revert = self._set_ui_edit_to_selected_row
+            self.buttonbar_row.fns_onsave = [self._save_edit_to_grid, self._patch]
+            self.buttonbar_row.fns_onrevert = self._set_ui_edit_to_selected_row
             self.buttonbar_grid.message.value = markdown("  ✏️ _Editing Value_ ")
             self.setview_edit()
 
@@ -845,8 +845,8 @@ class EditGrid(widgets.VBox):
     def _add(self):
         try:
             self._set_ui_add_to_default_row()
-            self.buttonbar_row.fn_save = [self._save_add_to_grid, self._post]
-            self.buttonbar_row.fn_revert = self._set_ui_add_to_default_row
+            self.buttonbar_row.fns_onsave = [self._save_add_to_grid, self._post]
+            self.buttonbar_row.fns_onrevert = self._set_ui_add_to_default_row
             self.buttonbar_grid.message.value = markdown("  ✏️ _Editing Value_ ")
             self.setview_add()
 
