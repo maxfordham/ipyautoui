@@ -27,8 +27,6 @@ Example:
         from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
         DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
 """
-# TODO: add title and description to nested sections of the UI
-# TODO: make layout of name, widget, description configurable...
 # %run __init__.py
 # #%load_ext lab_black
 import logging
@@ -48,8 +46,7 @@ from enum import Enum
 from ipyautoui._utils import display_python_string
 from ipyautoui.custom import SaveButtonBar  #  Grid, FileChooser,
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-from ipyautoui.autoipywidget import AutoObject, AutoIpywidget, _init_model_schema, 
-
+from ipyautoui.autoipywidget import AutoObject
 # from ipyautoui.autovjsf import AutoVjsf
 
 
@@ -60,6 +57,8 @@ class SaveControls(str, Enum):
     disable_edits = "disable_edits"  #  TODO: implement this
     # archive_versions = 'archive_versions' #  TODO: implement this?
 
+class SaveActions(BaseModel):
+    fn_onsave: ty.Callable
 
 def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
     """recursive function to replace all keys beginning x_ --> x-
@@ -130,7 +129,6 @@ class AutoUiCommonMethods(tr.HasTraits):
     - showing raw json form data
     - creating displayfile_renderer and autoui_renderer
     """
-
     save_controls = tr.UseEnum(SaveControls)  # default is save_on_edit
     path = traitlets_paths.Path(allow_none=True)
 
@@ -297,10 +295,6 @@ class AutoUi(AutoObject, AutoUiCommonMethods):  # AutoIpywidget
         else:
             self.fdir = None
         self.show_raw = show_raw
-
-        # accept schema or pydantic schema
-        # self.model, schema = _init_model_schema(schema)
-        # self.value = self._get_value(value, self.path)
 
         # list of actions to be called on save
         self.fn_onsave = fn_onsave
