@@ -75,10 +75,10 @@ class SaveActions(tr.HasTraits):
 
     def fn_save(self):
         """do not edit"""
-        merge_callables(self.fns_onsave)()
+        return merge_callables(self.fns_onsave)()
 
     def fn_revert(self):
-        merge_callables(self.fns_onrevert)()
+        return merge_callables(self.fns_onrevert)()
 
     def _add_action(self, action_name, fn_add, avoid_dupes=True, overwrite_dupes=True):
         fns = getattr(self, action_name)
@@ -343,5 +343,3 @@ if __name__ == "__main__":
     )
 
     display(buttonbar)
-
-
