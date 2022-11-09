@@ -65,141 +65,6 @@ frozenmap = immutables.Map
 # TODO: rename "add" to "fn_add" so not ambiguous...
 # -
 
-class ButtonBar(widgets.HBox):
-    def __init__(
-        self,
-        add: ty.Callable,
-        edit: ty.Callable,
-        copy: ty.Callable,
-        delete: ty.Callable,
-        backward: ty.Callable,
-        show_message: bool = True,
-        **kwargs,
-    ):
-        super().__init__(**kwargs)  # main container
-        self.show_message = show_message
-        self.fn_add = add
-        self.fn_edit = edit
-        self.fn_copy = copy
-        self.fn_delete = delete
-        self.fn_backward = backward
-        self.out = widgets.Output()
-        self._init_form()
-        self._init_controls()
-
-    def _init_form(self):
-
-        self.add = widgets.ToggleButton(
-            icon="plus",
-            button_style="success",
-            style={"font_weight": "bold"},
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
-        )
-        self.edit = widgets.ToggleButton(
-            icon="edit",
-            button_style="warning",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
-        )
-        self.copy = widgets.Button(
-            icon="copy",
-            button_style="primary",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
-        )
-        self.delete = widgets.Button(
-            icon="trash-alt",
-            button_style="danger",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
-        )
-        self.message = widgets.HTML()
-        children = [self.add, self.edit, self.copy, self.delete]
-        children.append(self.message)
-        self.children = children
-
-    def _init_controls(self):
-        self.add.observe(self._add, "value")
-        self.edit.observe(self._edit, "value")
-        self.copy.on_click(self._copy)
-        self.delete.on_click(self._delete)
-
-    def _add(self, onchange):
-        self._reset_message()
-        if self.add.value:
-            if self.edit.value:
-                self.edit.value = False  # If Edit button already clicked on and add is then clicked on then, trigger toggle for Edit button.
-            self.add.tooltip = "Go back to table"
-            self.add.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
-            self.fn_add()
-            if self.show_message:
-                self.message.value = markdown("  ➕ _Adding Value_ ")
-        else:
-            self._reset_message()
-            self.add.tooltip = "Add"
-            self.add.layout.border = None
-            self.add.icon = "plus"
-            self.add.button_style = "success"
-            self.fn_backward()
-
-    def _edit(self, onchange):
-        self._reset_message()
-        if self.edit.value:
-            if self.add.value:
-                self.add.value = False
-            self.edit.tooltip = "Go back to table"
-            self.edit.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
-            self.fn_edit()
-            if self.show_message:
-                self.message.value = markdown("  ✏️ _Editing Value_ ")
-        else:
-            self._reset_message()
-            self.edit.tooltip = "Edit"
-            self.edit.layout.border = None
-            self.edit.icon = "edit"
-            self.edit.button_style = "warning"
-            self.fn_backward()
-
-    def _copy(self, onchange):
-        self._reset_message()
-        self.fn_copy()
-        if self.show_message:
-            self.message.value = markdown("  📝 _Copying Value_ ")
-
-    def _delete(self, click):
-        self._reset_message()
-        self.fn_delete()
-        if self.show_message:
-            self.message.value = markdown("  🗑️ _Deleting Value_ ")
-
-    def _reset_message(self):
-        self.message.value = ""  # Reset message
-
-
-if __name__ == "__main__":
-
-    def add():
-        print("ADD")
-
-    def edit():
-        print("EDIT")
-
-    def copy():
-        print("COPY")
-
-    def delete():
-        print("DELETE")
-
-    def backward():
-        print("BACK")
-
-    buttonbar = ButtonBar(
-        add=add,
-        edit=edit,
-        copy=copy,
-        delete=delete,
-        backward=backward,
-    )
-
-    display(buttonbar)
-
 
 # +
 # TODO: Move to utils
@@ -869,7 +734,7 @@ class EditGrid(widgets.VBox):
 
     def _init_form(self):
         super().__init__()
-        self.buttonbar_grid = ButtonBar(
+        self.buttonbar_grid = sb.ButtonBar(
             add=self._add,
             edit=self._edit,
             copy=self._copy,
@@ -1157,7 +1022,7 @@ class EditGrid(widgets.VBox):
     ):
         super().__init__(layout={"width": "100%"})  # main container
         self._init_editrow()
-        self.buttonbar = ButtonBar(
+        self.buttonbar = sb.ButtonBar(
             add=self._add,
             edit=self._edit,
             copy=self._copy,

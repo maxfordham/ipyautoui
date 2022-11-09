@@ -14,8 +14,8 @@ from .example_objects import (
     ExampleDataFrameSchema1,
     ExampleDataFrameSchema2,
 )
-from ipyautoui.custom.editgrid import AutoGrid, EditGrid, ButtonBar  # BaseForm,
-
+from ipyautoui.custom.editgrid import AutoGrid, EditGrid
+from ipyautoui.custom.save_buttonbar import ButtonBar
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
