@@ -28,6 +28,7 @@ from ipyautoui.autoipywidget import _init_model_schema
 # import ipyvue
 # ipyvue.watch(PATH_VJSF_TEMPLATE.parent)  # for hot-reloading. currently not in use. requires watchdog
 
+
 class Vjsf(v.VuetifyTemplate):
     template_file = str(PATH_VJSF_TEMPLATE)
     vjsf_loaded = tr.Bool(False).tag(sync=True)
@@ -38,9 +39,10 @@ class Vjsf(v.VuetifyTemplate):
 
 # -
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
     from IPython.display import display
 
+    ui = Vjsf(schema=TestAutoLogicSimple)
     test = TestAutoLogic()
     schema = test.schema()
     ui = Vjsf(schema=schema)
@@ -160,5 +162,3 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     Renderer = AutoVjsf.create_autoui_renderer(schema)
     display(Renderer(path="test.json"))
-
-
