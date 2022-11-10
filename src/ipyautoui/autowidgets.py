@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.5
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -81,6 +81,15 @@ class IntText(widgets.IntText):  # TODO: add value to these as arg?
 
 
 class IntSlider(widgets.IntSlider):
+    """Example:
+    >>> from ipyautoui.test_schema import TestAutoLogic
+    >>> import ipywidgets as widgets
+    >>> sch = TestAutoLogic.schema()["properties"]['int_slider']
+    >>> IntSlider(sch)
+    IntSlider(value=2, max=3, min=1)
+    >>> sch['type']
+    'integer'
+    """
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
@@ -98,6 +107,8 @@ class FloatText(widgets.FloatText):
     >>> sch = TestAutoLogic.schema()["properties"]['float_text']
     >>> FloatText(sch)
     FloatText(value=2.2)
+    >>> sch['type']
+    'number'
     """
 
     def __init__(self, schema):
@@ -107,6 +118,15 @@ class FloatText(widgets.FloatText):
 
 
 class FloatSlider(widgets.FloatSlider):
+    """Example:
+    >>> from ipyautoui.test_schema import TestAutoLogic
+    >>> import ipywidgets as widgets
+    >>> sch = TestAutoLogic.schema()["properties"]['float_slider']
+    >>> FloatSlider(sch)
+    FloatSlider(value=2.2, max=3.0, min=1.0)
+    >>> sch['type']
+    'number'
+    """
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
