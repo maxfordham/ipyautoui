@@ -52,11 +52,6 @@ from ipyautoui.autoipywidget import AutoObject, get_from_schema_root
 
 
 # +
-class SaveControls(str, Enum):
-    save_buttonbar = "save_buttonbar"
-    save_on_edit = "save_on_edit"  #  TODO: test this
-    disable_edits = "disable_edits"  #  TODO: implement this
-    # archive_versions = 'archive_versions' #  TODO: implement this?
 
 
 def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
@@ -334,5 +329,3 @@ if __name__ == "__main__":
     Renderer = AutoUi.create_autoui_renderer(TestAutoLogic, show_raw=False)
     display(Renderer(path="test1.json"))
 
-
-# -
