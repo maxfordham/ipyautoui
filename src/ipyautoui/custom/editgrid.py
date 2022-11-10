@@ -577,12 +577,13 @@ class AutoGrid(DataGrid):
         rows = set([l["r"] for l in s])
         return [s._data["data"][r][index] for r in rows]
 
+    @property
+    def selected_rows_dict(self):
+        """Return the dictionary of selected rows where key is row index. still works if transform applied."""
+        return self.data.loc[self.selected_keys].to_dict("index")
+
     # ----------------
 
-
-# +
-# grid.map_title_name
-# -
 
 if __name__ == "__main__":
 
@@ -668,8 +669,84 @@ class RowEditor:
     fn_delete: ty.Callable
 
 
+# +
+from ipyautoui.constants import BUTTON_WIDTH_MIN
+from IPython.display import clear_output
+
+
+class UiDelete(widgets.HBox):
+    value = tr.Dict(default_value={})
+    columns = tr.List(allow_none=True, default_value=None)
+
+    @tr.observe("value")
+    def observe_value(self, on_change):
+        self._update_display()
+
+    @tr.observe("columns")
+    def observe_columns(self, on_change):
+        if self.columns is not None:
+            self.message_columns.value = f"columns shown: {str(self.columns)}"
+        else:
+            self.message_columns.value = "---"
+        self._update_display()
+
+    @property
+    def value_summary(self):
+        if self.columns is not None:
+            return {
+                k: {k_: v_ for k_, v_ in v.items() if k_ in self.columns}
+                for k, v in self.value.items()
+            }
+        else:
+            return self.value
+
+    def _update_display(self):
+        with self.out_delete:
+            clear_output()
+            display(self.value_summary)
+
+    def __init__(self, fn_delete: ty.Callable = lambda: print("delete"), **kwargs):
+        super().__init__(**kwargs)
+        self.fn_delete = fn_delete
+        self.out_delete = widgets.Output()
+        self.bn_delete = widgets.Button(
+            icon="exclamation-triangle",
+            button_style="danger",
+            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+        )
+        self.vbx_messages = widgets.VBox()
+        self.message = widgets.HTML(
+            "⚠️<b>warning</b>⚠️ - <i>pressing button will permanently delete rows from grid</i>"
+        )
+        self.message_columns = widgets.HTML(f"---")
+        self.vbx_messages.children = [
+            self.message,
+            self.message_columns,
+            self.out_delete,
+        ]
+        self.children = [self.bn_delete, self.vbx_messages]
+        self._init_controls()
+
+    def _init_controls(self):
+        self.bn_delete.on_click(self._bn_delete)
+
+    def _bn_delete(self, onclick):
+        self.fn_delete()
+
+
+if __name__ == "__main__":
+
+    delete = UiDelete()
+    display(delete)
+# -
+
+if __name__ == "__main__":
+    delete.value = {"key": {"col1": "value1", "col2": "value2"}}
+
+
 class EditGrid(widgets.VBox):
     _value = tr.List()
+    warn_on_delete = tr.Bool()
 
     @property
     def value(self):
@@ -696,6 +773,8 @@ class EditGrid(widgets.VBox):
         datahandler: ty.Optional[DataHandler] = None,
         ui_add: ty.Optional[ty.Callable] = None,
         ui_edit: ty.Optional[ty.Callable] = None,
+        ui_delete: ty.Optional[ty.Callable] = None,
+        warn_on_delete: bool = False,
         description: str = "",
         fn_on_copy: ty.Callable = None,  # TODO: don't think this is required...
     ):
@@ -708,15 +787,23 @@ class EditGrid(widgets.VBox):
         self.grid = AutoGrid(
             schema, value=value, selection_mode="row", by_alias=self.by_alias
         )
-        set_cls_editable_row = (
-            lambda v: functools.partial(aui.AutoObject, self.row_schema)
-            if v is None
-            else functools.partial(v, self.row_schema)
-        )
-        self.ui_add = set_cls_editable_row(ui_add)()  # widgets.Box()  #
-        self.ui_edit = set_cls_editable_row(ui_edit)()  # widgets.Box()  #
+
+        if ui_add is None:
+            self.ui_add = aui.AutoObject(self.row_schema)
+        else:
+            self.ui_add = ui_add(self.row_schema)
+        if ui_edit is None:
+            self.ui_edit = aui.AutoObject(self.row_schema)
+        else:
+            self.ui_edit = ui_edit(self.row_schema)
+        if ui_delete is None:
+            self.ui_delete = UiDelete()
+        else:
+            self.ui_delete = ui_delete()
+        self.warn_on_delete = warn_on_delete
+        self.ui_delete.fn_delete = self._delete_selected
         self._init_form()
-        self.
+        self._init_row_controls()
 
     def _init_row_controls(self):
         self.ui_edit.show_savebuttonbar = True
@@ -747,17 +834,15 @@ class EditGrid(widgets.VBox):
             delete=self._delete,
             backward=self.setview_default,
             show_message=False,
-            # layout=widgets.Layout(padding="0px 0px 40px 0px"),
         )
-        # self.buttonbar_row = sb.SaveButtonBar()
         self.addrow = widgets.VBox()
         self.editrow = widgets.VBox()
         self.children = [
             self.description,
             self.buttonbar_grid,
-            # self.buttonbar_row,
             self.ui_add,
             self.ui_edit,
+            self.ui_delete,
             self.grid,
         ]
         self.setview_default()
@@ -769,21 +854,26 @@ class EditGrid(widgets.VBox):
     def _observe_selections(self, onchange):
         if self.buttonbar_grid.edit.value:
             self._set_ui_edit_to_selected_row()
+        if self.buttonbar_grid.delete.value:
+            self._set_ui_delete_to_selected_row()
 
     def setview_add(self):
-        # self.buttonbar_row.layout.display = ""
         self.ui_add.layout.display = ""
 
     def setview_edit(self):
-        # self.buttonbar_row.layout.display = ""
         self.ui_edit.layout.display = ""
+
+    def setview_delete(self):
+        self.ui_delete.layout.display = ""
 
     def setview_default(self):
         # self.buttonbar_row.layout.display = "None"
         self.ui_edit.layout.display = "None"
         self.ui_add.layout.display = "None"
+        self.ui_delete.layout.display = "None"
         self.buttonbar_grid.add.value = False
         self.buttonbar_grid.edit.value = False
+        self.buttonbar_grid.delete.value = False
 
     def _check_one_row_selected(self):
         if len(self.grid.selected_keys) > 1:
@@ -804,6 +894,7 @@ class EditGrid(widgets.VBox):
 
     def _set_ui_edit_to_selected_row(self):
         self.ui_edit.value = self.grid.selected_row
+        self.ui_edit.savebuttonbar.unsaved_changes = False
 
     def _patch(self):
         if self.datahandler is not None:
@@ -813,8 +904,6 @@ class EditGrid(widgets.VBox):
         try:
             self._validate_edit_click()
             self._set_ui_edit_to_selected_row()
-            # self.buttonbar_row.fns_onsave = [self._save_edit_to_grid, self._patch]
-            # self.buttonbar_row.fns_onrevert = self._set_ui_edit_to_selected_row
             self.buttonbar_grid.message.value = markdown("  ✏️ _Editing Value_ ")
             self.setview_edit()
 
@@ -852,8 +941,6 @@ class EditGrid(widgets.VBox):
     def _add(self):
         try:
             self._set_ui_add_to_default_row()
-            # self.buttonbar_row.fns_onsave = [self._save_add_to_grid, self._post]
-            # self.buttonbar_row.fns_onrevert = [self._set_ui_add_to_default_row]
             self.buttonbar_grid.message.value = markdown("  ✏️ _Editing Value_ ")
             self.setview_add()
 
@@ -904,34 +991,38 @@ class EditGrid(widgets.VBox):
         if self.datahandler is not None:
             self.value = self.datahandler.fn_get_all_data()
 
-    def _set_toggle_buttons_to_false(self):
-        if self.buttonbar_grid.add.value is True:
-            self.buttonbar_grid.add.value = False
-        elif self.buttonbar_grid.edit.value is True:
-            self.buttonbar_grid.edit.value = False
+    def _delete_selected(self):
+        if self.datahandler is not None:
+            value = [self.value[i] for i in self.grid.selected_keys]
+            for v in value:
+                self.datahandler.fn_delete(v)
+            self._reload_all_data()
+        else:
+            self.value = [
+                value
+                for i, value in enumerate(self.value)
+                if i not in self.grid.selected_keys
+            ]
+            # ^ Only set for values NOT in self.grid.selected_keys
+        self.buttonbar_grid.message.value = markdown("  🗑️ _Deleted Row_ ")
+        self.buttonbar_grid.delete.value = False
+
+    def _set_ui_delete_to_selected_row(self):
+        self.ui_delete.value = self.grid.selected_rows_dict
 
     def _delete(self):
         try:
-            self._set_toggle_buttons_to_false()  # TODO: a an "are you sure?" dialogue...
-            if self.grid.selected_keys:
+            if len(self.grid.selected_keys) > 0:
                 print(f"Row Number: {self.grid.selected_keys}")
-                if self.datahandler is not None:
-                    value = [self.value[i] for i in self.grid.selected_keys]
-                    for v in value:
-                        self.datahandler.fn_delete(v)
-                    self._reload_all_data()
+                if not self.warn_on_delete:
+                    self._delete_selected()
                 else:
-                    self.value = [
-                        value
-                        for i, value in enumerate(self.value)
-                        if i not in self.grid.selected_keys
-                    ]
-                    # ^ Only set for values NOT in self.grid.selected_keys
-                self.buttonbar_grid.message.value = markdown("  🗑️ _Deleted Row_ ")
-
+                    self.ui_delete.value = self.grid.selected_rows_dict
+                    self.setview_delete()
             else:
+                self.buttonbar_grid.delete.value = False
                 self.buttonbar_grid.message.value = markdown(
-                    "  👇 _Please select one row from the table!_"
+                    "  👇 _Please select at least one row from the table!_"
                 )
         except Exception as e:
             traceback.print_exc()
@@ -971,16 +1062,13 @@ if __name__ == "__main__":
         " whatever they may be 👍"
     )
     editgrid = EditGrid(
-        schema=TestDataFrameOnly, description=description, ui_add=None, ui_edit=AutoUi
+        schema=TestDataFrameOnly,
+        description=description,
+        ui_add=None,
+        ui_edit=None,
+        warn_on_delete=False,
     )
     display(editgrid)
-
-# +
-# editgrid.ui_add.show_savebuttonbar = True
-
-# +
-# editgrid.grid.selected_keys == []
-# -
 
 if __name__ == "__main__":
 
