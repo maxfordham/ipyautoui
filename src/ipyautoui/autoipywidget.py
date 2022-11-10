@@ -356,7 +356,7 @@ def demo_autoobject_form(title="test", description="a description of the title")
 if __name__ == "__main__":
     form = demo_autoobject_form()
     display(form)
-
+# -
 
 if __name__ == "__main__":
     form.show_savebuttonbar = False
@@ -371,6 +371,7 @@ if __name__ == "__main__":
     form.show_raw = True
 
 
+# +
 class AutoObject(AutoObjectFormLayout):  # widgets.VBox
     """creates an ipywidgets form from a json-schema or pydantic model. datatype must be "object" """
 
@@ -483,7 +484,7 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
         self.insert_rows = insert_rows
         self.update_map_widgets = update_map_widgets
         self.fdir = fdir
-        self._init_schema(schema, by_alias=by_alias)
+        self._init_schema(schema, by_alias=by_alias)  # TODO: make schema a trait
         self._init_ui()
         self._format_rows()
         setdefault = lambda val, default: default if val is None else val
@@ -508,10 +509,10 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
         else:
             return json.dumps(self.value, indent=4)
 
-    def get_description(self):
+    def get_description(self):  # TODO: put this in AutoObjectFormLayout
         return get_from_schema_root(self.schema, "description")
 
-    def get_title(self):
+    def get_title(self):  # TODO: put this in AutoObjectFormLayout
         return get_from_schema_root(self.schema, "title")
 
     def _init_ui(self):
@@ -642,6 +643,7 @@ if __name__ == "__main__":
     schema = test.schema()
     ui = AutoObject(TestAutoLogicSimple)
     display(ui)
+# -
 
 
 if __name__ == "__main__":
@@ -657,184 +659,20 @@ if __name__ == "__main__":
     ui.show_raw = True
 
 if __name__ == "__main__":
-    import doctest
+    from ipyautoui.test_schema import TestEditGrid
 
-    doctest.testmod()
-
-
-# +
-# TODO: deprecate
-class AutoIpywidget(widgets.VBox):
-    """Automatically generates the widget based on an input schema"""
-
-    fdir = tr.Unicode(allow_none=True)
-    # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:06:04 PM
-    # consider changing name `update_map_widgets` to `update_widgets_mapper`
-
-    # TODO: Tasks pending completion -@jovyan at 9/07/2022, 2:06:04 PM
-    # consider whether this shouldn't inherit AutoObject afterall...
-    def __init__(self, schema, value=None, update_map_widgets=None, fdir=None):
-        self.update_map_widgets = update_map_widgets
-        self.fdir = fdir
-        self._init_ui(schema)
-        if value is not None:
-            self.value = value
-        else:
-            self._on_change("change")
-
-    @property
-    def update_map_widgets(self):
-        return self._update_map_widgets
-
-    @update_map_widgets.setter
-    def update_map_widgets(self, value):
-        self._update_map_widgets = value
-        self.widgets_map = aumap.widgets_map(value)
-
-    def _init_ui(self, schema):
-        self._init_schema(schema)
-        self._init_form()
-        self._init_trait()
-        self._init_controls()
-
-    def _init_trait(self):
-        # NOTE: see test for add_traits that demos usage  -@jovyan at 7/18/2022, 12:11:39 PM
-        # https://github.com/ipython/ipython/commit/5105f02df27456cc54867dfbe4cef60d91021f92
-        trait_type = type(_get_value_trait(self.autowidget))
-        self.add_traits(**{"_value": trait_type()})
-
-    def _init_schema(self, schema):
-        self.model, self.schema = _init_model_schema(schema)
-        self.caller = aumap.map_widget(self.schema, widgets_map=self.widgets_map)
-        if self.fdir is not None:
-            v = add_fdir_to_widgetcaller(caller=self.caller, fdir=self.fdir)
-
-    def _init_form(self):
-        super().__init__(
-            layout=widgets.Layout(width="100%", display="flex", flex="flex-grow")
-        )
-        self.autowidget = aumap.widgetcaller(self.caller)
-        self.children = [self.autowidget]
-
-    def _init_controls(self):
-        if self.autowidget.has_trait("value"):
-            self.autowidget.observe(self._on_change, "value")
-        elif self.autowidget.has_trait("_value"):
-            self.autowidget.observe(self._on_change, "_value")
-        else:
-            pass
-
-    def _on_change(self, change):
-        self._value = self.autowidget.value
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        self.autowidget.value = value
-
-
-if __name__ == "__main__":
-    from pydantic import BaseModel
-
-    class Test(BaseModel):
-        """sadfasdf"""
-
-        __root__: list[str] = ["string"]
-
-    ui = AutoIpywidget(Test)
+    ui = AutoObject(TestEditGrid)
+    ui.auto_open = True
     display(ui)
 
-    ui_ = AutoObject(Test, nested_widgets=[])  # TODO fix nested_widgets!
-    display(ui_)
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestAutoLogic
+
+    ui = AutoObject(TestAutoLogic)
+    display(ui)
 
 if __name__ == "__main__":
-    li = ui.default_order.copy()
-    li.reverse()
-    ui.order = li
+    from ipyautoui.test_schema import TestNested
 
-if __name__ == "__main__":
-    ui.align_horizontal = True
-
-if __name__ == "__main__":
-    ui.auto_open = True
-
-# +
-# if __name__ == "__main__":
-#     from ipyautoui.test_schema import TestAutoLogic
-#     from ipyautoui.constants import load_test_constants
-
-#     test_constants = load_test_constants()
-#     test = TestAutoLogic()
-#     schema = test.schema()
-#     ui = AutoIpywidget(schema)
-#     display(ui)
-# -
-
-
-class AutoTest(AutoObject):
-    """Automatically generates the widget based on an input schema"""
-
-    _value = tr.Integer()
-
-    def __init__(
-        self,
-        schema,
-        value=None,
-        by_alias=False,
-        update_map_widgets=None,
-        fdir=None,
-        order=None,
-        insert_rows=None,
-        nested_widgets=None,
-    ):
-        """creates a widget input form from schema. datatype must be "object"
-
-        Args:
-            schema (dict): json schema defining widget to generate
-            value (dict, optional): value of json. Defaults to None.
-            update_map_widgets (frozenmap, optional): frozen dict of widgets to map to schema items. Defaults to None.
-            fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
-            order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
-            insert_rows (dict): e.g. {3:widgets.Button()}. allows user to insert a widget into the rows. its presence
-                is ignored by the widget otherwise.
-            nested_widgets (list): e.g. [FileUploadToDir]. allows user to indicate widgets that should be show / hide
-                type
-
-        Returns:
-            AutoIpywidget(widgets.VBox)
-        """
-        setdefault = lambda val, default: default if val is None else val
-        self.insert_rows = insert_rows
-        self.update_map_widgets = update_map_widgets
-        self.fdir = fdir
-        self._init_schema(schema, by_alias=by_alias)
-        self._init_ui()
-        self.order = setdefault(order, None)
-        if value is not None:
-            self.value = value
-        else:
-            self._value = self.di_widgets_value
-        self._watch_change("start")
-
-    def _init_trait(self):
-        # NOTE: see test for add_traits that demos usage  -@jovyan at 7/18/2022, 12:11:39 PM
-        # https://github.com/ipython/ipython/commit/5105f02df27456cc54867dfbe4cef60d91021f92
-        trait_type = tr.Unicode  # type(_get_value_trait(self))
-        # self.add_traits(**{"_value": trait_type()})
-
-
-# + active=""
-# if __name__ == "__main__":
-#     from ipyautoui.test_schema import TestArrays
-#     from ipyautoui.constants import load_test_constants
-#     test_constants = load_test_constants()
-#     test = TestArrays()
-#     schema = test.schema()
-#     ui = AutoIpywidget(schema)
-#     display(ui)
-# -
-
-#
+    ui = AutoObject(TestNested)
+    display(ui)
