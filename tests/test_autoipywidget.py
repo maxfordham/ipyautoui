@@ -13,6 +13,8 @@ from .constants import DIR_TESTS, DIR_FILETYPES
 from .example_objects import ExampleRoot, ExampleSchema
 from ipyautoui import AutoUi, AutoDisplay, AutoVjsf
 from ipyautoui.autoipywidget import AutoObject, demo_autoobject_form
+from ipyautoui.test_schema import TestAutoLogicSimple
+import stringcase
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
@@ -54,4 +56,22 @@ class TestAutoObject:
         auto_ui_eg = ExampleSchema()
         ui = AutoObject(auto_ui_eg)
         assert ui.value == {"text": "Test"}
+        print("done")
+
+    def test_TestAutoLogicSimple(self):
+        ui = AutoObject(TestAutoLogicSimple)
+        getstr = (
+            lambda obj: str(type(obj))
+            .replace("<class 'ipyautoui.autowidgets.", "")
+            .replace("'>", "")
+            .lower()
+        )
+        di_check = {
+            stringcase.pascalcase(k).lower(): getstr(v)
+            for k, v in ui.di_widgets.items()
+        }
+        for k, v in di_check.items():
+            assert v in k
+
+        # assert ui.value == {"text": "Test"}
         print("done")
