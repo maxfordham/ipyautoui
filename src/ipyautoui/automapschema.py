@@ -140,6 +140,17 @@ def is_IntText(di: dict) -> bool:
 
 
 def is_IntSlider(di: dict) -> bool:
+    """
+    Example:
+        >>> is_IntSlider({'title': 'int', 'default': 1, 'type': 'number'})
+        False
+        >>> is_IntSlider({'title': 'int', 'default': 1, 'type': 'integer'})
+        False
+        >>> is_IntSlider({'title': 'int', 'default': 1, 'type': 'integer', "minimum": 0, "maximum": 3})
+        True
+        >>> is_IntSlider({'title': 'floater', 'default': 1, 'type': 'number', "minimum": 0, "maximum": 3})
+        False
+    """
     if "autoui" in di.keys():
         return False
     if not di["type"] == "integer":
@@ -156,6 +167,8 @@ def is_FloatText(di: dict) -> bool:
         True
         >>> is_FloatText({'title': 'floater', 'default': 1, 'type': 'integer'})
         False
+        >>> is_FloatText({'title': 'floater', 'default': 1, 'type': 'number', "minimum": 0, "maximum": 3})
+        False
     """
     if "autoui" in di.keys():
         return False
@@ -167,6 +180,17 @@ def is_FloatText(di: dict) -> bool:
 
 
 def is_FloatSlider(di: dict) -> bool:
+    """
+    Example:
+        >>> is_FloatSlider({'title': 'floater', 'default': 1.33, 'type': 'number'})
+        False
+        >>> is_FloatSlider({'title': 'floater', 'default': 1, 'type': 'integer'})
+        False
+        >>> is_FloatSlider({'title': 'floater', 'default': 1, 'type': 'integer', "minimum": 0, "maximum": 3})
+        False
+        >>> is_FloatSlider({'title': 'floater', 'default': 1, 'type': 'number', "minimum": 0, "maximum": 3})
+        True
+    """
     if "autoui" in di.keys():
         return False
     if not di["type"] == "number":
@@ -508,7 +532,7 @@ def widgets_map(di_update=None):
                 fn_filt=is_FloatText, widget=auiwidgets.FloatText
             ),
             "FloatSlider": WidgetMapper(
-                fn_filt=is_FloatSlider, widget=auiwidgets.IntSlider
+                fn_filt=is_FloatSlider, widget=auiwidgets.FloatSlider
             ),
             "IntRangeSlider": WidgetMapper(
                 fn_filt=is_IntRangeSlider, widget=auiwidgets.IntRangeSlider
