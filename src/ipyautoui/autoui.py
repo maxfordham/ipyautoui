@@ -122,15 +122,15 @@ class AutoUiFileMethods(tr.HasTraits):
 
     @tr.observe("path")
     def _observe_path(self, proposal):
-        self.save_actions.fns_onsave_add_action(self.file)
-        self.save_actions.fns_onrevert_add_action(self.load_file)
+        self.savebuttonbar.fns_onsave_add_action(self.file)
+        self.savebuttonbar.fns_onrevert_add_action(self.load_file)
 
     def _get_path(self, path=None):
         if path is None:
             if self.path is not None:
                 return self.path
             else:
-                self.save_buttonbar.message.value = "no filepath give"
+                self.savebuttonbar.message.value = "no filepath give"
                 raise ValueError("NO PATH GIVEN: path is None and self.path is None")
         else:
             return path
@@ -162,7 +162,7 @@ class AutoUiFileMethods(tr.HasTraits):
     def file(self, path=None):
         p = self._get_path(path=path)
         p.write_text(self.json, encoding="utf-8")
-        self.save_actions.unsaved_changes = False
+        self.savebuttonbar.unsaved_changes = False
 
     def parse_file(self, path=None) -> dict:
         p = self._get_path(path=path)
@@ -174,9 +174,9 @@ class AutoUiFileMethods(tr.HasTraits):
     def load_value(self, value, unsaved_changes=False):
         self.value = value
         if unsaved_changes:
-            self.save_actions.unsaved_changes = False
+            self.savebuttonbar.unsaved_changes = False
         else:
-            self.save_actions.unsaved_changes = True
+            self.savebuttonbar.unsaved_changes = True
 
     def load_file(self, path=None):
         p = self._get_path(path=path)

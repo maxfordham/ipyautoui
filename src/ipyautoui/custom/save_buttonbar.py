@@ -126,9 +126,7 @@ if __name__ == "__main__":
 
 
 # +
-class SaveButtonBar(widgets.HBox):
-    save_actions = tr.Instance(klass=SaveActions, default_value=SaveActions())
-
+class SaveButtonBar(widgets.HBox, SaveActions):
     def __init__(self, **kwargs):
         super().__init__()
         self._init_form()
@@ -159,31 +157,28 @@ class SaveButtonBar(widgets.HBox):
             self.bn_save,
             self.message,
         ]
-        self.unsaved_changes = True
         self._observe_tgl_unsaved_changes("change")
 
     def _init_controls(self):
         self.bn_save.on_click(self._save)
         self.bn_revert.on_click(self._revert)
-        self.save_actions.observe(
-            self._observe_save_actions_unsaved_changes, "unsaved_changes"
-        )
+        self.observe(self._observe_unsaved_changes, "unsaved_changes")
         self.tgl_unsaved_changes.observe(self._observe_tgl_unsaved_changes, "value")
 
     def _save(self, click):
-        self.save_actions.fn_save()
+        self.fn_save()
         self.message.value = markdown(
             f'_changes saved: {datetime.now().strftime("%H:%M:%S")}_'
         )
-        self.save_actions.unsaved_changes = False
+        self.unsaved_changes = False
 
     def _revert(self, click):
-        self.save_actions.fn_revert()
+        self.fn_revert()
         self.message.value = markdown(f"_UI reverted to last save_")
-        self.save_actions.unsaved_changes = False
+        self.unsaved_changes = False
 
-    def _observe_save_actions_unsaved_changes(self, onchange):
-        self.tgl_unsaved_changes.value = self.save_actions.unsaved_changes
+    def _observe_unsaved_changes(self, onchange):
+        self.tgl_unsaved_changes.value = self.unsaved_changes
 
     def _observe_tgl_unsaved_changes(self, onchange):
         if self.tgl_unsaved_changes.value:
@@ -206,17 +201,17 @@ if __name__ == "__main__":
 # -
 
 if __name__ == "__main__":
-    sb.save_actions.unsaved_changes = True
+    sb.unsaved_changes = True
 
 
 class ButtonBar(widgets.HBox):
     def __init__(
         self,
-        add: ty.Callable,
-        edit: ty.Callable,
-        copy: ty.Callable,
-        delete: ty.Callable,
-        backward: ty.Callable,
+        add: ty.Callable = lambda: print("add"),
+        edit: ty.Callable = lambda: print("edit"),
+        copy: ty.Callable = lambda: print("copy"),
+        delete: ty.Callable = lambda: print("delete"),
+        backward: ty.Callable = lambda: print("backward"),
         show_message: bool = True,
         **kwargs,
     ):
@@ -249,7 +244,7 @@ class ButtonBar(widgets.HBox):
             button_style="primary",
             layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.delete = widgets.Button(
+        self.delete = widgets.ToggleButton(
             icon="trash-alt",
             button_style="danger",
             layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
@@ -263,13 +258,12 @@ class ButtonBar(widgets.HBox):
         self.add.observe(self._add, "value")
         self.edit.observe(self._edit, "value")
         self.copy.on_click(self._copy)
-        self.delete.on_click(self._delete)
+        self.delete.observe(self._delete, "value")
 
     def _add(self, onchange):
         self._reset_message()
         if self.add.value:
-            if self.edit.value:
-                self.edit.value = False  # If Edit button already clicked on and add is then clicked on then, trigger toggle for Edit button.
+            self.reset_toggles_except("add")
             self.add.tooltip = "Go back to table"
             self.add.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
             self.fn_add()
@@ -286,8 +280,7 @@ class ButtonBar(widgets.HBox):
     def _edit(self, onchange):
         self._reset_message()
         if self.edit.value:
-            if self.add.value:
-                self.add.value = False
+            self.reset_toggles_except("edit")
             self.edit.tooltip = "Go back to table"
             self.edit.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
             self.fn_edit()
@@ -307,11 +300,31 @@ class ButtonBar(widgets.HBox):
         if self.show_message:
             self.message.value = markdown("  📝 _Copying Value_ ")
 
-    def _delete(self, click):
+    def _delete(self, onchange):
         self._reset_message()
-        self.fn_delete()
-        if self.show_message:
-            self.message.value = markdown("  🗑️ _Deleting Value_ ")
+        if self.delete.value:
+            self.reset_toggles_except("delete")
+            self.delete.tooltip = "Go back to table"
+            self.delete.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
+            self.fn_delete()
+            if self.show_message:
+                self.message.value = markdown("  🗑️ _Deleting Value_ ")
+        else:
+            self._reset_message()
+            self.delete.tooltip = "delete"
+            self.delete.layout.border = None
+            self.delete.icon = "trash-alt"
+            self.delete.button_style = "danger"
+            self.fn_backward()
+
+    def reset_toggles_except(self, name):
+        names = ["add", "edit", "delete"]
+        if name not in names:
+            raise ValueError(f"`name` must be in {str(names)}. {name} given")
+        names = [n for n in names if n != name]
+        for n in names:
+            bn = getattr(self, n)
+            setattr(bn, "value", False)
 
     def _reset_message(self):
         self.message.value = ""  # Reset message

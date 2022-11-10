@@ -358,9 +358,6 @@ if __name__ == "__main__":
     display(form)
 
 
-# -
-
-
 if __name__ == "__main__":
     form.show_savebuttonbar = False
     form.show_description = False
@@ -499,7 +496,6 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
             self.value = value
         else:
             self._value = self.di_widgets_value
-        self._watch_change("start")
 
     def display_showraw(self):
         self.autowidget.layout.display = "None"
@@ -511,14 +507,6 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
             return self.model(**self.value).json(indent=4)
         else:
             return json.dumps(self.value, indent=4)
-
-    @property
-    def save_actions(self):
-        return self.savebuttonbar.save_actions
-
-    @save_actions.setter
-    def save_actions(self, value: SaveActions):
-        self.savebuttonbar.save_actions = value
 
     def get_description(self):
         return get_from_schema_root(self.schema, "description")
@@ -608,7 +596,7 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
 
     def _watch_change(self, change, key=None, watch="value"):
         self._value = self.di_widgets_value
-        self.save_actions.unsaved_changes = True
+        self.savebuttonbar.unsaved_changes = True
         # NOTE: it is required to set the whole "_value" otherwise
         #       traitlets doesn't register the change.
         #       -@jovyan at 7/18/2022, 12:45:48 PM
@@ -654,6 +642,7 @@ if __name__ == "__main__":
     schema = test.schema()
     ui = AutoObject(TestAutoLogicSimple)
     display(ui)
+
 
 if __name__ == "__main__":
     ui.show_savebuttonbar = False
