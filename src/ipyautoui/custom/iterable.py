@@ -105,7 +105,7 @@ TOGGLE_BUTTON_KWARGS = frozenmap(
 )
 # -
 from ipyautoui.autowidgets import create_widget_caller
-from ipyautoui.autoipywidget import AutoIpywidget
+from ipyautoui.autoipywidget import AutoObject
 
 
 # +
@@ -775,10 +775,10 @@ class AutoArray(Array):
         self.watch_value = watch_value
         self.zfill = 2
         if value is not None:
-            items = [AutoIpywidget(schema=self.schema) for v in value]
+            items = [AutoObject(schema=self.schema) for v in value]
         elif "default" in self.schema.keys():
             items = [
-                AutoIpywidget(schema=self.schema["items"])
+                AutoObject(schema=self.schema["items"])
                 for v in self.schema["default"]
             ]
             # [display(i) for i in items]
@@ -814,7 +814,7 @@ class AutoArray(Array):
             self.maxlen = self.schema["maxItems"]
         else:
             self.maxlen = 100
-        self.fn_add = functools.partial(AutoIpywidget, schema=self.caller["items"])
+        self.fn_add = functools.partial(AutoObject, schema=self.caller["items"])
 
 
 # -
@@ -897,26 +897,15 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
     from ipyautoui.autowidgets import create_widget_caller
-    from ipyautoui.autoipywidget import AutoIpywidget
+    from ipyautoui.autoipywidget import AutoObject
 
     schema = TestArrays.schema()["properties"]["array_strings"]
     ui = AutoArray(schema)
     display(ui)
 
-AutoArray(
-    schema={
-        "title": "Array Strings",
-        "default": ["f", "d"],
-        "minItems": 2,
-        "maxItems": 5,
-        "type": "array",
-        "items": {"type": "string"},
-    }
-)
-
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
-    from ipyautoui.autoipywidget import AutoIpywidget
+    from ipyautoui.autoipywidget import AutoObject
     from ipyautoui import AutoUi
 
     # TestArrays.schema()["properties"]  # ["array_strings"]

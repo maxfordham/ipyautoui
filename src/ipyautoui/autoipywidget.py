@@ -478,7 +478,7 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
                 type
 
         Returns:
-            AutoIpywidget(widgets.VBox)
+            AutoObject(widgets.VBox)
         """
         super().__init__()
         self.insert_rows = insert_rows
@@ -645,6 +645,12 @@ if __name__ == "__main__":
     display(ui)
 # -
 
+
+if __name__ == "__main__":
+    ui.nested_widgets = []
+
+if __name__ == "__main__":
+    ui.align_horizontal = True
 
 if __name__ == "__main__":
     ui.show_savebuttonbar = False

@@ -41,7 +41,6 @@ import ipyautoui.custom.save_buttonbar as sb
 from ipyautoui._utils import obj_from_importstr
 from ipyautoui.automapschema import attach_schema_refs
 
-# from ipyautoui.autoipywidget import AutoIpywidget
 
 
 frozenmap = immutables.Map
@@ -1080,9 +1079,9 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     from ipyautoui import AutoUi
-    from ipyautoui.autoipywidget import AutoIpywidget
+    from ipyautoui.autoipywidget import AutoObject
 
-    ui = AutoIpywidget(schema=TestDataFrame)
+    ui = AutoObject(schema=TestDataFrame)
     display(ui)
 
 if __name__ == "__main__":

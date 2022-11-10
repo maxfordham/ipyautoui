@@ -68,7 +68,6 @@ class TestEditGrid:
 
 
 class TestAutoGridInitData:
-    @pytest.mark.skip(reason="come back to this after AutoIpywidget retired")
     def test_empty_grid(self):
 
         # initiate empty grid

@@ -232,8 +232,8 @@ class AutoRenderMethods:
 
 
 # +
-class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):  # AutoIpywidget
-    """extends AutoIpywidget and AutoUiCommonMethods to create an
+class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
+    """extends AutoObject and AutoUiCommonMethods to create an
     AutoUi capable of interacting with a json file"""
 
     def __init__(
