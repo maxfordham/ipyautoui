@@ -197,50 +197,7 @@ class DisplayFromRequest(DisplayObjectActions):
 class DisplayObject(widgets.VBox):
 
     auto_open = tr.Bool(default_value=False)
-    show_openfile = tr.Bool(default_value=True)
-    show_openfolder = tr.Bool(default_value=True)
-    show_exists = tr.Bool(default_value=True)
-    show_openpreview = tr.Bool(default_value=True)
-    # TODO:
-    # maybe we don't actually need the "show_" traits
-    # as stuff can be hidden using "order"...
-
     order = tr.Tuple()
-
-    @tr.observe("auto_open")
-    def _observe_auto_open(self, change):
-        if change["new"]:
-            self.openpreview.value = True
-        else:
-            self.openpreview.value = False
-
-    @tr.observe("show_openfile")
-    def _observe_show_openfile(self, change):
-        if change["new"] and self.display_actions.open_file():
-            self.openfile.layout.display = ""
-        else:
-            self.openfile.layout.display = "None"
-
-    @tr.observe("show_openfolder")
-    def _observe_show_openfolder(self, change):
-        if change["new"]:
-            self.openfolder.layout.display = ""
-        else:
-            self.openfolder.layout.display = "None"
-
-    @tr.observe("show_exists")
-    def _observe_exists(self, change):
-        if change["new"]:
-            self.exists.layout.display = ""
-        else:
-            self.exists.layout.display = "None"
-
-    @tr.observe("show_openpreview")
-    def _observe_show_openpreview(self, change):
-        if change["new"]:
-            self.openpreview.layout.display = ""
-        else:
-            self.openpreview.layout.display = "None"
 
     @tr.validate("order")
     def _validate_order(self, proposal):
@@ -261,12 +218,26 @@ class DisplayObject(widgets.VBox):
         self,
         display_actions: ty.Type[DisplayObjectActions],
         auto_open=False,
+        order=None,
     ):
+        """display object
+
+        Args:
+            display_actions (ty.Type[DisplayObjectActions]): actions used to display object
+            auto_open (bool, optional): automatically display object data (i.e. auto-preview file). Defaults to False.
+            order (tuple, optional): defines UI controls appearance. Defaults to None.
+                allowed values are: ("exists", "openpreview", "openfile", "openfolder", "name")
+                default is: ("exists", "openpreview", "openfile", "openfolder", "name")
+                reduce tuple to hide components
+        """
         self.default_order = ("exists", "openpreview", "openfile", "openfolder", "name")
         self.display_actions = display_actions
         self._init()
         self.auto_open = auto_open
-        self.order = self.default_order
+        if order is None:
+            self.order = self.default_order
+        else:
+            self.order = order
 
     def _init(self):
         super().__init__()
@@ -280,6 +251,7 @@ class DisplayObject(widgets.VBox):
         newroot=pathlib.PureWindowsPath("J:/"),
         file_renderers=None,
         auto_open=False,
+        order=None,
     ):
         if file_renderers is not None:
             file_renderers = merge_file_renderers(file_renderers)
@@ -288,7 +260,7 @@ class DisplayObject(widgets.VBox):
         display_actions = DisplayFromPath(
             path=path, newroot=newroot, map_renderers=file_renderers
         )
-        return cls(display_actions, auto_open=auto_open)
+        return cls(display_actions, auto_open=auto_open, order=order)
 
     # TODO: create a from_request classmethod
     @classmethod
@@ -397,9 +369,11 @@ if __name__ == "__main__":
     d = DisplayObject.from_path(path)
     display(d)
 
+
 if __name__ == "__main__":
-    d.order = ("exists", "name", "openpreview", "openfile", "openfolder")
-    d.show_exists = False
+    d.order = "name"
+    d.auto_open = True
+    # d.show_exists = False
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
