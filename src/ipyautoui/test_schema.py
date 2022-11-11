@@ -56,12 +56,12 @@ class DataFrameCols(BaseModel):
     floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
     something_else: float = Field(324, aui_column_width=100)
 
-
-class TestDataFrame(BaseModel):
-    """a description of TestDataFrame"""
-
-    dataframe: ty.List[DataFrameCols] = Field(
-        default_factory=lambda: [], format="dataframe"
+    
+class TestEditGrid(BaseModel):
+    editgrid: ty.List[DataFrameCols] = Field(
+        default=DATAGRID_TEST_VALUE,
+        # default_factory=lambda: DATAGRID_TEST_VALUE, # TODO: AutoUi isn't getting data when set using default_factory. make this work!
+        format="DataFrame",
     )
 
 
@@ -107,7 +107,6 @@ class TestAutoLogicSimple(BaseModel):
     )
     # file_chooser: pathlib.Path = pathlib.Path(".") # TODO: serialisation / parsing round trip not working...
 
-
 class TestTypesWithComplexSerialisation(BaseModel):
     """all of these types need to be serialised to json and parsed back to objects upon reading..."""
 
@@ -121,9 +120,12 @@ class TestTypesWithComplexSerialisation(BaseModel):
         datetime
     ] = datetime.now()  # TODO: update with ipywidgets-v8
     color_picker_ipywidgets: Color = "#f5f595"
+    
+class TestNested(BaseModel):
+    nested: NestedObject = Field(default=None)
+    # recursive_nest: RecursiveNest = Field(default=None) # NOTE: this isn't working! 
 
-
-class TestAutoLogic(TestAutoLogicSimple):
+class TestAutoLogic(TestAutoLogicSimple, TestEditGrid, TestNested):
     """this is a test UI form to demonstrate how pydantic class can be used to generate an ipywidget input form"""
 
     complex_serialisation: TestTypesWithComplexSerialisation = Field(default=None)
@@ -152,17 +154,6 @@ class TestAutoLogic(TestAutoLogicSimple):
         autoui="ipyautoui.autowidgets.RunName",
         zfill=3,
     )
-    datagrid: ty.List[DataFrameCols] = Field(
-        default=DATAGRID_TEST_VALUE,
-        # default_factory=lambda: DATAGRID_TEST_VALUE, # TODO: AutoUi isn't getting data when set using default_factory. make this work!
-        format="DataFrame",
-    )
-    # datagrid_from_dataframe: str = Field(
-    #     default=pd.DataFrame.from_dict({"test": [0, 1], "df": [1, 2]}),
-    #     format="DataFrame",
-    # )
-    nested: NestedObject = Field(default=None)
-    recursive_nest: RecursiveNest = Field(default=None)
 
     class Config:
         json_encoders = {PurePosixPath: str}
