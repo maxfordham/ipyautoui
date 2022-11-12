@@ -195,6 +195,14 @@ class DisplayFromRequest(DisplayObjectActions):
 # TODO: probs useful to have a `value` trait (allowing the object to be updated instead of remade)
 #       this probably means having DisplayObject as a base class and extending it for display file...
 class DisplayObject(widgets.VBox):
+    """
+    class for displaying file-like objects.
+    
+    Args:
+        auto_open: bool, auto opens preview of __init__
+        order: list, controls how the UI displays: 
+            allowed values are: ("exists", "openpreview", "openfile", "openfolder", "name")
+    """
 
     auto_open = tr.Bool(default_value=False)
     order = tr.Tuple()
