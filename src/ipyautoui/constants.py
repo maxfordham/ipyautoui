@@ -82,6 +82,12 @@ DOWNARROW_BUTTON_KWARGS = frozenmap(
     disabled=True,
     style={"button_color": "white"},
 )
+DELETE_BUTTON_KWARGS = frozenmap(
+    icon="trash",
+    button_style="danger",
+    tooltip="delete",
+    layout={"width": BUTTON_WIDTH_MIN},
+)
 
 
 KWARGS_DATAGRID_DEFAULT = frozenmap(
