@@ -48,7 +48,6 @@ import json
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 from IPython.display import display, Markdown, clear_output, display_pretty
 from ipyautoui._utils import display_python_string
-
 from ipyautoui.custom.save_buttonbar import SaveButtonBar, SaveActions
 
 frozenmap = immutables.Map
@@ -381,6 +380,7 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
     auto_open = tr.Bool(default_value=False)
     nested_widgets = tr.List()
     order = tr.List(default_value=None, allow_none=True)
+    order_can_hide_rows = tr.Bool(default_value=True)
     insert_rows = tr.Dict(default_value=None, allow_none=True)
 
     @tr.validate("insert_rows")
@@ -403,12 +403,27 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
     @tr.validate("order")
     def _order(self, proposal):
         v = proposal["value"]
-        if v is None:
-            return None
-        else:
-            if set(self.default_order) != set(v):
-                raise ValueError("set(self.default_order) != set(proposal['value'])")
+        if v is not None:
+            for _ in v:
+                if _ not in self.default_order:
+                    raise ValueError(f"ERROR: {_} not in {str(self.default_order)}")
+            if not self.order_can_hide_rows:
+                if set(v) != set(self.default_order):
+                    raise ValueError(
+                        "set(v) != set(self.default_order)"
+                        "if you want to use order to hide rows then set:"
+                        "`order_hides_rows = True`"
+                    )
+        # TODO: order not updating
         return v
+
+    @tr.validate("order_can_hide_rows")
+    def _order_can_hide_rows(self, proposal):
+        if self.order_can_hide_rows != proposal["value"]:
+            if self.order is not None:
+                if set(self.order) != set(self.default_order):
+                    self.order = self.default_order
+        return proposal["value"]
 
     @tr.default("nested_widgets")
     def _default_nested_widgets(self):
@@ -547,7 +562,7 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
                 self.rows.insert(k, v)
 
     def _format_rows(self):
-        set_order = lambda _: self.default_order if _ is None else self.order
+        set_order = lambda _: self.default_order if _ is None else _
         order = set_order(self.order)
         self.rows = [
             create_row(
@@ -647,10 +662,33 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
+    ui.order = [
+        "text",
+        "int_text",
+        "int_slider",
+        # "int_range_slider",
+        # "float_slider",
+        # "float_text",
+        # "float_text_locked",
+        # "float_range_slider",
+        # "checkbox",
+        # "dropdown",
+        # "dropdown_edge_case",
+        # "dropdown_simple",
+        "combobox",
+        "text_short",
+        "text_area",
+        "auto_markdown",
+    ]
+
+if __name__ == "__main__":
+    ui.align_horizontal = False
+
+if __name__ == "__main__":
     ui.nested_widgets = []
 
 if __name__ == "__main__":
-    ui.align_horizontal = True
+    ui.auto_open = True
 
 if __name__ == "__main__":
     ui.show_savebuttonbar = False
