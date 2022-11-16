@@ -18,7 +18,7 @@
 # %load_ext lab_black
 import typing as ty
 from pydantic import BaseModel, Field
-import ipywidgets as widgets
+import ipywidgets as w
 import ipyautoui.autowidgets as auiwidgets
 from ipyautoui._utils import frozenmap, obj_from_importstr
 
@@ -494,7 +494,7 @@ schema:
 {str(caller.schema_)}
 """
             # TODO: add logging
-            w = widgets.Textarea(txt)
+            w = w.Textarea(txt)
         else:
             return  # TODO: check this works
     return w

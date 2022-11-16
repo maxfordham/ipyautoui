@@ -5,7 +5,7 @@ import importlib
 from typing import Type
 from markdown import markdown
 from math import log10, floor
-import ipywidgets as widgets
+import ipywidgets as w
 from IPython.display import display, Markdown
 import codecs
 from pydantic import BaseModel, validator, Field
@@ -78,7 +78,7 @@ def _markdown(value="_Markdown_", **kwargs):
     _kwargs = {}
     _kwargs["value"] = markdown(value)  # required field
     _kwargs.update(kwargs)  # user overides
-    return widgets.HTML(**_kwargs)
+    return w.HTML(**_kwargs)
 
 
 def write_json(data, fpth="data.json", sort_keys=True, indent=4):

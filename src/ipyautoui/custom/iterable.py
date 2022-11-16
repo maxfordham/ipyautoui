@@ -26,13 +26,13 @@ Example:
         import traitlets as tr
         import typing as ty
 
-        from ipywidgets import widgets
+        import ipywidgets as w
         from IPython.display import Markdown
 
         from ipyautoui.custom.iterable import IterableItem, Array, Dictionary
 
 
-        class TestItem(widgets.HBox, tr.HasTraits):
+        class TestItem(w.HBox, tr.HasTraits):
             value = tr.Dict()
 
             def __init__(self, di: ty.Dict):
@@ -41,8 +41,8 @@ Example:
                 self._init_controls()
 
             def _init_form(self):
-                self._label = widgets.HTML(f"{list(self.value.keys())[0]}")
-                self._bool = widgets.ToggleButton(list(self.value.values())[0])
+                self._label = w.HTML(f"{list(self.value.keys())[0]}")
+                self._bool = w.ToggleButton(list(self.value.values())[0])
                 super().__init__(children=[self._bool, self._label])  # self._acc,
 
             def _init_controls(self):
@@ -73,7 +73,7 @@ Example:
 # TODO: review: https://github.com/widgetti/react-ipywidgets - it could simplify the code required below.
 # %run __init__.py
 # %load_ext lab_black
-import ipywidgets as widgets
+import ipywidgets as w
 import traitlets as tr
 from traitlets import validate
 import typing as ty
@@ -98,7 +98,7 @@ from markdown import markdown
 
 frozenmap = immutables.Map
 # ^ https://www.python.org/dev/peps/pep-0603/, https://github.com/MagicStack/immutables
-BOX = frozenmap({True: widgets.HBox, False: widgets.VBox})
+BOX = frozenmap({True: w.HBox, False: w.VBox})
 TOGGLE_BUTTON_KWARGS = frozenmap(
     icon="",
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
@@ -130,28 +130,28 @@ class IterableItem(BaseModel):
     @validator("add", always=True)
     def _add(cls, v, values):
         if v is None:
-            return widgets.Button(layout=dict(BUTTON_MIN_SIZE))
+            return w.Button(layout=dict(BUTTON_MIN_SIZE))
         else:
             return v
 
     @validator("remove", always=True)
     def _remove(cls, v, values):
         if v is None:
-            return widgets.Button(layout=dict(BUTTON_MIN_SIZE))
+            return w.Button(layout=dict(BUTTON_MIN_SIZE))
         else:
             return v
 
     @validator("label", always=True)
     def _label(cls, v, values):
         if v is None:
-            return widgets.HTML("placeholder label")
+            return w.HTML("placeholder label")
         else:
             return v
 
     @validator("item", always=True)
     def _item(cls, v, values):
         if v is None:
-            return widgets.ToggleButton(description="placeholder item")
+            return w.ToggleButton(description="placeholder item")
         else:
             return v
 
@@ -161,9 +161,9 @@ class IterableItem(BaseModel):
         if v is None:
             v = ItemBox(
                 children=[
-                    ItemBox(layout=widgets.Layout(flex="1 0 auto")),  # buttons
-                    ItemBox(layout=widgets.Layout(flex="1 0 auto")),  # label
-                    ItemBox(layout=widgets.Layout(flex="100%")),  # item
+                    ItemBox(layout=w.Layout(flex="1 0 auto")),  # buttons
+                    ItemBox(layout=w.Layout(flex="1 0 auto")),  # label
+                    ItemBox(layout=w.Layout(flex="100%")),  # item
                 ]
             )
             v.children[2].children = [values["item"]]
@@ -173,7 +173,7 @@ class IterableItem(BaseModel):
 
 
 # # +
-class Array(widgets.VBox, tr.HasTraits):
+class Array(w.VBox, tr.HasTraits):
     """generic iterable. pass a list of items"""
 
     # -----------------------------------------------------------------------------------
@@ -333,7 +333,7 @@ class Array(widgets.VBox, tr.HasTraits):
     def _init_form(self):
         # init containers
         super().__init__(
-            layout=widgets.Layout(
+            layout=w.Layout(
                 width="100%",
                 display="flex",
                 flex="flex-grow",
@@ -341,15 +341,11 @@ class Array(widgets.VBox, tr.HasTraits):
             )
         )  # main container
         self.rows_box = BOX[not self.orient_rows](
-            layout=widgets.Layout(width="100%", display="flex", flex="flex-grow")
+            layout=w.Layout(width="100%", display="flex", flex="flex-grow")
         )
-        self.title_box = widgets.HBox(
-            layout=widgets.Layout(display="flex", flex="flex-grow")
-        )
-        self.toggle_button = widgets.ToggleButton(
-            icon="minus", layout=dict(BUTTON_MIN_SIZE)
-        )
-        self.add_from_zero = widgets.Button(**ADD_BUTTON_KWARGS)
+        self.title_box = w.HBox(layout=w.Layout(display="flex", flex="flex-grow"))
+        self.toggle_button = w.ToggleButton(icon="minus", layout=dict(BUTTON_MIN_SIZE))
+        self.add_from_zero = w.Button(**ADD_BUTTON_KWARGS)
         # self._add_from_zero_display()
         self.toggle_button.value = True
         self._refresh_children()
@@ -429,8 +425,8 @@ class Array(widgets.VBox, tr.HasTraits):
         if self.add_remove_controls is None:
             buttons_box = []
         else:
-            self.iterable[index].add = widgets.Button(layout=dict(BUTTON_MIN_SIZE))
-            self.iterable[index].remove = widgets.Button(layout=dict(BUTTON_MIN_SIZE))
+            self.iterable[index].add = w.Button(layout=dict(BUTTON_MIN_SIZE))
+            self.iterable[index].remove = w.Button(layout=dict(BUTTON_MIN_SIZE))
             buttons_box = [self.iterable[index].add, self.iterable[index].remove]
         self.iterable[index].row.children[0].children = buttons_box
 
@@ -511,9 +507,9 @@ class Array(widgets.VBox, tr.HasTraits):
     def title(self, value: ty.Union[str, None]):
         self._title = value
         if self.title is None:
-            self.html_title = widgets.HTML(self.title)
+            self.html_title = w.HTML(self.title)
         else:
-            self.html_title = widgets.HTML(markdown(self.title))
+            self.html_title = w.HTML(markdown(self.title))
         self._update_header()
 
     def _update_header(self):
@@ -534,7 +530,7 @@ class Array(widgets.VBox, tr.HasTraits):
 
     def _init_row_controls(self, key=None):
         if self.add_remove_controls == "append_only":
-            # self.iterable[0].add = widgets.Button(layout=dict(BUTTON_MIN_SIZE))
+            # self.iterable[0].add = w.Button(layout=dict(BUTTON_MIN_SIZE))
             self.iterable[0].add.on_click(self._add_row)
             # self._style_zeroth_buttonbar()
         else:
@@ -578,7 +574,7 @@ class Array(widgets.VBox, tr.HasTraits):
         if self.fn_add_dialogue is None:
             self.add_row(key=key)
         else:
-            out = widgets.Output()
+            out = w.Output()
             self.children = [self.title_box, out, self.rows_box]
             with out:
                 display(self.fn_add_dialogue(cls=self))
@@ -721,8 +717,8 @@ class Dictionary(Array):
             IterableItem(
                 index=n,
                 key=k,
-                add=widgets.Button(**ADD_BUTTON_KWARGS),
-                remove=widgets.Button(**REMOVE_BUTTON_KWARGS),
+                add=w.Button(**ADD_BUTTON_KWARGS),
+                remove=w.Button(**REMOVE_BUTTON_KWARGS),
                 item=v,
             )
             for n, (k, v) in enumerate(items.items())
@@ -778,8 +774,7 @@ class AutoArray(Array):
             items = [AutoObject(schema=self.schema) for v in value]
         elif "default" in self.schema.keys():
             items = [
-                AutoObject(schema=self.schema["items"])
-                for v in self.schema["default"]
+                AutoObject(schema=self.schema["items"]) for v in self.schema["default"]
             ]
             # [display(i) for i in items]
         else:
@@ -850,7 +845,7 @@ if __name__ == "__main__":
         else:
             return TestItem(di=value)
 
-    class TestItem(widgets.HBox):
+    class TestItem(w.HBox):
         _value = tr.Dict()
 
         def __init__(self, di: ty.Dict = get_di()):
@@ -870,8 +865,8 @@ if __name__ == "__main__":
             self._bool.value = v
 
         def _init_form(self):
-            self._label = widgets.HTML(f"{list(self.value.keys())[0]}")
-            self._bool = widgets.ToggleButton(list(self.value.values())[0])
+            self._label = w.HTML(f"{list(self.value.keys())[0]}")
+            self._bool = w.ToggleButton(list(self.value.values())[0])
             super().__init__(children=[self._bool, self._label])  # self._acc,
 
         def _init_controls(self):

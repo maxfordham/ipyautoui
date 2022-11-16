@@ -24,7 +24,7 @@ Reference:
 """
 # %run ../__init__.py
 import sys
-import ipywidgets as widgets
+import ipywidgets as w
 import traitlets as tr
 import requests
 import random
@@ -33,7 +33,7 @@ BUTTON_WIDTH_MIN = "50px"
 
 
 # +
-class MultiSelectSearch(widgets.VBox):
+class MultiSelectSearch(w.VBox):
     """
     multi-checkbox select widget with search
 
@@ -47,23 +47,23 @@ class MultiSelectSearch(widgets.VBox):
 
     def __init__(self, options=[], value=[]):
         super().__init__()
-        self.check_all = widgets.Button(
+        self.check_all = w.Button(
             icon="fa-check-square-o",
             tooltip="Check all",
             button_style="success",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.uncheck_all = widgets.Button(
+        self.uncheck_all = w.Button(
             icon="fa-square-o",
             tooltip="Uncheck all",
             button_style="warning",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.delete = widgets.Button(
+        self.delete = w.Button(
             icon="trash-alt",
             tooltip="Deleted checked items",
             button_style="danger",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
         self.options = options
         self.value = value
@@ -82,7 +82,7 @@ class MultiSelectSearch(widgets.VBox):
     def options(self, value):
         self._options = value
         self.options_dict = {
-            x: widgets.Checkbox(
+            x: w.Checkbox(
                 description=x, value=False, style={"description_width": "0px"}
             )
             for x in value
@@ -118,10 +118,10 @@ class MultiSelectSearch(widgets.VBox):
 
     def multi_checkbox_widget(self, options_dict):
         """Widget with a search field and lots of checkboxes"""
-        search_widget = widgets.Text()
-        output_widget = widgets.Output()
+        search_widget = w.Text()
+        output_widget = w.Output()
         options = [x for x in options_dict.values()]
-        options_layout = widgets.Layout(
+        options_layout = w.Layout(
             overflow="auto",
             border="1px solid black",
             width="470px",
@@ -129,12 +129,10 @@ class MultiSelectSearch(widgets.VBox):
             flex_flow="column",
             display="flex",
         )
-        options_widget = widgets.VBox(options, layout=options_layout)
-        multi_select = widgets.VBox(
+        options_widget = w.VBox(options, layout=options_layout)
+        multi_select = w.VBox(
             [
-                widgets.HBox(
-                    [search_widget, self.check_all, self.uncheck_all, self.delete]
-                ),
+                w.HBox([search_widget, self.check_all, self.uncheck_all, self.delete]),
                 options_widget,
             ]
         )

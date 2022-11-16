@@ -15,7 +15,7 @@
 # ---
 
 import re
-import ipywidgets as widgets
+import ipywidgets as w
 from traitlets import HasTraits, Unicode, default, validate, TraitError
 from dataclasses import dataclass, asdict
 import typing as ty
@@ -64,7 +64,7 @@ class RunNameInputs:
 # -
 
 
-class RunName(widgets.HBox):
+class RunName(w.HBox):
     """widget for creating an modelling iteration name to a defined format from component parts
 
     Example:
@@ -130,14 +130,12 @@ class RunName(widgets.HBox):
             return self.inputs.enum
 
     def _init_form(self):
-        self.index = widgets.IntText(
+        self.index = w.IntText(
             layout={"width": "50px"}, disabled=self.inputs.disabled_index
         )
-        self.enum = widgets.Dropdown(
-            options=self.get_options, layout={"width": "100px"}
-        )
-        self.description = widgets.Text()
-        self.name = widgets.Text(disabled=True)
+        self.enum = w.Dropdown(options=self.get_options, layout={"width": "100px"})
+        self.description = w.Text()
+        self.name = w.Text(disabled=True)
         di = {}
         di["index"] = self.index
         di["enum"] = self.enum

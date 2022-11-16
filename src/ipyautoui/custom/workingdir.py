@@ -28,7 +28,7 @@ from IPython.display import clear_output, Markdown
 from ipyautoui._utils import file
 import shutil
 import traitlets_paths
-import ipywidgets as widgets
+import ipywidgets as w
 import traitlets as tr
 
 from getpass import getuser
@@ -297,38 +297,38 @@ def create_folder_structure(value, model_dirs=AnalysisDir):
 
 
 # +
-class WorkingDirsUi(widgets.HBox):
+class WorkingDirsUi(w.HBox):
     """
     a programmable UI object to load new working directories for ipyrun.runshell # TODO: move to ipyrun
     """
 
     value = tr.Dict()
-    setup = widgets.ToggleButton(icon="ellipsis-v", layout={"width": BUTTON_WIDTH_MIN})
-    load = widgets.Button(**LOAD_BUTTON_KWARGS)
-    project_number = widgets.Combobox(
+    setup = w.ToggleButton(icon="ellipsis-v", layout={"width": BUTTON_WIDTH_MIN})
+    load = w.Button(**LOAD_BUTTON_KWARGS)
+    project_number = w.Combobox(
         value="J5001", ensure_option=True, layout={"width": "80px"}
     )
     projects = tr.List(default_value=[])
-    process_type = widgets.Dropdown(
+    process_type = w.Dropdown(
         value="Calcs",
         options=["Calcs", "Schedule"],
         # disabled=True,
         layout={"width": "80px"},
     )
-    process_subtype = widgets.Dropdown(
+    process_subtype = w.Dropdown(
         value="WUFI",
         options=list(ProcessSubType._value2member_map_.keys()),
         # disabled=True,
         layout={"width": "80px"},
     )
-    riba_stage = widgets.Dropdown(
+    riba_stage = w.Dropdown(
         value="Stage1",
         options=list(RibaStages._value2member_map_.keys()),
         layout={"width": "80px"},
     )
-    key = widgets.HTML()
-    fdir_win = widgets.HTML()
-    fdir_win_proposed = widgets.HTML()
+    key = w.HTML()
+    fdir_win = w.HTML()
+    fdir_win_proposed = w.HTML()
 
     @tr.observe("projects")
     def _projects(self, change):
@@ -372,13 +372,13 @@ class WorkingDirsUi(widgets.HBox):
         self.fpth_working_dirs = fpth_working_dirs
         self.model_dirs = model_dirs
         self.fn_onload = fn_onload
-        super().__init__(layout=widgets.Layout(justify_content="flex-end"))
-        self.vbx_main = widgets.VBox()
-        self.out = widgets.Output(
-            layout=widgets.Layout(justify_content="flex-end", align_content="flex-end")
+        super().__init__(layout=w.Layout(justify_content="flex-end"))
+        self.vbx_main = w.VBox()
+        self.out = w.Output(
+            layout=w.Layout(justify_content="flex-end", align_content="flex-end")
         )
-        self.hbx_select = widgets.HBox(
-            layout=widgets.Layout(justify_content="flex-end", align_content="flex-end")
+        self.hbx_select = w.HBox(
+            layout=w.Layout(justify_content="flex-end", align_content="flex-end")
         )
         self.hbx_select.children = [
             self.project_number,

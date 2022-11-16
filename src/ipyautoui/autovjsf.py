@@ -19,7 +19,7 @@
 
 import ipyvuetify as v
 import traitlets as tr
-import ipywidgets as widgets
+import ipywidgets as w
 
 from ipyautoui.constants import PATH_VJSF_TEMPLATE
 from ipyautoui.autoui import AutoUiFileMethods, AutoRenderMethods
@@ -86,7 +86,7 @@ class AutoVjsf(AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
         self.title.value = make_bold(self.get_title())
         self.description.value = self.get_description()
         self._value = self.vui.value
-        self.vbx_raw = widgets.HBox()
+        self.vbx_raw = w.HBox()
         self._init_vui_form()
         self._init_controls()
 
@@ -122,7 +122,7 @@ class AutoVjsf(AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
         self.vui.value = self._value
 
     def _init_vui_form(self):
-        self.autowidget = widgets.VBox()
+        self.autowidget = w.VBox()
         self.autowidget.children = [self.vui]
         li = list(self.children)
         li.append(self.autowidget)

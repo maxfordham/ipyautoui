@@ -19,14 +19,14 @@
 
 # +
 import traitlets_paths
-import ipywidgets as widgets
+import ipywidgets as w
 import traitlets as t
 from IPython.display import clear_output, display
 from ipyautoui.constants import KWARGS_COLLAPSE, KWARGS_DISPLAY
 import typing as ty
 
 
-class ShowHide(widgets.VBox):
+class ShowHide(w.VBox):
     """simple show/hide widget that displays output of a callable that is pass as the input"""
 
     fn_display = t.Callable()
@@ -38,7 +38,7 @@ class ShowHide(widgets.VBox):
 
     def __init__(
         self,
-        fn_display: ty.Callable = lambda: widgets.HTML("😲"),
+        fn_display: ty.Callable = lambda: w.HTML("😲"),
         title: str = "title",
         auto_open: bool = False,
         button_width: str = None,
@@ -59,13 +59,13 @@ class ShowHide(widgets.VBox):
             self.btn_display.layout.width = "300px"
 
     def _init_form(self):
-        super().__init__(layout=widgets.Layout(border="solid LightCyan 2px"))
-        self.hbx_title = widgets.HBox()
-        self.btn_display = widgets.ToggleButton(**KWARGS_DISPLAY)
+        super().__init__(layout=w.Layout(border="solid LightCyan 2px"))
+        self.hbx_title = w.HBox()
+        self.btn_display = w.ToggleButton(**KWARGS_DISPLAY)
         if self.button_width is not None:
             self.btn_display.layout.width = self.button_width
-        self.html_title = widgets.HTML()
-        self.out = widgets.Output()
+        self.html_title = w.HTML()
+        self.out = w.Output()
         self.out.layout.display = "None"
         self.hbx_title.children = [self.btn_display, self.html_title]
         self.children = [self.hbx_title, self.out]

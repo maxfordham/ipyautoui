@@ -20,7 +20,7 @@
 import pathlib
 import functools
 import pandas as pd
-import ipywidgets as widgets
+import ipywidgets as w
 from IPython.display import display, Markdown, clear_output
 from datetime import datetime, date
 from dataclasses import dataclass
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
 
 # +
-class SaveButtonBar(widgets.HBox, SaveActions):
+class SaveButtonBar(w.HBox, SaveActions):
     def __init__(self, **kwargs):
         super().__init__()
         self._init_form()
@@ -134,23 +134,23 @@ class SaveButtonBar(widgets.HBox, SaveActions):
         [setattr(self, k, v) for k, v in kwargs.items()]
 
     def _init_form(self):
-        self.tgl_unsaved_changes = widgets.ToggleButton(
-            disabled=True, layout=widgets.Layout(width=BUTTON_WIDTH_MIN)
+        self.tgl_unsaved_changes = w.ToggleButton(
+            disabled=True, layout=w.Layout(width=BUTTON_WIDTH_MIN)
         )
-        self.bn_save = widgets.Button(
+        self.bn_save = w.Button(
             icon="fa-save",
             tooltip="save changes",
             button_style="success",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.bn_revert = widgets.Button(
+        self.bn_revert = w.Button(
             icon="fa-undo",
             tooltip="revert to last save",
             button_style="warning",
             style={"font_weight": "bold"},
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.message = widgets.HTML("")
+        self.message = w.HTML("")
         self.children = [
             self.tgl_unsaved_changes,
             self.bn_revert,
@@ -204,7 +204,7 @@ if __name__ == "__main__":
     sb.unsaved_changes = True
 
 
-class ButtonBar(widgets.HBox):
+class ButtonBar(w.HBox):
     def __init__(
         self,
         add: ty.Callable = lambda: print("add"),
@@ -222,34 +222,34 @@ class ButtonBar(widgets.HBox):
         self.fn_copy = copy
         self.fn_delete = delete
         self.fn_backward = backward
-        self.out = widgets.Output()
+        self.out = w.Output()
         self._init_form()
         self._init_controls()
 
     def _init_form(self):
 
-        self.add = widgets.ToggleButton(
+        self.add = w.ToggleButton(
             icon="plus",
             button_style="success",
             style={"font_weight": "bold"},
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.edit = widgets.ToggleButton(
+        self.edit = w.ToggleButton(
             icon="edit",
             button_style="warning",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.copy = widgets.Button(
+        self.copy = w.Button(
             icon="copy",
             button_style="primary",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.delete = widgets.ToggleButton(
+        self.delete = w.ToggleButton(
             icon="trash-alt",
             button_style="danger",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.message = widgets.HTML()
+        self.message = w.HTML()
         children = [self.add, self.edit, self.copy, self.delete]
         children.append(self.message)
         self.children = children
