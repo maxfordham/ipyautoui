@@ -28,7 +28,7 @@ import functools
 
 import immutables
 import pandas as pd
-import ipywidgets as widgets
+import ipywidgets as w
 from typing import List
 from markdown import markdown
 from pydantic import BaseModel, Field
@@ -40,7 +40,6 @@ import ipyautoui.autoipywidget as aui
 import ipyautoui.custom.save_buttonbar as sb
 from ipyautoui._utils import obj_from_importstr
 from ipyautoui.automapschema import attach_schema_refs
-
 
 
 frozenmap = immutables.Map
@@ -673,7 +672,7 @@ from ipyautoui.constants import BUTTON_WIDTH_MIN
 from IPython.display import clear_output
 
 
-class UiDelete(widgets.HBox):
+class UiDelete(w.HBox):
     value = tr.Dict(default_value={})
     columns = tr.List(allow_none=True, default_value=None)
 
@@ -707,17 +706,17 @@ class UiDelete(widgets.HBox):
     def __init__(self, fn_delete: ty.Callable = lambda: print("delete"), **kwargs):
         super().__init__(**kwargs)
         self.fn_delete = fn_delete
-        self.out_delete = widgets.Output()
-        self.bn_delete = widgets.Button(
+        self.out_delete = w.Output()
+        self.bn_delete = w.Button(
             icon="exclamation-triangle",
             button_style="danger",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN),
+            layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.vbx_messages = widgets.VBox()
-        self.message = widgets.HTML(
+        self.vbx_messages = w.VBox()
+        self.message = w.HTML(
             "⚠️<b>warning</b>⚠️ - <i>pressing button will permanently delete rows from grid</i>"
         )
-        self.message_columns = widgets.HTML(f"---")
+        self.message_columns = w.HTML(f"---")
         self.vbx_messages.children = [
             self.message,
             self.message_columns,
@@ -743,7 +742,7 @@ if __name__ == "__main__":
     delete.value = {"key": {"col1": "value1", "col2": "value2"}}
 
 
-class EditGrid(widgets.VBox):
+class EditGrid(w.VBox):
     _value = tr.List()
     warn_on_delete = tr.Bool()
 
@@ -777,7 +776,7 @@ class EditGrid(widgets.VBox):
         description: str = "",
         fn_on_copy: ty.Callable = None,  # TODO: don't think this is required...
     ):
-        self.description = widgets.HTML(description)
+        self.description = w.HTML(description)
         self.by_title = by_title
         self.fn_on_copy = fn_on_copy
         self.by_alias = by_alias
@@ -834,8 +833,8 @@ class EditGrid(widgets.VBox):
             backward=self.setview_default,
             show_message=False,
         )
-        self.addrow = widgets.VBox()
-        self.editrow = widgets.VBox()
+        self.addrow = w.VBox()
+        self.editrow = w.VBox()
         self.children = [
             self.description,
             self.buttonbar_grid,

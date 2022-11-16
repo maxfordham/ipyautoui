@@ -32,7 +32,7 @@ Example:
 import logging
 import pathlib
 import functools
-import ipywidgets as widgets
+import ipywidgets as w
 from IPython.display import display, Markdown, clear_output, display_pretty
 from pydantic import BaseModel, Field
 from markdown import markdown
@@ -328,4 +328,3 @@ if __name__ == "__main__":
 
     Renderer = AutoUi.create_autoui_renderer(TestAutoLogic, show_raw=False)
     display(Renderer(path="test1.json"))
-

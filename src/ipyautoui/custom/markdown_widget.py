@@ -18,7 +18,7 @@
 # %load_ext lab_black
 
 # +
-import ipywidgets as widgets
+import ipywidgets as w
 import functools
 import traitlets as tr
 from IPython.display import Markdown, clear_output, display
@@ -106,18 +106,18 @@ MAP_MARKDOWN = frozenmap(
 
 def markdown_buttons():
     """generate markdown widget button bar"""
-    bn_header = widgets.Button(icon="fa-heading", layout=dict(BUTTON_MIN_SIZE))
-    bn_bold = widgets.Button(icon="fa-bold", layout=dict(BUTTON_MIN_SIZE))
-    bn_italic = widgets.Button(icon="fa-italic", layout=dict(BUTTON_MIN_SIZE))
-    bn_list = widgets.Button(icon="fa-list", layout=dict(BUTTON_MIN_SIZE))
-    bn_numbered = widgets.Button(icon="fa-list-ol", layout=dict(BUTTON_MIN_SIZE))
-    bn_image = widgets.Button(icon="fa-image", layout=dict(BUTTON_MIN_SIZE))
-    bn_link = widgets.Button(icon="fa-link", layout=dict(BUTTON_MIN_SIZE))
-    bn_blank = widgets.Button(
+    bn_header = w.Button(icon="fa-heading", layout=dict(BUTTON_MIN_SIZE))
+    bn_bold = w.Button(icon="fa-bold", layout=dict(BUTTON_MIN_SIZE))
+    bn_italic = w.Button(icon="fa-italic", layout=dict(BUTTON_MIN_SIZE))
+    bn_list = w.Button(icon="fa-list", layout=dict(BUTTON_MIN_SIZE))
+    bn_numbered = w.Button(icon="fa-list-ol", layout=dict(BUTTON_MIN_SIZE))
+    bn_image = w.Button(icon="fa-image", layout=dict(BUTTON_MIN_SIZE))
+    bn_link = w.Button(icon="fa-link", layout=dict(BUTTON_MIN_SIZE))
+    bn_blank = w.Button(
         display=True, style={"button_color": "white"}, layout=dict(BUTTON_MIN_SIZE)
     )
-    bn_help = widgets.ToggleButton(icon="question", layout=dict(BUTTON_MIN_SIZE))
-    bx_buttons = widgets.HBox()
+    bn_help = w.ToggleButton(icon="question", layout=dict(BUTTON_MIN_SIZE))
+    bx_buttons = w.HBox()
     bx_buttons.children = [
         bn_header,
         bn_bold,
@@ -142,7 +142,7 @@ def markdown_buttons():
     )
 
 
-class MarkdownWidget(widgets.VBox):
+class MarkdownWidget(w.VBox):
     """a simple markdown widget for editing snippets of markdown text"""
 
     _value = tr.Unicode(allow_none=True)  # default=""
@@ -166,15 +166,15 @@ class MarkdownWidget(widgets.VBox):
 
     def _init_form(self):
         super().__init__()
-        self.text = widgets.Textarea(layout={"width": "400px", "height": "300px"})
-        self.rendered = widgets.Output()
-        self.example_text = widgets.Textarea(
+        self.text = w.Textarea(layout={"width": "400px", "height": "300px"})
+        self.rendered = w.Output()
+        self.example_text = w.Textarea(
             value=EXAMPLE_MARKDOWN,
             disabled=True,
             layout={"width": "400px", "height": "300px"},
         )
-        self.example_rendered = widgets.Output()
-        self.bx_markdown = widgets.HBox()
+        self.example_rendered = w.Output()
+        self.bx_markdown = w.HBox()
         self.bx_markdown.children = [self.text, self.rendered]
         (
             self.bx_buttons,

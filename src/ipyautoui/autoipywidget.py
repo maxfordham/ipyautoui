@@ -31,7 +31,7 @@ Example:
 # %load_ext lab_black
 import logging
 import functools
-import ipywidgets as widgets
+import ipywidgets as w
 from IPython.display import display
 import traitlets as tr
 
@@ -56,14 +56,14 @@ frozenmap = immutables.Map
 # +
 def _init_widgets_and_labels(
     pr: ty.Dict,
-) -> tuple[ty.Dict[str, widgets.HBox], ty.Dict]:
+) -> tuple[ty.Dict[str, w.HBox], ty.Dict]:
     """initiates widget for from dict built from schema
 
     Args:
         pr (ty.Dict): schema properties - sanitised for ipywidgets
 
     Returns:
-        (widgets.VBox, ty.Dict): box with widgets, di of widgets
+        (w.VBox, ty.Dict): box with widgets, di of widgets
     """
 
     _init_widget = lambda v: aumap.widgetcaller(v)
@@ -161,14 +161,14 @@ def horizontal_row_nested(widget, label, auto_open=False):
 
 
 def horizontal_row_simple(widget, label):
-    return widgets.HBox([widget, widgets.HTML(label)])
+    return w.HBox([widget, w.HTML(label)])
 
 
 def vertical_row(widget, label, auto_open=None):
-    return widgets.VBox(
+    return w.VBox(
         [
-            widgets.HTML(label),
-            widgets.HBox([widgets.HBox(layout={"width": "40px"}), widget]),
+            w.HTML(label),
+            w.HBox([w.HBox(layout={"width": "40px"}), widget]),
         ]
     )
 
@@ -210,7 +210,7 @@ def show_hide_widget(widget, show: bool):
 
 
 # +
-class AutoObjectShowRaw(widgets.VBox):
+class AutoObjectShowRaw(w.VBox):
     fn_onshowraw = tr.Callable(default_value=lambda: "{'test':'json'}")
     fn_onhideraw = tr.Callable(default_value=lambda: None)
     show_raw = tr.Bool(default_value=False)
@@ -221,7 +221,7 @@ class AutoObjectShowRaw(widgets.VBox):
 
     def __init__(self):
         super().__init__(
-            layout=widgets.Layout(
+            layout=w.Layout(
                 width="100%",
                 display="flex",
                 flex="flex-grow",
@@ -231,14 +231,14 @@ class AutoObjectShowRaw(widgets.VBox):
         self._init_bn_showraw_controls()
 
     def _init_bn_showraw(self):
-        self.bn_showraw = widgets.ToggleButton(
+        self.bn_showraw = w.ToggleButton(
             icon="code",
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN, display="None"),
+            layout=w.Layout(width=BUTTON_WIDTH_MIN, display="None"),
             tooltip="show raw data",
             style={"font_weight": "bold", "button_color": None},
         )
-        self.vbx_showraw = widgets.VBox()
-        self.out_raw = widgets.Output()
+        self.vbx_showraw = w.VBox()
+        self.out_raw = w.Output()
         self.vbx_showraw.children = [self.out_raw]
 
     def _init_bn_showraw_controls(self):
@@ -303,14 +303,14 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
         self.fn_onhideraw = self.display_ui
 
     def _init_form(self):
-        self.autowidget = widgets.VBox()
-        self.hbx_title = widgets.HBox()
+        self.autowidget = w.VBox()
+        self.hbx_title = w.HBox()
         self.savebuttonbar = SaveButtonBar()
         self.savebuttonbar.layout.display = "None"
-        self.title = widgets.HTML()
+        self.title = w.HTML()
         self._init_bn_showraw()
         self.hbx_title.children = [self.bn_showraw, self.title]
-        self.description = widgets.HTML()  #
+        self.description = w.HTML()  #
         self.children = [
             self.savebuttonbar,
             self.hbx_title,
@@ -342,7 +342,7 @@ def demo_autoobject_form(title="test", description="a description of the title")
     form.savebuttonbar.children = [SaveButtonBar()]
     form.hbx_title.layout = {"border": "solid blue 2px"}
     form.autowidget.layout = {"border": "solid green 2px", "height": "200px"}
-    form.autowidget.children = [widgets.Button(description="PlaceHolder Widget")]
+    form.autowidget.children = [w.Button(description="PlaceHolder Widget")]
     form.vbx_showraw.layout = {
         "border": "solid orange 2px",
         "height": "200px",
@@ -371,7 +371,7 @@ if __name__ == "__main__":
 
 
 # +
-class AutoObject(AutoObjectFormLayout):  # widgets.VBox
+class AutoObject(AutoObjectFormLayout):  # w.VBox
     """creates an ipywidgets form from a json-schema or pydantic model. datatype must be "object" """
 
     _value = tr.Dict(allow_none=True)
@@ -487,13 +487,13 @@ class AutoObject(AutoObjectFormLayout):  # widgets.VBox
             update_map_widgets (frozenmap, optional): frozen dict of widgets to map to schema items. Defaults to None.
             fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
             order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
-            insert_rows (dict): e.g. {3:widgets.Button()}. allows user to insert a widget into the rows. its presence
+            insert_rows (dict): e.g. {3:w.Button()}. allows user to insert a widget into the rows. its presence
                 is ignored by the widget otherwise.
             nested_widgets (list): e.g. [FileUploadToDir]. allows user to indicate widgets that should be show / hide
                 type
 
         Returns:
-            AutoObject(widgets.VBox)
+            AutoObject(w.VBox)
         """
         super().__init__()
         self.insert_rows = insert_rows

@@ -3,7 +3,7 @@
 # %load_ext lab_black
 # %run __init__.py
 # %run ../__init__.py
-import ipywidgets as widgets
+import ipywidgets as w
 from markdown import markdown
 from IPython.display import display
 from pydantic import BaseModel, validator, Field
@@ -23,7 +23,7 @@ from ipyautoui.custom.iterable import Array, AutoArray, Dictionary
 from ipyautoui.autodisplayfile_renderers import preview_image, render_file
 from IPython.display import clear_output
 
-IS_IPYWIDGETS8 = (lambda: True if "8" in widgets.__version__ else False)()
+IS_IPYWIDGETS8 = (lambda: True if "8" in w.__version__ else False)()
 
 # +
 # TODO: allow for adding number of allowed files based on schema
@@ -63,7 +63,7 @@ class Caption(tr.HasTraits):
     show_caption = tr.Bool(default_value=True)
 
     def _init_caption(self):
-        self.caption = widgets.Textarea(placeholder="add caption")
+        self.caption = w.Textarea(placeholder="add caption")
 
     def _init_caption_controls(self):
         self.caption.observe(self._caption, names="value")
@@ -80,7 +80,7 @@ class Caption(tr.HasTraits):
 
 
 # +
-class FileUi(widgets.HBox, Caption):
+class FileUi(w.HBox, Caption):
     _value = tr.Dict()
 
     """
@@ -166,7 +166,7 @@ def add_files(upld_value, fdir=pathlib.Path(".")):
         return add_files_ipywidgets7(upld_value, fdir=fdir)
 
 
-class FilesUploadToDir(widgets.VBox):
+class FilesUploadToDir(w.VBox):
     _value = tr.Dict(default_value={})
     _fdir = tr.Unicode()
 
@@ -214,9 +214,9 @@ class FilesUploadToDir(widgets.VBox):
 
     def _init_form(self):
         super().__init__(layout={"border": "solid LightCyan 2px"})
-        self.vbx_buttons = widgets.VBox()
-        self.upld = widgets.FileUpload(multiple=True, layout={"width": "300px"})
-        self.text = widgets.HTML()
+        self.vbx_buttons = w.VBox()
+        self.upld = w.FileUpload(multiple=True, layout={"width": "300px"})
+        self.text = w.HTML()
         self.vbx_buttons.children = [self.upld, self.text]
         self.arr_files = Dictionary(
             add_remove_controls="remove_only", show_hash=None, fn_remove=self.fn_remove
@@ -252,10 +252,9 @@ if __name__ == "__main__":
 # -
 
 
-
 # +
 # TODO: inherit same base as FilesUploadToDir
-class FileUploadToDir(widgets.VBox, Caption):
+class FileUploadToDir(w.VBox, Caption):
     _value = tr.Dict(default_value={})
     _fdir = tr.Unicode()
 
@@ -312,11 +311,11 @@ class FileUploadToDir(widgets.VBox, Caption):
 
     def _init_form(self):
         super().__init__(layout={"border": "solid LightCyan 2px"})
-        self.out = widgets.Output()
-        self.hbx_buttons = widgets.HBox(layout={"width": "300px"})
-        self.hbx_bbar = widgets.HBox(layout={"justify-content": "flex-start"})
-        self.upld = widgets.FileUpload(multiple=False, layout={"width": "256px"})
-        self.bn_delete = widgets.Button(**DELETE_BUTTON_KWARGS)
+        self.out = w.Output()
+        self.hbx_buttons = w.HBox(layout={"width": "300px"})
+        self.hbx_bbar = w.HBox(layout={"justify-content": "flex-start"})
+        self.upld = w.FileUpload(multiple=False, layout={"width": "256px"})
+        self.bn_delete = w.Button(**DELETE_BUTTON_KWARGS)
         self.caption.layout.width = "70%"
         self.caption.layout.height = "30px"
 

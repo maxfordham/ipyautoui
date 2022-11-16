@@ -23,7 +23,7 @@ Example:
 
         from ipyautoui.constants import load_test_constants
         from ipyautoui.displayfile import DisplayFile, Markdown
-        import ipywidgets as widgets
+        import ipywidgets as w
 
         DIR_FILETYPES = load_test_constants().DIR_FILETYPES
 
@@ -48,7 +48,7 @@ from IPython.display import (
 )  # , Image JSON, HTML, IFrame,
 import time
 import typing as ty
-import ipywidgets as widgets
+import ipywidgets as w
 import traitlets as tr
 from pydantic import BaseModel, validator, HttpUrl
 
@@ -140,7 +140,7 @@ class DisplayFromPath(DisplayObjectActions):
         if ext in map_.keys():
             fn = functools.partial(map_[ext], values["path"])
         else:
-            fn = lambda: widgets.HTML("File renderer not found")
+            fn = lambda: w.HTML("File renderer not found")
         return fn
 
     @validator("ext", always=True)
@@ -194,13 +194,13 @@ class DisplayFromRequest(DisplayObjectActions):
 # TODO: separate out the bit that is display data and display from path...
 # TODO: probs useful to have a `value` trait (allowing the object to be updated instead of remade)
 #       this probably means having DisplayObject as a base class and extending it for display file...
-class DisplayObject(widgets.VBox):
+class DisplayObject(w.VBox):
     """
     class for displaying file-like objects.
-    
+
     Args:
         auto_open: bool, auto opens preview of __init__
-        order: list, controls how the UI displays: 
+        order: list, controls how the UI displays:
             allowed values are: ("exists", "openpreview", "openfile", "openfolder", "name")
     """
 
@@ -279,25 +279,25 @@ class DisplayObject(widgets.VBox):
         return str(make_new_path(path, newroot=self.display_actions.newroot))
 
     def _init_form(self):
-        self.exists = widgets.Valid(
+        self.exists = w.Valid(
             value=False,
             disabled=True,
             readout="-",
             tooltip="indicates if file exists",
-            layout=widgets.Layout(width="20px", height=BUTTON_HEIGHT_MIN),
+            layout=w.Layout(width="20px", height=BUTTON_HEIGHT_MIN),
         )
-        self.openpreview = widgets.ToggleButton(**KWARGS_OPENPREVIEW)
-        self.openfile = widgets.Button(**KWARGS_OPENFILE)
-        self.openfolder = widgets.Button(**KWARGS_OPENFOLDER)
-        self.name = widgets.HTML(
+        self.openpreview = w.ToggleButton(**KWARGS_OPENPREVIEW)
+        self.openfile = w.Button(**KWARGS_OPENFILE)
+        self.openfolder = w.Button(**KWARGS_OPENFOLDER)
+        self.name = w.HTML(
             "<b>{0}</b>".format(self.display_actions.name),
-            layout=widgets.Layout(justify_items="center"),
+            layout=w.Layout(justify_items="center"),
         )
-        self.out_caller = widgets.Output()
-        self.out = widgets.Output()
+        self.out_caller = w.Output()
+        self.out = w.Output()
         self.out_caller.layout.display = "none"
         self.out.layout.display = "none"
-        self.bx_bar = widgets.HBox()
+        self.bx_bar = w.HBox()
         if isinstance(self.display_actions.path, pathlib.PurePath):
             self.openfile.tooltip = f"""
 open file:
@@ -307,7 +307,7 @@ open file:
 open folder:
 {self.tooltip_openpath(self.display_actions.path.parent)}
 """
-        self.bx_out = widgets.VBox()
+        self.bx_out = w.VBox()
         self.bx_out.children = [self.out_caller, self.out]
         self.children = [self.bx_bar, self.bx_out]
         self.check_exists()
@@ -498,7 +498,7 @@ class AutoDisplay(tr.HasTraits):
         if self.title is None:
             self.box_title.children = []
         else:
-            self.box_title.children = [widgets.HTML(self.title)]
+            self.box_title.children = [w.HTML(self.title)]
 
     @property
     def display_showhide(self):
@@ -511,9 +511,7 @@ class AutoDisplay(tr.HasTraits):
         self._display_showhide = value
         if self.display_showhide:
             self.box_showhide.children = [
-                widgets.HBox(
-                    layout=widgets.Layout(width="24px", height=BUTTON_HEIGHT_MIN)
-                ),
+                w.HBox(layout=w.Layout(width="24px", height=BUTTON_HEIGHT_MIN)),
                 self.b_display_all,
                 self.b_collapse_all,
                 self.b_display_default,
@@ -567,15 +565,15 @@ class AutoDisplay(tr.HasTraits):
         ]
 
     def _init_form(self):
-        self.b_display_all = widgets.Button(**KWARGS_DISPLAY_ALL_FILES)
-        self.b_collapse_all = widgets.Button(**KWARGS_COLLAPSE_ALL_FILES)
-        self.b_display_default = widgets.Button(**KWARGS_HOME_DISPLAY_FILES)
-        self.box_header = widgets.VBox()
-        self.box_showhide = widgets.HBox()
-        self.box_title = widgets.HBox()
+        self.b_display_all = w.Button(**KWARGS_DISPLAY_ALL_FILES)
+        self.b_collapse_all = w.Button(**KWARGS_COLLAPSE_ALL_FILES)
+        self.b_display_default = w.Button(**KWARGS_HOME_DISPLAY_FILES)
+        self.box_header = w.VBox()
+        self.box_showhide = w.HBox()
+        self.box_title = w.HBox()
         self.box_header.children = [self.box_title, self.box_showhide]
-        self.box_files = widgets.VBox()
-        self.box_form = widgets.VBox()
+        self.box_files = w.VBox()
+        self.box_form = w.VBox()
         self.box_form.children = [self.box_header, self.box_files]
 
     def _init_controls(self):

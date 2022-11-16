@@ -20,7 +20,7 @@
 # %%
 import traitlets as tr
 import re
-import ipywidgets as widgets
+import ipywidgets as w
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 
 
@@ -42,7 +42,7 @@ LI_PROJECTS = [
 ]
 
 
-class LoadProject(widgets.HBox, tr.HasTraits):
+class LoadProject(w.HBox, tr.HasTraits):
     value = tr.Unicode()
 
     @tr.validate("value")
@@ -76,18 +76,18 @@ class LoadProject(widgets.HBox, tr.HasTraits):
         self._highlight_example_job()
 
     def _init_form(self):
-        self.project_active = widgets.Text(
+        self.project_active = w.Text(
             value=self.value,
-            layout=widgets.Layout(width="150px"),
+            layout=w.Layout(width="150px"),
             disabled=True,
             description="active project:",
         )
-        self.project_select = widgets.Combobox(
+        self.project_select = w.Combobox(
             value=self.value,
             options=self.li_projects,
-            layout=widgets.Layout(width="70px"),
+            layout=w.Layout(width="70px"),
         )
-        self.project_load = widgets.Button(
+        self.project_load = w.Button(
             # description='add run',
             tooltip="load job",
             button_style="success",
@@ -108,10 +108,10 @@ class LoadProject(widgets.HBox, tr.HasTraits):
 
     def _highlight_example_job(self):
         if self.value == self.example_project:
-            self.layout = widgets.Layout(border="3px solid red")
+            self.layout = w.Layout(border="3px solid red")
             self.project_load.tooltip = self.example_project_tooltip
         else:
-            self.layout = widgets.Layout(border="")
+            self.layout = w.Layout(border="")
             self.project_load.tooltip = "load project"
 
 

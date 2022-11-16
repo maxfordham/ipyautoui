@@ -15,7 +15,7 @@ from ipyautoui import AutoUi, AutoDisplay, AutoVjsf
 from ipyautoui.autoipywidget import AutoObject, demo_autoobject_form
 from ipyautoui.test_schema import TestAutoLogicSimple
 import stringcase
-import ipywidgets as widgets
+import ipywidgets as w
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
@@ -94,15 +94,15 @@ class TestAutoObjectStylingOptions:
         )[0]
 
         # default horizontal
-        assert get_rowbox(ui) == widgets.HBox
+        assert get_rowbox(ui) == w.HBox
 
         # check vertical
         ui.align_horizontal = False
-        assert get_rowbox(ui) == widgets.VBox
+        assert get_rowbox(ui) == w.VBox
 
         # check back to horizontal
         ui.align_horizontal = False
-        assert get_rowbox(ui) == widgets.VBox
+        assert get_rowbox(ui) == w.VBox
 
 
 class TestAutoObjectRowOrder:
