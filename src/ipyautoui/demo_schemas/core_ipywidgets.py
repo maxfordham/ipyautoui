@@ -5,9 +5,6 @@ import typing as ty
 from enum import Enum
 from pydantic import Field, conint, constr
 from ipyautoui.basemodel import BaseModel
-from pydantic.color import Color
-from datetime import datetime, date
-import pathlib
 import pandas as pd
 from pathlib import PurePosixPath
 
