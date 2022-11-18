@@ -480,7 +480,7 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
         # kw = {k_: v_ for k_, v_ in v.items() if k_ in args}
         # ^ do this if required (get allowed args from class)
 
-        w = caller.autoui(caller.schema_, *caller.args, **caller.kwargs)
+        wi = caller.autoui(caller.schema_, *caller.args, **caller.kwargs)
 
     except:
         if show_errors:
@@ -494,10 +494,10 @@ schema:
 {str(caller.schema_)}
 """
             # TODO: add logging
-            w = w.Textarea(txt)
+            wi = w.Textarea(txt)
         else:
             return  # TODO: check this works
-    return w
+    return wi
 
 
 def update_widgets_map(widgets_map, di_update=None):
