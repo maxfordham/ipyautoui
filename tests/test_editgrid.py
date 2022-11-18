@@ -16,6 +16,10 @@ from .example_objects import (
 )
 from ipyautoui.custom.editgrid import AutoGrid, EditGrid
 from ipyautoui.custom.save_buttonbar import ButtonBar
+from ipyautoui.demo_schemas import EditableGrid
+from ipyautoui.autoipywidget import AutoObject
+
+# from ipyautoui.demo_schemas.editable_datagrid import DATAGRID_TEST_VALUE
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
@@ -29,7 +33,7 @@ def revert():
     return "REVERT"
 
 
-class TestEditGrid:
+class TestButtonBar:
     def test_button_bar(self):
         def add():
             return "ADD"
@@ -114,9 +118,29 @@ class TestAutoGridInitData:
         ]
         print("done")
 
-    # def test_editgrid(self):
-    #     grid = EditGrid(
-    #         schema=ExampleDataFrameSchema,
-    #     )
 
-    #     print("done")
+class TestEditGrid:
+    def test_editgrid_change_data(self):
+        grid = EditGrid(schema=EditableGrid)
+        v = grid.value
+        grid._save_add_to_grid()
+        assert v != grid._value
+
+
+class TestAutoEditGrid:
+    def test_editgrid_change_data(self):
+        grid = AutoObject(schema=EditableGrid)
+        v = grid.value
+
+        check = False
+
+        def test_observe(on_change):
+            check = True
+
+        grid.di_widgets["__root__"].observe(test_observe, "_value")
+
+        assert "_value" in grid.di_widgets["__root__"].traits()
+        grid.di_widgets["__root__"]._save_add_to_grid()
+        assert v != grid.di_widgets["__root__"].value
+        assert check == True
+        assert v != grid._value

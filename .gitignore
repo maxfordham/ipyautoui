@@ -73,6 +73,8 @@ target/
 /src/ipyautoui/autoui.ipynb
 /src/ipyautoui/displayfile.ipynb
 /src/ipyautoui/.ipynb_checkpoints
+/src/ipyautoui/demo_schemas/.ipynb_checkpoints/
+/src/ipyautoui/demo_schemas/.__pycache__/
 /tests/.ipynb_checkpoints
 /tests/__pycache__
 /tests/testdata/.ipynb_checkpoints
