@@ -34,13 +34,12 @@ from markdown import markdown
 from pydantic import BaseModel, Field
 from ipydatagrid import CellRenderer, DataGrid, TextRenderer
 from ipydatagrid.datagrid import SelectionHelper
-
-
 import ipyautoui.autoipywidget as aui
 import ipyautoui.custom.save_buttonbar as sb
 from ipyautoui._utils import obj_from_importstr
 from ipyautoui.automapschema import attach_schema_refs
-
+from ipyautoui._utils_debounce import debounce
+import logging
 
 frozenmap = immutables.Map
 
@@ -61,7 +60,6 @@ frozenmap = immutables.Map
 
 
 # +
-# TODO: Move to utils
 def is_incremental(li):
     return li == list(range(li[0], li[0] + len(li)))
 
@@ -294,6 +292,12 @@ class DataGrid(DataGrid):
     """extends DataGrid with useful generic functions"""
 
     global_decimal_places = tr.Int(default_value=None, allow_none=True)
+    count_changes = tr.Int()
+
+    @tr.default("count_changes")
+    def _default_count_changes(self):
+        self._observe_changes()
+        return 0
 
     @tr.observe("global_decimal_places")
     def _global_decimal_places(self, change):
@@ -313,6 +317,21 @@ class DataGrid(DataGrid):
     @property
     def datagrid_schema_fields(self):
         return self._data["schema"]["fields"]
+
+    def _observe_changes(self):
+        self.on_cell_change(self._count_cell_changes)
+        self.observe(self._count_data_change, "_data")
+
+    def _count_cell_changes(self, cell):
+        logging.info(
+            "DataGrid Change --> {row}:{column}".format(
+                row=cell["row"], column=cell["column_index"]
+            )
+        )
+        self.count_changes += 1
+
+    def _count_data_change(self, cell):
+        self.count_changes += 1
 
 
 class AutoGrid(DataGrid):
@@ -368,6 +387,8 @@ class AutoGrid(DataGrid):
             self.global_decimal_places = self.gridschema.datagrid_traits[
                 "global_decimal_places"
             ]
+        assert self.count_changes == 0
+        # ^ this sets the default value and initiates change observer
 
     def records(self, keys_as_title=False):
         if keys_as_title:
@@ -435,8 +456,6 @@ class AutoGrid(DataGrid):
             raise Exception("Columns of value given do not match with value keys.")
         for column, v in value.items():
             self.set_cell_value(column, key, v)
-
-        # self._value[key] = {k: v for k, v in value.items()}
 
     def filter_by_column_name(self, column_name: str, li_filter: list):
         """Filter rows to display based on a column name and a list of objects belonging to that column.
@@ -604,27 +623,21 @@ if __name__ == "__main__":
 
     # schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
 
-    grid = AutoGrid(schema=TestDataFrame)
+    grid = AutoGrid(schema=TestDataFrame, by_title=True)
     display(grid)
 
 
 if __name__ == "__main__":
-    eg_value = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-        },
-        {
-            "string": "update",
-            "integer": 4,
-            "floater": 3.12344,
-        },
-        {"string": "evening", "integer": 5, "floater": 3.14},
-        {"string": "morning", "integer": 5, "floater": 3.14},
-        {"string": "number", "integer": 3, "floater": 3.14},
-    ]
-    grid.data = pd.DataFrame(eg_value * 10)
+    grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)
+
+if __name__ == "__main__":
+    print(grid.count_changes)
+
+if __name__ == "__main__":
+    grid.set_row_value(0, {"string": "check", "integer": 0, "floater": 0})
+
+if __name__ == "__main__":
+    print(grid.count_changes)
 
 
 class DataHandler(BaseModel):
@@ -741,17 +754,19 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     delete.value = {"key": {"col1": "value1", "col2": "value2"}}
 
-
 class EditGrid(w.VBox):
     _value = tr.List()
     warn_on_delete = tr.Bool()
 
     @property
     def value(self):
-        self._value = self.grid.records()
+        self._update_value_from_grid()
         # _value trait updated called every time the data is retrieved...
         # probs not the best way in the long run... need to add watcher...
         return self._value
+
+    def _update_value_from_grid(self):
+        self._value = self.grid.records()
 
     @value.setter
     def value(self, value):
@@ -760,7 +775,6 @@ class EditGrid(w.VBox):
         else:
             df = pd.DataFrame(value)
             self.grid.data = self.grid.map_titles_to_data(df)
-        self._value = self.grid.records()
 
     def __init__(
         self,
@@ -848,12 +862,19 @@ class EditGrid(w.VBox):
 
     def _init_controls(self):
         self.grid.observe(self._observe_selections, "selections")
+        self.grid.observe(self._grid_changed, "count_changes")
 
     def _observe_selections(self, onchange):
         if self.buttonbar_grid.edit.value:
             self._set_ui_edit_to_selected_row()
         if self.buttonbar_grid.delete.value:
             self._set_ui_delete_to_selected_row()
+
+    @debounce(0.4)
+    def _grid_changed(self, onchange):
+        # debouncer used to allow editing whole rows in 1 go
+        # without updating the `value` on every cell edit.
+        self._update_value_from_grid
 
     def setview_add(self):
         self.ui_add.layout.display = ""
@@ -1081,7 +1102,13 @@ if __name__ == "__main__":
     from ipyautoui.autoipywidget import AutoObject
 
     ui = AutoObject(schema=TestDataFrame)
+    ui.align_horizontal = True
+    ui.auto_open = True
     display(ui)
+
+# +
+# ui.di_w["__root__"]
+# -
 
 if __name__ == "__main__":
     description = markdown(
