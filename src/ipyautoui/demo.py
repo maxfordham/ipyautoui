@@ -8,15 +8,22 @@ from ipyautoui._utils import display_python_file
 from ipyautoui import AutoUi
 from IPython.display import display, clear_output, Markdown
 import json
-
+import pathlib
 from pydantic import BaseModel
-
-# from ipyautoui.constants import IS_IPYWIDGETS8
 from ipyautoui import demo_schemas as demo_schemas
 
 
-def get_classes(member=demo_schemas):
+def get_classes(member=demo_schemas) -> ty.List[ty.Type[BaseModel]]:
     return [obj for name, obj in inspect.getmembers(member) if inspect.isclass(obj)]
+
+
+def get_order():
+    p = pathlib.Path(__file__).parent / "demo_schemas" / "__init__.py"
+    li = p.read_text().split("\n")
+    li = [l for l in li if l != ""]
+    li = [l for l in li if l[0] != "#"]
+    li = [l.split("import ")[1] for l in li]
+    return li
 
 
 class Demo(w.Tab, tr.HasTraits):
@@ -25,8 +32,6 @@ class Demo(w.Tab, tr.HasTraits):
 
     @tr.observe("pydantic_model")
     def _observe_pydantic_model(self, change):
-        # print(change["old"])
-        # print(change["new"])
         try:
             self.python_file = inspect.getfile(self.pydantic_model)
         except:
@@ -38,6 +43,11 @@ class Demo(w.Tab, tr.HasTraits):
         self._update_pydantic()
         self._update_jsonschema()
         self._update_value()
+
+    @tr.observe("selected_index")
+    def _observe_selected_index(self, change):
+        if change["new"] == 3:
+            self._update_value()
 
     def __init__(self, pydantic_model=CoreIpywidgets):
         super().__init__()
@@ -99,6 +109,13 @@ class DemoReel(w.VBox):
     @tr.observe("pydantic_models")
     def _observe_pydantic_models(self, onchange):
         self.map_name_pydantic_model = {d.__name__: d for d in self.pydantic_models}
+        order = get_order()
+        if set(self.map_name_pydantic_model.keys()) != set(order):
+            raise ValueError("set(self.map_name_pydantic_model.keys()) != set(order):")
+        else:
+            self.map_name_pydantic_model = {
+                o: self.map_name_pydantic_model[o] for o in order
+            }
         self.select.value = None
         self.select.options = list(self.map_name_pydantic_model.keys())
         self.select.value = self.select.options[0]
@@ -120,10 +137,22 @@ class DemoReel(w.VBox):
             ],
             # style={"button_width": "500px", "button_color": "lightgreen"}
         )
+        self.vbx_select = w.VBox(
+            layout={
+                "border": "solid 2px yellow",
+                "padding": "0px 0px 10px 0px",
+                "align_items": "center",
+            }
+        )
+        self.select_title = w.HTML(
+            "⬇️ -- <b>Select demo pydantic model / generated AutoUi</b> -- ⬇️"
+        )
+        self.vbx_select.children = [self.select_title, self.select]
+        # self.vbx_select.layout
 
         self.pydantic_models = pydantic_models
         self.demo = Demo()
-        self.children = [self.select, self.demo]
+        self.children = [self.vbx_select, self.demo]
         self._init_controls()
 
     def _init_controls(self):
