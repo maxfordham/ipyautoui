@@ -370,6 +370,10 @@ if __name__ == "__main__":
     form.show_raw = True
 
 
+def autogen(schema) -> object:
+    pass  #
+
+
 # +
 class AutoObject(AutoObjectFormLayout):  # w.VBox
     """creates an ipywidgets form from a json-schema or pydantic model. datatype must be "object" """
@@ -545,7 +549,10 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         else:
             pr = {"__root__": self.schema}
         self.pr = {
-            k: aumap.map_widget(v, widgets_map=self.widgets_map) for k, v in pr.items()
+            property_key: aumap.map_widget(
+                property_schema, widgets_map=self.widgets_map
+            )
+            for property_key, property_schema in pr.items()
         }
         if self.fdir is not None:
             for v in self.pr.values():
@@ -611,7 +618,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         )
 
     def _watch_change(self, change, key=None, watch="value"):
-        print(f"changed: {key}")
+        # print(f"changed: {key}")
         self._value = self.di_widgets_value
         self.savebuttonbar.unsaved_changes = True
         # NOTE: it is required to set the whole "_value" otherwise
@@ -647,7 +654,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
     @update_map_widgets.setter
     def update_map_widgets(self, value):
         self._update_map_widgets = value
-        self.widgets_map = aumap.widgets_map(value)
+        self.widgets_map = aumap.get_widgets_map(value)
 
 
 if __name__ == "__main__":
