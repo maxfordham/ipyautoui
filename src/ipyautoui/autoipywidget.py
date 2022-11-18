@@ -377,7 +377,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
     _value = tr.Dict(allow_none=True)
     fdir = tr.Unicode(allow_none=True)
     align_horizontal = tr.Bool(default_value=True)
-    auto_open = tr.Bool(default_value=False)
+    auto_open = tr.Bool(default_value=True)
     nested_widgets = tr.List()
     order = tr.List(default_value=None, allow_none=True)
     order_can_hide_rows = tr.Bool(default_value=True)
@@ -611,6 +611,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         )
 
     def _watch_change(self, change, key=None, watch="value"):
+        print(f"changed: {key}")
         self._value = self.di_widgets_value
         self.savebuttonbar.unsaved_changes = True
         # NOTE: it is required to set the whole "_value" otherwise
