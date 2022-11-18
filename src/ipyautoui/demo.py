@@ -12,6 +12,8 @@ import pathlib
 from pydantic import BaseModel
 from ipyautoui import demo_schemas as demo_schemas
 
+# TODO: add AutoRenderer functionality to demo
+
 
 def get_classes(member=demo_schemas) -> ty.List[ty.Type[BaseModel]]:
     return [obj for name, obj in inspect.getmembers(member) if inspect.isclass(obj)]

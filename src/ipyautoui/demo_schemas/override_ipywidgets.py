@@ -3,10 +3,9 @@ from ipyautoui.basemodel import BaseModel
 
 
 class OverrideIpywidgets(BaseModel):
-    """when generating the widget to match parameter defined in the pydantic model / jsonschema,
-    AutoUi looks at thinks like: type, options, min / max etc. to guess what widget to use.
-    Some widgets have the same characteristics, so we need to specify explicitly which to use.
-    This can be done by adding a `autoui` property to the Field as shown below.
+    """sometimes it isn't possible to guess what widget to use based on type information.
+    For example, the Combobox has the same inputs as a Dropdown. You can specify to use
+    a specify widget using the `autoui` field.
     """
 
     combobox: str = Field(
