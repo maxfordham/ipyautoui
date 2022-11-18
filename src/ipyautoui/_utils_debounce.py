@@ -1,6 +1,8 @@
 # https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Debouncing
+# NOTE: currently not in use
 
 import asyncio
+
 # from threading import Timer
 # ^ this can replace the Timer class below... not sure when / why this makes sense...
 

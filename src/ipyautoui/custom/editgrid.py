@@ -344,7 +344,6 @@ class AutoGrid(DataGrid):
 
     """
 
-    # _value = tr.List()
     schema = tr.Dict()
 
     @tr.observe("schema")
@@ -754,19 +753,19 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     delete.value = {"key": {"col1": "value1", "col2": "value2"}}
 
+
 class EditGrid(w.VBox):
-    _value = tr.List()
+    _value = tr.Tuple()  # using a tuple to guarantee no accidental mutation
     warn_on_delete = tr.Bool()
 
     @property
     def value(self):
-        self._update_value_from_grid()
-        # _value trait updated called every time the data is retrieved...
-        # probs not the best way in the long run... need to add watcher...
         return self._value
 
     def _update_value_from_grid(self):
+        # print(self._value)  # old
         self._value = self.grid.records()
+        # print(self._value)  # new
 
     @value.setter
     def value(self, value):
@@ -788,7 +787,7 @@ class EditGrid(w.VBox):
         ui_delete: ty.Optional[ty.Callable] = None,
         warn_on_delete: bool = False,
         description: str = "",
-        fn_on_copy: ty.Callable = None,  # TODO: don't think this is required...
+        fn_on_copy: ty.Callable = None,  # TODO: don't think this is required... should be handled by an observe?
     ):
         self.description = w.HTML(description)
         self.by_title = by_title
@@ -859,6 +858,7 @@ class EditGrid(w.VBox):
         ]
         self.setview_default()
         self._init_controls()
+        self._update_value_from_grid()
 
     def _init_controls(self):
         self.grid.observe(self._observe_selections, "selections")
@@ -870,11 +870,11 @@ class EditGrid(w.VBox):
         if self.buttonbar_grid.delete.value:
             self._set_ui_delete_to_selected_row()
 
-    @debounce(0.4)
+    # @debounce(0.1)  # TODO: make debounce work if too slow...
     def _grid_changed(self, onchange):
         # debouncer used to allow editing whole rows in 1 go
         # without updating the `value` on every cell edit.
-        self._update_value_from_grid
+        self._update_value_from_grid()
 
     def setview_add(self):
         self.ui_add.layout.display = ""
@@ -939,12 +939,11 @@ class EditGrid(w.VBox):
     # --------------------------------------------------------------------------
     def _save_add_to_grid(self):
         if not self.grid._data["data"]:  # If no data in grid
-            self.value = [self.ui_add.value]
+            self.value = tuple([self.ui_add.value])
         else:
             # Append new row onto data frame and set to grid's data.
-            value = self.value
-            value.append(self.ui_add.value)
-            self.value = value  # Call setter
+            self.value = tuple(list(self.value) + [self.ui_add.value])
+            # Call setter. above syntax required to avoid editing in place.
         self.setview_default()
 
     def _set_ui_add_to_default_row(self):
@@ -991,8 +990,8 @@ class EditGrid(w.VBox):
                         self.datahandler.fn_copy(value)
                     self._reload_all_data()
                 else:
-                    self.value += li_values_selected
-                    # ^ add copied values
+                    self.value = tuple(list(self.value) + li_values_selected)
+                    # ^ add copied values. note. above syntax required to avoid editing in place.
 
                 self.buttonbar_grid.message.value = markdown("  📝 _Copied Data_ ")
                 self._edit_bool = False  # Want to add the values
@@ -1054,14 +1053,14 @@ if __name__ == "__main__":
             "integer": 1,
             "floater": 3.14,
         },
-        {
-            "string": "update",
-            "integer": 4,
-            "floater": 3.12344,
-        },
-        {"string": "evening", "integer": 5, "floater": 3.14},
-        {"string": "morning", "integer": 5, "floater": 3.14},
-        {"string": "number", "integer": 3, "floater": 3.14},
+        # {
+        #     "string": "update",
+        #     "integer": 4,
+        #     "floater": 3.12344,
+        # },
+        # {"string": "evening", "integer": 5, "floater": 3.14},
+        # {"string": "morning", "integer": 5, "floater": 3.14},
+        # {"string": "number", "integer": 3, "floater": 3.14},
     ]
 
     class DataFrameCols(BaseModel):
@@ -1087,6 +1086,7 @@ if __name__ == "__main__":
         ui_edit=None,
         warn_on_delete=False,
     )
+    editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
 
 if __name__ == "__main__":
@@ -1104,20 +1104,10 @@ if __name__ == "__main__":
     ui = AutoObject(schema=TestDataFrame)
     ui.align_horizontal = True
     ui.auto_open = True
+    ui.observe(lambda c: print("_value change"), "_value")
+    ui.di_widgets["__root__"].observe(lambda c: print("grid _value change"), "_value")
     display(ui)
 
 # +
-# ui.di_w["__root__"]
+# ui.value
 # -
-
-if __name__ == "__main__":
-    description = markdown(
-        "<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes"
-        " whatever they may be 👍"
-    )
-    editgrid = EditGrid(
-        schema=TestDataFrame, description=description, ui_add=None, ui_edit=AutoUi
-    )
-    editgrid.value = AUTO_GRID_DEFAULT_VALUE
-
-    display(editgrid)
