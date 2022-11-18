@@ -476,12 +476,7 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
         widget of some kind
     """
     try:
-        # args = inspect.getfullargspec(cl).args
-        # kw = {k_: v_ for k_, v_ in v.items() if k_ in args}
-        # ^ do this if required (get allowed args from class)
-
-        w = caller.autoui(caller.schema_, *caller.args, **caller.kwargs)
-
+        wi = caller.autoui(caller.schema_, *caller.args, **caller.kwargs)
     except:
         if show_errors:
             txt = f"""
@@ -494,10 +489,10 @@ schema:
 {str(caller.schema_)}
 """
             # TODO: add logging
-            w = w.Textarea(txt)
+            wi = w.Textarea(txt)
         else:
             return  # TODO: check this works
-    return w
+    return wi
 
 
 def update_widgets_map(widgets_map, di_update=None):
@@ -516,7 +511,7 @@ def update_widgets_map(widgets_map, di_update=None):
     return _
 
 
-def widgets_map(di_update=None):
+def get_widgets_map(di_update=None):
 
     WIDGETS_MAP = frozenmap(
         **{
@@ -588,7 +583,7 @@ def get_autooveride(schema):
 
 def map_widget(di, widgets_map=None, fail_on_error=False) -> WidgetCaller:
     if widgets_map is None:
-        widgets_map = widgets_map()
+        widgets_map = get_widgets_map()
 
     def get_widget(di, k, widgets_map):
         if k == "AutoOveride":

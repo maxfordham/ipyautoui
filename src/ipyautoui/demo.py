@@ -126,7 +126,7 @@ class DemoReel(w.VBox):
         self,
         pydantic_models: ty.List[ty.Type[BaseModel]] = get_classes(member=demo_schemas),
     ):
-        super().__init__()
+        super().__init__(layout={"border": "solid 2px PowderBlue"})
 
         self.select = w.ToggleButtons(
             options=[],
@@ -141,7 +141,7 @@ class DemoReel(w.VBox):
         )
         self.vbx_select = w.VBox(
             layout={
-                "border": "solid 2px yellow",
+                "border": "solid 2px LemonChiffon",
                 "padding": "0px 0px 10px 0px",
                 "align_items": "center",
             }

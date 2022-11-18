@@ -23,8 +23,7 @@ shutil.rmtree(
 
 class TestAutoUi:
     def test_auto_ui(self):
-        auto_ui_eg = ExampleSchema()
-        ui = AutoUi(auto_ui_eg)
+        ui = AutoUi(ExampleSchema)
         assert ui.value == {"text": "Test"}
         print("done")
 

@@ -303,11 +303,11 @@ class RunName(modelrun.RunName):
         super().__init__(**self.caller)
 
 
-class EditGrid(editgrid.EditGrid):
-    def __init__(self, schema):
-        self.schema = schema
-        self.caller = create_widget_caller(schema, calling=editgrid.EditGrid)
-        super().__init__(**self.caller)
+# class EditGrid(editgrid.EditGrid):
+#     def __init__(self, schema):
+#         self.schema = schema
+#         self.caller = create_widget_caller(schema, calling=editgrid.EditGrid)
+#         super().__init__(**self.caller)
 
 
 class AutoMarkdown(markdown_widget.MarkdownWidget):

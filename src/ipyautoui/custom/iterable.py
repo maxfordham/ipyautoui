@@ -86,6 +86,7 @@ from pydantic import validator
 import uuid
 from uuid import UUID
 import functools
+from markdown import markdown
 from ipyautoui.constants import (
     ADD_BUTTON_KWARGS,
     REMOVE_BUTTON_KWARGS,
@@ -94,7 +95,7 @@ from ipyautoui.constants import (
     BUTTON_HEIGHT_MIN,
     BUTTON_MIN_SIZE,
 )
-from markdown import markdown
+
 
 frozenmap = immutables.Map
 # ^ https://www.python.org/dev/peps/pep-0603/, https://github.com/MagicStack/immutables
@@ -771,11 +772,9 @@ class AutoArray(Array):
         self.watch_value = watch_value
         self.zfill = 2
         if value is not None:
-            items = [AutoObject(schema=self.schema) for v in value]
+            items = [self.fn_add() for v in value]
         elif "default" in self.schema.keys():
-            items = [
-                AutoObject(schema=self.schema["items"]) for v in self.schema["default"]
-            ]
+            items = [self.fn_add() for v in self.schema["default"]]
             # [display(i) for i in items]
         else:
             items = None
@@ -809,7 +808,10 @@ class AutoArray(Array):
             self.maxlen = self.schema["maxItems"]
         else:
             self.maxlen = 100
-        self.fn_add = functools.partial(AutoObject, schema=self.caller["items"])
+        from ipyautoui import automapschema as aumap
+
+        caller = aumap.map_widget(self.caller["items"])
+        self.fn_add = functools.partial(aumap.widgetcaller, caller)
 
 
 # -

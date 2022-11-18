@@ -7,3 +7,5 @@ from .complex_serialization import ComplexSerialisation
 from .nested_items import Nested
 from .editable_datagrid import EditableGrid
 from .nested_editable_datagrid import NestedEditableGrid
+from .root_array import RootArray
+from .root_simple import RootSimple
