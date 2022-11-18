@@ -72,9 +72,11 @@ class TestAutoGridInitData:
 
         # initiate empty grid
         grid = AutoGrid(schema=ExampleDataFrameSchema)
-        assert grid._data["data"] == []
+        assert grid._data["data"] == [
+            {"key": 0, "String": "", "Floater": 0.0, "ipydguuid": 0}
+        ]
         assert grid._data["schema"]["fields"] == [
-            {"name": "key", "type": "string"},
+            {"name": "key", "type": "integer"},
             {"name": "String", "type": "string"},
             {"name": "Floater", "type": "number"},
             {"name": "ipydguuid", "type": "integer"},
