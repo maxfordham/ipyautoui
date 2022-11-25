@@ -36,7 +36,7 @@ from halo import HaloNotebook
 from enum import Enum, IntEnum
 import pathlib
 from pydantic import BaseModel, ValidationError
-import typing
+import typing as ty
 from datetime import datetime
 import zipfile
 import logging
@@ -45,6 +45,7 @@ from ipyautoui._utils import obj_to_importstr, getuser
 from ipyautoui.custom.decision_branch import DecisionUi, TreeModel
 
 from ipyautoui._utils import make_new_path
+
 # -
 
 try:
@@ -99,8 +100,8 @@ class SelectDirBase(BaseModel):
 
 
 class SelectDir(SelectDirBase):
-    usage: typing.List[Usage] = Field(default_factory=lambda: [])
-    pyobject: str = NAME + "SelectDir"
+    usage: ty.List[Usage] = Field(default_factory=lambda: [])
+    pyobject: str = NAME + ".SelectDir"
 
 
 # -
@@ -145,9 +146,12 @@ def record_load(value):
     file(log, fpth_log)
 
 
+def print_fdir(value):
+    print(f"fn_onload: {value['fdir']}")
+
+
 class SelectDirUi(w.VBox):
     value = tr.Dict()
-    load = w.Button(**dict(LOAD_BUTTON_KWARGS) | {"tooltip": "load project"})
 
     @tr.validate("value")
     def _validate_value(self, proposal):
@@ -184,10 +188,8 @@ class SelectDirUi(w.VBox):
         config: TreeModel,
         fdir_root: pathlib.Path = None,
         fdir_log: pathlib.Path = None,
-        fn_onload: typing.Union[typing.Callable, typing.List] = lambda value: print(
-            f"fn_onload: {value['fdir']}"
-        ),
-        checks: typing.List[typing.Callable] = None,
+        fn_onload: ty.Union[ty.Callable, ty.List] = print_fdir,
+        checks: ty.List[ty.Callable] = None,
     ):
         """
         select a directory through a decision tree
@@ -196,12 +198,12 @@ class SelectDirUi(w.VBox):
             config: TreeModel, defines the choices to give to user
             fdir_root: pathlib.Path, new path built on this one
             fdir_log: pathlib.Path, on load a record is added here
-            fn_onload: typing.Callable, called on load, passed the "value" trait as an arg
-            checks: typing.List[typing.Callable]: a list of callables. each callable is
+            fn_onload: ty.Callable, called on load, passed the "value" trait as an arg
+            checks: ty.List[ty.Callable]: a list of callables. each callable is
                 initiated with the "value" trait as an arg and returns either a string
                 or None
         """
-
+        self.load = w.Button(**dict(LOAD_BUTTON_KWARGS) | {"tooltip": "load project"})
         super().__init__()
         if fdir_root is None:
             self.fdir_root = pathlib.Path(".")
@@ -252,12 +254,11 @@ class SelectDirUi(w.VBox):
 
     @fn_onload.setter
     def fn_onload(self, value):
-
-        if isinstance(value, typing.Callable):
+        if isinstance(value, ty.Callable):
             value = [value]
-        elif isinstance(value, typing.List):
+        elif isinstance(value, ty.List):
             for v in value:
-                if not isinstance(v, typing.Callable):
+                if not isinstance(v, ty.Callable):
                     raise ValueError(
                         "fn_onload must be a Callable or list of Callables"
                     )
@@ -305,7 +306,3 @@ if __name__ == "__main__":
     )
     display(sdir)
 # -
-
-
-
-

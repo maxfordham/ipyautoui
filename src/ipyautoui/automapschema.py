@@ -16,23 +16,23 @@
 # +
 # %run __init__.py
 # %load_ext lab_black
-import typing
+import typing as ty
 from pydantic import BaseModel, Field
-import ipywidgets as widgets
+import ipywidgets as w
 import ipyautoui.autowidgets as auiwidgets
 from ipyautoui._utils import frozenmap, obj_from_importstr
 
 # +
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
-def recursive_search_schema(schema: typing.Dict, li: typing.List) -> typing.Dict:
+def recursive_search_schema(schema: ty.Dict, li: ty.List) -> ty.Dict:
     """searches down schema tree to retrieve definitions
 
     Args:
-        schema (typing.Dict): json schema made from pydantic
-        li (typing.List): list of keys to search down tree
+        schema (ty.Dict): json schema made from pydantic
+        li (ty.List): list of keys to search down tree
 
     Returns:
-        typing.Dict: definition retrieved from schema
+        ty.Dict: definition retrieved from schema
     """
     f = li[0]
     if len(li) > 1:
@@ -41,6 +41,26 @@ def recursive_search_schema(schema: typing.Dict, li: typing.List) -> typing.Dict
         return recursive_search_schema(sch_tmp, li_tmp)
     else:
         return schema[f]
+
+
+def checkfor_allof(di: dict) -> bool:
+    if "allOf" in di and len(di["allOf"]) == 1 and "$ref" in di["allOf"][0].keys():
+        return True
+    else:
+        return False
+
+
+def flatten_allof(
+    schema: dict,
+    schema_base: dict,
+):
+    li_filt = schema["allOf"][0]["$ref"].split("/")[1:]
+    ref = recursive_search_schema(schema_base, li_filt)
+    schema = {
+        k_: v_ for k_, v_ in ref.items() if k_ not in list(schema.keys())
+    } | schema
+    del schema["allOf"]
+    return schema
 
 
 def attach_schema_refs(schema, schema_base=None):
@@ -60,38 +80,37 @@ def attach_schema_refs(schema, schema_base=None):
     """
     if schema_base is None:
         schema_base = schema.copy()
+        # ^ TODO: how can i $refs be attached to definitions
+
     try:
         schema = schema.copy()
     except:
         pass
     # ^ copying to avoid pydantic schema being modified "in-place"
+
+    # if "definitions" in schema.keys():
+    #     schema["definitions"] = attach_schema_refs(
+    #         schema["definitions"], schema_base=schema_base
+    #     )
+    # ^ update the definitions first,
+    # otherwise definitions with $ref's in get copied in to the code
+
     if type(schema) == list:
         for n, s in enumerate(schema):
             schema[n] = attach_schema_refs(s, schema_base=schema_base)
     elif type(schema) == dict:
+        if checkfor_allof(schema):
+            schema = flatten_allof(schema, schema_base)
         for k, v in schema.items():
             if type(v) == dict:
+                if checkfor_allof(v):
+                    schema[k] = flatten_allof(v, schema_base)
                 if "$ref" in v:
                     # FIXME: Needing refactor or cleanup -@jovyan at 8/31/2022, 12:24:09 AM
                     # refs are only attached to schema values, meaning that root definitions
                     # are ignored.
                     li_filt = v["$ref"].split("/")[1:]
-                    schema[k] = recursive_search_schema(schema_base, li_filt)
-                elif (
-                    "allOf" in v
-                    and len(v["allOf"]) == 1
-                    and "$ref" in v["allOf"][0].keys()
-                ):
-                    # ^ this is an edge case for setting enums with Field values 
-                    #   (probs unique to how pydantic does it)
-                    li_filt = v["allOf"][0]["$ref"].split("/")[1:]
-                    ref = recursive_search_schema(schema_base, li_filt)
-                    schema[k] = {
-                        k_: v_
-                        for k_, v_ in ref.items()
-                        if k_ not in list(schema[k].keys())
-                    } | schema[k]
-                    del schema[k]["allOf"]
+                    schema[k] = recursive_search_schema(schema_base, li_filt)  # v=  ?
                 else:
                     schema[k] = attach_schema_refs(v, schema_base=schema_base)
             elif type(v) == list:
@@ -140,6 +159,17 @@ def is_IntText(di: dict) -> bool:
 
 
 def is_IntSlider(di: dict) -> bool:
+    """
+    Example:
+        >>> is_IntSlider({'title': 'int', 'default': 1, 'type': 'number'})
+        False
+        >>> is_IntSlider({'title': 'int', 'default': 1, 'type': 'integer'})
+        False
+        >>> is_IntSlider({'title': 'int', 'default': 1, 'type': 'integer', "minimum": 0, "maximum": 3})
+        True
+        >>> is_IntSlider({'title': 'floater', 'default': 1, 'type': 'number', "minimum": 0, "maximum": 3})
+        False
+    """
     if "autoui" in di.keys():
         return False
     if not di["type"] == "integer":
@@ -156,6 +186,8 @@ def is_FloatText(di: dict) -> bool:
         True
         >>> is_FloatText({'title': 'floater', 'default': 1, 'type': 'integer'})
         False
+        >>> is_FloatText({'title': 'floater', 'default': 1, 'type': 'number', "minimum": 0, "maximum": 3})
+        False
     """
     if "autoui" in di.keys():
         return False
@@ -167,6 +199,17 @@ def is_FloatText(di: dict) -> bool:
 
 
 def is_FloatSlider(di: dict) -> bool:
+    """
+    Example:
+        >>> is_FloatSlider({'title': 'floater', 'default': 1.33, 'type': 'number'})
+        False
+        >>> is_FloatSlider({'title': 'floater', 'default': 1, 'type': 'integer'})
+        False
+        >>> is_FloatSlider({'title': 'floater', 'default': 1, 'type': 'integer', "minimum": 0, "maximum": 3})
+        False
+        >>> is_FloatSlider({'title': 'floater', 'default': 1, 'type': 'number', "minimum": 0, "maximum": 3})
+        True
+    """
     if "autoui" in di.keys():
         return False
     if not di["type"] == "number":
@@ -265,6 +308,9 @@ def is_Color(di: dict) -> bool:
         >>> di = {"title": "Color Picker Ipywidgets", "default": "#f5f595","type": "string", "format": "hexcolor"}
         >>> is_Color(di)
         True
+        >>> di = {"title": "Path", "default": ".", "type": "string", "format": "path"}
+        >>> is_Color(di)
+        False
     """
     if "autoui" in di.keys():
         return False
@@ -272,9 +318,48 @@ def is_Color(di: dict) -> bool:
         return False
     if not "format" in di.keys():
         return False
-    if "format" in di.keys() and "color" not in di["format"]:
+    if "format" in di.keys() and "color" in di["format"]:
+        return True
+    else:
         return False
-    return True
+
+
+def is_Path(di: dict) -> bool:
+    """check if schema object is a path
+
+    Args:
+        di (dict): schema object
+
+    Returns:
+        bool: is the object a color
+
+    Example:
+        >>> di = {"title": "Path", "default": ".", "type": "string", "format": "path"}
+        >>> is_Path(di)
+        True
+    """
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "string":
+        return False
+    if not "format" in di.keys():
+        return False
+    if "format" in di.keys() and di["format"] == "path":
+        return True
+    else:
+        return False
+
+
+def isnot_Text(di: dict) -> bool:
+    if is_Date(di):
+        return True
+    if is_Color(di):
+        return True
+    if is_Markdown(di):
+        return True
+    if is_Path(di):
+        return True
+    return False
 
 
 def is_Text(di: dict) -> bool:
@@ -303,13 +388,10 @@ def is_Text(di: dict) -> bool:
         return False
     if "maxLength" in di.keys() and di["maxLength"] >= 200:
         return False
-    if is_Date(di):
+    if isnot_Text(di):
         return False
-    if is_Color(di):
-        return False
-    if is_Markdown(di):
-        return False
-    return True
+    else:
+        return True
 
 
 def is_Textarea(di: dict, max_length=200) -> bool:
@@ -336,13 +418,10 @@ def is_Textarea(di: dict, max_length=200) -> bool:
         return False
     if "maxLength" in di.keys() and di["maxLength"] <= max_length:  # i.e. == long text
         return False
-    if is_Date(di):
+    if isnot_Text(di):
         return False
-    if is_Color(di):
-        return False
-    if is_Markdown(di):
-        return False
-    return True
+    else:
+        return True
 
 
 def is_Markdown(di: dict) -> bool:
@@ -432,15 +511,15 @@ class WidgetMapper(BaseModel):
     json schema to find appropriate objects, the objects are then passed to the "widget" for the ui
     """
 
-    fn_filt: typing.Callable
-    widget: typing.Callable
+    fn_filt: ty.Callable
+    widget: ty.Callable
 
 
 class WidgetCaller(BaseModel):
-    schema_: typing.Dict
-    autoui: typing.Callable  # TODO: change name autoui --> widget?
-    args: typing.List = Field(default_factory=lambda: [])
-    kwargs: typing.Dict = Field(default_factory=lambda: {})
+    schema_: ty.Dict
+    autoui: ty.Callable  # TODO: change name autoui --> widget?
+    args: ty.List = Field(default_factory=lambda: [])
+    kwargs: ty.Dict = Field(default_factory=lambda: {})
 
 
 def widgetcaller(caller: WidgetCaller, show_errors=True):
@@ -452,12 +531,7 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
         widget of some kind
     """
     try:
-        # args = inspect.getfullargspec(cl).args
-        # kw = {k_: v_ for k_, v_ in v.items() if k_ in args}
-        # ^ do this if required (get allowed args from class)
-
-        w = caller.autoui(caller.schema_, *caller.args, **caller.kwargs)
-
+        wi = caller.autoui(caller.schema_, *caller.args, **caller.kwargs)
     except:
         if show_errors:
             txt = f"""
@@ -470,10 +544,10 @@ schema:
 {str(caller.schema_)}
 """
             # TODO: add logging
-            w = widgets.Textarea(txt)
+            wi = w.Textarea(txt)
         else:
             return  # TODO: check this works
-    return w
+    return wi
 
 
 def update_widgets_map(widgets_map, di_update=None):
@@ -492,12 +566,13 @@ def update_widgets_map(widgets_map, di_update=None):
     return _
 
 
-def widgets_map(di_update=None):
+def get_widgets_map(di_update=None):
 
     WIDGETS_MAP = frozenmap(
         **{
             "AutoOveride": WidgetMapper(
-                fn_filt=is_AutoOveride, widget=auiwidgets.AutoPlaceholder,
+                fn_filt=is_AutoOveride,
+                widget=auiwidgets.AutoPlaceholder,
             ),
             "IntText": WidgetMapper(fn_filt=is_IntText, widget=auiwidgets.IntText),
             "IntSlider": WidgetMapper(
@@ -507,7 +582,7 @@ def widgets_map(di_update=None):
                 fn_filt=is_FloatText, widget=auiwidgets.FloatText
             ),
             "FloatSlider": WidgetMapper(
-                fn_filt=is_FloatSlider, widget=auiwidgets.IntSlider
+                fn_filt=is_FloatSlider, widget=auiwidgets.FloatSlider
             ),
             "IntRangeSlider": WidgetMapper(
                 fn_filt=is_IntRangeSlider, widget=auiwidgets.IntRangeSlider
@@ -524,9 +599,10 @@ def widgets_map(di_update=None):
             "SelectMultiple": WidgetMapper(
                 fn_filt=is_SelectMultiple, widget=auiwidgets.SelectMultiple
             ),
+            "Color": WidgetMapper(fn_filt=is_Color, widget=auiwidgets.ColorPicker),
+            "Path": WidgetMapper(fn_filt=is_Path, widget=auiwidgets.FileChooser),
             "Checkbox": WidgetMapper(fn_filt=is_Checkbox, widget=auiwidgets.Checkbox),
             "Date": WidgetMapper(fn_filt=is_Date, widget=auiwidgets.DatePickerString),
-            "Color": WidgetMapper(fn_filt=is_Color, widget=auiwidgets.ColorPicker),
             "object": WidgetMapper(
                 fn_filt=is_Object, widget=auiwidgets.AutoPlaceholder
             ),
@@ -563,7 +639,7 @@ def get_autooveride(schema):
 
 def map_widget(di, widgets_map=None, fail_on_error=False) -> WidgetCaller:
     if widgets_map is None:
-        widgets_map = widgets_map()
+        widgets_map = get_widgets_map()
 
     def get_widget(di, k, widgets_map):
         if k == "AutoOveride":

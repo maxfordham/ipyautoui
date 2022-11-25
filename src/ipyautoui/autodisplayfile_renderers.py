@@ -23,7 +23,7 @@ Example:
 
         from ipyautoui.constants import load_test_constants
         from ipyautoui.displayfile import DisplayFile, Markdown
-        import ipywidgets as widgets
+        import ipywidgets as w
 
         DIR_FILETYPES = load_test_constants().DIR_FILETYPES
 
@@ -43,9 +43,9 @@ import pandas as pd
 from IPython.display import display, Markdown, IFrame, clear_output, Image, HTML
 import json
 import ipydatagrid as ipg
-import ipywidgets as widgets
+import ipywidgets as w
 import importlib.util
-import traitlets
+import traitlets as tr
 import traitlets_paths
 
 #  local imports
@@ -83,7 +83,7 @@ class PreviewPython:
         self.input = module
         self.preview_script = preview_script
         self.docstring_priority = docstring_priority
-        self.out = widgets.Output()
+        self.out = w.Output()
         self.fpth = self._handle_input()
         self._init_form()
         self._init_controls()
@@ -102,13 +102,9 @@ class PreviewPython:
         return fpth
 
     def _init_form(self):
-        self.title = widgets.HTML("")
-        self.show_me_the_code = widgets.ToggleButton(
-            layout=widgets.Layout(width=BUTTON_WIDTH_MIN)
-        )
-        self.headerbox = widgets.VBox(
-            [widgets.HBox([self.show_me_the_code, self.title])]
-        )
+        self.title = w.HTML("")
+        self.show_me_the_code = w.ToggleButton(layout=w.Layout(width=BUTTON_WIDTH_MIN))
+        self.headerbox = w.VBox([w.HBox([self.show_me_the_code, self.title])])
 
         if self.preview_script:
             display(self.headerbox)
@@ -175,19 +171,19 @@ def preview_csv(path):
     return default_grid(df)
 
 
-class PreviewExcel(widgets.VBox):
+class PreviewExcel(w.VBox):
     path = traitlets_paths.Path()
-    xl = traitlets.Instance(klass="pandas.ExcelFile")
+    xl = tr.Instance(klass="pandas.ExcelFile")
 
     def __init__(self, path):
         super().__init__()
         self.path = path
 
-    @traitlets.observe("path")
+    @tr.observe("path")
     def _observe_path(self, change):
         self.xl = pd.ExcelFile(self.path)
 
-    @traitlets.observe("xl")
+    @tr.observe("xl")
     def _observe_xl(self, change):
         self.children = [
             ShowHide(title=name, fn_display=lambda: default_grid(self.xl.parse(name)))
@@ -258,7 +254,7 @@ def preview_plotly(path):
     if check_installed(package_name):
         return pio.read_json(path)
     else:
-        return widgets.HTML(package_name + " is not installed")
+        return w.HTML(package_name + " is not installed")
 
 
 def Vega(spec):
@@ -304,15 +300,15 @@ def preview_yaml(path):
 
 
 def preview_image(path, *args, **kwargs):
-    return widgets.Image.from_file(path, *args, **kwargs)
+    return w.Image.from_file(path, *args, **kwargs)
 
 
 def preview_video(path, *args, **kwargs):
-    return widgets.Video.from_file(path, *args, **kwargs)
+    return w.Video.from_file(path, *args, **kwargs)
 
 
 def preview_audio(path, *args, **kwargs):
-    return widgets.Audio.from_file(path, *args, **kwargs)
+    return w.Audio.from_file(path, *args, **kwargs)
 
 
 def preview_text(path):

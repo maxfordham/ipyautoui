@@ -21,8 +21,8 @@
 import pathlib
 from wcmatch.pathlib import Path as wcPath
 from traitlets_paths import PurePath  # TODO: create conda recipe for this package
-import ipywidgets as widgets
-import traitlets
+import ipywidgets as w
+import traitlets as tr
 from traitlets import HasTraits, default, validate
 from typing import List
 import immutables
@@ -86,8 +86,8 @@ class FilesInDir(BaseModel):
 
 
 # +
-class ListStrings(widgets.VBox, HasTraits):
-    value = traitlets.List()
+class ListStrings(w.VBox, HasTraits):
+    value = tr.List()
 
     def __init__(self, value):
         self._init_form()
@@ -101,7 +101,7 @@ class ListStrings(widgets.VBox, HasTraits):
         self.observe(self._value, "value")
 
     def _value(self, on_change):
-        self.children = [widgets.HTML(str(v)) for v in self.value]
+        self.children = [w.HTML(str(v)) for v in self.value]
 
 
 class MatchStrings(ListStrings):
@@ -113,15 +113,15 @@ class MatchStrings(ListStrings):
 
     def assign_status(self, item):
         if item in self.value and item in self.match_strings:
-            b = widgets.Button(**TRUE_BUTTON_KWARGS)
+            b = w.Button(**TRUE_BUTTON_KWARGS)
             b.tooltip = "file found from approved list"
             return b
         elif item in self.value and item not in self.match_strings:
-            b = widgets.Button(**DASH_BUTTON_KWARGS)
+            b = w.Button(**DASH_BUTTON_KWARGS)
             b.tooltip = "additional file found that is not on approved list"
             return b
         elif item not in self.value and item in self.match_strings:
-            b = widgets.Button(**FALSE_BUTTON_KWARGS)
+            b = w.Button(**FALSE_BUTTON_KWARGS)
             b.tooltip = "file from approved list not found"
             return b
 
@@ -130,16 +130,14 @@ class MatchStrings(ListStrings):
 
     def _value(self, on_change):
         li = list(set(self.value + self.match_strings))
-        self.children = [
-            widgets.HBox([self.assign_status(v), widgets.HTML(str(v))]) for v in li
-        ]
+        self.children = [w.HBox([self.assign_status(v), w.HTML(str(v))]) for v in li]
 
 
 # -
 
 
-class FindFiles(widgets.VBox, HasTraits):
-    value = traitlets.Dict()
+class FindFiles(w.VBox, HasTraits):
+    value = tr.Dict()
 
     def __init__(
         self,
@@ -158,7 +156,7 @@ class FindFiles(widgets.VBox, HasTraits):
             self.cls_listfiles = functools.partial(
                 MatchStrings, match_strings=match_files
             )
-        self.title = widgets.HTML(title)
+        self.title = w.HTML(title)
         self._init_form()
         self.recursive = recursive
         self.pydantic_obj = FilesInDir(
@@ -187,9 +185,9 @@ class FindFiles(widgets.VBox, HasTraits):
 
     def fn_add_pattern(self, value=None):
         if self.editable_patterns:
-            return widgets.Text(placeholder="add regex glob pattern", value=value)
+            return w.Text(placeholder="add regex glob pattern", value=value)
         else:
-            return widgets.Text(
+            return w.Text(
                 placeholder="add regex glob pattern", value=value, disabled=True
             )
 
@@ -215,7 +213,7 @@ class FindFiles(widgets.VBox, HasTraits):
             self.fdir_ui.show_only_dirs = True
             self.fdir_ui.value = self.pydantic_obj.fdir
         else:
-            self.fdir_ui = widgets.HTML()
+            self.fdir_ui = w.HTML()
             self.fdir_ui.value = str(self.pydantic_obj.fdir)
         # self.pydantic_obj = FilesInDir(fdir=self.fdir, patterns=self.patterns_ui.value, recursive=self.recursive)
         self.box_fdir.children = [self.fdir_ui]
@@ -234,7 +232,7 @@ class FindFiles(widgets.VBox, HasTraits):
             for i in self.patterns_ui.items:
                 i.disabled = False
         else:
-            # self.patterns_ui.fn_add = lambda value=None: widgets.Text(placeholder='add regex glob pattern', value=None, disabled=True)
+            # self.patterns_ui.fn_add = lambda value=None: w.Text(placeholder='add regex glob pattern', value=None, disabled=True)
             self.patterns_ui.add_remove_controls = None
             for i in self.patterns_ui.items:
                 i.disabled = True
@@ -265,8 +263,8 @@ class FindFiles(widgets.VBox, HasTraits):
     def _init_form(self):
         width = "120px"
         # refresh
-        self.box_title = widgets.HBox()
-        self.refresh = widgets.Button(
+        self.box_title = w.HBox()
+        self.refresh = w.Button(
             icon="refresh",
             layout={"width": BUTTON_WIDTH_MIN},
             tooltip="update file list (search folder again)",
@@ -274,24 +272,24 @@ class FindFiles(widgets.VBox, HasTraits):
         self.box_title.children = [self.refresh, self.title]
 
         # fdir
-        self.box_fdir = widgets.HBox()
-        self.box_folder = widgets.HBox(
-            [widgets.HTML("<b>folder:</b> ", layout={"width": width}), self.box_fdir]
+        self.box_fdir = w.HBox()
+        self.box_folder = w.HBox(
+            [w.HTML("<b>folder:</b> ", layout={"width": width}), self.box_fdir]
         )
 
         # patterns
         self.patterns_ui = Array(show_hash=None)
-        self.box_patterns = widgets.HBox(
+        self.box_patterns = w.HBox(
             [
-                widgets.HTML("<b>search patterns:</b> ", layout={"width": width}),
+                w.HTML("<b>search patterns:</b> ", layout={"width": width}),
                 self.patterns_ui,
             ]
         )
 
         # fpths
         self.fpths_ui = self.cls_listfiles(value=[])
-        self.box_fpths = widgets.HBox(
-            [widgets.HTML("<b>filepaths:</b> ", layout={"width": width}), self.fpths_ui]
+        self.box_fpths = w.HBox(
+            [w.HTML("<b>filepaths:</b> ", layout={"width": width}), self.fpths_ui]
         )
 
         # box
@@ -327,5 +325,3 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     ff.editable_patterns = False
-
-

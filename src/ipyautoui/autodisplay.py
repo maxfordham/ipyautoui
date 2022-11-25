@@ -23,7 +23,7 @@ Example:
 
         from ipyautoui.constants import load_test_constants
         from ipyautoui.displayfile import DisplayFile, Markdown
-        import ipywidgets as widgets
+        import ipywidgets as w
 
         DIR_FILETYPES = load_test_constants().DIR_FILETYPES
 
@@ -47,9 +47,9 @@ from IPython.display import (
     Markdown,
 )  # , Image JSON, HTML, IFrame,
 import time
-import typing
-import ipywidgets as widgets
-import traitlets
+import typing as ty
+import ipywidgets as w
+import traitlets as tr
 from pydantic import BaseModel, validator, HttpUrl
 
 #  local imports
@@ -95,12 +95,12 @@ class DisplayObjectActions(BaseModel):
     """base object with callables for creating a display object"""
 
     map_renderers: frozenmap = DEFAULT_FILE_RENDERERS
-    path: typing.Union[str, pathlib.Path, HttpUrl]
+    path: ty.Union[str, pathlib.Path, HttpUrl]
     ext: str = None
     name: str = None
-    check_exists: typing.Callable = None
-    renderer: typing.Callable = lambda: print("renderer")
-    check_date_modified: typing.Callable = None
+    check_exists: ty.Callable = None
+    renderer: ty.Callable = lambda: print("renderer")
+    check_date_modified: ty.Callable = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -116,8 +116,8 @@ def check_exists(path):
 class DisplayFromPath(DisplayObjectActions):
     newroot: pathlib.PureWindowsPath = pathlib.PureWindowsPath("J:/")
     path_new: pathlib.Path = None
-    open_file: typing.Callable = None
-    open_folder: typing.Callable = None
+    open_file: ty.Callable = None
+    open_folder: ty.Callable = None
 
     @validator("path", always=True)
     def _path(cls, v, values):
@@ -126,7 +126,7 @@ class DisplayFromPath(DisplayObjectActions):
     @validator("path_new", always=True)
     def _path_new(cls, v, values):
         return make_new_path(values["path"], newroot=values["newroot"])
-    
+
     @validator("name", always=True)
     def _name(cls, v, values):
         if values["path"] is not None:
@@ -140,7 +140,7 @@ class DisplayFromPath(DisplayObjectActions):
         if ext in map_.keys():
             fn = functools.partial(map_[ext], values["path"])
         else:
-            fn = lambda: widgets.HTML("File renderer not found")
+            fn = lambda: w.HTML("File renderer not found")
         return fn
 
     @validator("ext", always=True)
@@ -193,56 +193,21 @@ class DisplayFromRequest(DisplayObjectActions):
 
 # TODO: separate out the bit that is display data and display from path...
 # TODO: probs useful to have a `value` trait (allowing the object to be updated instead of remade)
-#       this probably means having DisplayObject as a base class and extending it for display file... 
-class DisplayObject(widgets.VBox):
+#       this probably means having DisplayObject as a base class and extending it for display file...
+class DisplayObject(w.VBox):
+    """
+    class for displaying file-like objects.
 
-    auto_open = traitlets.Bool(default_value=False)
-    show_openfile = traitlets.Bool(default_value=True)
-    show_openfolder = traitlets.Bool(default_value=True)
-    show_exists = traitlets.Bool(default_value=True)
-    show_openpreview = traitlets.Bool(default_value=True)
-    # TODO: 
-    # maybe we don't actually need the "show_" traits 
-    # as stuff can be hidden using "order"...
-    
-    order = traitlets.Tuple()
+    Args:
+        auto_open: bool, auto opens preview of __init__
+        order: list, controls how the UI displays:
+            allowed values are: ("exists", "openpreview", "openfile", "openfolder", "name")
+    """
 
-    @traitlets.observe("auto_open")
-    def _observe_auto_open(self, change):
-        if change["new"]:
-            self.openpreview.value = True
-        else:
-            self.openpreview.value = False
+    auto_open = tr.Bool(default_value=False)
+    order = tr.Tuple()
 
-    @traitlets.observe("show_openfile")
-    def _observe_show_openfile(self, change):
-        if change["new"] and self.display_actions.open_file():
-            self.openfile.layout.display = ""
-        else:
-            self.openfile.layout.display = "None"
-
-    @traitlets.observe("show_openfolder")
-    def _observe_show_openfolder(self, change):
-        if change["new"]:
-            self.openfolder.layout.display = ""
-        else:
-            self.openfolder.layout.display = "None"
-
-    @traitlets.observe("show_exists")
-    def _observe_exists(self, change):
-        if change["new"]:
-            self.exists.layout.display = ""
-        else:
-            self.exists.layout.display = "None"
-
-    @traitlets.observe("show_openpreview")
-    def _observe_show_openpreview(self, change):
-        if change["new"]:
-            self.openpreview.layout.display = ""
-        else:
-            self.openpreview.layout.display = "None"
-
-    @traitlets.validate("order")
+    @tr.validate("order")
     def _validate_order(self, proposal):
         for l in proposal["value"]:
             if l not in self.default_order:
@@ -253,20 +218,34 @@ class DisplayObject(widgets.VBox):
                 )
         return proposal["value"]
 
-    @traitlets.observe("order")
+    @tr.observe("order")
     def _observe_order(self, change):
         self.bx_bar.children = [getattr(self, l) for l in change["new"]]
 
     def __init__(
         self,
-        display_actions: typing.Type[DisplayObjectActions],
+        display_actions: ty.Type[DisplayObjectActions],
         auto_open=False,
+        order=None,
     ):
+        """display object
+
+        Args:
+            display_actions (ty.Type[DisplayObjectActions]): actions used to display object
+            auto_open (bool, optional): automatically display object data (i.e. auto-preview file). Defaults to False.
+            order (tuple, optional): defines UI controls appearance. Defaults to None.
+                allowed values are: ("exists", "openpreview", "openfile", "openfolder", "name")
+                default is: ("exists", "openpreview", "openfile", "openfolder", "name")
+                reduce tuple to hide components
+        """
         self.default_order = ("exists", "openpreview", "openfile", "openfolder", "name")
         self.display_actions = display_actions
         self._init()
         self.auto_open = auto_open
-        self.order = self.default_order
+        if order is None:
+            self.order = self.default_order
+        else:
+            self.order = order
 
     def _init(self):
         super().__init__()
@@ -280,6 +259,7 @@ class DisplayObject(widgets.VBox):
         newroot=pathlib.PureWindowsPath("J:/"),
         file_renderers=None,
         auto_open=False,
+        order=None,
     ):
         if file_renderers is not None:
             file_renderers = merge_file_renderers(file_renderers)
@@ -288,7 +268,7 @@ class DisplayObject(widgets.VBox):
         display_actions = DisplayFromPath(
             path=path, newroot=newroot, map_renderers=file_renderers
         )
-        return cls(display_actions, auto_open=auto_open)
+        return cls(display_actions, auto_open=auto_open, order=order)
 
     # TODO: create a from_request classmethod
     @classmethod
@@ -299,25 +279,25 @@ class DisplayObject(widgets.VBox):
         return str(make_new_path(path, newroot=self.display_actions.newroot))
 
     def _init_form(self):
-        self.exists = widgets.Valid(
+        self.exists = w.Valid(
             value=False,
             disabled=True,
             readout="-",
             tooltip="indicates if file exists",
-            layout=widgets.Layout(width="20px", height=BUTTON_HEIGHT_MIN),
+            layout=w.Layout(width="20px", height=BUTTON_HEIGHT_MIN),
         )
-        self.openpreview = widgets.ToggleButton(**KWARGS_OPENPREVIEW)
-        self.openfile = widgets.Button(**KWARGS_OPENFILE)
-        self.openfolder = widgets.Button(**KWARGS_OPENFOLDER)
-        self.name = widgets.HTML(
+        self.openpreview = w.ToggleButton(**KWARGS_OPENPREVIEW)
+        self.openfile = w.Button(**KWARGS_OPENFILE)
+        self.openfolder = w.Button(**KWARGS_OPENFOLDER)
+        self.name = w.HTML(
             "<b>{0}</b>".format(self.display_actions.name),
-            layout=widgets.Layout(justify_items="center"),
+            layout=w.Layout(justify_items="center"),
         )
-        self.out_caller = widgets.Output()
-        self.out = widgets.Output()
+        self.out_caller = w.Output()
+        self.out = w.Output()
         self.out_caller.layout.display = "none"
         self.out.layout.display = "none"
-        self.bx_bar = widgets.HBox()
+        self.bx_bar = w.HBox()
         if isinstance(self.display_actions.path, pathlib.PurePath):
             self.openfile.tooltip = f"""
 open file:
@@ -327,7 +307,7 @@ open file:
 open folder:
 {self.tooltip_openpath(self.display_actions.path.parent)}
 """
-        self.bx_out = widgets.VBox()
+        self.bx_out = w.VBox()
         self.bx_out.children = [self.out_caller, self.out]
         self.children = [self.bx_bar, self.bx_out]
         self.check_exists()
@@ -397,9 +377,11 @@ if __name__ == "__main__":
     d = DisplayObject.from_path(path)
     display(d)
 
+
 if __name__ == "__main__":
-    d.order = ("exists", "name", "openpreview", "openfile", "openfolder")
-    d.show_exists = False
+    d.order = "name"
+    d.auto_open = True
+    # d.show_exists = False
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
@@ -413,7 +395,7 @@ if __name__ == "__main__":
     display(d)
 
 
-class AutoDisplay(traitlets.HasTraits):
+class AutoDisplay(tr.HasTraits):
     """
     displays the contents of a file in the notebook.
     comes with the following default renderers:
@@ -442,7 +424,7 @@ class AutoDisplay(traitlets.HasTraits):
     if you want to display the data in a specific way.
     """
 
-    #     _paths = traitlets.List()
+    #     _paths = tr.List()
 
     #     @validate("_paths")
     #     def _valid_value(self, proposal):
@@ -451,8 +433,8 @@ class AutoDisplay(traitlets.HasTraits):
 
     def __init__(
         self,
-        display_objects_actions: typing.List[DisplayObjectActions],
-        patterns: typing.Union[str, typing.List] = None,
+        display_objects_actions: ty.List[DisplayObjectActions],
+        patterns: ty.Union[str, ty.List] = None,
         title: str = None,
         display_showhide: bool = True,
     ):
@@ -460,7 +442,7 @@ class AutoDisplay(traitlets.HasTraits):
 
 
         Args:
-            paths (typing.List[pathlib.Path]): list of paths to display
+            paths (ty.List[pathlib.Path]): list of paths to display
             default_file_renderers: default renderers
             user_file_renderers: default = {}, custom user-defined file renderers
             newroot: passed to open_file
@@ -481,10 +463,10 @@ class AutoDisplay(traitlets.HasTraits):
     @classmethod
     def from_paths(
         cls,
-        paths: typing.List[pathlib.Path],
+        paths: ty.List[pathlib.Path],
         newroot=pathlib.PureWindowsPath("J:/"),
         file_renderers=None,
-        patterns: typing.Union[str, typing.List] = None,
+        patterns: ty.Union[str, ty.List] = None,
         title: str = None,
         display_showhide: bool = True,
     ):
@@ -516,7 +498,7 @@ class AutoDisplay(traitlets.HasTraits):
         if self.title is None:
             self.box_title.children = []
         else:
-            self.box_title.children = [widgets.HTML(self.title)]
+            self.box_title.children = [w.HTML(self.title)]
 
     @property
     def display_showhide(self):
@@ -529,9 +511,7 @@ class AutoDisplay(traitlets.HasTraits):
         self._display_showhide = value
         if self.display_showhide:
             self.box_showhide.children = [
-                widgets.HBox(
-                    layout=widgets.Layout(width="24px", height=BUTTON_HEIGHT_MIN)
-                ),
+                w.HBox(layout=w.Layout(width="24px", height=BUTTON_HEIGHT_MIN)),
                 self.b_display_all,
                 self.b_collapse_all,
                 self.b_display_default,
@@ -585,15 +565,15 @@ class AutoDisplay(traitlets.HasTraits):
         ]
 
     def _init_form(self):
-        self.b_display_all = widgets.Button(**KWARGS_DISPLAY_ALL_FILES)
-        self.b_collapse_all = widgets.Button(**KWARGS_COLLAPSE_ALL_FILES)
-        self.b_display_default = widgets.Button(**KWARGS_HOME_DISPLAY_FILES)
-        self.box_header = widgets.VBox()
-        self.box_showhide = widgets.HBox()
-        self.box_title = widgets.HBox()
+        self.b_display_all = w.Button(**KWARGS_DISPLAY_ALL_FILES)
+        self.b_collapse_all = w.Button(**KWARGS_COLLAPSE_ALL_FILES)
+        self.b_display_default = w.Button(**KWARGS_HOME_DISPLAY_FILES)
+        self.box_header = w.VBox()
+        self.box_showhide = w.HBox()
+        self.box_title = w.HBox()
         self.box_header.children = [self.box_title, self.box_showhide]
-        self.box_files = widgets.VBox()
-        self.box_form = widgets.VBox()
+        self.box_files = w.VBox()
+        self.box_form = w.VBox()
         self.box_form.children = [self.box_header, self.box_files]
 
     def _init_controls(self):

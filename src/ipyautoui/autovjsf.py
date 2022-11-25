@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.5
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -18,11 +18,11 @@
 # %load_ext lab_black
 
 import ipyvuetify as v
-import traitlets
-import ipywidgets as widgets
+import traitlets as tr
+import ipywidgets as w
 
 from ipyautoui.constants import PATH_VJSF_TEMPLATE
-from ipyautoui.autoui import AutoUiCommonMethods, SaveControls
+from ipyautoui.autoui import AutoUiFileMethods, AutoRenderMethods
 from ipyautoui.autoipywidget import _init_model_schema
 
 # import ipyvue
@@ -31,25 +31,33 @@ from ipyautoui.autoipywidget import _init_model_schema
 
 class Vjsf(v.VuetifyTemplate):
     template_file = str(PATH_VJSF_TEMPLATE)
-    vjsf_loaded = traitlets.Bool(False).tag(sync=True)
-    value = traitlets.Dict(default_value={}).tag(sync=True)
-    schema = traitlets.Dict().tag(sync=True)
-    valid = traitlets.Bool(False).tag(sync=True)
+    vjsf_loaded = tr.Bool(False).tag(sync=True)
+    value = tr.Dict(default_value={}).tag(sync=True)
+    schema = tr.Dict().tag(sync=True)
+    valid = tr.Bool(False).tag(sync=True)
 
 
 # -
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
     from IPython.display import display
 
+    ui = Vjsf(schema=TestAutoLogicSimple)
     test = TestAutoLogic()
     schema = test.schema()
     ui = Vjsf(schema=schema)
     display(ui)
 
+# +
+from ipyautoui.autoipywidget import (
+    AutoObjectFormLayout,
+    make_bold,
+    get_from_schema_root,
+)
 
-class AutoVjsf(widgets.VBox, AutoUiCommonMethods):
-    _value = traitlets.Dict()
+
+class AutoVjsf(AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
+    _value = tr.Dict()
     """create a vuetify form using ipyvuetify using VJSF """
 
     def __init__(
@@ -57,31 +65,51 @@ class AutoVjsf(widgets.VBox, AutoUiCommonMethods):
         schema,
         value=None,
         path=None,
-        fn_onsave=None,
+        fns_onsave=None,
         show_raw=True,
-        save_controls: SaveControls = SaveControls.save_buttonbar,
+        show_title=True,
     ):
         super().__init__()
         self.show_raw = show_raw
         self.show_description = False
-        self.path = path
+
         self.model, schema = _init_model_schema(schema)
+        self.path = path
         value = self._get_value(value, self.path)
         # list of actions to be called on save
-        self.fn_onsave = fn_onsave
+        self.fns_onsave = fns_onsave
         if value is None:
             self.vui = Vjsf(schema=schema)
         else:
             self.vui = Vjsf(schema=schema, value=value)
+        self.show_title = show_title
+        self.title.value = make_bold(self.get_title())
+        self.description.value = self.get_description()
         self._value = self.vui.value
-        self.vbx_raw = widgets.HBox()
-        self._init_AutoUiCommonMethods()
+        self.vbx_raw = w.HBox()
         self._init_vui_form()
         self._init_controls()
-        self.save_controls = save_controls
+
         # self.save_buttonbar._unsaved_changes(
         #     False
         # )  # TODO: not sure why this is required
+
+    def get_description(self):  # TODO: put this in AutoObjectFormLayout
+        return get_from_schema_root(self.schema, "description")
+
+    def get_title(self):  # TODO: put this in AutoObjectFormLayout
+        return get_from_schema_root(self.schema, "title")
+
+    def display_showraw(self):
+        self.autowidget.layout.display = "None"
+        return self.json
+
+    @property
+    def json(self):
+        if self.model is not None:
+            return self.model(**self.value).json(indent=4)
+        else:
+            return json.dumps(self.value, indent=4)
 
     @property
     def value(self):
@@ -94,7 +122,7 @@ class AutoVjsf(widgets.VBox, AutoUiCommonMethods):
         self.vui.value = self._value
 
     def _init_vui_form(self):
-        self.autowidget = widgets.VBox()
+        self.autowidget = w.VBox()
         self.autowidget.children = [self.vui]
         li = list(self.children)
         li.append(self.autowidget)
@@ -111,9 +139,25 @@ class AutoVjsf(widgets.VBox, AutoUiCommonMethods):
         return self.vui.schema
 
 
+# -
+
 if __name__ == "__main__":
-    vui = AutoVjsf(schema=TestAutoLogic.schema(), path="test_vuetify.json")
+    from ipyautoui.test_schema import TestAutoLogicSimple, TestAutoLogic
+
+    vui = AutoVjsf(schema=TestAutoLogicSimple, path="test_vuetify.json")
     display(vui)
+
+if __name__ == "__main__":
+    vui.show_savebuttonbar = False
+    vui.show_description = False
+    vui.show_title = False
+    vui.show_raw = False
+
+if __name__ == "__main__":
+    vui.show_savebuttonbar = True
+    vui.show_description = True
+    vui.show_title = True
+    vui.show_raw = True
 
 if __name__ == "__main__":
     Renderer = AutoVjsf.create_autoui_renderer(schema)

@@ -28,8 +28,8 @@ from IPython.display import clear_output, Markdown
 from ipyautoui._utils import file
 import shutil
 import traitlets_paths
-import ipywidgets as widgets
-import traitlets
+import ipywidgets as w
+import traitlets as tr
 
 from getpass import getuser
 import os
@@ -37,7 +37,7 @@ from halo import HaloNotebook
 from enum import Enum, IntEnum
 import pathlib
 from pydantic import BaseModel, ValidationError
-import typing
+import typing as ty
 from datetime import datetime
 import zipfile
 import logging
@@ -102,7 +102,7 @@ class WorkingDir(BaseModel):
     riba_stage: RibaStages
     fdir: pathlib.Path = None
     key: str = None
-    usage: typing.List[Usage] = Field(default_factory=lambda: [])
+    usage: ty.List[Usage] = Field(default_factory=lambda: [])
     dir_model: str
 
     @validator("fdir", always=True, pre=True)
@@ -136,7 +136,7 @@ a list of all the active working directories used for jupyter / ipyrun based ana
 class WorkingDirs(BaseModel):
     name: str = "working dirs"
     description: str = description
-    dirs: typing.Dict[str, WorkingDir] = Field(default_factory=lambda: {})
+    dirs: ty.Dict[str, WorkingDir] = Field(default_factory=lambda: {})
 
 
 # + tags=[]
@@ -207,7 +207,7 @@ class AnalysisDir(BaseModel):
 
 
 def add_working_dir(
-    wdir: typing.Union[dict, WorkingDir],
+    wdir: ty.Union[dict, WorkingDir],
     # dir_model=AnalysisDir,
     path: pathlib.Path = FPTH_WORKING_DIRS,
 ):
@@ -227,7 +227,7 @@ def add_working_dir(
     return None
 
 
-def is_templated_dir(adir: typing.Type[BaseModel]):
+def is_templated_dir(adir: ty.Type[BaseModel]):
     for k, v in adir.dict().items():
         if not v.exists():
             return False
@@ -297,48 +297,48 @@ def create_folder_structure(value, model_dirs=AnalysisDir):
 
 
 # +
-class WorkingDirsUi(widgets.HBox):
+class WorkingDirsUi(w.HBox):
     """
     a programmable UI object to load new working directories for ipyrun.runshell # TODO: move to ipyrun
     """
 
-    value = traitlets.Dict()
-    setup = widgets.ToggleButton(icon="ellipsis-v", layout={"width": BUTTON_WIDTH_MIN})
-    load = widgets.Button(**LOAD_BUTTON_KWARGS)
-    project_number = widgets.Combobox(
+    value = tr.Dict()
+    setup = w.ToggleButton(icon="ellipsis-v", layout={"width": BUTTON_WIDTH_MIN})
+    load = w.Button(**LOAD_BUTTON_KWARGS)
+    project_number = w.Combobox(
         value="J5001", ensure_option=True, layout={"width": "80px"}
     )
-    projects = traitlets.List(default_value=[])
-    process_type = widgets.Dropdown(
+    projects = tr.List(default_value=[])
+    process_type = w.Dropdown(
         value="Calcs",
         options=["Calcs", "Schedule"],
         # disabled=True,
         layout={"width": "80px"},
     )
-    process_subtype = widgets.Dropdown(
+    process_subtype = w.Dropdown(
         value="WUFI",
         options=list(ProcessSubType._value2member_map_.keys()),
         # disabled=True,
         layout={"width": "80px"},
     )
-    riba_stage = widgets.Dropdown(
+    riba_stage = w.Dropdown(
         value="Stage1",
         options=list(RibaStages._value2member_map_.keys()),
         layout={"width": "80px"},
     )
-    key = widgets.HTML()
-    fdir_win = widgets.HTML()
-    fdir_win_proposed = widgets.HTML()
+    key = w.HTML()
+    fdir_win = w.HTML()
+    fdir_win_proposed = w.HTML()
 
-    @traitlets.observe("projects")
+    @tr.observe("projects")
     def _projects(self, change):
         self.project_number.options = self.projects
 
-    @traitlets.observe("value")
+    @tr.observe("value")
     def _observe_value_key(self, change):
         self.key.value = self.value["key"]
 
-    @traitlets.observe("value")
+    @tr.observe("value")
     def _observe_value_fdir_win_proposed(self, change):
         self.fdir_win_proposed.value = f"<i>{self.fdir_display}</i>"
 
@@ -357,10 +357,8 @@ class WorkingDirsUi(widgets.HBox):
 
     def __init__(
         self,
-        fn_onload: typing.Union[typing.Callable, typing.List] = lambda value: print(
-            "fn_onload"
-        ),
-        model_dirs: typing.Type[BaseModel] = AnalysisDir,
+        fn_onload: ty.Union[ty.Callable, ty.List] = lambda value: print("fn_onload"),
+        model_dirs: ty.Type[BaseModel] = AnalysisDir,
         fix_attributes={},
         projects=None,
         fdir_projects_root=FDIR_PROJECTS_ROOT,
@@ -374,13 +372,13 @@ class WorkingDirsUi(widgets.HBox):
         self.fpth_working_dirs = fpth_working_dirs
         self.model_dirs = model_dirs
         self.fn_onload = fn_onload
-        super().__init__(layout=widgets.Layout(justify_content="flex-end"))
-        self.vbx_main = widgets.VBox()
-        self.out = widgets.Output(
-            layout=widgets.Layout(justify_content="flex-end", align_content="flex-end")
+        super().__init__(layout=w.Layout(justify_content="flex-end"))
+        self.vbx_main = w.VBox()
+        self.out = w.Output(
+            layout=w.Layout(justify_content="flex-end", align_content="flex-end")
         )
-        self.hbx_select = widgets.HBox(
-            layout=widgets.Layout(justify_content="flex-end", align_content="flex-end")
+        self.hbx_select = w.HBox(
+            layout=w.Layout(justify_content="flex-end", align_content="flex-end")
         )
         self.hbx_select.children = [
             self.project_number,
@@ -404,11 +402,11 @@ class WorkingDirsUi(widgets.HBox):
     @fn_onload.setter
     def fn_onload(self, value):
 
-        if isinstance(value, typing.Callable):
+        if isinstance(value, ty.Callable):
             value = [value]
-        elif isinstance(value, typing.List):
+        elif isinstance(value, ty.List):
             for v in value:
-                if not isinstance(v, typing.Callable):
+                if not isinstance(v, ty.Callable):
                     raise ValueError(
                         "fn_onload must be a Callable or list of Callables"
                     )
@@ -463,4 +461,3 @@ if __name__ == "__main__":
     wdir = WorkingDirsUi(fix_attributes=fix_attributes)
     display(wdir)
 # -
-

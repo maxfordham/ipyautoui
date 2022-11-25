@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.5
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -22,13 +22,14 @@ extends standard ipywidgets to facilitate initialisation from jsonschema
 """
 
 from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET
-import ipywidgets as widgets
-import traitlets
+import ipywidgets as w
+import traitlets as tr
 from copy import deepcopy
 from ipyautoui._utils import obj_from_importstr
-from ipyautoui.custom import modelrun, markdown_widget, editgrid
+from ipyautoui.custom import modelrun, markdown_widget, editgrid, filechooser
 from ipyautoui._utils import remove_non_present_kwargs
 from datetime import datetime
+
 
 #  -- CHANGE JSON-SCHEMA KEYS TO IPYWIDGET KEYS -------------
 
@@ -40,8 +41,8 @@ def update_keys(di, di_map=MAP_JSONSCHEMA_TO_IPYWIDGET):
 
 def create_widget_caller(schema, calling=None):
     """
-    creates a "caller" object from the schema. 
-    this renames schema keys as follows to match ipywidgets: 
+    creates a "caller" object from the schema.
+    this renames schema keys as follows to match ipywidgets:
         ```
         {
             'minimum': 'min',
@@ -52,17 +53,17 @@ def create_widget_caller(schema, calling=None):
         }
         ```
 
-    
-    Args: 
+
+    Args:
         schema: dict, json schema
-        calling, default=None: the class that will be called by the 
+        calling, default=None: the class that will be called by the
             returned "caller" object. if not None, args not present in the class
             are removed from "caller"
-    
-    Returns: 
-        caller: dict, object that is passed the "calling" widget 
+
+    Returns:
+        caller: dict, object that is passed the "calling" widget
             initialised like ```calling(**caller)```
-            
+
     """
     caller = deepcopy(schema)
     caller = update_keys(schema)
@@ -73,27 +74,22 @@ def create_widget_caller(schema, calling=None):
     return caller
 
 
-class IntText(widgets.IntText):  # TODO: add value to these as arg?
+class IntText(w.IntText):  # TODO: add value to these as arg?
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
 
 
-class IntSlider(widgets.IntSlider):
-    def __init__(self, schema):
-        self.schema = schema
-        self.caller = create_widget_caller(schema)
-        super().__init__(**self.caller)
-
-
-class FloatText(widgets.FloatText):
+class IntSlider(w.IntSlider):
     """Example:
-        >>> from ipyautoui.test_schema import TestAutoLogic
-        >>> import ipywidgets as widgets
-        >>> sch = TestAutoLogic.schema()["properties"]['float_text']
-        >>> FloatText(sch)
-        FloatText(value=2.2)
+    >>> from ipyautoui.test_schema import TestAutoLogic
+    >>> import ipywidgets as w
+    >>> sch = TestAutoLogic.schema()["properties"]['int_slider']
+    >>> IntSlider(sch)
+    IntSlider(value=2, max=3, min=1)
+    >>> sch['type']
+    'integer'
     """
 
     def __init__(self, schema):
@@ -102,14 +98,45 @@ class FloatText(widgets.FloatText):
         super().__init__(**self.caller)
 
 
-class FloatSlider(widgets.FloatSlider):
+# TODO: add `schema` as a `tr.Dict()` with a validator and observe
+#       on_change re-initialize the widget...
+
+
+class FloatText(w.FloatText):
+    """Example:
+    >>> from ipyautoui.test_schema import TestAutoLogic
+    >>> import ipywidgets as w
+    >>> sch = TestAutoLogic.schema()["properties"]['float_text']
+    >>> FloatText(sch)
+    FloatText(value=2.2)
+    >>> sch['type']
+    'number'
+    """
+
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
 
 
-class IntRangeSlider(widgets.IntRangeSlider):
+class FloatSlider(w.FloatSlider):
+    """Example:
+    >>> from ipyautoui.test_schema import TestAutoLogic
+    >>> import ipywidgets as w
+    >>> sch = TestAutoLogic.schema()["properties"]['float_slider']
+    >>> FloatSlider(sch)
+    FloatSlider(value=2.2, max=3.0, min=1.0)
+    >>> sch['type']
+    'number'
+    """
+
+    def __init__(self, schema):
+        self.schema = schema
+        self.caller = create_widget_caller(schema)
+        super().__init__(**self.caller)
+
+
+class IntRangeSlider(w.IntRangeSlider):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
@@ -118,7 +145,7 @@ class IntRangeSlider(widgets.IntRangeSlider):
         super().__init__(**self.caller)
 
 
-class FloatRangeSlider(widgets.FloatRangeSlider):
+class FloatRangeSlider(w.FloatRangeSlider):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
@@ -127,62 +154,55 @@ class FloatRangeSlider(widgets.FloatRangeSlider):
         super().__init__(**self.caller)
 
 
-class Text(widgets.Text):
+class Text(w.Text):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
 
 
-class Textarea(widgets.Textarea):
+class Textarea(w.Textarea):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
 
 
-class Combobox(widgets.Combobox):
+class Combobox(w.Combobox):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
 
 
-class Dropdown(widgets.Dropdown):
+class Dropdown(w.Dropdown):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
 
 
-class SelectMultiple(widgets.SelectMultiple):
+class SelectMultiple(w.SelectMultiple):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
 
 
-class Checkbox(widgets.Checkbox):
+class Checkbox(w.Checkbox):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
 
 
-class ColorPicker(widgets.ColorPicker):
-    def __init__(self, schema):
-        self.schema = schema
-        self.caller = create_widget_caller(schema)
-        super().__init__(**self.caller)
-
-
-class DatePickerString(widgets.HBox, traitlets.HasTraits):
-    _value = traitlets.Unicode(allow_none=True, default_value=None)
+class DatePickerString(w.HBox, tr.HasTraits):
+    _value = tr.Unicode(allow_none=True, default_value=None)
 
     def __init__(self, schema):
-        """thin wrapper around ipywidgets.DatePicker that stores "value" as 
+        """thin wrapper around ipywidgets.DatePicker that stores "value" as
         json serializable Unicode"""
-        self.picker = widgets.DatePicker()
+        self.picker = w.DatePicker()
         self.schema = schema
         self._init_controls()
         super().__init__()
@@ -247,27 +267,28 @@ class DatePickerString(widgets.HBox, traitlets.HasTraits):
         self._value = self._get_value()
 
 
-# class FileChooser(widgets.FileChooser):
-#     def __init__(self, schema):
-#         self.schema = schema
-#         self.caller = create_widget_caller(schema)
-#         super().__init__(**self.caller)
-
-# class Grid(widgets.Grid):
-#     def __init__(self, schema):
-#         self.schema = schema
-#         self.caller = create_widget_caller(schema)
-#         super().__init__(**self.caller)
-
-
-class ColorPicker(widgets.ColorPicker):
+class FileChooser(filechooser.FileChooser):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
         super().__init__(**self.caller)
 
 
-class AutoPlaceholder(widgets.Textarea):
+# class Grid(w.Grid):
+#     def __init__(self, schema):
+#         self.schema = schema
+#         self.caller = create_widget_caller(schema)
+#         super().__init__(**self.caller)
+
+
+class ColorPicker(w.ColorPicker):
+    def __init__(self, schema):
+        self.schema = schema
+        self.caller = create_widget_caller(schema)
+        super().__init__(**self.caller)
+
+
+class AutoPlaceholder(w.Textarea):
     def __init__(self, schema):
         txt = f"""
 PLACEHOLDER WIDGET 
@@ -284,11 +305,11 @@ class RunName(modelrun.RunName):
         super().__init__(**self.caller)
 
 
-class EditGrid(editgrid.EditGrid):
-    def __init__(self, schema):
-        self.schema = schema
-        self.caller = create_widget_caller(schema, calling=editgrid.EditGrid)
-        super().__init__(**self.caller)
+# class EditGrid(editgrid.EditGrid):
+#     def __init__(self, schema):
+#         self.schema = schema
+#         self.caller = create_widget_caller(schema, calling=editgrid.EditGrid)
+#         super().__init__(**self.caller)
 
 
 class AutoMarkdown(markdown_widget.MarkdownWidget):

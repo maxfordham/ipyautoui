@@ -1,12 +1,12 @@
 {
-    "string": "adsf",
+    "text": "adsf",
     "int_slider": 2,
     "int_text": 1,
     "int_range_slider": [
         0,
         3
     ],
-    "float_slider": 2.0,
+    "float_slider": 2.2,
     "float_text": 2.2,
     "float_text_locked": 2.2,
     "float_range_slider": [
@@ -18,40 +18,7 @@
     "dropdown_edge_case": "female",
     "dropdown_simple": "asd",
     "combobox": "asd",
-    "text": "short text",
+    "text_short": "short text",
     "text_area": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ",
-    "markdown": "\nSee details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. \n",
-    "complex_serialisation": {
-        "file_chooser": ".",
-        "date_picker": null,
-        "datetime_picker": "2022-08-24T07:06:19.093678",
-        "color_picker_ipywidgets": "#f5f595"
-    },
-    "select_multiple_non_constrained": [
-        "male",
-        "male"
-    ],
-    "select_multiple_from_list": [
-        "male",
-        "female"
-    ],
-    "array": [],
-    "objects_array": [],
-    "run_name": "000-lean-description",
-    "datagrid": [],
-    "nested": {
-        "string1": "adsf",
-        "int_slider1": 2,
-        "int_text1": 1
-    },
-    "recursive_nest": {
-        "string1": "adsf",
-        "int_slider1": 2,
-        "int_text1": 1,
-        "nested": {
-            "string1": "adsf",
-            "int_slider1": 2,
-            "int_text1": 1
-        }
-    }
+    "auto_markdown": "\nSee details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. \n"
 }

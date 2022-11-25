@@ -27,3 +27,4 @@ sys.path.append(str(pathlib.Path(__file__).parents[1]))
 from ipyautoui.autoui import AutoUi
 from ipyautoui.autodisplay import AutoDisplay
 from ipyautoui.autovjsf import AutoVjsf
+from ipyautoui.demo import demo

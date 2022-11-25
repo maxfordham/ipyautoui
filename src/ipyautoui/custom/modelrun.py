@@ -15,20 +15,21 @@
 # ---
 
 import re
-import ipywidgets as widgets
+import ipywidgets as w
 from traitlets import HasTraits, Unicode, default, validate, TraitError
 from dataclasses import dataclass, asdict
-import typing
+import typing as ty
 
 
 # +
+
 
 @dataclass
 class RunNameInputs:
     index: int = 1
     disabled_index: bool = False
     zfill: int = 2
-    enum: typing.List = None
+    enum: ty.List = None
     delimiter: str = "-"
     description_length: int = None
     allow_spaces: bool = False
@@ -62,9 +63,10 @@ class RunNameInputs:
 
 # -
 
-class RunName(widgets.HBox):
+
+class RunName(w.HBox):
     """widget for creating an modelling iteration name to a defined format from component parts
-    
+
     Example:
         value = '000-lean-short_description_of_model-run'
         enum = ['lean', 'clean', 'green']
@@ -89,7 +91,7 @@ class RunName(widgets.HBox):
 
     @value.setter
     def value(self, value: Unicode):
-        """The setter allows a user to pass a new value field to the class. This also updates the 
+        """The setter allows a user to pass a new value field to the class. This also updates the
         `selected` argument used by RunName"""
         if value is not None:
             self._value = value
@@ -101,7 +103,7 @@ class RunName(widgets.HBox):
         index: int = 1,
         disabled_index: bool = True,
         zfill: int = 2,
-        enum: typing.List = ["lean", "clean", "green"],
+        enum: ty.List = ["lean", "clean", "green"],
         delimiter: str = "-",
         description_length: int = 30,
         allow_spaces: bool = False,
@@ -128,14 +130,12 @@ class RunName(widgets.HBox):
             return self.inputs.enum
 
     def _init_form(self):
-        self.index = widgets.IntText(
+        self.index = w.IntText(
             layout={"width": "50px"}, disabled=self.inputs.disabled_index
         )
-        self.enum = widgets.Dropdown(
-            options=self.get_options, layout={"width": "100px"}
-        )
-        self.description = widgets.Text()
-        self.name = widgets.Text(disabled=True)
+        self.enum = w.Dropdown(options=self.get_options, layout={"width": "100px"})
+        self.description = w.Text()
+        self.name = w.Text(disabled=True)
         di = {}
         di["index"] = self.index
         di["enum"] = self.enum

@@ -19,19 +19,15 @@ from ipyautoui.custom import (
     LoadProject,
 )
 from ipyautoui.custom.modelrun import RunName
-from ipyautoui.custom.editgrid import BaseForm, GridWrapper, EditGrid, ButtonBar
+from ipyautoui.custom.editgrid import AutoGrid, EditGrid
+from ipyautoui.custom.save_buttonbar import ButtonBar
 from ipyautoui.automapschema import attach_schema_refs
 
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
-shutil.rmtree(
-    DIR_TEST_DATA
-)  #  remove previous data. this allows tests to check if files exist.
-
-dataframe_schema = attach_schema_refs(ExampleDataFrameSchema.schema())["properties"][
-    "dataframe"
-]
+shutil.rmtree(DIR_TEST_DATA)
+# ^ remove previous data. this allows tests to check if files exist.
 
 
 class TestCustom:
@@ -61,9 +57,6 @@ class TestCustom:
         }
         arr = Dictionary(**di_arr)
 
-    # def test_grid(self): # TODO: add Grid tests once fixed
-    #     gr = Grid()
-
     def test_model_run(self):
         run = RunName(value="03-lean-description", index=3)
         run.value = "06-green-thingymabob"
@@ -77,52 +70,3 @@ class TestCustom:
 
     def test_load_project(self):
         load_project = LoadProject()
-
-    def test_button_bar(self):
-        def add():
-            print("ADD")
-
-        def edit():
-            print("EDIT")
-
-        def copy():
-            print("EDIT")
-
-        def delete():
-            print("DELETE")
-
-        def backward():
-            print("BACK")
-
-        button_bar = ButtonBar(
-            add=add, edit=edit, copy=copy, delete=delete, backward=backward,
-        )
-
-    # TODO: update EditGrid and associated tests
-    def test_base_form(self):
-        def save():
-            print("SAVE")
-
-        def revert():
-            print("REVERT")
-
-        baseform = BaseForm(schema=ExampleSchema, save=save, revert=revert)
-
-    def test_base_form_set_value(self):
-        def save():
-            print("SAVE")
-
-        def revert():
-            print("REVERT")
-
-        base_form = BaseForm(schema=ExampleSchema, save=save, revert=revert)
-        di_eg_unit = {"text": "update"}
-        base_form.value = di_eg_unit
-
-    def test_grid_wrapper(self):
-
-        grid = GridWrapper(schema=dataframe_schema,)
-
-    def test_editgrid(self):
-        grid = EditGrid(schema=dataframe_schema,)
-

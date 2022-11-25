@@ -1,25 +1,29 @@
 # +
 """file upload wrapper"""
 # %load_ext lab_black
-import ipywidgets as widgets
+# %run __init__.py
+# %run ../__init__.py
+import ipywidgets as w
 from markdown import markdown
 from IPython.display import display
 from pydantic import BaseModel, validator, Field
 import pathlib
-import typing
+import typing as ty
 import stringcase
 from datetime import datetime
-import traitlets
+import traitlets as tr
 import json
 import traitlets_paths
 
 from ipyautoui.automapschema import attach_schema_refs
-from ipyautoui.constants import BUTTON_MIN_SIZE, KWARGS_OPENFOLDER
+from ipyautoui.constants import BUTTON_MIN_SIZE, KWARGS_OPENFOLDER, DELETE_BUTTON_KWARGS
 from ipyautoui._utils import open_file, obj_to_importstr, getuser
 from ipyautoui.autodisplay import AutoDisplay, DisplayObject
 from ipyautoui.custom.iterable import Array, AutoArray, Dictionary
+from ipyautoui.autodisplayfile_renderers import preview_image, render_file
+from IPython.display import clear_output
 
-IS_IPYWIDGETS8 = (lambda: True if "8" in widgets.__version__ else False)()
+IS_IPYWIDGETS8 = (lambda: True if "8" in w.__version__ else False)()
 
 # +
 # TODO: allow for adding number of allowed files based on schema
@@ -29,11 +33,12 @@ IS_IPYWIDGETS8 = (lambda: True if "8" in widgets.__version__ else False)()
 # TODO: add optional description to linked files
 # -
 
+
 class File(BaseModel):
     name: str
-    type: str
-    last_modified: datetime
-    size: int
+    type: str = None
+    last_modified: datetime = None
+    size: int = None
     fdir: pathlib.Path = pathlib.Path(".")
     path: pathlib.Path = None
     caption: str = None
@@ -54,20 +59,43 @@ class File(BaseModel):
         return values["fdir"] / values["name"]
 
 
+class Caption(tr.HasTraits):
+    show_caption = tr.Bool(default_value=True)
 
-class FileUi(widgets.HBox):
-    _value = traitlets.Dict()
+    def _init_caption(self):
+        self.caption = w.Textarea(placeholder="add caption")
 
-    # @traitlets.validate("_value")
-    # def _valid_value(self, proposal):
-    #     return json.loads(File(**proposal["value"]).json())
+    def _init_caption_controls(self):
+        self.caption.observe(self._caption, names="value")
 
-    def __init__(self, value: typing.Union[dict, File]):
+    def _caption(self, onchange):
+        self.value["caption"] = self.caption.value
+
+    @tr.observe("show_caption")
+    def _observe_show_caption(self, proposal):
+        if proposal["new"]:
+            self.caption.layout.display = ""
+        else:
+            self.caption.layout.display = "None"
+
+
+# +
+class FileUi(w.HBox, Caption):
+    _value = tr.Dict()
+
+    """
+    UI for a file link. Can be use with the FileUpload button to load files
+    into a location. `self.preview` is a `ipyautoui.autodisplay.DisplayObject`
+    and its traits can be accessed.
+    
+    """
+
+    def __init__(self, value: ty.Union[dict, File]):
         self._init_form()
         if isinstance(value, File):
             value = json.loads(value.json())
         self.value = value
-        self._init_controls()
+        self._init_caption_controls()
 
     @property
     def value(self):
@@ -76,38 +104,47 @@ class FileUi(widgets.HBox):
     @value.setter
     def value(self, value):
         self._value = value
-        self.preview = DisplayObject.from_path(self.value["path"])
+        self.preview = DisplayObject.from_path(
+            self.value["path"], order=("exists", "openpreview", "name")
+        )
         if self.value["caption"] is not None:
             self.caption.value = self.value["caption"]
         self.children = [self.preview, self.caption]
 
     def _init_form(self):
         super().__init__()
-        self.caption = widgets.Textarea(placeholder="add caption")
+        self._init_caption()
 
-    def _init_controls(self):
-        self.caption.observe(self._caption, names="value")
 
-    def _caption(self, onchange):
-        self.value["caption"] = self.caption.value
+if __name__ == "__main__":
+    f = File(name="__init__.py")
+    fui = FileUi(f)
+    display(fui)
 
 
 # +
 def read_file_upload_item(di: dict, fdir=pathlib.Path("."), added_by=None):
     if added_by is None:
         added_by = getuser()
-    map_version = {True: di, False: di["metadata"]}
-    _ = map_version[IS_IPYWIDGETS8]
+    if IS_IPYWIDGETS8:
+        _ = di
+    else:
+        _ = di["metadata"]
     _["fdir"] = fdir
     _["added_by"] = added_by
     return File(**_)
 
 
+def add_file(upld_item, fdir=pathlib.Path(".")):
+    f = read_file_upload_item(upld_item, fdir=fdir)
+    f.path.write_bytes(upld_item["content"])
+    return f
+
+
 def add_files_ipywidgets7(upld_value, fdir=pathlib.Path(".")):
     di = {}
     for k, v in upld_value.items():
-        f = read_file_upload_item(v, fdir=fdir)
-        f.path.write_bytes(v["content"])
+        f = add_file(v, fdir=fdir)
         di[k] = f
     return di
 
@@ -115,9 +152,8 @@ def add_files_ipywidgets7(upld_value, fdir=pathlib.Path(".")):
 def add_files_ipywidgets8(upld_value, fdir=pathlib.Path(".")):
     di = {}
     for l in upld_value:
-        f = read_file_upload_item(l, fdir=fdir)
-        f.path.write_bytes(l.content.tobytes())
-        di[k] = f
+        f = add_file(l, fdir=fdir)
+        di[l["name"]] = f
     return di
 
 
@@ -130,14 +166,14 @@ def add_files(upld_value, fdir=pathlib.Path(".")):
         return add_files_ipywidgets7(upld_value, fdir=fdir)
 
 
-class FileUploadToDir(widgets.VBox):
-    _value = traitlets.Dict(default_value={})
-    _fdir = traitlets.Unicode()
+class FilesUploadToDir(w.VBox):
+    _value = tr.Dict(default_value={})
+    _fdir = tr.Unicode()
 
     def __init__(
         self,
         schema=None,
-        value: typing.Union[typing.Dict[str, File], dict] = None,
+        value: ty.Union[ty.Dict[str, File], dict] = None,
         fdir="linked_files",
     ):
         self.fdir = fdir
@@ -178,9 +214,9 @@ class FileUploadToDir(widgets.VBox):
 
     def _init_form(self):
         super().__init__(layout={"border": "solid LightCyan 2px"})
-        self.vbx_buttons = widgets.VBox()
-        self.upld = widgets.FileUpload(multiple=True, layout={"width": "300px"})
-        self.text = widgets.HTML()
+        self.vbx_buttons = w.VBox()
+        self.upld = w.FileUpload(multiple=True, layout={"width": "300px"})
+        self.text = w.HTML()
         self.vbx_buttons.children = [self.upld, self.text]
         self.arr_files = Dictionary(
             add_remove_controls="remove_only", show_hash=None, fn_remove=self.fn_remove
@@ -211,6 +247,110 @@ class FileUploadToDir(widgets.VBox):
 
 
 if __name__ == "__main__":
+    upld = FilesUploadToDir()
+    display(upld)
+# -
+
+
+# +
+# TODO: inherit same base as FilesUploadToDir
+class FileUploadToDir(w.VBox, Caption):
+    _value = tr.Dict(default_value={})
+    _fdir = tr.Unicode()
+
+    def __init__(
+        self,
+        schema=None,
+        value: ty.Union[ty.Dict[str, File], dict] = None,
+        fdir="linked_files",
+        delete_old=True,
+    ):
+        self.fdir = fdir
+        self.delete_old = delete_old
+        self._init_caption()
+        self._init_form()
+        self._init_controls()
+        self._init_caption_controls()
+        if value is None:
+            value = {}
+            self.show_caption = False
+
+    @property
+    def fdir(self):
+        return self._fdir
+
+    @fdir.setter
+    def fdir(self, value):
+        self._fdir = value
+
+    @staticmethod
+    def convert_to_dict(item):
+        if isinstance(item, File):
+            return json.loads(item.json())
+        else:
+            return item
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if self.delete_old:
+            try:
+                p = pathlib.Path(self.upld_path)
+                if p.is_file():
+                    p.unlink()
+            except:
+                pass
+        self._value = value
+        with self.out:
+            clear_output()
+            if self.upld_path is not None:
+                display(render_file(self.upld_path))
+
+    def _init_form(self):
+        super().__init__(layout={"border": "solid LightCyan 2px"})
+        self.out = w.Output()
+        self.hbx_buttons = w.HBox(layout={"width": "300px"})
+        self.hbx_bbar = w.HBox(layout={"justify-content": "flex-start"})
+        self.upld = w.FileUpload(multiple=False, layout={"width": "256px"})
+        self.bn_delete = w.Button(**DELETE_BUTTON_KWARGS)
+        self.caption.layout.width = "70%"
+        self.caption.layout.height = "30px"
+
+        self.hbx_buttons.children = [self.upld, self.bn_delete]
+        self.hbx_bbar.children = [self.hbx_buttons, self.caption]
+        self.children = [self.hbx_bbar, self.out]
+
+    def _init_controls(self):
+        self.upld.observe(self._upld, names="value")
+        self.bn_delete.on_click(self._bn_delete)
+
+    def _bn_delete(self, on_click):
+        self.show_caption = False
+        self.value = {}
+        self.upld._counter = 0
+
+    @property
+    def upld_path(self):
+        try:
+            return list(self.value.values())[0]["path"]
+        except:
+            pass
+
+    def add_files(self, files):
+        self.value = {k: json.loads(v.json()) for k, v in files.items()}
+        # self.arr_files.children = [render_file(self.upld_path)]
+
+    def _upld(self, onchange):
+        self.show_caption = True
+        upload_files = add_files(self.upld.value, fdir=self.fdir)
+        self.add_files(upload_files)
+        self.upld._counter = 0
+
+
+if __name__ == "__main__":
     upld = FileUploadToDir()
     display(upld)
 # -
@@ -220,9 +360,10 @@ if __name__ == "__main__":
 
     class Ui(BaseModel):
         name: str
-        files: typing.Dict[str, File] = Field(
-            autoui="__main__.FileUploadToDir", maximumItems=1, minimumItems=0
+        files: ty.Dict[str, File] = Field(
+            autoui="__main__.FilesUploadToDir", maximumItems=1, minimumItems=0
         )
+        file: ty.Dict[str, File] = Field(autoui="__main__.FileUploadToDir")
         description: str
 
     aui = AutoUi(schema=Ui, path="test.aui.json")
@@ -256,6 +397,3 @@ if __name__ == "__main__":
 #             },
 #         },
 #     }
-# -
-
-

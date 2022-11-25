@@ -1,22 +1,46 @@
-import ipywidgets as widgets
+import ipywidgets as w
 import random
-import traitlets
-import typing
+import traitlets as tr
+import typing as ty
 from pydantic import BaseModel, Field
+
+
+class ExampleRoot(BaseModel):
+    __root__: str = Field(default="Test", description="This test is important")
 
 
 class ExampleSchema(BaseModel):
     text: str = Field(default="Test", description="This test is important")
-    
+
+
 class ExampleDataFrameCols(BaseModel):
+    string: str = Field(aui_column_width=100)
+    floater: float = Field(aui_column_width=70, aui_sig_fig=3)
+
+
+class ExampleDataFrameCols1(BaseModel):
     string: str = Field("string", aui_column_width=100)
-    floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
+    floater: float = Field(3.14, aui_column_width=70, aui_sig_fig=3)
+
 
 class ExampleDataFrameSchema(BaseModel):
-    dataframe: typing.List[ExampleDataFrameCols] = Field(
-            default_factory=lambda: [], format="dataframe"
-        )
+    """no default"""
 
+    __root__: ty.List[ExampleDataFrameCols] = Field(format="dataframe")
+
+
+class ExampleDataFrameSchema1(BaseModel):
+    """default."""
+
+    __root__: ty.List[ExampleDataFrameCols] = Field(
+        [ExampleDataFrameCols1(string="test", floater=1.5)], format="dataframe"
+    )
+
+
+class ExampleDataFrameSchema2(BaseModel):
+    """no default. but properties have default"""
+
+    __root__: ty.List[ExampleDataFrameCols1] = Field(format="dataframe")
 
 
 def get_di():
@@ -45,17 +69,17 @@ def fn_add():
     return TestItem(di=get_di())
 
 
-class TestItem(widgets.HBox, traitlets.HasTraits):
-    value = traitlets.Dict()
+class TestItem(w.HBox, tr.HasTraits):
+    value = tr.Dict()
 
-    def __init__(self, di: typing.Dict = get_di()):
+    def __init__(self, di: ty.Dict = get_di()):
         self.value = di
         self._init_form()
         self._init_controls()
 
     def _init_form(self):
-        self._label = widgets.HTML(f"{list(self.value.keys())[0]}")
-        self._bool = widgets.ToggleButton(list(self.value.values())[0])
+        self._label = w.HTML(f"{list(self.value.keys())[0]}")
+        self._bool = w.ToggleButton(list(self.value.values())[0])
         super().__init__(children=[self._bool, self._label])  # self._acc,
 
     def _init_controls(self):

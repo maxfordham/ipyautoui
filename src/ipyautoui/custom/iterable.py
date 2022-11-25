@@ -23,26 +23,26 @@ that trait is automatically watched / observed for
 Example:
     see below of simple example usage::
     
-        import traitlets
-        import typing
+        import traitlets as tr
+        import typing as ty
 
-        from ipywidgets import widgets
+        import ipywidgets as w
         from IPython.display import Markdown
 
         from ipyautoui.custom.iterable import IterableItem, Array, Dictionary
 
 
-        class TestItem(widgets.HBox, traitlets.HasTraits):
-            value = traitlets.Dict()
+        class TestItem(w.HBox, tr.HasTraits):
+            value = tr.Dict()
 
-            def __init__(self, di: typing.Dict):
+            def __init__(self, di: ty.Dict):
                 self.value = di
                 self._init_form()
                 self._init_controls()
 
             def _init_form(self):
-                self._label = widgets.HTML(f"{list(self.value.keys())[0]}")
-                self._bool = widgets.ToggleButton(list(self.value.values())[0])
+                self._label = w.HTML(f"{list(self.value.keys())[0]}")
+                self._bool = w.ToggleButton(list(self.value.values())[0])
                 super().__init__(children=[self._bool, self._label])  # self._acc,
 
             def _init_controls(self):
@@ -73,10 +73,10 @@ Example:
 # TODO: review: https://github.com/widgetti/react-ipywidgets - it could simplify the code required below.
 # %run __init__.py
 # %load_ext lab_black
-import ipywidgets as widgets
-import traitlets
+import ipywidgets as w
+import traitlets as tr
 from traitlets import validate
-import typing
+import typing as ty
 import immutables
 from IPython.display import display
 
@@ -86,6 +86,7 @@ from pydantic import validator
 import uuid
 from uuid import UUID
 import functools
+from markdown import markdown
 from ipyautoui.constants import (
     ADD_BUTTON_KWARGS,
     REMOVE_BUTTON_KWARGS,
@@ -94,30 +95,30 @@ from ipyautoui.constants import (
     BUTTON_HEIGHT_MIN,
     BUTTON_MIN_SIZE,
 )
-from markdown import markdown
+
 
 frozenmap = immutables.Map
 # ^ https://www.python.org/dev/peps/pep-0603/, https://github.com/MagicStack/immutables
-BOX = frozenmap({True: widgets.HBox, False: widgets.VBox})
+BOX = frozenmap({True: w.HBox, False: w.VBox})
 TOGGLE_BUTTON_KWARGS = frozenmap(
     icon="",
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
 )
 # -
 from ipyautoui.autowidgets import create_widget_caller
-from ipyautoui.autoipywidget import AutoIpywidget
+from ipyautoui.autoipywidget import AutoObject
 
 
 # +
 class IterableItem(BaseModel):
     index: int
-    key: typing.Union[UUID, str, int, float, bool] = None
-    item: typing.Any = None
-    add: typing.Any = None
-    remove: typing.Any = None
-    label: typing.Any = None
+    key: ty.Union[UUID, str, int, float, bool] = None
+    item: ty.Any = None
+    add: ty.Any = None
+    remove: ty.Any = None
+    label: ty.Any = None
     orient_rows: bool = True
-    row: typing.Any = None
+    row: ty.Any = None
 
     @validator("key", always=True)
     def _key(cls, v, values):
@@ -130,28 +131,28 @@ class IterableItem(BaseModel):
     @validator("add", always=True)
     def _add(cls, v, values):
         if v is None:
-            return widgets.Button(layout=dict(BUTTON_MIN_SIZE))
+            return w.Button(layout=dict(BUTTON_MIN_SIZE))
         else:
             return v
 
     @validator("remove", always=True)
     def _remove(cls, v, values):
         if v is None:
-            return widgets.Button(layout=dict(BUTTON_MIN_SIZE))
+            return w.Button(layout=dict(BUTTON_MIN_SIZE))
         else:
             return v
 
     @validator("label", always=True)
     def _label(cls, v, values):
         if v is None:
-            return widgets.HTML("placeholder label")
+            return w.HTML("placeholder label")
         else:
             return v
 
     @validator("item", always=True)
     def _item(cls, v, values):
         if v is None:
-            return widgets.ToggleButton(description="placeholder item")
+            return w.ToggleButton(description="placeholder item")
         else:
             return v
 
@@ -161,9 +162,9 @@ class IterableItem(BaseModel):
         if v is None:
             v = ItemBox(
                 children=[
-                    ItemBox(layout=widgets.Layout(flex="1 0 auto")),  # buttons
-                    ItemBox(layout=widgets.Layout(flex="1 0 auto")),  # label
-                    ItemBox(layout=widgets.Layout(flex="100%")),  # item
+                    ItemBox(layout=w.Layout(flex="1 0 auto")),  # buttons
+                    ItemBox(layout=w.Layout(flex="1 0 auto")),  # label
+                    ItemBox(layout=w.Layout(flex="100%")),  # item
                 ]
             )
             v.children[2].children = [values["item"]]
@@ -173,14 +174,14 @@ class IterableItem(BaseModel):
 
 
 # # +
-class Array(widgets.VBox, traitlets.HasTraits):
+class Array(w.VBox, tr.HasTraits):
     """generic iterable. pass a list of items"""
 
     # -----------------------------------------------------------------------------------
-    _value = traitlets.List()
-    _show_hash = traitlets.Unicode(allow_none=True)
-    _add_remove_controls = traitlets.Unicode(allow_none=True)
-    _sort_on = traitlets.Unicode(allow_none=True)
+    _value = tr.List()
+    _show_hash = tr.Unicode(allow_none=True)
+    _add_remove_controls = tr.Unicode(allow_none=True)
+    _sort_on = tr.Unicode(allow_none=True)
 
     @validate("show_hash")
     def _validate_show_hash(self, proposal):
@@ -218,14 +219,14 @@ class Array(widgets.VBox, traitlets.HasTraits):
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
-        value: typing.List = None,
-        items: typing.List = None,
+        value: ty.List = None,
+        items: ty.List = None,
         toggle=False,
         title=None,
-        fn_add: typing.Callable = lambda: display("add item"),
-        fn_add_dialogue: typing.Callable = None,
-        fn_remove: typing.Callable = lambda: display("remove item"),
-        # fn_remove_dialogue: typing.Callable = lambda: display(f"are you sure you want to remove {item}"), #TODO
+        fn_add: ty.Callable = lambda: display("add item"),
+        fn_add_dialogue: ty.Callable = None,
+        fn_remove: ty.Callable = lambda: display("remove item"),
+        # fn_remove_dialogue: ty.Callable = lambda: display(f"are you sure you want to remove {item}"), #TODO
         watch_value: bool = True,
         minlen: int = 0,
         maxlen: int = 100,
@@ -294,7 +295,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         return self._value
 
     @value.setter
-    def value(self, value: typing.List):
+    def value(self, value: ty.List):
         self.items = [self.fn_add() for v in value]
         for n, v in enumerate(value):
             self.items[n].value = v
@@ -305,7 +306,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         return [i.item for i in self.iterable]
 
     @items.setter
-    def items(self, value: typing.List):
+    def items(self, value: ty.List):
         self.iterable = self._init_iterable(value)
         self._update_rows_box()
         self._update_rows()
@@ -333,7 +334,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
     def _init_form(self):
         # init containers
         super().__init__(
-            layout=widgets.Layout(
+            layout=w.Layout(
                 width="100%",
                 display="flex",
                 flex="flex-grow",
@@ -341,15 +342,11 @@ class Array(widgets.VBox, traitlets.HasTraits):
             )
         )  # main container
         self.rows_box = BOX[not self.orient_rows](
-            layout=widgets.Layout(width="100%", display="flex", flex="flex-grow")
+            layout=w.Layout(width="100%", display="flex", flex="flex-grow")
         )
-        self.title_box = widgets.HBox(
-            layout=widgets.Layout(display="flex", flex="flex-grow")
-        )
-        self.toggle_button = widgets.ToggleButton(
-            icon="minus", layout=dict(BUTTON_MIN_SIZE)
-        )
-        self.add_from_zero = widgets.Button(**ADD_BUTTON_KWARGS)
+        self.title_box = w.HBox(layout=w.Layout(display="flex", flex="flex-grow"))
+        self.toggle_button = w.ToggleButton(icon="minus", layout=dict(BUTTON_MIN_SIZE))
+        self.add_from_zero = w.Button(**ADD_BUTTON_KWARGS)
         # self._add_from_zero_display()
         self.toggle_button.value = True
         self._refresh_children()
@@ -429,8 +426,8 @@ class Array(widgets.VBox, traitlets.HasTraits):
         if self.add_remove_controls is None:
             buttons_box = []
         else:
-            self.iterable[index].add = widgets.Button(layout=dict(BUTTON_MIN_SIZE))
-            self.iterable[index].remove = widgets.Button(layout=dict(BUTTON_MIN_SIZE))
+            self.iterable[index].add = w.Button(layout=dict(BUTTON_MIN_SIZE))
+            self.iterable[index].remove = w.Button(layout=dict(BUTTON_MIN_SIZE))
             buttons_box = [self.iterable[index].add, self.iterable[index].remove]
         self.iterable[index].row.children[0].children = buttons_box
 
@@ -508,12 +505,12 @@ class Array(widgets.VBox, traitlets.HasTraits):
         return self._title
 
     @title.setter
-    def title(self, value: typing.Union[str, None]):
+    def title(self, value: ty.Union[str, None]):
         self._title = value
         if self.title is None:
-            self.html_title = widgets.HTML(self.title)
+            self.html_title = w.HTML(self.title)
         else:
-            self.html_title = widgets.HTML(markdown(self.title))
+            self.html_title = w.HTML(markdown(self.title))
         self._update_header()
 
     def _update_header(self):
@@ -534,7 +531,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
 
     def _init_row_controls(self, key=None):
         if self.add_remove_controls == "append_only":
-            # self.iterable[0].add = widgets.Button(layout=dict(BUTTON_MIN_SIZE))
+            # self.iterable[0].add = w.Button(layout=dict(BUTTON_MIN_SIZE))
             self.iterable[0].add.on_click(self._add_row)
             # self._style_zeroth_buttonbar()
         else:
@@ -578,7 +575,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
         if self.fn_add_dialogue is None:
             self.add_row(key=key)
         else:
-            out = widgets.Output()
+            out = w.Output()
             self.children = [self.title_box, out, self.rows_box]
             with out:
                 display(self.fn_add_dialogue(cls=self))
@@ -659,7 +656,7 @@ class Array(widgets.VBox, traitlets.HasTraits):
 
 
 class Dictionary(Array):
-    value = traitlets.Dict()
+    value = tr.Dict()
 
     def _update_value(self, onchange):
         self.value = {a.key: a.item.value for a in self.iterable}
@@ -667,13 +664,13 @@ class Dictionary(Array):
     # -----------------------------------------------------------------------------------
     def __init__(
         self,
-        value: typing.Dict = None,
-        items: typing.Dict = None,
+        value: ty.Dict = None,
+        items: ty.Dict = None,
         toggle=False,
         title=None,
-        fn_add: typing.Callable = lambda: display("add item"),
-        fn_add_dialogue: typing.Callable = None,
-        fn_remove: typing.Callable = lambda: display("remove item"),
+        fn_add: ty.Callable = lambda: display("add item"),
+        fn_add_dialogue: ty.Callable = None,
+        fn_remove: ty.Callable = lambda: display("remove item"),
         watch_value: bool = True,
         minlen: int = 0,
         maxlen: int = None,
@@ -710,7 +707,7 @@ class Dictionary(Array):
         return {i.key: i.item for i in self.iterable}
 
     @items.setter
-    def items(self, value: typing.List):
+    def items(self, value: ty.List):
         self.iterable = self._init_iterable(value)
         self._update_rows_box()
         self._update_rows()
@@ -721,8 +718,8 @@ class Dictionary(Array):
             IterableItem(
                 index=n,
                 key=k,
-                add=widgets.Button(**ADD_BUTTON_KWARGS),
-                remove=widgets.Button(**REMOVE_BUTTON_KWARGS),
+                add=w.Button(**ADD_BUTTON_KWARGS),
+                remove=w.Button(**REMOVE_BUTTON_KWARGS),
                 item=v,
             )
             for n, (k, v) in enumerate(items.items())
@@ -740,7 +737,7 @@ def validate_items(sch_arr):
 
 
 class AutoArray(Array):
-    _schema = traitlets.Dict()
+    _schema = tr.Dict()
 
     @validate("_schema")
     def _validate_schema(self, proposal):
@@ -755,16 +752,16 @@ class AutoArray(Array):
 
     def __init__(
         self,
-        schema: typing.Dict,
+        schema: ty.Dict,
         value=None,
         toggle=False,
-        fn_remove: typing.Callable = lambda: None,
+        fn_remove: ty.Callable = lambda: None,
         watch_value: bool = True,
         add_remove_controls: str = "add_remove",
         show_hash: str = "index",
         sort_on="index",
         orient_rows=True,
-        fn_add_dialogue: typing.Callable = None,
+        fn_add_dialogue: ty.Callable = None,
     ):
 
         self.fn_add_dialogue = fn_add_dialogue
@@ -775,12 +772,9 @@ class AutoArray(Array):
         self.watch_value = watch_value
         self.zfill = 2
         if value is not None:
-            items = [AutoIpywidget(schema=self.schema) for v in value]
+            items = [self.fn_add() for v in value]
         elif "default" in self.schema.keys():
-            items = [
-                AutoIpywidget(schema=self.schema["items"])
-                for v in self.schema["default"]
-            ]
+            items = [self.fn_add() for v in self.schema["default"]]
             # [display(i) for i in items]
         else:
             items = None
@@ -814,7 +808,10 @@ class AutoArray(Array):
             self.maxlen = self.schema["maxItems"]
         else:
             self.maxlen = 100
-        self.fn_add = functools.partial(AutoIpywidget, schema=self.caller["items"])
+        from ipyautoui import automapschema as aumap
+
+        caller = aumap.map_widget(self.caller["items"])
+        self.fn_add = functools.partial(aumap.widgetcaller, caller)
 
 
 # -
@@ -850,10 +847,10 @@ if __name__ == "__main__":
         else:
             return TestItem(di=value)
 
-    class TestItem(widgets.HBox):
-        _value = traitlets.Dict()
+    class TestItem(w.HBox):
+        _value = tr.Dict()
 
-        def __init__(self, di: typing.Dict = get_di()):
+        def __init__(self, di: ty.Dict = get_di()):
             self._value = di
             self._init_form()
             self._init_controls()
@@ -870,8 +867,8 @@ if __name__ == "__main__":
             self._bool.value = v
 
         def _init_form(self):
-            self._label = widgets.HTML(f"{list(self.value.keys())[0]}")
-            self._bool = widgets.ToggleButton(list(self.value.values())[0])
+            self._label = w.HTML(f"{list(self.value.keys())[0]}")
+            self._bool = w.ToggleButton(list(self.value.values())[0])
             super().__init__(children=[self._bool, self._label])  # self._acc,
 
         def _init_controls(self):
@@ -897,26 +894,15 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
     from ipyautoui.autowidgets import create_widget_caller
-    from ipyautoui.autoipywidget import AutoIpywidget
+    from ipyautoui.autoipywidget import AutoObject
 
     schema = TestArrays.schema()["properties"]["array_strings"]
     ui = AutoArray(schema)
     display(ui)
 
-AutoArray(
-    schema={
-        "title": "Array Strings",
-        "default": ["f", "d"],
-        "minItems": 2,
-        "maxItems": 5,
-        "type": "array",
-        "items": {"type": "string"},
-    }
-)
-
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
-    from ipyautoui.autoipywidget import AutoIpywidget
+    from ipyautoui.autoipywidget import AutoObject
     from ipyautoui import AutoUi
 
     # TestArrays.schema()["properties"]  # ["array_strings"]
