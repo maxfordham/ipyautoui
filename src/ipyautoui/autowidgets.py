@@ -26,9 +26,10 @@ import ipywidgets as w
 import traitlets as tr
 from copy import deepcopy
 from ipyautoui._utils import obj_from_importstr
-from ipyautoui.custom import modelrun, markdown_widget, editgrid
+from ipyautoui.custom import modelrun, markdown_widget, editgrid, filechooser
 from ipyautoui._utils import remove_non_present_kwargs
 from datetime import datetime
+
 
 #  -- CHANGE JSON-SCHEMA KEYS TO IPYWIDGET KEYS -------------
 
@@ -266,11 +267,12 @@ class DatePickerString(w.HBox, tr.HasTraits):
         self._value = self._get_value()
 
 
-# class FileChooser(w.FileChooser):
-#     def __init__(self, schema):
-#         self.schema = schema
-#         self.caller = create_widget_caller(schema)
-#         super().__init__(**self.caller)
+class FileChooser(filechooser.FileChooser):
+    def __init__(self, schema):
+        self.schema = schema
+        self.caller = create_widget_caller(schema)
+        super().__init__(**self.caller)
+
 
 # class Grid(w.Grid):
 #     def __init__(self, schema):

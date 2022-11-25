@@ -6,11 +6,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.6
+#       jupytext_version: 1.14.0
 #   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: ipyautoui
+#     name: python3
 # ---
 
 """wrapper for ipyfilechooster.FileChooser"""
@@ -18,7 +18,7 @@
 # %load_ext lab_black
 
 import pathlib
-from traitlets import HasTraits, default, validate
+from traitlets import HasTraits, default, validate, Unicode
 from traitlets_paths import PurePath  # TODO: create conda recipe for this package
 from ipyfilechooser import FileChooser
 
@@ -30,25 +30,26 @@ def make_path(path):
         return path
 
 
-class FileChooser(FileChooser, HasTraits):
+class FileChooser(FileChooser):
     """inherits ipyfilechooster.FileChooser but initialises
-    with a value= kwarg and adds a fc.value property. this 
+    with a value= kwarg and adds a fc.value property. this
     follows the same convention as ipywidgets and therefore integrates
     better wiht ipyautoui
-    
+
     Reference:
         https://github.com/crahan/ipyfilechooser
     """
 
-    _value = PurePath()
+    # _value = PurePath()
+    _value = Unicode()
 
-    @validate("_value")
-    def _valid_value(self, proposal):
-        return make_path(proposal["value"])
+    # @validate("_value")
+    # def _valid_value(self, proposal):
+    #     return make_path(proposal["value"])
 
     @default("_value")
     def _default_value(self):
-        return pathlib.Path(".")
+        return str(pathlib.Path("."))
 
     @property
     def value(self):
@@ -56,9 +57,9 @@ class FileChooser(FileChooser, HasTraits):
 
     @value.setter
     def value(self, value: PurePath):
-        """having the setter allows users to pass a new value field to the class which also updates the 
+        """having the setter allows users to pass a new value field to the class which also updates the
         `selected` argument used by FileChooser"""
-        self._value = value
+        self._value = str(value)
         p = pathlib.Path(self.value)
         if p.is_dir():
             self.reset(self.value, None)
@@ -109,3 +110,22 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     fc.value = test_constants.PATH_TEST_AUI
+
+if __name__ == "__main__":
+
+    from pydantic import BaseModel, Field
+    from ipyautoui import AutoUi
+
+    class Test(BaseModel):
+        path: pathlib.Path = Field(
+            ".", filter_pattern=["*.py"]
+        )  # note. filter_pattern ipyfilechooser kwarg passed on
+        string: str = "test"
+
+    ui = AutoUi(Test)
+    display(ui)
+
+if __name__ == "__main__":
+    display(ui.value)
+
+

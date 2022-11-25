@@ -49,7 +49,7 @@ class Demo(w.Tab, tr.HasTraits):
 
     @tr.observe("selected_index")
     def _observe_selected_index(self, change):
-        if change["new"] == 3:
+        if change["new"] == 4:
             self._update_value()
 
     def __init__(self, pydantic_model=CoreIpywidgets):

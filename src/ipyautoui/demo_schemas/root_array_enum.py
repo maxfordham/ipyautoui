@@ -26,11 +26,8 @@ class UniclassProductsUi(BaseModel):
 
 
 class RootArrayEnum(BaseModel):
-    """SelectUniclassCodes"""
+    """FIXME: **This is currently not working**. Due to nested definition in JSON-schema"""
 
     products: list[UniclassProductsUi] = Field(
         None, title=UniclassProducts.__name__, description=UniclassProducts.__doc__
     )
-
-
-# TODO: make this example work. @JG.

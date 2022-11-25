@@ -308,6 +308,9 @@ def is_Color(di: dict) -> bool:
         >>> di = {"title": "Color Picker Ipywidgets", "default": "#f5f595","type": "string", "format": "hexcolor"}
         >>> is_Color(di)
         True
+        >>> di = {"title": "Path", "default": ".", "type": "string", "format": "path"}
+        >>> is_Color(di)
+        False
     """
     if "autoui" in di.keys():
         return False
@@ -315,9 +318,48 @@ def is_Color(di: dict) -> bool:
         return False
     if not "format" in di.keys():
         return False
-    if "format" in di.keys() and "color" not in di["format"]:
+    if "format" in di.keys() and "color" in di["format"]:
+        return True
+    else:
         return False
-    return True
+
+
+def is_Path(di: dict) -> bool:
+    """check if schema object is a path
+
+    Args:
+        di (dict): schema object
+
+    Returns:
+        bool: is the object a color
+
+    Example:
+        >>> di = {"title": "Path", "default": ".", "type": "string", "format": "path"}
+        >>> is_Path(di)
+        True
+    """
+    if "autoui" in di.keys():
+        return False
+    if not di["type"] == "string":
+        return False
+    if not "format" in di.keys():
+        return False
+    if "format" in di.keys() and di["format"] == "path":
+        return True
+    else:
+        return False
+
+
+def isnot_Text(di: dict) -> bool:
+    if is_Date(di):
+        return True
+    if is_Color(di):
+        return True
+    if is_Markdown(di):
+        return True
+    if is_Path(di):
+        return True
+    return False
 
 
 def is_Text(di: dict) -> bool:
@@ -346,13 +388,10 @@ def is_Text(di: dict) -> bool:
         return False
     if "maxLength" in di.keys() and di["maxLength"] >= 200:
         return False
-    if is_Date(di):
+    if isnot_Text(di):
         return False
-    if is_Color(di):
-        return False
-    if is_Markdown(di):
-        return False
-    return True
+    else:
+        return True
 
 
 def is_Textarea(di: dict, max_length=200) -> bool:
@@ -379,13 +418,10 @@ def is_Textarea(di: dict, max_length=200) -> bool:
         return False
     if "maxLength" in di.keys() and di["maxLength"] <= max_length:  # i.e. == long text
         return False
-    if is_Date(di):
+    if isnot_Text(di):
         return False
-    if is_Color(di):
-        return False
-    if is_Markdown(di):
-        return False
-    return True
+    else:
+        return True
 
 
 def is_Markdown(di: dict) -> bool:
@@ -563,9 +599,10 @@ def get_widgets_map(di_update=None):
             "SelectMultiple": WidgetMapper(
                 fn_filt=is_SelectMultiple, widget=auiwidgets.SelectMultiple
             ),
+            "Color": WidgetMapper(fn_filt=is_Color, widget=auiwidgets.ColorPicker),
+            "Path": WidgetMapper(fn_filt=is_Path, widget=auiwidgets.FileChooser),
             "Checkbox": WidgetMapper(fn_filt=is_Checkbox, widget=auiwidgets.Checkbox),
             "Date": WidgetMapper(fn_filt=is_Date, widget=auiwidgets.DatePickerString),
-            "Color": WidgetMapper(fn_filt=is_Color, widget=auiwidgets.ColorPicker),
             "object": WidgetMapper(
                 fn_filt=is_Object, widget=auiwidgets.AutoPlaceholder
             ),
