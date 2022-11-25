@@ -13,6 +13,7 @@ from .constants import DIR_TESTS, DIR_FILETYPES
 from .example_objects import ExampleRoot, ExampleSchema
 from ipyautoui import AutoUi, AutoDisplay, AutoVjsf
 from ipyautoui.autoipywidget import AutoObject, demo_autoobject_form
+from ipyautoui.demo_schemas import RootEnum, RootArrayEnum
 from ipyautoui.test_schema import TestAutoLogicSimple
 import stringcase
 import ipywidgets as w
@@ -23,33 +24,34 @@ shutil.rmtree(
     DIR_TEST_DATA
 )  #  remove previous data. this allows tests to check if files exist.
 
-form = demo_autoobject_form()
 
+class TestAutoObjectFormLayout:
+    def __init__(self):
+        self.form = demo_autoobject_form()
 
-class AutoObjectFormLayout:
     def test_show_raw(self):
         # check that that showraw gets added and removed on trait change
-        assert len(form.hbx_title.children) == 1
-        form.show_raw = True
-        assert len(form.hbx_title.children) == 2
+        assert len(self.form.hbx_title.children) == 1
+        self.form.show_raw = True
+        assert len(self.form.hbx_title.children) == 2
 
     def test_show_title(self):
         # check that that title gets display and hidden on trait change
-        assert form.title.layout.display == ""
-        form.show_title = True
-        assert form.title.layout.display == "None"
+        assert self.form.title.layout.display == ""
+        self.form.show_title = True
+        assert self.form.title.layout.display == "None"
 
     def test_show_description(self):
         # check that that description gets display and hidden on trait change
-        assert form.description.layout.display == ""
-        form.show_description = True
-        assert form.description.layout.display == "None"
+        assert self.form.description.layout.display == ""
+        self.form.show_description = True
+        assert self.form.description.layout.display == "None"
 
     def test_show_savebuttonbar(self):
         # check that that description gets display and hidden on trait change
-        assert form.savebuttonbar.layout.display == ""
-        form.show_savebuttonbar = True
-        assert form.savebuttonbar.layout.display == "None"
+        assert self.form.savebuttonbar.layout.display == ""
+        self.form.show_savebuttonbar = True
+        assert self.form.savebuttonbar.layout.display == "None"
 
 
 class TestAutoObject:
@@ -81,6 +83,17 @@ class TestAutoObject:
             assert v in k
 
         # assert ui.value == {"text": "Test"}
+        print("done")
+
+    def test_RootEnum(self):
+        ui = AutoObject(RootEnum)
+        print("")
+        assert "allOf" not in ui.schema.keys()
+        print("done")
+
+    def test_RootArrayEnum(self):
+        ui = AutoObject(RootArrayEnum)
+        assert "allOf" not in ui.schema["definitions"]["UniclassProductsUi"].keys()
         print("done")
 
 
