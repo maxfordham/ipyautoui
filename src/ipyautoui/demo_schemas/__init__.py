@@ -9,3 +9,5 @@ from .editable_datagrid import EditableGrid
 from .nested_editable_datagrid import NestedEditableGrid
 from .root_array import RootArray
 from .root_simple import RootSimple
+from .root_enum import RootEnum
+from .root_array_enum import RootArrayEnum

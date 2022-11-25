@@ -44,6 +44,7 @@ class Demo(w.Tab, tr.HasTraits):
         self._update_autoui()
         self._update_pydantic()
         self._update_jsonschema()
+        self._update_jsonschema_caller()
         self._update_value()
 
     @tr.observe("selected_index")
@@ -56,12 +57,14 @@ class Demo(w.Tab, tr.HasTraits):
         self.vbx_autoui = w.VBox()
         self.vbx_pydantic = w.VBox()
         self.vbx_jsonschema = w.VBox()
+        self.vbx_jsonschema_caller = w.VBox()
         self.vbx_value = w.VBox()
-        titles = {0: "AutoUi", 1: "pydantic-model", 2: "jsonschema", 3: "autoui-value"}
+        titles = {0: "AutoUi", 1: "pydantic-model", 2: "jsonschema", 3: "jsonschema-caller", 4: "autoui-value"}
         self.children = [
             self.vbx_autoui,
             self.vbx_pydantic,
             self.vbx_jsonschema,
+            self.vbx_jsonschema_caller,
             self.vbx_value,
         ]
         [self.set_title(k, v) for k, v in titles.items()]
@@ -70,6 +73,9 @@ class Demo(w.Tab, tr.HasTraits):
 
         self.out_sch = w.Output()
         self.vbx_jsonschema.children = [self.out_sch]
+
+        self.out_caller = w.Output()
+        self.vbx_jsonschema_caller.children = [self.out_caller]
 
         self.out_value = w.Output()
         self.vbx_value.children = [self.out_value]
@@ -91,6 +97,16 @@ class Demo(w.Tab, tr.HasTraits):
 ```
 """
         with self.out_sch:
+            clear_output()
+            display(Markdown(s_sch))
+
+    def _update_jsonschema_caller(self):
+        s_sch = f"""
+```json
+{json.dumps(self.autoui.schema, indent=4)}
+```
+"""
+        with self.out_caller:
             clear_output()
             display(Markdown(s_sch))
 
