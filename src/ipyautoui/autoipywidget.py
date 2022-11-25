@@ -89,6 +89,13 @@ def _init_model_schema(schema, by_alias=False):
         model = schema  # the "model" passed is a pydantic model
         schema = model.schema(by_alias=by_alias).copy()
 
+    if "definitions" in schema.keys():
+        li = [l for l in schema.keys() if l != "definitions"]
+        li = ["definitions"] + li
+        schema = {l: schema[l] for l in li}
+    # ^ put definitions at the top of the schema.
+    # otherwise definitions with $ref's in get copied in to the code
+
     schema = aumap.attach_schema_refs(schema)
     return model, schema
 
@@ -540,10 +547,10 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
 
     def _init_schema(self, schema, by_alias=False):
         self.model, self.schema = _init_model_schema(schema, by_alias=by_alias)
-        if "type" not in self.schema.keys() and self.schema["type"] != "object":
-            raise ValueError(
-                '"type" must be in schema keys and "type" must == "object"'
-            )
+        # if "type" not in self.schema.keys() and self.schema["type"] != "object":
+        #     raise ValueError(
+        #         '"type" must be in schema keys and "type" must == "object"'
+        #     )
         if "properties" in self.schema.keys():
             pr = self.schema["properties"]
         else:

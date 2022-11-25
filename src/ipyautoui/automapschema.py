@@ -43,6 +43,26 @@ def recursive_search_schema(schema: ty.Dict, li: ty.List) -> ty.Dict:
         return schema[f]
 
 
+def checkfor_allof(di: dict) -> bool:
+    if "allOf" in di and len(di["allOf"]) == 1 and "$ref" in di["allOf"][0].keys():
+        return True
+    else:
+        return False
+
+
+def flatten_allof(
+    schema: dict,
+    schema_base: dict,
+):
+    li_filt = schema["allOf"][0]["$ref"].split("/")[1:]
+    ref = recursive_search_schema(schema_base, li_filt)
+    schema = {
+        k_: v_ for k_, v_ in ref.items() if k_ not in list(schema.keys())
+    } | schema
+    del schema["allOf"]
+    return schema
+
+
 def attach_schema_refs(schema, schema_base=None):
     """
     attachs #definitions to $refs within the main schema
@@ -60,38 +80,37 @@ def attach_schema_refs(schema, schema_base=None):
     """
     if schema_base is None:
         schema_base = schema.copy()
+        # ^ TODO: how can i $refs be attached to definitions
+
     try:
         schema = schema.copy()
     except:
         pass
     # ^ copying to avoid pydantic schema being modified "in-place"
+
+    # if "definitions" in schema.keys():
+    #     schema["definitions"] = attach_schema_refs(
+    #         schema["definitions"], schema_base=schema_base
+    #     )
+    # ^ update the definitions first,
+    # otherwise definitions with $ref's in get copied in to the code
+
     if type(schema) == list:
         for n, s in enumerate(schema):
             schema[n] = attach_schema_refs(s, schema_base=schema_base)
     elif type(schema) == dict:
+        if checkfor_allof(schema):
+            schema = flatten_allof(schema, schema_base)
         for k, v in schema.items():
             if type(v) == dict:
+                if checkfor_allof(v):
+                    schema[k] = flatten_allof(v, schema_base)
                 if "$ref" in v:
                     # FIXME: Needing refactor or cleanup -@jovyan at 8/31/2022, 12:24:09 AM
                     # refs are only attached to schema values, meaning that root definitions
                     # are ignored.
                     li_filt = v["$ref"].split("/")[1:]
-                    schema[k] = recursive_search_schema(schema_base, li_filt)
-                elif (
-                    "allOf" in v
-                    and len(v["allOf"]) == 1
-                    and "$ref" in v["allOf"][0].keys()
-                ):
-                    # ^ this is an edge case for setting enums with Field values
-                    #   (probs unique to how pydantic does it)
-                    li_filt = v["allOf"][0]["$ref"].split("/")[1:]
-                    ref = recursive_search_schema(schema_base, li_filt)
-                    schema[k] = {
-                        k_: v_
-                        for k_, v_ in ref.items()
-                        if k_ not in list(schema[k].keys())
-                    } | schema[k]
-                    del schema[k]["allOf"]
+                    schema[k] = recursive_search_schema(schema_base, li_filt)  # v=  ?
                 else:
                     schema[k] = attach_schema_refs(v, schema_base=schema_base)
             elif type(v) == list:
