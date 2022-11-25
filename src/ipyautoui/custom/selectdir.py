@@ -101,7 +101,7 @@ class SelectDirBase(BaseModel):
 
 class SelectDir(SelectDirBase):
     usage: ty.List[Usage] = Field(default_factory=lambda: [])
-    pyobject: str = NAME + "SelectDir"
+    pyobject: str = NAME + ".SelectDir"
 
 
 # -
@@ -146,9 +146,12 @@ def record_load(value):
     file(log, fpth_log)
 
 
+def print_fdir(value):
+    print(f"fn_onload: {value['fdir']}")
+
+
 class SelectDirUi(w.VBox):
     value = tr.Dict()
-    load = w.Button(**dict(LOAD_BUTTON_KWARGS) | {"tooltip": "load project"})
 
     @tr.validate("value")
     def _validate_value(self, proposal):
@@ -185,9 +188,7 @@ class SelectDirUi(w.VBox):
         config: TreeModel,
         fdir_root: pathlib.Path = None,
         fdir_log: pathlib.Path = None,
-        fn_onload: ty.Union[ty.Callable, ty.List] = lambda value: print(
-            f"fn_onload: {value['fdir']}"
-        ),
+        fn_onload: ty.Union[ty.Callable, ty.List] = print_fdir,
         checks: ty.List[ty.Callable] = None,
     ):
         """
@@ -202,7 +203,7 @@ class SelectDirUi(w.VBox):
                 initiated with the "value" trait as an arg and returns either a string
                 or None
         """
-
+        self.load = w.Button(**dict(LOAD_BUTTON_KWARGS) | {"tooltip": "load project"})
         super().__init__()
         if fdir_root is None:
             self.fdir_root = pathlib.Path(".")
@@ -253,7 +254,6 @@ class SelectDirUi(w.VBox):
 
     @fn_onload.setter
     def fn_onload(self, value):
-
         if isinstance(value, ty.Callable):
             value = [value]
         elif isinstance(value, ty.List):
