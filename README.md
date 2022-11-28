@@ -2,10 +2,11 @@
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![PyPI version](https://badge.fury.io/py/ipyautoui.svg)](https://badge.fury.io/py/ipyautoui)
 
 ![](docs/logo.png)
 
-## Try in online! 
+## Try in online!
 
 launch [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD).
 
@@ -16,24 +17,22 @@ launch [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/
 in future versions.
 ```
 
-```
-# TODO: do this! WARNING ipyautoui is WIP is not yet packaged and distrubuted 
-#       so the commands below don't work.
-
-mamba install ipyautoui -c conda-forge  # mamba ...
-conda install ipyautoui -c conda-forge  # or conda ...
-pip install ipyautoui  # or pip ...
+```sh
+pip install ipyautoui
+mamba install ipyautoui -c conda-forge  # mamba ... TODO: add to conda-forge. 
+conda install ipyautoui -c conda-forge  # or conda ... TODO: add to conda-forge. 
 ```
 
 ## Intro
 
-A high-level wrapper library that sits on top of [__ipywidgets__](https://github.com/jupyter-widgets/ipywidgets) (and other ipy- widget libraries), [__pydantic__](https://github.com/samuelcolvin/pydantic/) 
+A high-level wrapper library that sits on top of [__ipywidgets__](https://github.com/jupyter-widgets/ipywidgets) (and other ipy- widget libraries), [__pydantic__](https://github.com/samuelcolvin/pydantic/)
 and Jupyter rich display system to template and automate the creation of widget forms / user-interfaces. The core user-facing classes in this library are __AutoUi__, __AutoVjsf__ and __AutoDisplay__:
 
 ```python
 from ipyautoui import AutoUi, AutoVjsf, AutoDisplay
 ```
-ipyautoui aims to give you as much as possible out-the-box, whilst also supporting a simple workflow to extend and customise the interface to specific user requirements. 
+
+ipyautoui aims to give you as much as possible out-the-box, whilst also supporting a simple workflow to extend and customise the interface to specific user requirements.
 
 ## Summary of main features
 
@@ -45,17 +44,20 @@ from ipyautoui import AutoUi
 
 class LineGraph(BaseModel):
     """parameters to define a simple `y=m*x + c` line graph"""
-    title: str = Field(default='line equation', description='add chart title here')
+    title: str = Field(default='line equation', description='add chart title')
     m: float = Field(default=2, description='gradient')
-    c: float = Field(default=5, description='intercept')
-    x_range: tuple[int, int] = Field(default=(0,5), ge=0, le=50, description='x-range for chart')
-    y_range: tuple[int, int] = Field(default=(0,5), ge=0, le=50, description='y-range for chart')
+    c: float = Field(default=5, ge=0, le=10, description='intercept')
+    x_range: tuple[int, int] = Field(
+        default=(0,5), ge=0, le=50, description='x-range for chart')
+    y_range: tuple[int, int] = Field(
+        default=(0,5), ge=0, le=50, description='y-range for chart')
     
 lg = LineGraph()
 ui = AutoUi(schema=lg)
 ui
 ```
-![](images/autoui-linegraph.png)
+
+![autoui-linegraph](images/autoui-linegraph.png)
 
 ```python
 
@@ -110,8 +112,7 @@ The main benefit of AutoUi (and main the reason for continuing to develop it), i
   - TODO: where the datasource is not a file, the extension is a mapping code that maps a renderer to the datastructure of the data. 
 - Custom renderer's can be passed to `AutoDisplay` allowing it to display user-defined filetypes (or compound extension filetypes)
 
-
-## How it works:
+## How it works
 
 - Make a pydantic model (or json schema) that defines the UI
 - Pass the model to `AutoUi` or `AutoVjsf` to generate an user-interface
@@ -132,6 +133,7 @@ This package intends to be high-level, and unifies many other ipy- libraries und
 - [Plotly](https://github.com/plotly/plotly.py) (for viewing `.plotly.json` files. note. this needs to be added by the user)
 
 It is also obviously wholly dependent on the excellent json-schema specification:
+
 - [json-schema](https://json-schema.org/)
 
 ## Development installation
@@ -146,6 +148,15 @@ $ mamba env create -f environment-dev.yml
 # run tests
 $ pytest
 ```
+
+## Packaging (restricted to core-maintainers)
+
+```sh
+hatch build  # builds to local folder
+hatch publish  # publishes to pypi
+
+```
+
 
 ## Contributions
 

@@ -1,12 +1,12 @@
 """contains packages global constants"""
 import pathlib
-
-from ipydatagrid import TextRenderer, Expr, VegaExpr
+from ipydatagrid import TextRenderer
 from ipyautoui._utils import frozenmap
 
+# ^ frozenmap
 # https://www.python.org/dev/peps/pep-0603/
 # https://github.com/MagicStack/immutables
-# ^
+
 DIR_MODULE = pathlib.Path(__file__).parent
 DIR_EXAMPLE = DIR_MODULE.parents[1] / "examples"
 PATH_VJSF_TEMPLATE = DIR_MODULE / "vjsf.vue"
@@ -92,7 +92,8 @@ DELETE_BUTTON_KWARGS = frozenmap(
 
 KWARGS_DATAGRID_DEFAULT = frozenmap(
     header_renderer=TextRenderer(
-        vertical_alignment="top", horizontal_alignment="center",
+        vertical_alignment="top",
+        horizontal_alignment="center",
     )
 )
 
@@ -109,13 +110,13 @@ KWARGS_OPENFILE = frozenmap(
     icon="file",
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     tooltip="open file with system software",
-    style={"font_weight": "bold" } #, "button_color": OPEN_BN_COLOR},
+    style={"font_weight": "bold"},  # , "button_color": OPEN_BN_COLOR},
 )
 KWARGS_OPENFOLDER = frozenmap(
     icon="folder",
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     tooltip="open folder in file-browser",
-    style={"font_weight": "bold"} #, "button_color": OPEN_BN_COLOR},
+    style={"font_weight": "bold"},  # , "button_color": OPEN_BN_COLOR},
 )
 
 KWARGS_DISPLAY = frozenmap(

@@ -13,14 +13,12 @@ import stringcase
 from datetime import datetime
 import traitlets as tr
 import json
-import traitlets_paths
 
-from ipyautoui.automapschema import attach_schema_refs
-from ipyautoui.constants import BUTTON_MIN_SIZE, KWARGS_OPENFOLDER, DELETE_BUTTON_KWARGS
-from ipyautoui._utils import open_file, obj_to_importstr, getuser
-from ipyautoui.autodisplay import AutoDisplay, DisplayObject
-from ipyautoui.custom.iterable import Array, AutoArray, Dictionary
-from ipyautoui.autodisplayfile_renderers import preview_image, render_file
+from ipyautoui.constants import DELETE_BUTTON_KWARGS
+from ipyautoui._utils import getuser
+from ipyautoui.autodisplay import DisplayObject
+from ipyautoui.custom.iterable import Dictionary
+from ipyautoui.autodisplayfile_renderers import render_file
 from IPython.display import clear_output
 
 IS_IPYWIDGETS8 = (lambda: True if "8" in w.__version__ else False)()

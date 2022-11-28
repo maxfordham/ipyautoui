@@ -7,7 +7,7 @@ channels:
   - conda-forge
 #  - http://10.10.30.125:8000
 dependencies:
-  - python>=3.7,<3.10
+  - python>=3.7
   - numpy
   - pandas
   - jupyterlab>=3.0.14
@@ -26,8 +26,6 @@ dependencies:
   - nodejs
   - altair
   - pydantic
-  - dacite
-  - xmltodict
   - pyyaml
   - openpyxl
   - black

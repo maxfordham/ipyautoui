@@ -18,7 +18,6 @@
 # %load_ext lab_black
 
 # +
-import traitlets_paths
 import ipywidgets as w
 import traitlets as t
 from IPython.display import clear_output, display

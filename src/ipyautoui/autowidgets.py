@@ -25,8 +25,7 @@ from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET
 import ipywidgets as w
 import traitlets as tr
 from copy import deepcopy
-from ipyautoui._utils import obj_from_importstr
-from ipyautoui.custom import modelrun, markdown_widget, editgrid, filechooser
+from ipyautoui.custom import modelrun, markdown_widget, filechooser
 from ipyautoui._utils import remove_non_present_kwargs
 from datetime import datetime
 

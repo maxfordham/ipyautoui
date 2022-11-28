@@ -17,28 +17,17 @@
 # %run __init__.py
 # %load_ext lab_black
 
-import pathlib
-import functools
-import pandas as pd
 import ipywidgets as w
-from IPython.display import display, Markdown, clear_output
-from datetime import datetime, date
-from dataclasses import dataclass
-from pydantic import BaseModel
+from IPython.display import display
+from datetime import datetime
 from markdown import markdown
-import immutables
-import json
 import traitlets as tr
 import typing as ty
-from enum import Enum
 import logging
-
 from ipyautoui.constants import (
-    MAP_JSONSCHEMA_TO_IPYWIDGET,
     BUTTON_WIDTH_MIN,
     TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT,
 )
-
 
 # +
 def merge_callables(callables: ty.Union[ty.Callable, ty.List[ty.Callable]]):

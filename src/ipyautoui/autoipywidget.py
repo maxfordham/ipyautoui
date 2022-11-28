@@ -34,23 +34,15 @@ import functools
 import ipywidgets as w
 from IPython.display import display
 import traitlets as tr
-
-# TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:07:55 PM
-# use traitlets_paths or not... pull request to main traitlets?
 import typing as ty
-from ipyautoui.constants import DOWNARROW_BUTTON_KWARGS
-from ipyautoui.custom.showhide import ShowHide
-import ipyautoui.automapschema as aumap
-import immutables
 import inspect
-from ipyautoui._utils import obj_from_importstr
 import json
+from IPython.display import display, clear_output
+import ipyautoui.automapschema as aumap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-from IPython.display import display, Markdown, clear_output, display_pretty
-from ipyautoui._utils import display_python_string
-from ipyautoui.custom.save_buttonbar import SaveButtonBar, SaveActions
-
-frozenmap = immutables.Map
+from ipyautoui._utils import display_python_string, obj_from_importstr
+from ipyautoui.custom.save_buttonbar import SaveButtonBar
+from ipyautoui.custom.showhide import ShowHide
 
 
 # +
@@ -425,7 +417,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
                         "if you want to use order to hide rows then set:"
                         "`order_hides_rows = True`"
                     )
-        # TODO: order not updating
+        # BUG: order not updating
         return v
 
     @tr.validate("order_can_hide_rows")

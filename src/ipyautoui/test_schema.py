@@ -1,5 +1,7 @@
 """
 An example schema definition that demonstrates the current capability of the AutoUi class
+
+# TODO: delete this file.
 """
 import typing as ty
 from enum import Enum
@@ -8,7 +10,6 @@ from ipyautoui.basemodel import BaseModel
 from pydantic.color import Color
 from datetime import datetime, date
 import pathlib
-import pandas as pd
 from pathlib import PurePosixPath
 
 # from ipyautoui.custom.modelrun import RunName
@@ -56,7 +57,7 @@ class DataFrameCols(BaseModel):
     floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
     something_else: float = Field(324, aui_column_width=100)
 
-    
+
 class TestEditGrid(BaseModel):
     editgrid: ty.List[DataFrameCols] = Field(
         default=DATAGRID_TEST_VALUE,
@@ -107,6 +108,7 @@ class TestAutoLogicSimple(BaseModel):
     )
     # file_chooser: pathlib.Path = pathlib.Path(".") # TODO: serialisation / parsing round trip not working...
 
+
 class TestTypesWithComplexSerialisation(BaseModel):
     """all of these types need to be serialised to json and parsed back to objects upon reading..."""
 
@@ -120,10 +122,12 @@ class TestTypesWithComplexSerialisation(BaseModel):
         datetime
     ] = datetime.now()  # TODO: update with ipywidgets-v8
     color_picker_ipywidgets: Color = "#f5f595"
-    
+
+
 class TestNested(BaseModel):
     nested: NestedObject = Field(default=None)
-    # recursive_nest: RecursiveNest = Field(default=None) # NOTE: this isn't working! 
+    # recursive_nest: RecursiveNest = Field(default=None) # NOTE: this isn't working!
+
 
 class TestAutoLogic(TestAutoLogicSimple, TestEditGrid, TestNested):
     """this is a test UI form to demonstrate how pydantic class can be used to generate an ipywidget input form"""

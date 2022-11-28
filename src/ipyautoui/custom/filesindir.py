@@ -20,16 +20,10 @@
 # +
 import pathlib
 from wcmatch.pathlib import Path as wcPath
-from traitlets_paths import PurePath  # TODO: create conda recipe for this package
 import ipywidgets as w
 import traitlets as tr
-from traitlets import HasTraits, default, validate
 from typing import List
-import immutables
-import inspect
 import functools
-
-# from pydantic.dataclasses import dataclass
 from ipyautoui.basemodel import BaseModel
 from pydantic import validator, Field
 
@@ -43,7 +37,7 @@ from ipyautoui.constants import (
 )
 
 # +
-patherns_des = """
+PATTERNS_DES = """
 list of glob pattern match strings that will be searched within fdir
 ref: https://facelessuser.github.io/wcmatch/pathlib/
 """
@@ -54,7 +48,7 @@ class FilesInDir(BaseModel):
 
     fdir: pathlib.Path
     recursive: bool = True
-    patterns: List[str] = Field([], description=patherns_des)
+    patterns: List[str] = Field([], description=PATTERNS_DES)
     fpths: List[pathlib.Path] = []
 
     @validator("fdir", always=True)
@@ -86,7 +80,7 @@ class FilesInDir(BaseModel):
 
 
 # +
-class ListStrings(w.VBox, HasTraits):
+class ListStrings(w.VBox, tr.HasTraits):
     value = tr.List()
 
     def __init__(self, value):
@@ -136,7 +130,7 @@ class MatchStrings(ListStrings):
 # -
 
 
-class FindFiles(w.VBox, HasTraits):
+class FindFiles(w.VBox, tr.HasTraits):
     value = tr.Dict()
 
     def __init__(

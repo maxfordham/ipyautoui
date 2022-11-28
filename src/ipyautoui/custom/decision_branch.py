@@ -19,13 +19,9 @@
 """
 a UI element that loads a folder for data caching, whilst storing a record of folders in use
 """
-from __future__ import annotations
 
 # %run __init__.py
 # %load_ext lab_black
-
-
-from enum import Enum
 from pydantic import BaseModel
 import ipywidgets as w
 import typing as ty

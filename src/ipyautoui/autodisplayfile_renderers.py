@@ -40,11 +40,10 @@ Example:
 import os
 import pathlib
 import pandas as pd
-from IPython.display import display, Markdown, IFrame, clear_output, Image, HTML
+from IPython.display import display, Markdown, IFrame, clear_output, HTML
 import json
 import ipydatagrid as ipg
 import ipywidgets as w
-import importlib.util
 import traitlets as tr
 import traitlets_paths
 
@@ -368,12 +367,12 @@ DEFAULT_FILE_RENDERERS = frozenmap(
         ".gif": preview_image,
         ".mp4": preview_video,
         ".mp3": preview_audio,
-        #'.obj': obj_prev, # add ipyvolume viewer?
+        #'.obj': obj_prev, # TODO: add ipyvolume viewer?
         ".txt": preview_text,
         ".bat": preview_text,
         ".rst": preview_text,
         "": preview_text_or_dir,
-        ".toml": preview_text,  # TODO: add toml viewer?
+        ".toml": preview_text,
         ".md": preview_markdown,
         ".py": PreviewPython,
         ".pdf": preview_pdf,

@@ -23,11 +23,8 @@ Reference:
 
 """
 # %run ../__init__.py
-import sys
 import ipywidgets as w
 import traitlets as tr
-import requests
-import random
 
 BUTTON_WIDTH_MIN = "50px"
 

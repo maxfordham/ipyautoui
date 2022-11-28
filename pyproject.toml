@@ -24,19 +24,15 @@ dependencies = [
     "ipyvuetify",      # make optional
     "Markdown",
     "numpy",
-    "openpyxl",
+    "openpyxl",        # for excel fiel viewer
     "pandas",
     "pydantic",
     "pytest",
     "PyYAML",
-    "requests",
-    "setuptools",
     "stringcase",
     "traitlets",
     "traitlets_paths",
     "wcmatch",
-    "xmltodict",
-    "seedir",
 ]
 
 [project.urls]

@@ -36,7 +36,7 @@ Example:
 """
 # %run __init__.py
 # %load_ext lab_black
-# TODO: update displayfile_definitions based on the extra work done...
+
 # +
 import pathlib
 import functools
@@ -45,7 +45,7 @@ from IPython.display import (
     display,
     clear_output,
     Markdown,
-)  # , Image JSON, HTML, IFrame,
+)
 import time
 import typing as ty
 import ipywidgets as w
@@ -610,7 +610,6 @@ class AutoDisplay(tr.HasTraits):
 # TODO: render markdown to html using pandoc and rebase relative paths - https://github.com/jgm/pandoc/issues/3752
 # TODO: render Vega updating the data path
 # TODO: render pdf update the relative path
-# TODO: figure out why the spacing between rows is weird
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic

@@ -77,10 +77,7 @@ import ipywidgets as w
 import traitlets as tr
 from traitlets import validate
 import typing as ty
-import immutables
 from IPython.display import display
-
-# from pydantic.dataclasses import dataclass
 from ipyautoui.basemodel import BaseModel
 from pydantic import validator
 import uuid
@@ -95,19 +92,15 @@ from ipyautoui.constants import (
     BUTTON_HEIGHT_MIN,
     BUTTON_MIN_SIZE,
 )
+from ipyautoui._utils import frozenmap
+from ipyautoui.autowidgets import create_widget_caller
 
-
-frozenmap = immutables.Map
-# ^ https://www.python.org/dev/peps/pep-0603/, https://github.com/MagicStack/immutables
 BOX = frozenmap({True: w.HBox, False: w.VBox})
 TOGGLE_BUTTON_KWARGS = frozenmap(
     icon="",
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
 )
 # -
-from ipyautoui.autowidgets import create_widget_caller
-from ipyautoui.autoipywidget import AutoObject
-
 
 # +
 class IterableItem(BaseModel):
