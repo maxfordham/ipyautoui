@@ -16,8 +16,8 @@
 
 import re
 import ipywidgets as w
-from traitlets import HasTraits, Unicode, default, validate, TraitError
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
+import traitlets as tr
 import typing as ty
 
 
@@ -73,16 +73,16 @@ class RunName(w.HBox):
         zfill = 2
     """
 
-    _value = Unicode()
+    _value = tr.Unicode()
 
-    @validate("_value")
+    @tr.validate("_value")
     def _valid_value(self, proposal):
         val = proposal["value"]
         matched = re.match(self.inputs.pattern, val)
         if not bool(matched):
             print(self.inputs.pattern)
             print(val)
-            raise TraitError(f"string musts have format: {self.inputs.pattern}")
+            raise tr.TraitError(f"string musts have format: {self.inputs.pattern}")
         return val
 
     @property
@@ -90,7 +90,7 @@ class RunName(w.HBox):
         return self._value
 
     @value.setter
-    def value(self, value: Unicode):
+    def value(self, value: tr.Unicode):
         """The setter allows a user to pass a new value field to the class. This also updates the
         `selected` argument used by RunName"""
         if value is not None:

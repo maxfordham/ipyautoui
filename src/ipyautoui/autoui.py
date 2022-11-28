@@ -29,26 +29,19 @@ Example:
 """
 # %run __init__.py
 # #%load_ext lab_black
-import logging
+
 import pathlib
-import functools
-import ipywidgets as w
-from IPython.display import display, Markdown, clear_output, display_pretty
-from pydantic import BaseModel, Field
-from markdown import markdown
-import immutables
+from IPython.display import display
+from pydantic import BaseModel
 import json
 import traitlets as tr
 import traitlets_paths
 import typing as ty
-from enum import Enum
 
-from ipyautoui._utils import display_python_string
-from ipyautoui.custom import SaveButtonBar  #  Grid, FileChooser,
-from ipyautoui.constants import BUTTON_WIDTH_MIN
+from ipyautoui.custom import (
+    SaveButtonBar,
+)  # NOTE: removing this unused import creates circular import errors
 from ipyautoui.autoipywidget import AutoObject, get_from_schema_root
-
-# from ipyautoui.autovjsf import AutoVjsf
 
 
 # +

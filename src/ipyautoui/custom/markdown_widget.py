@@ -22,9 +22,7 @@ import ipywidgets as w
 import functools
 import traitlets as tr
 from IPython.display import Markdown, clear_output, display
-import immutables
-
-frozenmap = immutables.Map
+from ipyautoui._utils import frozenmap
 
 # +
 BUTTON_MIN_SIZE = frozenmap(**{"width": "41px", "height": "25px"})

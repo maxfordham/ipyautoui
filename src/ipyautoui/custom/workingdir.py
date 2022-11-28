@@ -23,25 +23,21 @@ a UI element that loads a folder for data caching, whilst storing a record of fo
 
 # +
 from pydantic import BaseModel, validator, Field
-from ipyautoui.constants import LOAD_BUTTON_KWARGS, BUTTON_MIN_SIZE, BUTTON_WIDTH_MIN
+from ipyautoui.constants import LOAD_BUTTON_KWARGS, BUTTON_WIDTH_MIN
 from IPython.display import clear_output, Markdown
 from ipyautoui._utils import file
-import shutil
-import traitlets_paths
 import ipywidgets as w
 import traitlets as tr
 
 from getpass import getuser
 import os
 from halo import HaloNotebook
-from enum import Enum, IntEnum
+from enum import Enum
 import pathlib
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 import typing as ty
 from datetime import datetime
-import zipfile
 import logging
-import seedir
 from ipyautoui._utils import obj_to_importstr
 
 try:

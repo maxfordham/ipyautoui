@@ -22,11 +22,7 @@
 # %load_ext lab_black
 import traitlets as tr
 import typing as ty
-import collections
 import traceback
-import functools
-
-import immutables
 import pandas as pd
 import ipywidgets as w
 from typing import List
@@ -37,27 +33,9 @@ from ipydatagrid.datagrid import SelectionHelper
 import ipyautoui.autoipywidget as aui
 import ipyautoui.custom.save_buttonbar as sb
 from ipyautoui._utils import obj_from_importstr
-from ipyautoui.automapschema import attach_schema_refs
-from ipyautoui._utils_debounce import debounce
 import logging
 
-frozenmap = immutables.Map
-
-# TODO: Tasks pending completion -@jovyan at 9/14/2022, 5:09:18 PM
-#       review how ipydatagrid works. it has a _data trait which has
-#       a schema. Perhaps we can make better use of this / contribute
-#       back to the main repo.
-
-# BUG: Reported defects -@jovyan at 9/16/2022, 5:25:13 PM
-#      the selection when filtered issue is creating a problem.
-
-# TODO: Tasks pending completion -@jovyan at 9/22/2022, 9:25:53 PM
-#       Can BaseForm inherit autoipywidget.AutoObject directly?
-
-# TODO: give ButtonBar its own module
-
 # TODO: rename "add" to "fn_add" so not ambiguous...
-
 
 # +
 def is_incremental(li):

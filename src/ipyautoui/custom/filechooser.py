@@ -18,7 +18,7 @@
 # %load_ext lab_black
 
 import pathlib
-from traitlets import HasTraits, default, validate, Unicode
+import traitlets as tr
 from traitlets_paths import PurePath  # TODO: create conda recipe for this package
 from ipyfilechooser import FileChooser
 
@@ -41,13 +41,9 @@ class FileChooser(FileChooser):
     """
 
     # _value = PurePath()
-    _value = Unicode()
+    _value = tr.Unicode()
 
-    # @validate("_value")
-    # def _valid_value(self, proposal):
-    #     return make_path(proposal["value"])
-
-    @default("_value")
+    @tr.default("_value")
     def _default_value(self):
         return str(pathlib.Path("."))
 
@@ -127,5 +123,3 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     display(ui.value)
-
-

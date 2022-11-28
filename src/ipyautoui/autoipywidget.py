@@ -38,19 +38,14 @@ import traitlets as tr
 # TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:07:55 PM
 # use traitlets_paths or not... pull request to main traitlets?
 import typing as ty
-from ipyautoui.constants import DOWNARROW_BUTTON_KWARGS
-from ipyautoui.custom.showhide import ShowHide
-import ipyautoui.automapschema as aumap
-import immutables
 import inspect
-from ipyautoui._utils import obj_from_importstr
 import json
+from IPython.display import display, clear_output
+import ipyautoui.automapschema as aumap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-from IPython.display import display, Markdown, clear_output, display_pretty
-from ipyautoui._utils import display_python_string
-from ipyautoui.custom.save_buttonbar import SaveButtonBar, SaveActions
-
-frozenmap = immutables.Map
+from ipyautoui._utils import display_python_string, obj_from_importstr
+from ipyautoui.custom.save_buttonbar import SaveButtonBar
+from ipyautoui.custom.showhide import ShowHide
 
 
 # +

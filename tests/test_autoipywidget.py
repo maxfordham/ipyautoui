@@ -11,6 +11,7 @@ import pathlib
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
 from .example_objects import ExampleRoot, ExampleSchema
+
 from ipyautoui import AutoUi, AutoDisplay, AutoVjsf
 from ipyautoui.autoipywidget import AutoObject, demo_autoobject_form
 from ipyautoui.demo_schemas import RootEnum, RootArrayEnum

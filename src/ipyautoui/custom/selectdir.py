@@ -16,35 +16,23 @@
 # +
 # %run __init__.py
 # %load_ext lab_black
-
+from IPython.display import display
 from ipyautoui.basemodel import BaseModel
 from ipyautoui.basemodel import file
+from ipyautoui._utils import file
 
 setattr(BaseModel, "file", file)
 from pydantic import validator, Field, ValidationError
-from ipyautoui.constants import LOAD_BUTTON_KWARGS, BUTTON_MIN_SIZE, BUTTON_WIDTH_MIN
+from ipyautoui.constants import LOAD_BUTTON_KWARGS
 from IPython.display import clear_output, Markdown
-from ipyautoui._utils import file
-import shutil
-import traitlets_paths
+
 import ipywidgets as w
 import traitlets as tr
 import typing as ty
-
-import os
-from halo import HaloNotebook
-from enum import Enum, IntEnum
 import pathlib
-from pydantic import BaseModel, ValidationError
-import typing as ty
 from datetime import datetime
-import zipfile
-import logging
-import seedir
-from ipyautoui._utils import obj_to_importstr, getuser
+from ipyautoui._utils import obj_to_importstr, getuser, make_new_path
 from ipyautoui.custom.decision_branch import DecisionUi, TreeModel
-
-from ipyautoui._utils import make_new_path
 
 # -
 

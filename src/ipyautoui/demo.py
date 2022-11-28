@@ -1,16 +1,17 @@
 import traitlets as tr
-import typing as ty
 from traitlets_paths import PurePath
+import typing as ty
 import ipywidgets as w
 import inspect
-from ipyautoui.demo_schemas import CoreIpywidgets
-from ipyautoui._utils import display_python_file
-from ipyautoui import AutoUi
+from pydantic import BaseModel
 from IPython.display import display, clear_output, Markdown
 import json
 import pathlib
-from pydantic import BaseModel
+
 from ipyautoui import demo_schemas as demo_schemas
+from ipyautoui.demo_schemas import CoreIpywidgets
+from ipyautoui._utils import display_python_file
+from ipyautoui import AutoUi
 
 # TODO: add AutoRenderer functionality to demo
 
@@ -59,7 +60,13 @@ class Demo(w.Tab, tr.HasTraits):
         self.vbx_jsonschema = w.VBox()
         self.vbx_jsonschema_caller = w.VBox()
         self.vbx_value = w.VBox()
-        titles = {0: "AutoUi", 1: "pydantic-model", 2: "jsonschema", 3: "jsonschema-caller", 4: "autoui-value"}
+        titles = {
+            0: "AutoUi",
+            1: "pydantic-model",
+            2: "jsonschema",
+            3: "jsonschema-caller",
+            4: "autoui-value",
+        }
         self.children = [
             self.vbx_autoui,
             self.vbx_pydantic,

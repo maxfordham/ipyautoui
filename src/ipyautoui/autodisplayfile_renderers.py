@@ -40,11 +40,10 @@ Example:
 import os
 import pathlib
 import pandas as pd
-from IPython.display import display, Markdown, IFrame, clear_output, Image, HTML
+from IPython.display import display, Markdown, IFrame, clear_output, HTML
 import json
 import ipydatagrid as ipg
 import ipywidgets as w
-import importlib.util
 import traitlets as tr
 import traitlets_paths
 

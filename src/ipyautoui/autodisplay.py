@@ -45,7 +45,7 @@ from IPython.display import (
     display,
     clear_output,
     Markdown,
-)  # , Image JSON, HTML, IFrame,
+)
 import time
 import typing as ty
 import ipywidgets as w
