@@ -24,6 +24,8 @@ import traitlets as tr
 from IPython.display import Markdown, clear_output, display
 from ipyautoui._utils import frozenmap
 
+# TODO: update the renderer to use pandoc and/or myst, thus getting extended syntax
+
 # +
 BUTTON_MIN_SIZE = frozenmap(**{"width": "41px", "height": "25px"})
 EXAMPLE_MARKDOWN = """
@@ -45,6 +47,7 @@ See details here: [__commonmark__](https://commonmark.org/help/)
 1. item 1
 1. item 1
 1. item 1
+  - sub item
 
 """
 

@@ -58,6 +58,9 @@ from ipyautoui._utils import (
 )
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 from ipyautoui.custom.showhide import ShowHide
+from ipyautoui.env import Env
+
+ENV = Env()
 
 # if check_installed('xlsxtemplater'):
 #     from xlsxtemplater import from_excel
@@ -278,8 +281,37 @@ def VegaLite(spec):
     # return bundle
 
 
+def update_vega_data_url(data: dict, path: pathlib.Path) -> dict:
+    """for relative urls, the path is normally given relative to the json file,
+    but when viewed in Voila it needs to be relative to the notebook file. This
+    updates the relative path
+
+    Args:
+        data (dict): vega data
+        path (Path): path of vg.json
+
+    Returns:
+        dict : dict with updated data url
+    """
+    if "url" in data.keys():
+        url = data["url"]
+        if "http" in url:
+            pass
+        else:
+            p = pathlib.Path(path.parent).absolute() / url
+            url = os.path.relpath(p, start=ENV.IPYAUTOUI_ROOTDIR)
+            data["url"] = url
+    return data
+
+
 def preview_vega(path):
     data = json.loads(pathlib.Path(path).read_text())
+    if isinstance(data["data"], list):
+        data["data"] = [update_vega_data_url(d, path) for d in data["data"]]
+    elif isinstance(data["data"], dict):
+        data["data"] = update_vega_data_url(data["data"], path)
+    else:
+        raise ValueError("vega data must be list or dict")
     return Vega(data)
 
 
@@ -338,15 +370,36 @@ def preview_text_or_dir(path):
 
 
 def preview_markdown(path):
-    return Markdown(
+    import subprocess
+
+    p = os.path.relpath(path, start=ENV.IPYAUTOUI_ROOTDIR)
+    c = subprocess.run(
+        f"pandoc {str(p)} -f markdown+rebase_relative_paths",
+        shell=True,
+        capture_output=True,
+    )
+    # s =
+    return HTML(
         f"""
-WARNING: `IMAGES WON'T DISPLAY UNLESS THE MARKDOWN FILE IS IN THE SAME FOLDER AS THIS JUPYTER NOTEBOOK`
-{pathlib.Path(path).read_text()}
+{c.stdout.decode("utf-8") }        
 """
     )
 
 
+#     return Markdown(
+#         f"""
+# {WARNING: `IMAGES WON'T DISPLAY UNLESS THE MARKDOWN FILE IS IN THE SAME FOLDER AS THIS JUPYTER NOTEBOOK`
+# {pathlib.Path(path).read_text()}}
+# """
+#     )
+
+
 def preview_pdf(path):
+
+    if not isinstance(path, pathlib.PurePath):
+        path = pathlib.Path(path)
+
+    path = os.path.relpath(path, start=ENV.IPYAUTOUI_ROOTDIR)
     return IFrame(path, width=1000, height=600)
 
 
