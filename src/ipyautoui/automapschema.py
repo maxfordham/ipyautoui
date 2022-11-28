@@ -655,7 +655,6 @@ def map_widget(di, widgets_map=None, fail_on_error=False) -> WidgetCaller:
 
     if len(mapped) == 0:
         if fail_on_error:
-            # TODO: pass error or not..
             raise ValueError(f"widget map not found for: {di}")
         else:
             return WidgetCaller(schema_=di, autoui=auiwidgets.AutoPlaceholder)
@@ -665,7 +664,6 @@ def map_widget(di, widgets_map=None, fail_on_error=False) -> WidgetCaller:
         w = get_widget(di, k, widgets_map)
         return WidgetCaller(schema_=di, autoui=w)
     else:
-        # TODO: add logging. take last map
         print(f"{di['title']}. multiple matches found. using the last one.")
         print(mapped)
         k = mapped[-1]

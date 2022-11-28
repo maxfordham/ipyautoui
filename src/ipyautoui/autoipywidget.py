@@ -34,9 +34,6 @@ import functools
 import ipywidgets as w
 from IPython.display import display
 import traitlets as tr
-
-# TODO: Tasks pending completion -@jovyan at 7/18/2022, 2:07:55 PM
-# use traitlets_paths or not... pull request to main traitlets?
 import typing as ty
 import inspect
 import json
@@ -420,7 +417,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
                         "if you want to use order to hide rows then set:"
                         "`order_hides_rows = True`"
                     )
-        # TODO: order not updating
+        # BUG: order not updating
         return v
 
     @tr.validate("order_can_hide_rows")

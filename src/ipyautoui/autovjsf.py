@@ -90,10 +90,6 @@ class AutoVjsf(AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
         self._init_vui_form()
         self._init_controls()
 
-        # self.save_buttonbar._unsaved_changes(
-        #     False
-        # )  # TODO: not sure why this is required
-
     def get_description(self):  # TODO: put this in AutoObjectFormLayout
         return get_from_schema_root(self.schema, "description")
 
@@ -135,7 +131,7 @@ class AutoVjsf(AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
         self._value = self.vui.value
 
     @property
-    def schema(self):  # TODO: change to schema
+    def schema(self):
         return self.vui.schema
 
 
