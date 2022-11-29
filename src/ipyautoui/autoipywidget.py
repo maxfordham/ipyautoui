@@ -294,12 +294,16 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
     def _observe_show_savebuttonbar(self, change):
         show_hide_widget(self.savebuttonbar, self.show_savebuttonbar)
 
-    def __init__(self):
+    def __init__(self, fns_onsave=None, fns_onrevert=None):
         super().__init__()
         self._init_form()
         self._init_bn_showraw_controls()
         self.fn_onshowraw = self.display_showraw
         self.fn_onhideraw = self.display_ui
+        if fns_onsave is not None:
+            self.fns_onsave = fns_onsave
+        if fns_onrevert is not None:
+            self.fns_onrevert = fns_onrevert
 
     def _init_form(self):
         self.autowidget = w.VBox()
@@ -324,6 +328,32 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
     def display_showraw(self):  # NOTE: this overwritten this in AutoObject
         self.autowidget.layout.display = "None"
         return '{"test": "json"}'
+
+    @property
+    def fns_onsave(self):
+        return self.savebuttonbar.fns_onsave
+
+    @fns_onsave.setter
+    def fns_onsave(self, value):
+        if isinstance(value, list):
+            [self.savebuttonbar.fns_onsave_add_action(v) for v in value]
+        elif isinstance(value, ty.Callable):
+            self.savebuttonbar.fns_onrevert_add_action(value)
+        else:
+            raise ValueError("fns_onsave must be a callable or list of callables")
+
+    @property
+    def fns_onrevert(self):
+        return self.savebuttonbar.fns_onrevert
+
+    @fns_onrevert.setter
+    def fns_onrevert(self, value):
+        if isinstance(value, list):
+            [self.savebuttonbar.fns_onrevert_add_action(v) for v in value]
+        elif isinstance(value, ty.Callable):
+            self.savebuttonbar.fns_onrevert_add_action(value)
+        else:
+            raise ValueError("fns_onrevert must be a callable or list of callables")
 
 
 def demo_autoobject_form(title="test", description="a description of the title"):
@@ -478,9 +508,11 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         fdir=None,
         order=None,
         insert_rows=None,
-        nested_widgets=None,
+        nested_widgets=None,  # TODO
         show_description: bool = True,
         show_title: bool = True,
+        fns_onsave=None,
+        fns_onrevert=None,
     ):
         """creates a widget input form from schema. datatype must be "object"
 
@@ -498,7 +530,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         Returns:
             AutoObject(w.VBox)
         """
-        super().__init__()
+        super().__init__(fns_onsave=fns_onsave, fns_onrevert=fns_onrevert)
         self.insert_rows = insert_rows
         self.update_map_widgets = update_map_widgets
         self.fdir = fdir
@@ -622,7 +654,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         self.savebuttonbar.unsaved_changes = True
         # NOTE: it is required to set the whole "_value" otherwise
         #       traitlets doesn't register the change.
-        #       -@jovyan at 7/18/2022, 12:45:48 PM
+        #       -@jovyan at 7/18/2022, 12:45:48 PMsavebuttonbar
 
     def _update_widgets_from_value(self):
         for k, v in self.value.items():

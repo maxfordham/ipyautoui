@@ -69,8 +69,35 @@ class SaveActions(tr.HasTraits):
     def fn_revert(self):
         return merge_callables(self.fns_onrevert)()
 
-    def _add_action(self, action_name, fn_add, avoid_dupes=True, overwrite_dupes=True):
+    def _add_action(
+        self,
+        action_name,
+        fn_add,
+        avoid_dupes=True,
+        overwrite_dupes=True,
+        to_beginning=False,
+    ):
         fns = getattr(self, action_name)
+        if not hasattr(fn_add, "__name__"):
+            logging.warning(
+                "an annonymous function (i.e. functools.partial) has been passed"
+                " to SaveActions._add_action. it has been given the name `<partial>`."
+                " Note. this will cause problems if multiple partial are passed and"
+                " avoid_dupes == True. ONLY 1 NO UNNAMED PARTIAL ALLOWED."
+                " you can simply assign a name like this:"
+                " fn_add.__name__ = 'myname'"
+            )
+            fn_add.__name__ = "<partial>"
+        elif fn_add.__name__ == "<lambda>":
+            logging.warning(
+                "a lambda function has been passed to SaveActions._add_action."
+                " Note. this will cause problems if multiple partial are passed and"
+                " avoid_dupes == True. ONLY 1 NO UNNAMED LAMBDA ALLOWED."
+                " you can simply assign a name like this:"
+                " fn_add.__name__ = 'myname'"
+            )
+        else:
+            pass
         if avoid_dupes:
             names = [f.__name__ for f in getattr(self, action_name)]
             if fn_add.__name__ in names:
@@ -80,21 +107,40 @@ class SaveActions(tr.HasTraits):
                     )
                 else:
                     fns = [f for f in fns if f.__name__ != fn_add.__name__]
-
+        if to_beginning:
+            fns = [fn_add] + fns
+        else:
+            fns = fns + [fn_add]
         setattr(self, action_name, fns + [fn_add])
 
     def fns_onsave_add_action(
-        self, fn: ty.Callable, avoid_dupes: bool = True, overwrite_dupes: bool = True
+        self,
+        fn: ty.Callable,
+        avoid_dupes: bool = True,
+        overwrite_dupes: bool = True,
+        to_beginning=False,
     ):
         self._add_action(
-            "fns_onsave", fn, avoid_dupes=avoid_dupes, overwrite_dupes=overwrite_dupes
+            "fns_onsave",
+            fn,
+            avoid_dupes=avoid_dupes,
+            overwrite_dupes=overwrite_dupes,
+            to_beginning=to_beginning,
         )
 
     def fns_onrevert_add_action(
-        self, fn: ty.Callable, avoid_dupes: bool = True, overwrite_dupes: bool = True
+        self,
+        fn: ty.Callable,
+        avoid_dupes: bool = True,
+        overwrite_dupes: bool = True,
+        to_beginning=False,
     ):
         self._add_action(
-            "fns_onrevert", fn, avoid_dupes=avoid_dupes, overwrite_dupes=overwrite_dupes
+            "fns_onrevert",
+            fn,
+            avoid_dupes=avoid_dupes,
+            overwrite_dupes=overwrite_dupes,
+            to_beginning=to_beginning,
         )
 
 
