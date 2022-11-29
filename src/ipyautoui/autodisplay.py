@@ -161,8 +161,9 @@ class DisplayFromPath(DisplayObjectActions):
     def _date_modified(cls, v, values):
         p = values["path"]
         if p is not None:
-            fn = functools.partial(st_mtime_string, p)
-        return fn
+            return functools.partial(st_mtime_string, p)
+        else:
+            return None
 
     @validator("open_file", always=True)
     def _open_file(cls, v, values):
@@ -379,7 +380,10 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
-    d.order = "name"
+    d.order = (
+        "openpreview",
+        "name",
+    )
     d.auto_open = True
     # d.show_exists = False
 
@@ -464,7 +468,7 @@ class AutoDisplay(tr.HasTraits):
     def from_paths(
         cls,
         paths: ty.List[pathlib.Path],
-        newroot=pathlib.PureWindowsPath("J:/"),
+        newroot=pathlib.PureWindowsPath("J:/"),  # TODO: maproots
         file_renderers=None,
         patterns: ty.Union[str, ty.List] = None,
         title: str = None,
@@ -638,3 +642,5 @@ if __name__ == "__main__":
     )
 
     display(test_ui)
+
+
