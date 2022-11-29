@@ -110,8 +110,9 @@ class AutoUiFileMethods(tr.HasTraits):
 
     @tr.observe("path")
     def _observe_path(self, proposal):
-        self.savebuttonbar.fns_onsave_add_action(self.file)
-        self.savebuttonbar.fns_onrevert_add_action(self.load_file)
+        self.savebuttonbar.fns_onsave_add_action(self.file, to_beginning=True)
+        self.savebuttonbar.fns_onrevert_add_action(self.load_file, to_beginning=True)
+        self.show_savebuttonbar = True
 
     def _get_path(self, path=None):
         if path is None:
@@ -185,6 +186,8 @@ class AutoRenderMethods:
         schema: ty.Union[ty.Type[BaseModel], dict],
         show_raw: bool = True,
         path=None,
+        fns_onsave=None,
+        fns_onrevert=None,
     ):
         if isinstance(schema, dict):
             docstring = f"AutoRenderer for {get_from_schema_root(schema, 'title')}"
@@ -192,6 +195,9 @@ class AutoRenderMethods:
             docstring = (
                 f"AutoRenderer for {get_from_schema_root(schema.schema(), 'title')}"
             )
+
+        # TODO: revert to using *args and **kwargs for these types of wrappers
+        #       so they only need redefining once in the main __init__
 
         class AutoRenderer(cls):
             def __init__(self, path: pathlib.Path = path):
@@ -203,6 +209,8 @@ class AutoRenderMethods:
                     path=path,
                     value=None,
                     show_raw=show_raw,
+                    fns_onsave=fns_onsave,
+                    fns_onrevert=fns_onrevert,
                 )
 
         return AutoRenderer
@@ -213,14 +221,20 @@ class AutoRenderMethods:
         schema: ty.Union[ty.Type[BaseModel], dict],
         ext=".json",
         show_raw: bool = True,
+        fns_onsave=None,
+        fns_onrevert=None,
     ):
-        AutoRenderer = cls.create_autoui_renderer(schema, show_raw=show_raw)
-        if isinstance(schema, dict):
-            docstring = f"AutoRenderer for {get_from_schema_root(schema, 'title')}"
-        else:
-            docstring = (
-                f"AutoRenderer for {get_from_schema_root(schema.schema(), 'title')}"
-            )
+        AutoRenderer = cls.create_autoui_renderer(
+            schema, show_raw=show_raw, fns_onsave=fns_onsave, fns_onrevert=fns_onrevert
+        )
+        # if isinstance(schema, dict):
+        #     AutoRenderer.__doc__ = (
+        #         f"AutoRenderer for {get_from_schema_root(schema, 'title')}"
+        #     )
+        # else:
+        #     AutoRenderer.__doc__ = (
+        #         f"AutoRenderer for {get_from_schema_root(schema.schema(), 'title')}"
+        #     )
         return {ext: AutoRenderer}
 
 
