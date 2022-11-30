@@ -266,6 +266,29 @@ class GridSchema:
 # -
 
 
+if __name__ == "__main__":
+
+    class DataFrameCols(BaseModel):
+        string: str = Field(
+            "string",
+            title="Important String",
+            column_width=120,
+        )
+        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        floater: float = Field(
+            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
+        )
+
+    class TestDataFrame(BaseModel):
+        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
+        __root__: ty.List[DataFrameCols] = Field(
+            ..., format="dataframe", global_decimal_places=2
+        )
+
+    model, schema = aui._init_model_schema(TestDataFrame)
+    gridschema = GridSchema(schema)
+
+
 class DataGrid(DataGrid):
     """extends DataGrid with useful generic functions"""
 
@@ -352,6 +375,7 @@ class AutoGrid(DataGrid):
         # accept schema or pydantic schema
         self.kwargs = kwargs
         self.by_title = by_title
+        self.selection_mode = "column"
 
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         data = self._init_data(data)
@@ -367,13 +391,15 @@ class AutoGrid(DataGrid):
         assert self.count_changes == 0
         # ^ this sets the default value and initiates change observer
 
-    def records(self, keys_as_title=False):
-        if keys_as_title:
-            return self.data.to_dict(orient="records")
+    def records(self, keys_as_title=False, transposed=False):
+        if transposed:
+            data = self.data.T
         else:
-            return self.data.rename(columns=self.map_title_name).to_dict(
-                orient="records"
-            )
+            data = self.data
+        if keys_as_title:
+            return data.to_dict(orient="records")
+        else:
+            return data.rename(columns=self.map_title_name).to_dict(orient="records")
 
     @property
     def default_row(self):
@@ -401,6 +427,17 @@ class AutoGrid(DataGrid):
             data = data.rename(columns=self.map_name_title)
         return data
 
+    @property
+    def index_names(self):
+        pass
+
+    @property
+    def column_names(self):
+        return self._get_col_headers(self._data)
+
+    def get_col_name_from_index(self, index):
+        return self.column_names[index]
+
     def map_titles_to_data(self, data):
         if set(data.columns) == set(self.map_name_title.keys()):
             return data.rename(columns=self.map_name_title)
@@ -421,7 +458,7 @@ class AutoGrid(DataGrid):
         Note: We do not call value setter to apply values as it resets the datagrid.
 
         Args:
-            key (int): The key of the row.
+            key (int): The key of the row. # TODO: is this defo an int?
             value (dict): The data we want to input into the row.
         """
         if set(value.keys()) == set(self.map_name_title.keys()):
@@ -433,6 +470,29 @@ class AutoGrid(DataGrid):
             raise Exception("Columns of value given do not match with value keys.")
         for column, v in value.items():
             self.set_cell_value(column, key, v)
+
+    def set_col_value(self, column_name: ty.Any, value: dict):
+        """Set a chosen col using the key and a value given.
+
+        Note: We do not call value setter to apply values as it resets the datagrid.
+
+        Args:
+            key (int): The key of the col
+            value (dict): The data we want to input into the col.
+        """
+        if column_name not in self.column_names:
+            try:
+                column_name = self.map_name_title.get(column_name)
+            except:
+                raise ValueError(
+                    f"`column_name` = {column_name} does not exist in datagrid."
+                )
+
+        if set(value.keys()) != set(self.data.index.to_list()):
+            raise Exception("Index of datagrid does not match with value keys.")
+        for primary_key_value, v in value.items():
+            # set_cell_value(self, column_name, primary_key_value, new_value)
+            self.set_cell_value(column_name, primary_key_value, v)
 
     def filter_by_column_name(self, column_name: str, li_filter: list):
         """Filter rows to display based on a column name and a list of objects belonging to that column.
@@ -515,6 +575,8 @@ class AutoGrid(DataGrid):
         ]
 
     # ----------------
+
+    # ----------------
     # ----------------
     # https://github.com/bloomberg/ipydatagrid/issues/340
     # selecting when a transform is applied...
@@ -555,6 +617,27 @@ class AutoGrid(DataGrid):
         s = self.selected_visible_cell_iterator
         rows = set([l["r"] for l in s])
         return [self.apply_map_name_title(s._data["data"][r]) for r in rows]
+
+    @property
+    def selected_col(self):
+        """Get the data selected in the table which is returned as a dataframe."""
+        try:
+            return self.selected_cols[0]
+        except:
+            return None
+
+    @property
+    def selected_cols(self):
+        """Get the data selected in the table which is returned as a dataframe."""
+        s = self.selected_visible_cell_iterator
+
+        s = self.selected_visible_cell_iterator
+        row_index = self.get_dataframe_index(grid.data)
+        cols = set([l["c"] for l in s])
+        cols = [grid.get_col_name_from_index(col_index) for col_index in cols]
+        return [
+            {l[row_index]: l[col_name] for l in s._data["data"]} for col_name in cols
+        ]
 
     @property
     def selected_key(self) -> ty.Any:
@@ -605,7 +688,19 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
-    grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)
+    # test pd.to_dict
+    df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
+    display(df)
+    # ('dict', list, 'series', 'split', 'records', 'index')
+    print(df.to_dict(orient="dict"))
+    print(df.to_dict(orient="list"))
+    # print(df.to_dict(orient="series", into=dict))
+    print(df.to_dict(orient="split"))
+    print(df.to_dict(orient="records"))
+    print(df.to_dict(orient="index"))
+
+if __name__ == "__main__":
+    grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)  # .T
 
 if __name__ == "__main__":
     print(grid.count_changes)
@@ -735,6 +830,7 @@ if __name__ == "__main__":
 class EditGrid(w.VBox):
     _value = tr.Tuple()  # using a tuple to guarantee no accidental mutation
     warn_on_delete = tr.Bool()
+    display_transposed = tr.Bool(default_value=False)
 
     @property
     def value(self):
@@ -773,9 +869,7 @@ class EditGrid(w.VBox):
         self.by_alias = by_alias
         # self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         self.datahandler = datahandler
-        self.grid = AutoGrid(
-            schema, value=value, selection_mode="row", by_alias=self.by_alias
-        )
+        self.grid = AutoGrid(schema, value=value, by_alias=self.by_alias)
 
         if ui_add is None:
             self.ui_add = aui.AutoObject(self.row_schema)
@@ -1062,10 +1156,12 @@ if __name__ == "__main__":
         description=description,
         ui_add=None,
         ui_edit=None,
-        warn_on_delete=False,
+        warn_on_delete=True,
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
+
+editgrid.grid.selected_rows
 
 if __name__ == "__main__":
 
@@ -1088,4 +1184,3 @@ if __name__ == "__main__":
 
 # +
 # ui.value
-# -
