@@ -35,7 +35,7 @@ class TreeModel(BaseModel):
     description: str = ""
     options: list
     value: ty.Union[str, float, int] = None  # ty.Union[str, float, int]
-    children: ty.Union[TreeModel] = None
+    children: ty.ForwardRef("TreeModel") = None
     disabled: bool = False
     placeholder: str = ""
 
@@ -109,7 +109,7 @@ class DecisionUi(w.HBox):
 
 
 if __name__ == "__main__":
-
+    PROJECTS = ["J5001", "J5002"]
     t = TreeModel(
         **{
             "options": PROJECTS,
@@ -129,3 +129,5 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     ui.value = ["J0001", "Calcs", "WUFI"]
     ui.disabled = [False, False, True]
+
+
