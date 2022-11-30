@@ -640,24 +640,32 @@ class AutoGrid(DataGrid):
         ]
 
     @property
-    def selected_key(self) -> ty.Any:
+    def selected_row_index(self) -> ty.Any:
         try:
-            return self.selected_keys[0]
+            return self.selected_row_indexes[0]
         except:
             return None
 
     @property
-    def selected_keys(self):
+    def selected_row_indexes(self):
         """Return the keys of the selected rows. still works if transform applied."""
         s = self.selected_visible_cell_iterator
         index = self.get_dataframe_index(self.data)
         rows = set([l["r"] for l in s])
         return [s._data["data"][r][index] for r in rows]
+    
+    @property
+    def selected_indexes(self):
+        """Return the keys of the selected rows. still works if transform applied."""
+        s = self.selected_visible_cell_iterator
+        index = self.get_dataframe_index(self.data)
+        cols = set([l["c"] for l in s])
+        return [s._data["data"][c][index] for c in cols]
 
     @property
     def selected_rows_dict(self):
         """Return the dictionary of selected rows where key is row index. still works if transform applied."""
-        return self.data.loc[self.selected_keys].to_dict("index")
+        return self.data.loc[self.selected_row_indexes].to_dict("index")
 
     # ----------------
 
@@ -848,6 +856,13 @@ class EditGrid(w.VBox):
         else:
             df = pd.DataFrame(value)
             self.grid.data = self.grid.map_titles_to_data(df)
+            
+    @property
+    def selected(self):
+        if self.display_transposed:
+            return self.grid.selected_cols
+        else:
+            return self.grid.selected_rows
 
     def __init__(
         self,
@@ -967,7 +982,7 @@ class EditGrid(w.VBox):
         self.buttonbar_grid.delete.value = False
 
     def _check_one_row_selected(self):
-        if len(self.grid.selected_keys) > 1:
+        if len(self.grid.selected_row_indexes) > 1:
             raise Exception(
                 markdown("  👇 _Please only select ONLY one row from the table!_")
             )
@@ -975,12 +990,12 @@ class EditGrid(w.VBox):
     # edit row
     # --------------------------------------------------------------------------
     def _validate_edit_click(self):
-        if len(self.grid.selected_keys) == 0:
+        if len(self.grid.selected_row_indexes) == 0:
             raise ValueError("you must select a row")
         self._check_one_row_selected()
 
     def _save_edit_to_grid(self):
-        self.grid.set_row_value(self.grid.selected_key, self.ui_edit.value)
+        self.grid.set_row_value(self.grid.selected_row_index, self.ui_edit.value)
         self.setview_default()
 
     def _set_ui_edit_to_selected_row(self):
@@ -1047,13 +1062,13 @@ class EditGrid(w.VBox):
     # --------------------------------------------------------------------------
     def _copy(self):
         try:
-            if self.grid.selected_keys == []:
+            if self.grid.selected_row_indexes == []:
                 self.buttonbar_grid.message.value = markdown(
                     "  👇 _Please select a row from the table!_ "
                 )
             else:
                 li_values_selected = [
-                    self.value[i] for i in sorted([i for i in self.grid.selected_keys])
+                    self.value[i] for i in sorted([i for i in self.grid.selected_row_indexes])
                 ]
                 if self.fn_on_copy is not None:
                     li_values_selected = self.fn_on_copy(li_values_selected)
@@ -1083,7 +1098,7 @@ class EditGrid(w.VBox):
 
     def _delete_selected(self):
         if self.datahandler is not None:
-            value = [self.value[i] for i in self.grid.selected_keys]
+            value = [self.value[i] for i in self.grid.selected_row_indexes]
             for v in value:
                 self.datahandler.fn_delete(v)
             self._reload_all_data()
@@ -1091,9 +1106,9 @@ class EditGrid(w.VBox):
             self.value = [
                 value
                 for i, value in enumerate(self.value)
-                if i not in self.grid.selected_keys
+                if i not in self.grid.selected_row_indexes
             ]
-            # ^ Only set for values NOT in self.grid.selected_keys
+            # ^ Only set for values NOT in self.grid.selected_row_indexes
         self.buttonbar_grid.message.value = markdown("  🗑️ _Deleted Row_ ")
         self.buttonbar_grid.delete.value = False
 
@@ -1102,8 +1117,8 @@ class EditGrid(w.VBox):
 
     def _delete(self):
         try:
-            if len(self.grid.selected_keys) > 0:
-                print(f"Row Number: {self.grid.selected_keys}")
+            if len(self.grid.selected_row_indexes) > 0:
+                print(f"Row Number: {self.grid.selected_row_indexes}")
                 if not self.warn_on_delete:
                     self._delete_selected()
                 else:
@@ -1116,6 +1131,7 @@ class EditGrid(w.VBox):
                 )
         except Exception as e:
             traceback.print_exc()
+
 
 
 if __name__ == "__main__":
@@ -1161,7 +1177,7 @@ if __name__ == "__main__":
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
 
-editgrid.grid.selected_rows
+
 
 if __name__ == "__main__":
 
