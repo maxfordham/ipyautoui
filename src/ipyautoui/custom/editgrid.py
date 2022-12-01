@@ -22,19 +22,22 @@
 # %load_ext lab_black
 import traitlets as tr
 import typing as ty
+import logging
 import traceback
 import pandas as pd
 import ipywidgets as w
-from typing import List
+from IPython.display import clear_output
 from markdown import markdown
 from pydantic import BaseModel, Field
 from ipydatagrid import CellRenderer, DataGrid, TextRenderer
 from ipydatagrid.datagrid import SelectionHelper
+
 import ipyautoui.autoipywidget as aui
 import ipyautoui.custom.save_buttonbar as sb
-from ipyautoui._utils import obj_from_importstr
-import logging
+from ipyautoui._utils import obj_from_importstr, frozenmap
+from ipyautoui.constants import BUTTON_WIDTH_MIN
 
+MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 # TODO: rename "add" to "fn_add" so not ambiguous...
 
 # +
@@ -183,7 +186,7 @@ def try_getattr(obj, name):
     except:
         pass
 
-
+# TODO: create an AutoUiSchema class to handle schema gen and then extend it here...
 class GridSchema:
     def __init__(self, schema, get_traits=None, **kwargs):
         self.schema = schema
@@ -261,6 +264,14 @@ class GridSchema:
     @property
     def properties(self):
         return get_grid_column_properties_from_schema(self.schema)
+
+    @property
+    def property_keys(self):
+        return self.properties.keys()
+
+    @property
+    def property_titles(self):
+        return [p["title"] for p in self.properties.values()]
 
 
 # -
@@ -346,6 +357,7 @@ class AutoGrid(DataGrid):
     """
 
     schema = tr.Dict()
+    transposed = tr.Bool(default_value=False)
 
     @tr.observe("schema")
     def _update_from_schema(self, change):
@@ -364,6 +376,36 @@ class AutoGrid(DataGrid):
         else:
             raise tr.TraitError('schema must be of of type == "array"')
 
+    @tr.observe("transposed")
+    def _transposed(self, change):
+
+        self.selection_mode = MAP_TRANSPOSED_SELECTION_MODE[change["new"]]
+        self.data = self.data.T
+        # TODO: add hack to allow for the setting of layout on change here...
+
+    @property
+    def is_transposed(self):
+        if self.by_title:
+            cols_check = self.gridschema.property_titles
+        else:
+            cols_check = self.gridschema.property_keys
+        if set(cols_check) == set(self.column_names):
+            print(f"{str(cols_check)} == {str(set(self.column_names))}")
+            return False
+        else:
+            print(f"{str(cols_check)} != {str(set(self.column_names))}")
+            return True
+
+    def records(self, keys_as_title=False):
+        if self.transposed:
+            data = self.data.T
+        else:
+            data = self.data
+        if keys_as_title:
+            return data.to_dict(orient="records")
+        else:
+            return data.rename(columns=self.map_title_name).to_dict(orient="records")
+
     def __init__(
         self,
         schema: ty.Union[dict, ty.Type[BaseModel]],
@@ -375,8 +417,7 @@ class AutoGrid(DataGrid):
         # accept schema or pydantic schema
         self.kwargs = kwargs
         self.by_title = by_title
-        self.selection_mode = "column"
-
+        self.selection_mode = MAP_TRANSPOSED_SELECTION_MODE[self.transposed]
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         data = self._init_data(data)
         super().__init__(data)
@@ -390,16 +431,6 @@ class AutoGrid(DataGrid):
             ]
         assert self.count_changes == 0
         # ^ this sets the default value and initiates change observer
-
-    def records(self, keys_as_title=False, transposed=False):
-        if transposed:
-            data = self.data.T
-        else:
-            data = self.data
-        if keys_as_title:
-            return data.to_dict(orient="records")
-        else:
-            return data.rename(columns=self.map_title_name).to_dict(orient="records")
 
     @property
     def default_row(self):
@@ -429,7 +460,7 @@ class AutoGrid(DataGrid):
 
     @property
     def index_names(self):
-        pass
+        pass # TODO: add this?
 
     @property
     def column_names(self):
@@ -452,26 +483,43 @@ class AutoGrid(DataGrid):
         else:
             return self.map_titles_to_data(data)
 
-    def set_row_value(self, key: int, value: dict):
+    def set_item_value(self, index: int, value: dict):
+        """
+        set row (transposed==False) or col (transposed==True) value
+        """
+        if self.transposed:
+            self.set_col_value(index, value)
+        else:
+            self.set_row_value(index, value)
+
+    def set_row_value(self, index: int, value: dict):
         """Set a chosen row using the key and a value given.
 
         Note: We do not call value setter to apply values as it resets the datagrid.
 
         Args:
-            key (int): The key of the row. # TODO: is this defo an int?
+            index (int): The key of the row. # TODO: is this defo an int?
             value (dict): The data we want to input into the row.
         """
         if set(value.keys()) == set(self.map_name_title.keys()):
             # value_with_titles is used for datagrid
             value = {self.map_name_title.get(name): v for name, v in value.items()}
+            # ^ self.apply_map_name_title(value)  ? ??
         elif set(value.keys()) == set(self.map_name_title.values()):
             pass
         else:
             raise Exception("Columns of value given do not match with value keys.")
         for column, v in value.items():
-            self.set_cell_value(column, key, v)
+            self.set_cell_value(column, index, v)
 
-    def set_col_value(self, column_name: ty.Any, value: dict):
+    def apply_map_name_title(self, row_data):
+        return {
+            self.map_title_name[k]: v
+            for k, v in row_data.items()
+            if k in self.map_title_name.keys()
+        }
+
+    def set_col_value(self, index: int, value: dict):
         """Set a chosen col using the key and a value given.
 
         Note: We do not call value setter to apply values as it resets the datagrid.
@@ -480,14 +528,10 @@ class AutoGrid(DataGrid):
             key (int): The key of the col
             value (dict): The data we want to input into the col.
         """
-        if column_name not in self.column_names:
-            try:
-                column_name = self.map_name_title.get(column_name)
-            except:
-                raise ValueError(
-                    f"`column_name` = {column_name} does not exist in datagrid."
-                )
-
+        column_name = self.get_col_name_from_index(index)
+        if set(value.keys()) == set(self.map_name_title.keys()):
+            # value_with_titles is used for datagrid
+            value = {self.map_name_title.get(name): v for name, v in value.items()}
         if set(value.keys()) != set(self.data.index.to_list()):
             raise Exception("Index of datagrid does not match with value keys.")
         for primary_key_value, v in value.items():
@@ -546,11 +590,11 @@ class AutoGrid(DataGrid):
             raise Exception("Can't move up first row.")
         self._swap_rows(key_a=key, key_b=key - 1)
 
-    def _move_rows_up(self, li_keys: List[int]):
+    def _move_rows_up(self, li_keys: ty.List[int]):
         """Move multiple rows up.
 
         Args:
-            li_key (List[int]): List of row keys.
+            li_key (ty.List[int]): ty.List of row keys.
         """
         if is_incremental(sorted(li_keys)) is False:
             raise Exception("Only select a property or block of properties.")
@@ -560,11 +604,11 @@ class AutoGrid(DataGrid):
             {"r1": min(li_keys) - 1, "r2": max(li_keys) - 1, "c1": 0, "c2": 2}
         ]
 
-    def _move_rows_down(self, li_keys: List[int]):
+    def _move_rows_down(self, li_keys: ty.List[int]):
         """Move multiple rows down.
 
         Args:
-            li_key (List[int]): List of row keys.
+            li_key (ty.List[int]): ty.List of row keys.
         """
         if is_incremental(sorted(li_keys)) is False:
             raise Exception("Only select a property or block of properties.")
@@ -596,12 +640,36 @@ class AutoGrid(DataGrid):
 
         return SelectionHelper(view_data_object, self.selections, self.selection_mode)
 
-    def apply_map_name_title(self, row_data):
-        return {
-            self.map_title_name[k]: v
-            for k, v in row_data.items()
-            if k in self.map_title_name.keys()
-        }
+    # these terms (below) avoid row or col terminology and can be used if transposed or not...
+    # only these methods are called be EditGrid, allowing it to operate the same if the 
+    # view is transposed or not.
+    # ----------
+    @property
+    def selected(self):
+        if self.transposed:
+            return self.selected_col
+        else:
+            return self.selected_row
+
+    @property
+    def selected_items(self):
+        if self.transposed:
+            return self.selected_cols
+        else:
+            return self.selected_rows
+
+    @property
+    def selected_index(self):
+        return self.selected_indexes[0]
+
+    @property
+    def selected_indexes(self):
+        if self.transposed:
+            return self.selected_col_indexes
+        else:
+            return self.selected_row_indexes
+
+    # ----------
 
     @property
     def selected_row(self):
@@ -630,13 +698,12 @@ class AutoGrid(DataGrid):
     def selected_cols(self):
         """Get the data selected in the table which is returned as a dataframe."""
         s = self.selected_visible_cell_iterator
-
-        s = self.selected_visible_cell_iterator
-        row_index = self.get_dataframe_index(grid.data)
         cols = set([l["c"] for l in s])
-        cols = [grid.get_col_name_from_index(col_index) for col_index in cols]
+        cols = [self.get_col_name_from_index(col_index) for col_index in cols]
+        index = self.get_dataframe_index(self.data)
         return [
-            {l[row_index]: l[col_name] for l in s._data["data"]} for col_name in cols
+            self.apply_map_name_title({l[index]: l[col_name] for l in s._data["data"]})
+            for col_name in cols
         ]
 
     @property
@@ -653,19 +720,25 @@ class AutoGrid(DataGrid):
         index = self.get_dataframe_index(self.data)
         rows = set([l["r"] for l in s])
         return [s._data["data"][r][index] for r in rows]
-    
-    @property
-    def selected_indexes(self):
-        """Return the keys of the selected rows. still works if transform applied."""
-        s = self.selected_visible_cell_iterator
-        index = self.get_dataframe_index(self.data)
-        cols = set([l["c"] for l in s])
-        return [s._data["data"][c][index] for c in cols]
 
     @property
-    def selected_rows_dict(self):
+    def selected_col_index(self):
+        """returns the first."""
+        return self.selected_col_indexes[0]
+
+    @property
+    def selected_col_indexes(self):
+        """Return the keys of the selected rows. still works if transform applied."""
+        s = self.selected_visible_cell_iterator
+        return list(set([l["c"] for l in s]))
+
+    @property
+    def selected_dict(self):
         """Return the dictionary of selected rows where key is row index. still works if transform applied."""
-        return self.data.loc[self.selected_row_indexes].to_dict("index")
+        if self.transposed:
+            return self.data.T.loc[self.selected_col_indexes].to_dict("index")
+        else:
+            return self.data.loc[self.selected_row_indexes].to_dict("index")
 
     # ----------------
 
@@ -696,6 +769,15 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
+    grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)  # .T
+
+if __name__ == "__main__":
+    print(grid.is_transposed)
+
+if __name__ == "__main__":
+    grid.transposed = False
+
+if __name__ == "__main__":
     # test pd.to_dict
     df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
     display(df)
@@ -706,9 +788,6 @@ if __name__ == "__main__":
     print(df.to_dict(orient="split"))
     print(df.to_dict(orient="records"))
     print(df.to_dict(orient="index"))
-
-if __name__ == "__main__":
-    grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)  # .T
 
 if __name__ == "__main__":
     print(grid.count_changes)
@@ -761,10 +840,6 @@ class RowEditor:
 
 
 # +
-from ipyautoui.constants import BUTTON_WIDTH_MIN
-from IPython.display import clear_output
-
-
 class UiDelete(w.HBox):
     value = tr.Dict(default_value={})
     columns = tr.List(allow_none=True, default_value=None)
@@ -838,11 +913,18 @@ if __name__ == "__main__":
 class EditGrid(w.VBox):
     _value = tr.Tuple()  # using a tuple to guarantee no accidental mutation
     warn_on_delete = tr.Bool()
-    display_transposed = tr.Bool(default_value=False)
 
     @property
     def value(self):
         return self._value
+
+    @property
+    def transposed(self):
+        return self.grid.transposed
+
+    @transposed.setter
+    def transposed(self, value: bool):
+        self.grid.transposed = value
 
     def _update_value_from_grid(self):
         # print(self._value)  # old
@@ -854,15 +936,10 @@ class EditGrid(w.VBox):
         if value == [] or value is None:
             self.grid.data = self.grid.get_default_data()
         else:
-            df = pd.DataFrame(value)
-            self.grid.data = self.grid.map_titles_to_data(df)
-            
-    @property
-    def selected(self):
-        if self.display_transposed:
-            return self.grid.selected_cols
-        else:
-            return self.grid.selected_rows
+            df = self.grid._init_data(pd.DataFrame(value))
+            if self.transposed:
+                df = df.T
+            self.grid.data = df  # self.grid.map_titles_to_data(df)
 
     def __init__(
         self,
@@ -982,7 +1059,7 @@ class EditGrid(w.VBox):
         self.buttonbar_grid.delete.value = False
 
     def _check_one_row_selected(self):
-        if len(self.grid.selected_row_indexes) > 1:
+        if len(self.grid.selected_indexes) > 1:
             raise Exception(
                 markdown("  👇 _Please only select ONLY one row from the table!_")
             )
@@ -990,16 +1067,16 @@ class EditGrid(w.VBox):
     # edit row
     # --------------------------------------------------------------------------
     def _validate_edit_click(self):
-        if len(self.grid.selected_row_indexes) == 0:
+        if len(self.grid.selected_indexes) == 0:
             raise ValueError("you must select a row")
         self._check_one_row_selected()
 
     def _save_edit_to_grid(self):
-        self.grid.set_row_value(self.grid.selected_row_index, self.ui_edit.value)
+        self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
         self.setview_default()
 
     def _set_ui_edit_to_selected_row(self):
-        self.ui_edit.value = self.grid.selected_row
+        self.ui_edit.value = self.grid.selected
         self.ui_edit.savebuttonbar.unsaved_changes = False
 
     def _patch(self):
@@ -1062,13 +1139,14 @@ class EditGrid(w.VBox):
     # --------------------------------------------------------------------------
     def _copy(self):
         try:
-            if self.grid.selected_row_indexes == []:
+            if self.grid.selected_indexes == []:
                 self.buttonbar_grid.message.value = markdown(
                     "  👇 _Please select a row from the table!_ "
                 )
             else:
                 li_values_selected = [
-                    self.value[i] for i in sorted([i for i in self.grid.selected_row_indexes])
+                    self.value[i]
+                    for i in sorted([i for i in self.grid.selected_indexes])
                 ]
                 if self.fn_on_copy is not None:
                     li_values_selected = self.fn_on_copy(li_values_selected)
@@ -1098,7 +1176,7 @@ class EditGrid(w.VBox):
 
     def _delete_selected(self):
         if self.datahandler is not None:
-            value = [self.value[i] for i in self.grid.selected_row_indexes]
+            value = [self.value[i] for i in self.grid.selected_indexes]
             for v in value:
                 self.datahandler.fn_delete(v)
             self._reload_all_data()
@@ -1106,23 +1184,23 @@ class EditGrid(w.VBox):
             self.value = [
                 value
                 for i, value in enumerate(self.value)
-                if i not in self.grid.selected_row_indexes
+                if i not in self.grid.selected_indexes
             ]
-            # ^ Only set for values NOT in self.grid.selected_row_indexes
+            # ^ Only set for values NOT in self.grid.selected_indexes
         self.buttonbar_grid.message.value = markdown("  🗑️ _Deleted Row_ ")
         self.buttonbar_grid.delete.value = False
 
     def _set_ui_delete_to_selected_row(self):
-        self.ui_delete.value = self.grid.selected_rows_dict
+        self.ui_delete.value = self.grid.selected_dict
 
     def _delete(self):
         try:
-            if len(self.grid.selected_row_indexes) > 0:
-                print(f"Row Number: {self.grid.selected_row_indexes}")
+            if len(self.grid.selected_indexes) > 0:
+                print(f"Row Number: {self.grid.selected_indexes}")
                 if not self.warn_on_delete:
                     self._delete_selected()
                 else:
-                    self.ui_delete.value = self.grid.selected_rows_dict
+                    self.ui_delete.value = self.grid.selected_dict
                     self.setview_delete()
             else:
                 self.buttonbar_grid.delete.value = False
@@ -1133,7 +1211,6 @@ class EditGrid(w.VBox):
             traceback.print_exc()
 
 
-
 if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = [
         {
@@ -1141,15 +1218,8 @@ if __name__ == "__main__":
             "integer": 1,
             "floater": 3.14,
         },
-        # {
-        #     "string": "update",
-        #     "integer": 4,
-        #     "floater": 3.12344,
-        # },
-        # {"string": "evening", "integer": 5, "floater": 3.14},
-        # {"string": "morning", "integer": 5, "floater": 3.14},
-        # {"string": "number", "integer": 3, "floater": 3.14},
     ]
+    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
 
     class DataFrameCols(BaseModel):
         string: str = Field("string", column_width=100)
@@ -1177,7 +1247,68 @@ if __name__ == "__main__":
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
 
+if __name__ == "__main__":
+    from ipyautoui.demo_schemas import CoreIpywidgets
+    from ipyautoui.autoipywidget import AutoObject
 
+    # AutoObject(schema=CoreIpywidgets)
+
+    class TestDataFrameOnly(BaseModel):
+        """a description of TestDataFrame"""
+
+        __root__: ty.List[CoreIpywidgets] = Field(
+            [CoreIpywidgets().dict()], format="dataframe"
+        )
+
+    description = markdown(
+        "<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes"
+        " whatever they may be 👍"
+    )
+    editgrid = EditGrid(
+        schema=TestDataFrameOnly,
+        description=description,
+        ui_add=None,
+        ui_edit=None,
+        warn_on_delete=True,
+    )
+    editgrid.observe(lambda c: print("_value changed"), "_value")
+    display(editgrid)
+
+# + active=""
+# s = editgrid.grid.selected_visible_cell_iterator
+# cols = set([l["c"] for l in s])
+# cols = [editgrid.grid.get_col_name_from_index(col_index) for col_index in cols]
+# index = editgrid.grid.get_dataframe_index(editgrid.grid.data)
+# [
+#     editgrid.grid.apply_map_name_title({l[index]: l[col_name] for l in s._data["data"]})
+#     for col_name in cols
+# ]
+
+# + active=""
+# editgrid.grid.selected_index
+
+# + active=""
+# editgrid.grid.data.index.to_list()
+
+# + active=""
+# editgrid.ui_edit.value
+
+# + active=""
+# editgrid.value = [
+#     value
+#     for i, value in enumerate(editgrid.value)
+#     if i not in editgrid.grid.selected_indexes
+# ]
+
+# + active=""
+# editgrid.ui_edit.value
+
+# + active=""
+# editgrid.grid.selected_index
+# -
+
+if __name__ == "__main__":
+    editgrid.transposed = True
 
 if __name__ == "__main__":
 
