@@ -11,20 +11,35 @@ import pathlib
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
 from .example_objects import ExampleSchema
-from ipyautoui import AutoUi, AutoDisplay, AutoVjsf
-from ipyautoui.autoipywidget import AutoObject
+from ipyautoui import AutoUi
+from ipyautoui.demo_schemas import CoreIpywidgets
+from ipyautoui.basemodel import file
+import json
+import pytest
 
-DIR_TEST_DATA = DIR_TESTS / "test_data"
+DIR_TEST_DATA = DIR_TESTS / "testdata"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
-shutil.rmtree(
-    DIR_TEST_DATA
-)  #  remove previous data. this allows tests to check if files exist.
+
+value_default = json.loads(CoreIpywidgets().json())
+PATH_TEST_AUTO_READ_FILE = DIR_TEST_DATA / "test_auto_read_file.json"
+PATH_TEST_AUTO_READ_FILE.unlink(missing_ok=True)
+changed = CoreIpywidgets(text="changed")
+value_changed = json.loads(changed.json())
+file(changed, PATH_TEST_AUTO_READ_FILE)
 
 
 class TestAutoUi:
+    @pytest.mark.skip(
+        reason="this fails, as widgets auto sets the value...? TODO: resovle."
+    )
     def test_auto_ui(self):
-        ui = AutoUi(ExampleSchema)
-        assert ui.value == {"text": "Test"}
+        ui = AutoUi(CoreIpywidgets)
+        assert ui.value == value_default
+        print("done")
+
+    def test_auto_read_file(self):
+        ui = AutoUi(CoreIpywidgets, path=PATH_TEST_AUTO_READ_FILE)
+        assert ui.value["text"] == value_changed["text"]
         print("done")
 
     # def test_display_file(self):

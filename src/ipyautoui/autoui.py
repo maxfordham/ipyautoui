@@ -138,7 +138,7 @@ class AutoUiFileMethods(tr.HasTraits):
             return None
         elif v is None and p is not None and p.is_file() == True:
             # load v from p
-            return self.parse_file()
+            return self.parse_file(path=p)
         elif v is None and p is not None and p.is_file() == False:
             # v reverts to schema defaults
             return None
@@ -156,9 +156,9 @@ class AutoUiFileMethods(tr.HasTraits):
     def parse_file(self, path=None) -> dict:
         p = self._get_path(path=path)
         if p.is_file():
-            return parse_json_file(self.path, model=self.model)
+            return parse_json_file(p, model=self.model)
         else:
-            raise ValueError("path.is_file() == False")
+            raise ValueError("p.is_file() == False")
 
     def load_value(self, value, unsaved_changes=False):
         self.value = value
@@ -264,6 +264,7 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
             schema, value=value, update_map_widgets=None, fdir=fdir, **kwargs
         )
         self.path = path
+        self.value = self._get_value(value, self.path)
         self.show_raw = show_raw
 
 
