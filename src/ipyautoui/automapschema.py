@@ -63,6 +63,7 @@ def flatten_allof(
     return schema
 
 
+# TODO: create a schema handler class for dealing with this.
 def attach_schema_refs(schema, schema_base=None):
     """
     attachs #definitions to $refs within the main schema
