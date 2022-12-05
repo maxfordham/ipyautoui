@@ -20,6 +20,7 @@
 # %run __init__.py
 # %run ../__init__.py
 # %load_ext lab_black
+# TODO: move editgrid.py to root
 import traitlets as tr
 import typing as ty
 import logging
@@ -185,6 +186,7 @@ def try_getattr(obj, name):
         return getattr(obj, name)
     except:
         pass
+
 
 # TODO: create an AutoUiSchema class to handle schema gen and then extend it here...
 class GridSchema:
@@ -460,7 +462,7 @@ class AutoGrid(DataGrid):
 
     @property
     def index_names(self):
-        pass # TODO: add this?
+        pass  # TODO: add this?
 
     @property
     def column_names(self):
@@ -641,7 +643,7 @@ class AutoGrid(DataGrid):
         return SelectionHelper(view_data_object, self.selections, self.selection_mode)
 
     # these terms (below) avoid row or col terminology and can be used if transposed or not...
-    # only these methods are called be EditGrid, allowing it to operate the same if the 
+    # only these methods are called be EditGrid, allowing it to operate the same if the
     # view is transposed or not.
     # ----------
     @property
@@ -1246,6 +1248,8 @@ if __name__ == "__main__":
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
+
+CoreIpywidgets.schema()
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
