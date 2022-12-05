@@ -75,19 +75,18 @@ class UrlImageLink(w.HBox):
 
     @property
     def html(self):
-        self.html_image = f"""<a href="{self.url}" title="{self.tooltip}" target="_blank">
-                            <img border="0" src="{self.path_image}"width={self.width} height={self.height}>
-                            </a>
-                            """
+        self.html_image = f"""<img border="0" src="{self.path_image}"width={self.width} height={self.height}>"""
         if self.description is not None:
             style = f"<style> p.ex1 {{font-size: {self.font_size}px;}}</style>"
             html = f"""<!DOCTYPE html>
                     <html>
-                    {style}
-                    <p class="ex1">
-                    {self.html_image}
-                    <b>{self.description}</b>
-                    </p>
+                        {style}
+                        <a href="{self.url}" title="{self.tooltip}" target="_blank">
+                            <p class="ex1">
+                                {self.html_image}
+                                <b>{self.description}</b>
+                            </p>
+                        </a>
                     </html>
                     """
         else:
