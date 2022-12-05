@@ -114,7 +114,7 @@ class AutoUiFileMethods(tr.HasTraits):
         self.savebuttonbar.fns_onrevert_add_action(self.load_file, to_beginning=True)
         self.show_savebuttonbar = True
 
-    def _get_path(self, path=None):
+    def _get_path(self, path=None) -> pathlib.Path:
         if path is None:
             if self.path is not None:
                 return self.path
