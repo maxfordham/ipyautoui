@@ -10,7 +10,7 @@ from pathlib import PurePosixPath
 
 
 class FruitEnum(str, Enum):
-    """available genders. this is just an example."""
+    """fruit example."""
 
     apple = "apple"
     pear = "pear"
@@ -33,7 +33,9 @@ class CoreIpywidgets(BaseModel):
     checkbox: bool = True
     dropdown: FruitEnum = None
     dropdown_edge_case: FruitEnum = Field(
-        default=FruitEnum.apple, description="updated description"
+        title="FruitEnum with metadata",
+        default=FruitEnum.apple,
+        description="updated description",
     )
     dropdown_simple: str = Field(default="asd", enum=["asd", "asdf"])
     text: str = Field(default="adsf", description="a description about my string")

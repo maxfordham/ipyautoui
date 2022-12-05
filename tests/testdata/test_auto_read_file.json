@@ -14,7 +14,7 @@
     ],
     "checkbox": true,
     "dropdown": null,
-    "dropdown_edge_case": null,
+    "dropdown_edge_case": "apple",
     "dropdown_simple": "asd",
     "text": "changed",
     "text_short": "short text",
