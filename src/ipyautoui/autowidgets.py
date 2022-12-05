@@ -184,9 +184,9 @@ class Dropdown(w.Dropdown):
     >>> sch = CoreIpywidgets.schema()["properties"]['dropdown']
     >>> Dropdown(sch).value
 
-    >>> sch = CoreIpywidgets.schema()["properties"]['dropdown_edge_case']
-    >>> Dropdown(sch).value
-
+    # >>> sch = CoreIpywidgets.schema()["properties"]['dropdown_edge_case']
+    # >>> Dropdown(sch).value
+    # "apple"
     """
 
     def __init__(self, schema):

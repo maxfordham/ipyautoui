@@ -1249,13 +1249,12 @@ if __name__ == "__main__":
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
 
-CoreIpywidgets.schema()
-
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
     from ipyautoui.autoipywidget import AutoObject
 
     # AutoObject(schema=CoreIpywidgets)
+    # TODO: fix this
 
     class TestDataFrameOnly(BaseModel):
         """a description of TestDataFrame"""
@@ -1333,5 +1332,4 @@ if __name__ == "__main__":
     ui.di_widgets["__root__"].observe(lambda c: print("grid _value change"), "_value")
     display(ui)
 
-# +
-# ui.value
+
