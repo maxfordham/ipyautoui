@@ -73,6 +73,9 @@ def create_widget_caller(schema, calling=None):
     return caller
 
 
+# TODO: add doctests here
+
+
 class IntText(w.IntText):  # TODO: add value to these as arg?
     def __init__(self, schema):
         self.schema = schema
@@ -81,7 +84,7 @@ class IntText(w.IntText):  # TODO: add value to these as arg?
 
 
 class IntSlider(w.IntSlider):
-    """Example:
+    """extends `ipywidgets.IntSlider`. Example:
     >>> from ipyautoui.test_schema import TestAutoLogic
     >>> import ipywidgets as w
     >>> sch = TestAutoLogic.schema()["properties"]['int_slider']
@@ -175,6 +178,17 @@ class Combobox(w.Combobox):
 
 
 class Dropdown(w.Dropdown):
+    """extends `ipywidgets.Dropdown`. Example:
+    >>> from ipyautoui.demo_schemas import CoreIpywidgets
+    >>> import ipywidgets as w
+    >>> sch = CoreIpywidgets.schema()["properties"]['dropdown']
+    >>> Dropdown(sch).value
+
+    # >>> sch = CoreIpywidgets.schema()["properties"]['dropdown_edge_case']
+    # >>> Dropdown(sch).value
+    # "apple"
+    """
+
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)

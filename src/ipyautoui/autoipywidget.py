@@ -495,9 +495,12 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
     @value.setter
     def value(self, value):
         """this is for setting the value via the API"""
-        self._value = value
-        if hasattr(self, "di_widgets"):
-            self._update_widgets_from_value()
+        if value is None:
+            pass
+        else:
+            self._value = value
+            if hasattr(self, "di_widgets"):
+                self._update_widgets_from_value()
 
     def __init__(
         self,

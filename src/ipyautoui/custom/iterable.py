@@ -70,6 +70,7 @@ Example:
         display(arr)
 
 """
+# TODO: move iterable.py to root
 # TODO: review: https://github.com/widgetti/react-ipywidgets - it could simplify the code required below.
 # %run __init__.py
 # %load_ext lab_black
