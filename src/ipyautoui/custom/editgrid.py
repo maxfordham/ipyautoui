@@ -42,18 +42,6 @@ MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 # TODO: rename "add" to "fn_add" so not ambiguous...
 
 # +
-def is_incremental(li):
-    return li == list(range(li[0], li[0] + len(li)))
-
-
-def get_grid_column_properties_from_schema(schema):
-    return schema["items"]["properties"]
-
-
-def get_name_title_map_from_schema_properties(properties):
-    return {k: v["title"] for k, v in properties.items()}
-
-
 def get_property_types(properties):
     def fn(t):
         if t == "number":
@@ -89,14 +77,7 @@ def get_default_row_data_from_schema_properties(
     return di
 
 
-def get_default_row_data_from_schema_root(schema):
-    if "default" in schema.keys():
-        return schema["default"]
-    else:
-        return None
-
-
-def get_column_widths_from_schema(schema, column_properties, map_name_title, **kwargs):
+def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
     """Set the column widths of the data grid based on column_width given in the schema."""
 
     # start with settings in properties
@@ -112,7 +93,7 @@ def get_column_widths_from_schema(schema, column_properties, map_name_title, **k
 
     # overide with kwargs passed to AutoDataGrid
     if "column_widths" in kwargs:
-        _ = {map_name_title[k]: v for k, v in kwargs["column_widths"].items()}
+        _ = {map_name_index[k]: v for k, v in kwargs["column_widths"].items()}
         column_widths = column_widths | _
 
     return column_widths
@@ -133,7 +114,7 @@ def build_renderer(var: ty.Union[str, dict]) -> CellRenderer:
 
 
 def get_column_renderers_from_schema(
-    schema, column_properties, map_name_title, **kwargs
+    schema, column_properties, map_name_index, **kwargs
 ) -> dict:
     """when saved to schema the renderer is a PyObject callable..."""
 
@@ -150,7 +131,7 @@ def get_column_renderers_from_schema(
 
     # overide with kwargs passed to AutoDataGrid
     if "renderers" in kwargs:
-        _ = {map_name_title[k]: v for k, v in kwargs["renderers"].items()}
+        _ = {map_name_index[k]: v for k, v in kwargs["renderers"].items()}
         renderers = renderers | _
 
     return renderers
@@ -188,13 +169,28 @@ def try_getattr(obj, name):
         pass
 
 
+def is_incremental(li):
+    return li == list(range(li[0], li[0] + len(li)))
+
+
+def get_name_title_map_from_schema_properties(properties):
+    return {k: v["title"] for k, v in properties.items()}
+
+
+def get_default_row_data_from_schema_root(schema):
+    if "default" in schema.keys():
+        return schema["default"]
+    else:
+        return None
+
+
 # TODO: create an AutoUiSchema class to handle schema gen and then extend it here...
 class GridSchema:
     def __init__(self, schema, get_traits=None, **kwargs):
         self.schema = schema
         self.get_traits = get_traits
-        self.map_name_title = get_name_title_map_from_schema_properties(self.properties)
-        self.map_title_name = {v: k for k, v in self.map_name_title.items()}
+        self.map_name_index = get_name_title_map_from_schema_properties(self.properties)
+        self.map_index_name = {v: k for k, v in self.map_name_index.items()}
         {
             setattr(self, k, v)
             for k, v in get_global_renderers_from_schema(self.schema, **kwargs)
@@ -203,13 +199,13 @@ class GridSchema:
         self.renderers = get_column_renderers_from_schema(
             schema,
             column_properties=self.properties,
-            map_name_title=self.map_name_title,
+            map_name_index=self.map_name_index,
             **kwargs,
         )
         if len(self.renderers) == 0:
             self.renderers = None
         self.column_widths = get_column_widths_from_schema(
-            schema, self.properties, self.map_name_title, **kwargs
+            schema, self.properties, self.map_name_index, **kwargs
         )
         self.column_property_types = get_property_types(self.properties)
         self.default_data = self._get_default_data()
@@ -239,6 +235,16 @@ class GridSchema:
             if k not in ignore_schema_keys
         }
 
+    #     def add_datagrid_index(self):
+    #         if "datagrid_index" not in self.schema.keys():
+    #             self.schema["datagrid_index"] = "title"
+
+    #     def update_index(self):
+    #         if self.schema["datagrid_index"] == "title":
+    #             self.datagrid_index = pd.Index(self.property_titles)
+    #         else:
+    #             pass
+
     @property
     def datagrid_traits(self) -> dict[str, ty.Any]:
         if self.get_traits is None:
@@ -265,11 +271,14 @@ class GridSchema:
 
     @property
     def properties(self):
-        return get_grid_column_properties_from_schema(self.schema)
+        return self.schema["items"]["properties"]
 
     @property
     def property_keys(self):
         return self.properties.keys()
+
+    def get_property_values(self, li):
+        return [tuple(p[l] for l in li) for p in self.properties.values()]
 
     @property
     def property_titles(self):
@@ -348,6 +357,10 @@ class DataGrid(DataGrid):
         self.count_changes += 1
 
 
+# +
+# datagrid_index = "title"
+
+
 class AutoGrid(DataGrid):
     """a thin wrapper around DataGrid that makes makes it possible to initiate the
     grid from a json-schema / pydantic model.
@@ -406,7 +419,7 @@ class AutoGrid(DataGrid):
         if keys_as_title:
             return data.to_dict(orient="records")
         else:
-            return data.rename(columns=self.map_title_name).to_dict(orient="records")
+            return data.rename(columns=self.map_index_name).to_dict(orient="records")
 
     def __init__(
         self,
@@ -447,17 +460,17 @@ class AutoGrid(DataGrid):
         return self.gridschema.properties
 
     @property
-    def map_name_title(self):
-        return self.gridschema.map_name_title
+    def map_name_index(self):
+        return self.gridschema.map_name_index
 
     @property
-    def map_title_name(self):
-        return self.gridschema.map_title_name
+    def map_index_name(self):
+        return self.gridschema.map_index_name
 
     def get_default_data(self):
         data = pd.DataFrame(self.gridschema.default_data)
         if self.by_title:
-            data = data.rename(columns=self.map_name_title)
+            data = data.rename(columns=self.map_name_index)
         return data
 
     @property
@@ -472,9 +485,9 @@ class AutoGrid(DataGrid):
         return self.column_names[index]
 
     def map_titles_to_data(self, data):
-        if set(data.columns) == set(self.map_name_title.keys()):
-            return data.rename(columns=self.map_name_title)
-        elif set(data.columns) == set(self.map_name_title.values()):
+        if set(data.columns) == set(self.map_name_index.keys()):
+            return data.rename(columns=self.map_name_index)
+        elif set(data.columns) == set(self.map_name_index.values()):
             return data
         else:
             raise ValueError("input data does not match specified schema")
@@ -503,11 +516,11 @@ class AutoGrid(DataGrid):
             index (int): The key of the row. # TODO: is this defo an int?
             value (dict): The data we want to input into the row.
         """
-        if set(value.keys()) == set(self.map_name_title.keys()):
+        if set(value.keys()) == set(self.map_name_index.keys()):
             # value_with_titles is used for datagrid
-            value = {self.map_name_title.get(name): v for name, v in value.items()}
+            value = {self.map_name_index.get(name): v for name, v in value.items()}
             # ^ self.apply_map_name_title(value)  ? ??
-        elif set(value.keys()) == set(self.map_name_title.values()):
+        elif set(value.keys()) == set(self.map_name_index.values()):
             pass
         else:
             raise Exception("Columns of value given do not match with value keys.")
@@ -516,9 +529,9 @@ class AutoGrid(DataGrid):
 
     def apply_map_name_title(self, row_data):
         return {
-            self.map_title_name[k]: v
+            self.map_index_name[k]: v
             for k, v in row_data.items()
-            if k in self.map_title_name.keys()
+            if k in self.map_index_name.keys()
         }
 
     def set_col_value(self, index: int, value: dict):
@@ -531,9 +544,9 @@ class AutoGrid(DataGrid):
             value (dict): The data we want to input into the col.
         """
         column_name = self.get_col_name_from_index(index)
-        if set(value.keys()) == set(self.map_name_title.keys()):
+        if set(value.keys()) == set(self.map_name_index.keys()):
             # value_with_titles is used for datagrid
-            value = {self.map_name_title.get(name): v for name, v in value.items()}
+            value = {self.map_name_index.get(name): v for name, v in value.items()}
         if set(value.keys()) != set(self.data.index.to_list()):
             raise Exception("Index of datagrid does not match with value keys.")
         for primary_key_value, v in value.items():
@@ -744,6 +757,8 @@ class AutoGrid(DataGrid):
 
     # ----------------
 
+
+# -
 
 if __name__ == "__main__":
 
@@ -1224,9 +1239,9 @@ if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
 
     class DataFrameCols(BaseModel):
-        string: str = Field("string", column_width=100)
-        integer: int = Field(1, column_width=80)
-        floater: float = Field(3.1415, column_width=70, aui_sig_fig=3)
+        string: str = Field("string", column_width=100, section="a")
+        integer: int = Field(1, column_width=80, section="a")
+        floater: float = Field(3.1415, column_width=70, aui_sig_fig=3, section="b")
 
     class TestDataFrameOnly(BaseModel):
         """a description of TestDataFrame"""
@@ -1253,14 +1268,19 @@ if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
     from ipyautoui.autoipywidget import AutoObject
 
-    # AutoObject(schema=CoreIpywidgets)
-    # TODO: fix this
+    #     class TestDataFrameOnly(BaseModel):
+    #         """a description of TestDataFrame"""
+
+    #         __root__: ty.List[CoreIpywidgets] = Field(
+    #             [CoreIpywidgets().dict()], format="dataframe"
+    #         )
+    # TODO: ^ fix this
 
     class TestDataFrameOnly(BaseModel):
         """a description of TestDataFrame"""
 
-        __root__: ty.List[CoreIpywidgets] = Field(
-            [CoreIpywidgets().dict()], format="dataframe"
+        __root__: ty.List[DataFrameCols] = Field(
+            [DataFrameCols().dict()], format="dataframe"
         )
 
     description = markdown(
@@ -1331,5 +1351,3 @@ if __name__ == "__main__":
     ui.observe(lambda c: print("_value change"), "_value")
     ui.di_widgets["__root__"].observe(lambda c: print("grid _value change"), "_value")
     display(ui)
-
-
