@@ -242,6 +242,7 @@ if __name__ == "__main__":
 class ButtonBar(w.HBox):
     def __init__(
         self,
+        # transpose: # TODO: add transpose datagrid button
         add: ty.Callable = lambda: print("add"),
         edit: ty.Callable = lambda: print("edit"),
         copy: ty.Callable = lambda: print("copy"),
@@ -262,7 +263,7 @@ class ButtonBar(w.HBox):
         self._init_controls()
 
     def _init_form(self):
-
+        # self.transpose w.ToggleButton(icon="arrow-right")
         self.add = w.ToggleButton(
             icon="plus",
             button_style="success",
