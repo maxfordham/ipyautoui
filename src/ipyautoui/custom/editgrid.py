@@ -472,7 +472,8 @@ class AutoGrid(DataGrid):
         if keys_as_title:
             return data.to_dict(orient="records")
         else:
-            return data.rename(columns=self.map_index_name).to_dict(orient="records")
+            data.columns = self.gridschema.property_keys
+            return data.to_dict(orient="records")
 
     def __init__(
         self,
@@ -490,8 +491,7 @@ class AutoGrid(DataGrid):
         self.selection_mode = MAP_TRANSPOSED_SELECTION_MODE[self.transposed]
         self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
         self.gridschema.get_traits = self.datagrid_trait_names
-        data = self._init_data(data)
-        super().__init__(data)
+        super().__init__(self._init_data(data))
         {setattr(self, k, v) for k, v in self.gridschema.datagrid_traits.items()}
 
         # annoyingly have to add this due to renderers being overwritten...
@@ -538,11 +538,12 @@ class AutoGrid(DataGrid):
         return self.column_names[index]
 
     def map_column_index_to_data(self, data):
-
-        if set(data.columns) == set(self.map_name_index.keys()):
-            data.columns = self.gridschema.index
+        map_transposed = {True: "index", False: "columns"}
+        working_index = map_transposed[self.transposed]  # either "index" or "columns
+        if set(getattr(data, working_index)) == set(self.map_name_index.keys()):
+            setattr(data, working_index, self.gridschema.index)
             return data  # .rename(columns=self.map_name_index)
-        elif set(data.columns) == set(self.map_name_index.values()):
+        elif set(getattr(data, working_index)) == set(self.map_name_index.values()):
             return data  # i.e. using prperty key not title field... improve this...
         else:
             raise ValueError("input data does not match specified schema")
@@ -557,6 +558,10 @@ class AutoGrid(DataGrid):
         if data is None:
             return self.gridschema.default_dataframe
         else:
+            data = data.copy(deep=True)
+            if self.transposed:
+                data = data.T
+
             return self.map_column_index_to_data(data)
 
     def set_item_value(self, index: int, value: dict):
@@ -1047,15 +1052,15 @@ class EditGrid(w.VBox):
         if value == [] or value is None:
             self.grid.data = self.grid.get_default_data()
         else:
-            df = self.grid._init_data(pd.DataFrame(value))
-            if self.transposed:
-                df = df.T
-            self.grid.data = df
+            self.grid.data = self.grid._init_data(pd.DataFrame(value))
+            # if self.transposed:
+            #     df = df.T
+            # self.grid.data = df
 
     def __init__(
         self,
         schema: ty.Union[dict, ty.Type[BaseModel]],
-        value: ty.Optional[dict] = None,
+        value: ty.Optional[list[dict[str, ty.Any]]] = None,
         by_alias: bool = False,
         by_title: bool = True,
         datahandler: ty.Optional[DataHandler] = None,
@@ -1359,6 +1364,9 @@ if __name__ == "__main__":
     display(editgrid)
 
 if __name__ == "__main__":
+    editgrid.transposed = True
+
+if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = [
         {
             "string": "important string",
@@ -1398,6 +1406,14 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     editgrid.transposed = True
+
+# +
+# df = editgrid.grid._init_data(pd.DataFrame(editgrid.value[0:3]))
+# df
+# if editgrid.transposed:
+#     df = df.T
+# df.index
+# -
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
