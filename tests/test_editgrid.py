@@ -6,18 +6,13 @@ import pandas as pd
 
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
-from .example_objects import (
-    fn_add,
-    get_descriptions,
-    ExampleSchema,
-    ExampleDataFrameSchema,
-    ExampleDataFrameSchema1,
-    ExampleDataFrameSchema2,
-)
 from ipyautoui.custom.editgrid import AutoGrid, EditGrid
 from ipyautoui.custom.save_buttonbar import ButtonBar
 from ipyautoui.demo_schemas import EditableGrid
-from ipyautoui.autoipywidget import AutoObject
+from ipyautoui.autoipywidget import AutoObject, _init_model_schema
+from ipyautoui.custom.editgrid import GridSchema
+from pydantic import BaseModel, Field
+import typing as ty
 
 # from ipyautoui.demo_schemas.editable_datagrid import DATAGRID_TEST_VALUE
 
@@ -59,63 +54,223 @@ class TestButtonBar:
         )
         assert button_bar.fn_add() == "ADD"
 
-    # TODO: update EditGrid and associated tests
-    # def test_base_form(self):
-    #     baseform = BaseForm(schema=ExampleSchema, save=save, revert=revert)
-    #     assert baseform.fn_save() == "SAVE"
 
-    # def test_base_form_set_value(self):
-    #     baseform = BaseForm(schema=ExampleSchema, save=save, revert=revert)
-    #     di_eg_unit = {"text": "update"}
-    #     baseform.value = di_eg_unit
-    #     assert baseform.value == di_eg_unit
+class TestGridSchema:
+    def test_empty_default_data(self):
+        class TestProperties(BaseModel):
+            string: str = Field(column_width=100)
+            floater: float = Field(column_width=70, aui_sig_fig=3)
+
+        class TestGridSchema(BaseModel):
+            """no default"""
+
+            __root__: ty.List[TestProperties] = Field(format="dataframe")
+
+        model, schema = _init_model_schema(TestGridSchema)
+        gridschema = GridSchema(schema)
+
+        assert gridschema.index_name == "title"
+        assert (gridschema.index == pd.Index(["String", "Floater"], name="title")).all()
+        assert gridschema.default_data == []
+        assert gridschema.default_row == {}
+        assert gridschema.default_dataframe.equals(
+            pd.DataFrame(columns=pd.Index(["String", "Floater"], name="title"))
+        )
+
+    def test_partial_row_default_data(self):
+        class TestProperties(BaseModel):
+            string: str = Field(column_width=100)
+            floater: float = Field(1.5, column_width=70, aui_sig_fig=3)
+
+        class TestGridSchema(BaseModel):
+            """no default"""
+
+            __root__: ty.List[TestProperties] = Field(
+                [TestProperties(string="string").dict()], format="dataframe"
+            )
+
+        model, schema = _init_model_schema(TestGridSchema)
+        gridschema = GridSchema(schema)
+        assert gridschema.is_multiindex == False
+        assert gridschema.default_data == [{"string": "string", "floater": 1.5}]
+        assert gridschema.default_row == {"floater": 1.5}
+        assert gridschema.default_dataframe.equals(
+            pd.DataFrame(
+                [{"String": "string", "Floater": 1.5}],
+                columns=pd.Index(["String", "Floater"], name="title"),
+            )
+        )
+
+    def test_multiindex(self):
+        class TestProperties(BaseModel):
+            string: str = Field(column_width=100, section="a")
+            floater: float = Field(1.5, column_width=70, aui_sig_fig=3, section="b")
+            inty: int = Field(1, section="b")
+
+        class TestGridSchema(BaseModel):
+            """no default"""
+
+            __root__: ty.List[TestProperties] = Field(
+                [TestProperties(string="string").dict()],
+                format="dataframe",
+                datagrid_index_name=("section", "title"),
+            )
+
+        model, schema = _init_model_schema(TestGridSchema)
+        gridschema = GridSchema(schema)
+
+        assert gridschema.is_multiindex == True
+        assert gridschema.index.equals(
+            pd.MultiIndex.from_tuples(
+                [("a", "String"), ("b", "Floater"), ("b", "Inty")],
+                names=("section", "title"),
+            )
+        )
+        assert gridschema.default_data == [
+            {"string": "string", "floater": 1.5, "inty": 1}
+        ]
+        assert gridschema.default_row == {"floater": 1.5, "inty": 1}
+        assert gridschema.default_dataframe.equals(
+            pd.DataFrame(
+                [{("a", "String"): "string", ("b", "Floater"): 1.5, ("b", "Inty"): 1}],
+                columns=pd.MultiIndex.from_tuples(
+                    [("a", "String"), ("b", "Floater"), ("b", "Inty")],
+                    names=("section", "title"),
+                ),
+            )
+        )
 
 
 class TestAutoGridInitData:
     def test_empty_grid(self):
+        class Cols(BaseModel):
+            string: str = Field(aui_column_width=100)
+            floater: float = Field(aui_column_width=70, aui_sig_fig=3)
+
+        class DataFrameSchema(BaseModel):
+            """no default"""
+
+            __root__: ty.List[Cols] = Field(format="dataframe")
 
         # initiate empty grid
-        grid = AutoGrid(schema=ExampleDataFrameSchema)
-        assert grid._data["data"] == [
-            {"key": 0, "String": "", "Floater": 0.0, "ipydguuid": 0}
-        ]
+        grid = AutoGrid(schema=DataFrameSchema)
+        assert grid._data["data"] == []
         assert grid._data["schema"]["fields"] == [
-            {"name": "key", "type": "integer"},
+            {"name": "key", "type": "string"},  # NOTE: unable to detect type
             {"name": "String", "type": "string"},
-            {"name": "Floater", "type": "number"},
+            {"name": "Floater", "type": "string"},  # NOTE: unable to detect type
             {"name": "ipydguuid", "type": "integer"},
         ]
 
     def test_assign_default_at_root(self):
         # get default data from top-level schema defaults
-        grid1 = AutoGrid(schema=ExampleDataFrameSchema1)
-        assert grid1._data["data"] == [
-            {"key": 0, "String": "test", "Floater": 1.5, "ipydguuid": 0}
-        ]
 
-    def test_assign_default_at_property_level(self):
-        # get default data from schema property defaults
-        grid2 = AutoGrid(schema=ExampleDataFrameSchema2)
-        assert grid2._data["data"] == [
-            {"key": 0, "String": "string", "Floater": 3.14, "ipydguuid": 0}
+        class Cols(BaseModel):
+            string: str = Field("string", aui_column_width=100)
+            floater: float = Field(3.14, aui_column_width=70, aui_sig_fig=3)
+
+        class DataFrameSchema(BaseModel):
+            """default."""
+
+            __root__: ty.List[Cols] = Field(
+                [Cols(string="test", floater=1.5).dict()], format="dataframe"
+            )
+
+        grid = AutoGrid(schema=DataFrameSchema)
+        assert grid._data["data"] == [
+            {"key": 0, "String": "test", "Floater": 1.5, "ipydguuid": 0}
         ]
 
     def test_pass_data_as_kwarg(self):
         # get default data passed as kwarg, titles as column headers
+        class Cols(BaseModel):
+            string: str = Field("string", aui_column_width=100)
+            floater: float = Field(3.14, aui_column_width=70, aui_sig_fig=3)
+
+        class DataFrameSchema(BaseModel):
+            """no default. but properties have default"""
+
+            __root__: ty.List[Cols] = Field(format="dataframe")
 
         df = pd.DataFrame([{"String": "test2", "Floater": 2.2}])
-        grid3 = AutoGrid(schema=ExampleDataFrameSchema2, data=df)
+        grid3 = AutoGrid(schema=DataFrameSchema, data=df)
         assert grid3._data["data"] == [
             {"key": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
         ]
 
     def test_pass_data_as_kwarg_map_titles(self):
         # get default data passed as kwarg, keys as column headers. maps to titles
+
+        class Cols(BaseModel):
+            string: str = Field("string", aui_column_width=100)
+            floater: float = Field(3.14, aui_column_width=70, aui_sig_fig=3)
+
+        class DataFrameSchema(BaseModel):
+            """no default. but properties have default"""
+
+            __root__: ty.List[Cols] = Field(format="dataframe")
+
         df = pd.DataFrame([{"string": "test2", "floater": 2.2}])
-        grid4 = AutoGrid(schema=ExampleDataFrameSchema2, data=df)
+        grid4 = AutoGrid(schema=DataFrameSchema, data=df)
         assert grid4._data["data"] == [
             {"key": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
         ]
+        print("done")
+
+    def test_reset_multiindex_data_with_init_data(self):
+        # get default data passed as kwarg, keys as column headers. maps to titles
+
+        class TestProperties(BaseModel):
+            string: str = Field(column_width=100, section="a")
+            floater: float = Field(1.5, column_width=70, aui_sig_fig=3, section="b")
+            inty: int = Field(1, section="b")
+
+        class TestGridSchema(BaseModel):
+            """no default"""
+
+            __root__: ty.List[TestProperties] = Field(
+                [TestProperties(string="string").dict()],
+                format="dataframe",
+                datagrid_index_name=("section", "title"),
+            )
+
+        df = pd.DataFrame([{"string": "test2", "floater": 2.2, "inty": 1}])
+        gr = AutoGrid(schema=TestGridSchema, data=df)
+
+        assert gr._data["data"] == [
+            {
+                ("key", ""): 0,
+                ("a", "String"): "test2",
+                ("b", "Floater"): 2.2,
+                ("b", "Inty"): 1,
+                ("ipydguuid", ""): 0,
+            }
+        ]
+
+        df1 = pd.DataFrame([{"string": "test2", "floater": 2.2, "inty": 1}] * 2)
+        gr.data = gr._init_data(df1)
+
+        assert gr._data["data"] == [
+            {
+                ("a", "String"): "test2",
+                ("b", "Floater"): 2.2,
+                ("b", "Inty"): 1,
+                ("ipydguuid", ""): 0,
+                ("key", ""): 0,
+            },
+            {
+                ("a", "String"): "test2",
+                ("b", "Floater"): 2.2,
+                ("b", "Inty"): 1,
+                ("ipydguuid", ""): 1,
+                ("key", ""): 1,
+            },
+        ]
+
+        gr.transposed = True
+        df = gr._init_data(
+            pd.DataFrame([{"string": "test2", "floater": 2.2, "inty": 1}])
+        )
         print("done")
 
 
@@ -125,6 +280,62 @@ class TestEditGrid:
         v = grid.value
         grid._save_add_to_grid()
         assert v != grid._value
+
+    def test_editgrid_multiindex_change_data(self):
+        class TestProperties(BaseModel):
+            string: str = Field(column_width=100, section="a")
+            floater: float = Field(1.5, column_width=70, aui_sig_fig=3, section="b")
+            inty: int = Field(1, section="b")
+
+        class TestGridSchema(BaseModel):
+            """no default"""
+
+            __root__: ty.List[TestProperties] = Field(
+                [TestProperties(string="string").dict()],
+                format="dataframe",
+                datagrid_index_name=("section", "title"),
+            )
+
+        # df = pd.DataFrame([{"string": "test2", "floater": 2.2, "inty": 1}])
+        egrid = EditGrid(
+            schema=TestGridSchema,
+            value=[{"string": "test2", "floater": 2.2, "inty": 1}],
+        )
+        egrid.transposed = True
+
+        # add
+        egrid._save_add_to_grid()
+        assert egrid.value == (
+            {"string": "string", "floater": 1.5, "inty": 1},
+            {"string": "", "floater": 1.5, "inty": 1},
+        )
+
+        # copy
+        egrid.grid.select(row1=1, column1=1, row2=1, column2=1, clear_mode="all")
+        egrid._copy()
+        assert egrid.value == (
+            {"string": "string", "floater": 1.5, "inty": 1},
+            {"string": "", "floater": 1.5, "inty": 1},
+            {"string": "", "floater": 1.5, "inty": 1},
+        )
+
+        # delete
+        egrid.grid.select(row1=1, column1=2, row2=1, column2=2, clear_mode="all")
+        egrid._delete_selected()
+        assert egrid.value == (
+            {"string": "string", "floater": 1.5, "inty": 1},
+            {"string": "", "floater": 1.5, "inty": 1},
+        )
+
+        # edit
+        # egrid.grid.select(row1=1, column1=1, row2=1, column2=1, clear_mode="all")
+        # egrid.ui_edit.value = {"string": "test", "floater": 1.5, "inty": 1}
+        # egrid._save_edit_to_grid()
+        # assert egrid.value == (
+        #     {"string": "string", "floater": 1.5, "inty": 1},
+        #     {"string": "test", "floater": 1.5, "inty": 1},
+        # )
+        # print("done")
 
 
 class TestAutoEditGrid:
@@ -147,4 +358,3 @@ class TestAutoEditGrid:
         assert v != grid.di_widgets["__root__"].value
         assert v != grid._value
         assert check == True
-        

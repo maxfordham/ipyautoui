@@ -10,7 +10,6 @@ import pathlib
 
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
-from .example_objects import ExampleSchema
 from ipyautoui import AutoUi
 from ipyautoui.demo_schemas import CoreIpywidgets
 from ipyautoui.basemodel import file
