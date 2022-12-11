@@ -54,17 +54,6 @@ class TestButtonBar:
         )
         assert button_bar.fn_add() == "ADD"
 
-    # TODO: update EditGrid and associated tests
-    # def test_base_form(self):
-    #     baseform = BaseForm(schema=ExampleSchema, save=save, revert=revert)
-    #     assert baseform.fn_save() == "SAVE"
-
-    # def test_base_form_set_value(self):
-    #     baseform = BaseForm(schema=ExampleSchema, save=save, revert=revert)
-    #     di_eg_unit = {"text": "update"}
-    #     baseform.value = di_eg_unit
-    #     assert baseform.value == di_eg_unit
-
 
 class TestGridSchema:
     def test_empty_default_data(self):

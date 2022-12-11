@@ -8,8 +8,6 @@ from .constants import DIR_TESTS, DIR_FILETYPES
 from .example_objects import (
     fn_add,
     get_descriptions,
-    ExampleSchema,
-    ExampleDataFrameSchema,
 )
 from ipyautoui.custom import (
     Array,
