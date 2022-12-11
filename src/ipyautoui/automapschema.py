@@ -22,6 +22,33 @@ import ipywidgets as w
 import ipyautoui.autowidgets as auiwidgets
 from ipyautoui._utils import frozenmap, obj_from_importstr
 
+
+# class AutoUiSchema:
+#     def __init__(self, schema: ty.Union[dict, ty.Type[BaseModel]]):
+#         from ipyautoui.autoipywidget import _init_model_schema
+
+#         self.model, self.schema = _init_model_schema(schema)
+#         # self.schema_base =
+#         # self.definitions =
+
+#     @staticmethod
+#     def _init_model_schema(schema, by_alias=False):
+#         if type(schema) == dict:
+#             model = None  # jsonschema_to_pydantic(schema)
+#             # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM
+#             #       jsonschema_to_pydantic
+#             # https://koxudaxi.github.io/datamodel-code-generator/using_as_module/
+#         else:
+#             model = schema  # the "model" passed is a pydantic model
+#             schema = model.schema(by_alias=by_alias).copy()
+
+#         return model, schema
+
+
+# ^ WIP: NOT IN USE
+#        the intention is that it manages all schema related transformations.
+
+
 # +
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
 def recursive_search_schema(schema: ty.Dict, li: ty.List) -> ty.Dict:
@@ -447,6 +474,8 @@ def is_Dropdown(di: dict) -> bool:
     if "enum" not in di.keys():
         return False
     if di["type"] == "array":
+        return False
+    if di["type"] == "boolean":
         return False
     return True
 
