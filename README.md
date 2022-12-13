@@ -69,9 +69,10 @@ ui.value  # there is a `value` trait that is always kept in-sync with the widget
 #  'y_range': (0, 5)}
 
 #  methods / stored values
-ui.file #  file data to .json file
+ui.file(path) #  file data to .json file
 ui.value #  input form value dict
-ui.pydantic_obj #  input form pydantic model (note. value is created from this on_change)
+ui.model #  pydantic model (if given as input, AutoUi can be called from a jsonschema only also)
+ui.schema #  jsonschema
 AutoUi.create_displayfile_renderer #  creates a json-serializable pointer 
 AutoUi.parse_file #  init ui with data from .json file
 ```
@@ -80,7 +81,7 @@ AutoUi.parse_file #  init ui with data from .json file
 - `ipyautoui.custom.` provides useful widgets (e.g. iterable) that aren't included within the core ipywidgets library
 - ipyautoui defines a best practice for creating and integrating custom widgets, and as default includes some widgets from other popular widget libraries (e.g. ipydatagrid, ipyfilechooser). 
 - ipyautoui handles observing the values, and maintains a stateful and validated `.value` parameter for the whole user input form.  
-- TODO: AutoUi also allows the user to specify the usage of [__ipyvuetify__](https://github.com/widgetti/ipyvuetify) and 
+- AutoUi also allows the user to specify the usage of [__ipyvuetify__](https://github.com/widgetti/ipyvuetify) and 
     - __note__. this is the recommended approach for simple and generic input forms. Where custom UI objects are required these can be built using the ipyautoui core library.
 
 ### AutoVjsf
@@ -91,8 +92,7 @@ AutoUi.parse_file #  init ui with data from .json file
 
 #### AutoVjsf
 
-The excellent documentation for [__vuetify-jsonschema-form__](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/) can be used to create your schema. Anything possible
-in vjsf is therefore possible using AutoVjsf (TODO: implement markdown editor). This has a much more complete coverage of the json-schema specification, as well as the added
+The excellent documentation for [__vuetify-jsonschema-form__](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/) can be used to create your schema. Anything possible in vjsf is therefore possible using AutoVjsf (TODO: implement markdown editor). This has a much more complete coverage of the json-schema specification, as well as the added
 benefit of out-the-box support of mobile applications. It falls down if you want to specify custom renderer objects.
 
 ```{note}
