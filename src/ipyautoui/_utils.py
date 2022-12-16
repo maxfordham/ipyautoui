@@ -347,6 +347,8 @@ def obj_from_importstr(importstr: str) -> ty.Type:
         >>> obj_from_importstr('pathlib.Path')
         pathlib.Path
     """
+    if "." not in importstr:
+        importstr = "__main__." + importstr
     mod, nm = importstr.rsplit(".", 1)
 
     return getattr(importlib.import_module(mod), nm)

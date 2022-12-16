@@ -378,10 +378,10 @@ def preview_markdown(path):
         shell=True,
         capture_output=True,
     )
-    # s =
+    s = c.stdout.decode("utf-8")
     return HTML(
         f"""
-{c.stdout.decode("utf-8") }        
+{s}        
 """
     )
 
