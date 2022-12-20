@@ -9,7 +9,8 @@ from .constants import DIR_TESTS, DIR_FILETYPES
 from ipyautoui.custom.editgrid import AutoGrid, EditGrid
 from ipyautoui.custom.save_buttonbar import ButtonBar
 from ipyautoui.demo_schemas import EditableGrid
-from ipyautoui.autoipywidget import AutoObject, _init_model_schema
+from ipyautoui.autoipywidget import AutoObject
+from ipyautoui.automapschema import _init_model_schema
 from ipyautoui.custom.editgrid import GridSchema
 from pydantic import BaseModel, Field
 import typing as ty
