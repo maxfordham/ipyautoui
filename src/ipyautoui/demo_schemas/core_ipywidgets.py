@@ -23,6 +23,8 @@ class CoreIpywidgets(BaseModel):
     only simple datatypes used (i.e. not lists/arrays or objects)
     """
 
+    int_slider_req: conint(ge=1, le=3)
+    int_slider_nullable: conint(ge=1, le=3) = None
     int_slider: conint(ge=1, le=3) = 2
     int_text: int = 1
     int_range_slider: tuple[int, int] = Field(default=(0, 3), ge=0, le=4)  # check
