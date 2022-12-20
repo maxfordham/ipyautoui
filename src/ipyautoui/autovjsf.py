@@ -23,7 +23,7 @@ import ipywidgets as w
 
 from ipyautoui.constants import PATH_VJSF_TEMPLATE
 from ipyautoui.autoui import AutoUiFileMethods, AutoRenderMethods
-from ipyautoui.autoipywidget import _init_model_schema
+from ipyautoui.automapschema import _init_model_schema
 
 # import ipyvue
 # ipyvue.watch(PATH_VJSF_TEMPLATE.parent)  # for hot-reloading. currently not in use. requires watchdog
