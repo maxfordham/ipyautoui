@@ -22,33 +22,6 @@ import ipywidgets as w
 import ipyautoui.autowidgets as auiwidgets
 from ipyautoui._utils import frozenmap, obj_from_importstr
 
-
-# class AutoUiSchema:
-#     def __init__(self, schema: ty.Union[dict, ty.Type[BaseModel]]):
-#         from ipyautoui.autoipywidget import _init_model_schema
-
-#         self.model, self.schema = _init_model_schema(schema)
-#         # self.schema_base =
-#         # self.definitions =
-
-#     @staticmethod
-#     def _init_model_schema(schema, by_alias=False):
-#         if type(schema) == dict:
-#             model = None  # jsonschema_to_pydantic(schema)
-#             # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM
-#             #       jsonschema_to_pydantic
-#             # https://koxudaxi.github.io/datamodel-code-generator/using_as_module/
-#         else:
-#             model = schema  # the "model" passed is a pydantic model
-#             schema = model.schema(by_alias=by_alias).copy()
-
-#         return model, schema
-
-
-# ^ WIP: NOT IN USE
-#        the intention is that it manages all schema related transformations.
-
-
 # +
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
 def recursive_search_schema(schema: ty.Dict, li: ty.List) -> ty.Dict:
@@ -90,7 +63,6 @@ def flatten_allof(
     return schema
 
 
-# TODO: create a schema handler class for dealing with this.
 def attach_schema_refs(schema, schema_base=None):
     """
     attachs #definitions to $refs within the main schema
@@ -108,6 +80,10 @@ def attach_schema_refs(schema, schema_base=None):
     """
     if schema_base is None:
         schema_base = schema.copy()
+        if "definitions" in schema_base.keys():
+            schema_base["definitions"] = attach_schema_refs(
+                schema_base["definitions"], schema_base=schema_base
+            )
         # ^ TODO: how can i $refs be attached to definitions
 
     try:
@@ -115,13 +91,6 @@ def attach_schema_refs(schema, schema_base=None):
     except:
         pass
     # ^ copying to avoid pydantic schema being modified "in-place"
-
-    # if "definitions" in schema.keys():
-    #     schema["definitions"] = attach_schema_refs(
-    #         schema["definitions"], schema_base=schema_base
-    #     )
-    # ^ update the definitions first,
-    # otherwise definitions with $ref's in get copied in to the code
 
     if type(schema) == list:
         for n, s in enumerate(schema):
@@ -148,6 +117,51 @@ def attach_schema_refs(schema, schema_base=None):
     else:
         pass
     return schema
+
+
+def add_nullable_to_object(schema_obj):
+    if "required" in schema_obj.keys():
+        req = schema_obj["required"]
+    else:
+        req = []
+    for k, v in schema_obj["properties"].items():
+        if k not in req and "default" not in v.keys():
+            v["nullable"] = True
+        else:
+            pass
+        v = attach_nullable_field(v)
+    return schema_obj
+
+
+def attach_nullable_field(schema):
+    if schema["type"] == "object":
+        schema = add_nullable_to_object(schema)
+    elif schema["type"] == "array":
+        if len(schema["items"]) > 1:
+            pass  # must be a range slider
+        elif schema["items"]["type"] == "object":
+            # currently array with 1 item type only supported
+            schema["items"] = add_nullable_to_object(schema["items"])
+        else:
+            pass
+    else:
+        pass
+    return schema
+
+
+def _init_model_schema(schema, by_alias=False):
+    if type(schema) == dict:
+        model = None  # jsonschema_to_pydantic(schema)
+        # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM
+        # jsonschema_to_pydantic
+        # https://koxudaxi.github.io/datamodel-code-generator/using_as_module/
+    else:
+        model = schema  # the "model" passed is a pydantic model
+        schema = model.schema(by_alias=by_alias).copy()
+
+    schema = attach_schema_refs(schema)
+    schema = attach_nullable_field(schema)
+    return model, schema
 
 
 #  ----------------------------------------------------------
@@ -561,7 +575,11 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
         widget of some kind
     """
     try:
-        wi = caller.autoui(caller.schema_, *caller.args, **caller.kwargs)
+        if "nullable" in caller.schema_.keys() and caller.schema_["nullable"]:
+            fn = auiwidgets.nullable(caller.autoui)
+        else:
+            fn = caller.autoui
+        wi = fn(caller.schema_, *caller.args, **caller.kwargs)
     except:
         if show_errors:
             txt = f"""
@@ -587,12 +605,14 @@ def update_widgets_map(widgets_map, di_update=None):
         widgets_map (dict of WidgetMappers): _description_
         di_update (_type_, optional): _description_. Defaults to None.
     """
-
-    with widgets_map.mutate() as mm:
-        for k, v in di_update.items():
-            mm.set(k, v)
-        _ = mm.finish()
-    del widgets_map
+    if di_update is not None:
+        with widgets_map.mutate() as mm:
+            for k, v in di_update.items():
+                mm.set(k, v)
+            _ = mm.finish()
+        del widgets_map
+    else:
+        _ = widgets_map
     return _
 
 

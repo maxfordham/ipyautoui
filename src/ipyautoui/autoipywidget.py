@@ -71,25 +71,7 @@ def _init_widgets_and_labels(
     return di_labels, di_widgets
 
 
-def _init_model_schema(schema, by_alias=False):
-    if type(schema) == dict:
-        model = None  # jsonschema_to_pydantic(schema)
-        # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM
-        # jsonschema_to_pydantic
-        # https://koxudaxi.github.io/datamodel-code-generator/using_as_module/
-    else:
-        model = schema  # the "model" passed is a pydantic model
-        schema = model.schema(by_alias=by_alias).copy()
 
-    if "definitions" in schema.keys():
-        li = [l for l in schema.keys() if l != "definitions"]
-        li = ["definitions"] + li
-        schema = {l: schema[l] for l in li}
-    # ^ put definitions at the top of the schema.
-    # otherwise definitions with $ref's in get copied in to the code
-
-    schema = aumap.attach_schema_refs(schema)
-    return model, schema
 
 
 # + tags=[]
@@ -573,7 +555,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         self._init_controls()
 
     def _init_schema(self, schema, by_alias=False):
-        self.model, self.schema = _init_model_schema(schema, by_alias=by_alias)
+        self.model, self.schema = aumap._init_model_schema(schema, by_alias=by_alias)
         # if "type" not in self.schema.keys() and self.schema["type"] != "object":
         #     raise ValueError(
         #         '"type" must be in schema keys and "type" must == "object"'
