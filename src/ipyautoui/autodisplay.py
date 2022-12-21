@@ -481,16 +481,45 @@ class AutoDisplay(tr.HasTraits):
         if not isinstance(paths, list):
             paths = [pathlib.Path(paths)]
 
-        display_objects_actions = [
-            DisplayFromPath(path=path, newroot=newroot, map_renderers=file_renderers)
-            for path in paths
-        ]
+        display_objects_actions = cls.actions_from_paths(
+            paths=paths,
+            newroot=newroot,
+            file_renderers=file_renderers,
+        )
         return cls(
             display_objects_actions,
             patterns=patterns,
             title=title,
             display_showhide=display_showhide,
         )
+
+    @staticmethod
+    def actions_from_paths(
+        paths: ty.List[pathlib.Path],
+        newroot=pathlib.PureWindowsPath("J:/"),
+        file_renderers=None,
+    ):
+        return [
+            DisplayFromPath(path=path, newroot=newroot, map_renderers=file_renderers)
+            for path in paths
+        ]
+
+    def add_from_paths(
+        self,
+        paths,
+        newroot=pathlib.PureWindowsPath("J:/"),
+        file_renderers=None,
+    ):
+        if file_renderers is not None:
+            file_renderers = merge_file_renderers(file_renderers)
+        else:
+            file_renderers = DEFAULT_FILE_RENDERERS
+        paths = [p for p in paths if p not in self.paths]
+        _new_actions = self.actions_from_paths(
+            paths=paths, newroot=newroot, file_renderers=file_renderers
+        )
+        actions = self.display_objects_actions + _new_actions
+        self.display_objects_actions = actions
 
     @property
     def title(self):
@@ -642,5 +671,3 @@ if __name__ == "__main__":
     )
 
     display(test_ui)
-
-
