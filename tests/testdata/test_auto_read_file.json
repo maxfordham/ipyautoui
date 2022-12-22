@@ -1,4 +1,6 @@
 {
+    "int_slider_req": 1,
+    "int_slider_nullable": null,
     "int_slider": 2,
     "int_text": 1,
     "int_range_slider": [
