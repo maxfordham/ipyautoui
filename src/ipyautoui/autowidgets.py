@@ -68,26 +68,31 @@ def is_null(value):
 
 
 class Nullable(w.HBox):
-    """class to allow widgets to be nullable"""
+    """class to allow widgets to be nullable. The widget that is extended is accessed
+    using `self.widget`"""
 
-    # @tr.observe("nullable")
-    # def _observe_nullable(self, change):
-    #     if self.nullable:
-    #         self.bn.layout.display = ""
-    #     else:
-    #         self.bn.layout.display = "None"
-
-    def __init__(self, widget_type, *args, **kwargs):
+    def __init__(self, widget_type, schema, *args, **kwargs):
+        self.schema = schema
+        self.caller = create_widget_caller(schema)
+        # ^ TODO: should this be in a higher-level func?
+        #         ui = nullable(w.IntSlider)(value=30) # this doesn't work bu maybe should...
         self.nullable = tr.Bool(default_value=True)
         self.bn = w.ToggleButton(icon="toggle-on", layout={"width": "40px"})
         self.show_none = w.Text(**SHOW_NONE_KWARGS)
-        if "nullable" in kwargs:
+        if "nullable" in kwargs.keys():
             self.nullable = kwargs["nullable"]
             kwargs.pop("nullable")
-        self.widget = widget_type(*args, **kwargs)
+        if "value" in kwargs.keys():
+            value = kwargs["value"]
+        elif len(args) > 0:
+            value = args[0]
+        else:
+            value = None
+        self.widget = widget_type(*args, {**kwargs, **self.caller})
         self._init_trait()
         super().__init__([self.bn, self.widget, self.show_none])
         self._init_controls()
+        self.value = value
 
     def _init_trait(self):
         # NOTE: see test for add_traits that demos usage  -@jovyan at 7/18/2022, 12:11:39 PM
@@ -101,7 +106,7 @@ class Nullable(w.HBox):
 
     @value.setter
     def value(self, value):
-        if is_null(value):
+        if pd.isnull(value):
             self.bn.value = True
             self._value = None
         else:
@@ -120,7 +125,7 @@ class Nullable(w.HBox):
             self.bn.layout.display = "None"
 
     def _update(self, onchange):
-        self.value = self.widget.value
+        self._value = self.widget.value
 
     def _toggle_none(self, onchange):
         if self.bn.value:
@@ -135,16 +140,20 @@ class Nullable(w.HBox):
             self.value = self.widget.value
 
 
-def wrapped_partial(func, *args, **kwargs):
-    # http://louistiao.me/posts/adding-__name__-and-__doc__-attributes-to-functoolspartial-objects/
-    partial_func = functools.partial(func, *args, **kwargs)
-    functools.update_wrapper(partial_func, func)
-    # partial_func.__name__ = partial_func.__name__ + func.__name__
+def nullable(fn, **kwargs):
+    """extend a simple widget to allow None
+
+    Args:
+        fn (widget_type): e.g. w.IntText
+
+    Returns:
+        Nullable: a HBox that contains a the widget `widget`.
+    """
+    nm = fn.__name__
+    partial_func = functools.partial(Nullable, fn, **kwargs)
+    functools.update_wrapper(partial_func, Nullable)
+    partial_func.__name__ = Nullable.__name__ + nm
     return partial_func
-
-
-def nullable(fn):
-    return wrapped_partial(Nullable, fn)
 
 
 #  -- CHANGE JSON-SCHEMA KEYS TO IPYWIDGET KEYS -------------
