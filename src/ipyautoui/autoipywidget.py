@@ -13,7 +13,6 @@
 #     name: python3
 # ---
 
-# +
 """autoui is used to automatically create ipywidget user input (UI) form from a pydantic schema.
 
 This module maps the pydantic fields to appropriate widgets based on type to display the data in the UI.
@@ -43,9 +42,9 @@ from ipyautoui.constants import BUTTON_WIDTH_MIN
 from ipyautoui._utils import display_python_string, obj_from_importstr
 from ipyautoui.custom.save_buttonbar import SaveButtonBar
 from ipyautoui.custom.showhide import ShowHide
+from ipyautoui.autowidgets import Nullable
 
 
-# +
 def _init_widgets_and_labels(
     pr: ty.Dict,
 ) -> tuple[ty.Dict[str, w.HBox], ty.Dict]:
@@ -69,9 +68,6 @@ def _init_widgets_and_labels(
     }
 
     return di_labels, di_widgets
-
-
-
 
 
 # + tags=[]
@@ -574,6 +570,12 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
             for v in self.pr.values():
                 v = add_fdir_to_widgetcaller(v, self.fdir)
 
+    # def is_nullable(self, key):
+    #     if "nullable" in self.pr[key].keys() and self.pr[key]["nullable"]:
+    #         return True
+    #     else:
+    #         return False
+
     def _init_widgets(self):
         self.di_labels, self.di_widgets = _init_widgets_and_labels(self.pr)
         # self._value = self.di_widgets_value
@@ -644,7 +646,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
     def _update_widgets_from_value(self):
         for k, v in self.value.items():
             if k in self.di_widgets.keys():
-                if v is None:
+                if v is None and not isinstance(self.di_widgets[k], Nullable):
                     v = _get_value_trait(self.di_widgets[k]).default()
                 self.di_widgets[k].value = v
             else:
@@ -674,15 +676,10 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
 
 
 if __name__ == "__main__":
-    from ipyautoui.constants import load_test_constants
-    from ipyautoui.test_schema import TestAutoLogicSimple
+    from ipyautoui.demo_schemas import CoreIpywidgets
 
-    test_constants = load_test_constants()
-    test = TestAutoLogicSimple()
-    schema = test.schema()
-    ui = AutoObject(TestAutoLogicSimple)
+    ui = AutoObject(CoreIpywidgets)
     display(ui)
-# -
 
 
 if __name__ == "__main__":
@@ -725,22 +722,3 @@ if __name__ == "__main__":
     ui.show_description = True
     ui.show_title = True
     ui.show_raw = True
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestEditGrid
-
-    ui = AutoObject(TestEditGrid)
-    ui.auto_open = True
-    display(ui)
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
-
-    ui = AutoObject(TestAutoLogic)
-    display(ui)
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestNested
-
-    ui = AutoObject(TestNested)
-    display(ui)
