@@ -87,7 +87,7 @@ class TestAutoObject:
             for k, v in ui.di_widgets.items()
         }
         for k, v in di_check.items():
-            assert v in k
+            assert v in k or v == "nullable"
 
         # assert ui.value == {"text": "Test"}
         print("done")
