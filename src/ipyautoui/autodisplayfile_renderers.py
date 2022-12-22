@@ -375,6 +375,7 @@ def preview_markdown(path):
     p = os.path.relpath(path, start=ENV.IPYAUTOUI_ROOTDIR)
     c = subprocess.run(
         f"pandoc {str(p)} -f markdown+rebase_relative_paths",
+        cwd=ENV.IPYAUTOUI_ROOTDIR,
         shell=True,
         capture_output=True,
     )
@@ -395,7 +396,6 @@ def preview_markdown(path):
 
 
 def preview_pdf(path):
-
     if not isinstance(path, pathlib.PurePath):
         path = pathlib.Path(path)
 
