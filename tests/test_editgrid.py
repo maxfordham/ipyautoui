@@ -73,7 +73,7 @@ class TestGridSchema:
         assert gridschema.index_name == "title"
         assert (gridschema.index == pd.Index(["String", "Floater"], name="title")).all()
         assert gridschema.default_data == []
-        assert gridschema.default_row == {}
+        assert gridschema.default_row == {"string": None, "floater": None}
         assert gridschema.default_dataframe.equals(
             pd.DataFrame(columns=pd.Index(["String", "Floater"], name="title"))
         )
@@ -94,7 +94,7 @@ class TestGridSchema:
         gridschema = GridSchema(schema)
         assert gridschema.is_multiindex == False
         assert gridschema.default_data == [{"string": "string", "floater": 1.5}]
-        assert gridschema.default_row == {"floater": 1.5}
+        assert gridschema.default_row == {"string": None, "floater": 1.5}
         assert gridschema.default_dataframe.equals(
             pd.DataFrame(
                 [{"String": "string", "Floater": 1.5}],
@@ -130,7 +130,8 @@ class TestGridSchema:
         assert gridschema.default_data == [
             {"string": "string", "floater": 1.5, "inty": 1}
         ]
-        assert gridschema.default_row == {"floater": 1.5, "inty": 1}
+        assert gridschema.default_row == {"floater": 1.5, "inty": 1, 'string': None} 
+        # TODO: this doesn't make that much sense ans string=None is not allowed...
         assert gridschema.default_dataframe.equals(
             pd.DataFrame(
                 [{("a", "String"): "string", ("b", "Floater"): 1.5, ("b", "Inty"): 1}],
