@@ -19,10 +19,10 @@ import pytest
 DIR_TEST_DATA = DIR_TESTS / "testdata"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
 
-value_default = json.loads(CoreIpywidgets().json())
+value_default = json.loads(CoreIpywidgets(int_slider_req=1).json())
 PATH_TEST_AUTO_READ_FILE = DIR_TEST_DATA / "test_auto_read_file.json"
 PATH_TEST_AUTO_READ_FILE.unlink(missing_ok=True)
-changed = CoreIpywidgets(text="changed")
+changed = CoreIpywidgets(text="changed", int_slider_req=1)
 value_changed = json.loads(changed.json())
 file(changed, PATH_TEST_AUTO_READ_FILE)
 
