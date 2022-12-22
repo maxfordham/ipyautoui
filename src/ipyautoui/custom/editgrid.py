@@ -34,6 +34,7 @@ from ipydatagrid import CellRenderer, DataGrid, TextRenderer
 from ipydatagrid.datagrid import SelectionHelper
 
 import ipyautoui.autoipywidget as aui
+import ipyautoui.automapschema as asch
 import ipyautoui.custom.save_buttonbar as sb
 from ipyautoui._utils import obj_from_importstr, frozenmap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
@@ -71,7 +72,7 @@ def get_default_row_data_from_schema_properties(
     """
     get = lambda k, v: v["default"] if "default" in v.keys() else None
     di = {k: get(k, v) for k, v in properties.items()}
-    return {k: v for k, v in di.items() if v is not None}
+    return {k: v for k, v in di.items()}
     # if None in default_row.values():
     #     return None
     # else:
@@ -350,7 +351,7 @@ if __name__ == "__main__":
             ..., format="dataframe", global_decimal_places=2
         )
 
-    model, schema = aui._init_model_schema(TestDataFrame)
+    model, schema = asch._init_model_schema(TestDataFrame)
     gridschema = GridSchema(schema)
 
 
@@ -398,6 +399,50 @@ class DataGrid(DataGrid):
 
     def _count_data_change(self, cell):
         self.count_changes += 1
+
+    def get_dataframe_index(self, dataframe):
+        """Returns a primary key to be used in ipydatagrid's
+        view of the passed DataFrame"""
+
+        # Passed index_name takes highest priority
+        if self._index_name is not None:
+            return self._index_name
+
+        # Dataframe with names index used by default
+        if dataframe.index.name is not None:
+            return dataframe.index.name
+
+        # as above but for multi-index
+        if dataframe.index.names is not None:
+            return dataframe.index.names
+
+        # If no index_name param, nor named-index DataFrame
+        # have been passed, revert to default "key"
+        return "key"
+
+    # ----------------
+    # https://github.com/bloomberg/ipydatagrid/issues/340
+    # selecting when a transform is applied...
+    @property
+    def selected_visible_cell_iterator(self):
+        """
+        An iterator to traverse selected cells one by one.
+        """
+        # Copy of the front-end data model
+        view_data = self.get_visible_data()
+
+        # Get primary key from dataframe
+        index_key = self.get_dataframe_index(view_data)
+
+        # Serielize to JSON table schema
+        view_data_object = self.generate_data_object(view_data, "ipydguuid", index_key)
+
+        return SelectionHelper(view_data_object, self.selections, self.selection_mode)
+
+    # these terms (below) avoid row or col terminology and can be used if transposed or not...
+    # only these methods are called be EditGrid, allowing it to operate the same if the
+    # view is transposed or not.
+    # ----------
 
 
 # +
@@ -489,7 +534,7 @@ class AutoGrid(DataGrid):
         )
         self.by_title = by_title
         self.selection_mode = MAP_TRANSPOSED_SELECTION_MODE[self.transposed]
-        self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
+        self.model, self.schema = asch._init_model_schema(schema, by_alias=by_alias)
         self.gridschema.get_traits = self.datagrid_trait_names
         super().__init__(self._init_data(data))
         {setattr(self, k, v) for k, v in self.gridschema.datagrid_traits.items()}
@@ -617,6 +662,8 @@ class AutoGrid(DataGrid):
             raise Exception("Index of datagrid does not match with value keys.")
         for primary_key_value, v in value.items():
             # set_cell_value(self, column_name, primary_key_value, new_value)
+            if isinstance(primary_key_value, tuple):
+                primary_key_value = list(primary_key_value)
             self.set_cell_value(column_name, primary_key_value, v)
 
     def filter_by_column_name(self, column_name: str, li_filter: list):
@@ -701,30 +748,6 @@ class AutoGrid(DataGrid):
 
     # ----------------
 
-    # ----------------
-    # ----------------
-    # https://github.com/bloomberg/ipydatagrid/issues/340
-    # selecting when a transform is applied...
-    @property
-    def selected_visible_cell_iterator(self):
-        """
-        An iterator to traverse selected cells one by one.
-        """
-        # Copy of the front-end data model
-        view_data = self.get_visible_data()
-
-        # Get primary key from dataframe
-        index_key = self.get_dataframe_index(view_data)
-
-        # Serielize to JSON table schema
-        view_data_object = self.generate_data_object(view_data, "ipydguuid", index_key)
-
-        return SelectionHelper(view_data_object, self.selections, self.selection_mode)
-
-    # these terms (below) avoid row or col terminology and can be used if transposed or not...
-    # only these methods are called be EditGrid, allowing it to operate the same if the
-    # view is transposed or not.
-    # ----------
     @property
     def selected(self):
         if self.transposed:
@@ -781,11 +804,23 @@ class AutoGrid(DataGrid):
         s = self.selected_visible_cell_iterator
         cols = set([l["c"] for l in s])
         cols = [self.get_col_name_from_index(col_index) for col_index in cols]
+
         index = self.get_dataframe_index(self.data)
+        if isinstance(index, pd.core.indexes.frozen.FrozenList):
+            index = tuple(index)
         return [
             self.apply_map_name_title({l[index]: l[col_name] for l in s._data["data"]})
             for col_name in cols
         ]
+
+    @property
+    def selected_cols(self):
+        """Get the data selected in the table which is returned as a dataframe."""
+        di = self.selected_dict
+        index = self.get_dataframe_index(self.data)
+        if isinstance(index, pd.core.indexes.frozen.FrozenList):
+            index = tuple(index)
+        return [self.apply_map_name_title(v) for v in di.values()]
 
     @property
     def selected_row_index(self) -> ty.Any:
@@ -799,6 +834,8 @@ class AutoGrid(DataGrid):
         """Return the keys of the selected rows. still works if transform applied."""
         s = self.selected_visible_cell_iterator
         index = self.get_dataframe_index(self.data)
+        if isinstance(index, pd.core.indexes.frozen.FrozenList):
+            index = tuple(index)
         rows = set([l["r"] for l in s])
         return [s._data["data"][r][index] for r in rows]
 
@@ -842,14 +879,37 @@ if __name__ == "__main__":
     class TestDataFrame(BaseModel):
         # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
         __root__: ty.List[DataFrameCols] = Field(
-            [DataFrameCols()], format="dataframe", global_decimal_places=2
+            # [DataFrameCols()], format="dataframe", global_decimal_places=2
+            format="dataframe",
+            global_decimal_places=2,
         )
-
-    # schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
 
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
     display(grid)
 
+
+if __name__ == "__main__":
+
+    class DataFrameCols(BaseModel):
+        string: str = Field(
+            title="Important String",
+            column_width=120,
+        )
+        integer: int = Field(title="Integer of somesort", column_width=150)
+        floater: float = Field(
+            title="Floater", column_width=70  # , renderer={"format": ".2f"}
+        )
+
+    class TestDataFrame(BaseModel):
+        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
+        __root__: ty.List[DataFrameCols] = Field(
+            [DataFrameCols(string="string", integer=1, floater=1.2)],
+            format="dataframe",
+            global_decimal_places=2,
+        )
+
+    grid = AutoGrid(schema=TestDataFrame, by_title=True)
+    display(grid)
 
 if __name__ == "__main__":
     grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)  # .T
@@ -858,7 +918,10 @@ if __name__ == "__main__":
     print(grid.is_transposed)
 
 if __name__ == "__main__":
-    grid.transposed = True
+    grid.transposed = False
+
+if __name__ == "__main__":
+    grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
 
 if __name__ == "__main__":
     # test pd.to_dict
@@ -871,12 +934,6 @@ if __name__ == "__main__":
     print(df.to_dict(orient="split"))
     print(df.to_dict(orient="records"))
     print(df.to_dict(orient="index"))
-
-if __name__ == "__main__":
-    print(grid.count_changes)
-
-if __name__ == "__main__":
-    grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
 
 if __name__ == "__main__":
     print(grid.count_changes)
@@ -906,13 +963,24 @@ if __name__ == "__main__":
             datagrid_index_name=("section", "title"),
         )
 
-    # schema = attach_schema_refs(TestDataFrame.schema())["properties"]["dataframe"]
-
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
     display(grid)
 
 if __name__ == "__main__":
+    grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)
+
+# + active=""
+# grid.map_name_index
+
+# + active=""
+# grid._data["data"]
+# -
+
+if __name__ == "__main__":
     grid.transposed = False
+
+if __name__ == "__main__":
+    grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
 
 
 class DataHandler(BaseModel):
@@ -1026,9 +1094,27 @@ if __name__ == "__main__":
     delete.value = {"key": {"col1": "value1", "col2": "value2"}}
 
 
+class UiCopyDialogue(w.VBox):
+    def __init__(self):
+        super().__init__()
+        self.bn_top = w.Button(icon="sort-up", layout={"width": "40px"})
+        self.bn_inplace = w.Button(icon="sort", layout={"width": "40px"})
+        self.bn_end = w.Button(icon="sort-down", layout={"width": "40px"})
+        self.bn_blank = w.Button(
+            icon="", style={"button_color": "white"}, layout={"width": "40px"}
+        )
+        self.children = [
+            w.HBox([self.bn_top, w.HTML("duplicate selection to beginning")]),
+            w.HBox([self.bn_inplace, w.HTML("duplicate selection to below current")]),
+            w.HBox([self.bn_end, w.HTML("duplicate selection to end")]),
+            w.HBox([self.bn_blank, w.HTML("select new row/col to copy to")]),
+        ]
+
+
 class EditGrid(w.VBox):
     _value = tr.Tuple()  # using a tuple to guarantee no accidental mutation
     warn_on_delete = tr.Bool()
+    # show_copy_dialogue = tr.Bool()
 
     @property
     def value(self):
@@ -1075,7 +1161,7 @@ class EditGrid(w.VBox):
         self.by_title = by_title
         self.fn_on_copy = fn_on_copy
         self.by_alias = by_alias
-        # self.model, self.schema = aui._init_model_schema(schema, by_alias=by_alias)
+        # self.model, self.schema = asch._init_model_schema(schema, by_alias=by_alias)
         self.datahandler = datahandler
         self.grid = AutoGrid(schema, value=value, by_alias=self.by_alias)
 
@@ -1094,6 +1180,7 @@ class EditGrid(w.VBox):
         self.warn_on_delete = warn_on_delete
         self.ui_delete.fn_delete = self._delete_selected
         self._init_form()
+        self._update_value_from_grid()
         self._init_row_controls()
 
     def _init_row_controls(self):
@@ -1138,7 +1225,6 @@ class EditGrid(w.VBox):
         ]
         self.setview_default()
         self._init_controls()
-        self._update_value_from_grid()
 
     def _init_controls(self):
         self.grid.observe(self._observe_selections, "selections")
@@ -1358,7 +1444,7 @@ if __name__ == "__main__":
         description=description,
         ui_add=None,
         ui_edit=None,
-        warn_on_delete=True,
+        warn_on_delete=False,
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
@@ -1379,7 +1465,7 @@ if __name__ == "__main__":
     class DataFrameCols(BaseModel):
         string: str = Field("string", column_width=100, section="a")
         integer: int = Field(1, column_width=80, section="a")
-        floater: float = Field(3.1415, column_width=70, aui_sig_fig=3, section="b")
+        floater: float = Field(None, column_width=70, aui_sig_fig=3, section="b")
 
     class TestDataFrame(BaseModel):
         """a description of TestDataFrame"""
@@ -1406,6 +1492,37 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     editgrid.transposed = True
+
+
+if __name__ == "__main__":
+
+    class DataFrameCols(BaseModel):
+        string: str = Field(
+            title="Important String",
+            column_width=120,
+        )
+        integer: int = Field(title="Integer of somesort", column_width=150)
+        floater: float = Field(
+            title="Floater", column_width=70  # , renderer={"format": ".2f"}
+        )
+
+    class TestDataFrame(BaseModel):
+        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
+        __root__: ty.List[DataFrameCols] = Field(
+            # [DataFrameCols()], format="dataframe", global_decimal_places=2
+            format="dataframe",
+            global_decimal_places=2,
+        )
+
+    editgrid = EditGrid(
+        schema=TestDataFrame,
+        description=description,
+        ui_add=None,
+        ui_edit=None,
+        warn_on_delete=True,
+    )
+    editgrid.observe(lambda c: print("_value changed"), "_value")
+    display(editgrid)
 
 # +
 # df = editgrid.grid._init_data(pd.DataFrame(editgrid.value[0:3]))
