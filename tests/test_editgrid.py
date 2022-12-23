@@ -180,7 +180,7 @@ class TestAutoGridInitData:
 
         grid = AutoGrid(schema=DataFrameSchema)
         assert grid._data["data"] == [
-            {"key": 0, "String": "test", "Floater": 1.5, "ipydguuid": 0}
+            {"index": 0, "String": "test", "Floater": 1.5, "ipydguuid": 0}
         ]
 
     def test_pass_data_as_kwarg(self):
@@ -197,7 +197,7 @@ class TestAutoGridInitData:
         df = pd.DataFrame([{"String": "test2", "Floater": 2.2}])
         grid3 = AutoGrid(schema=DataFrameSchema, data=df)
         assert grid3._data["data"] == [
-            {"key": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
+            {"index": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
         ]
 
     def test_pass_data_as_kwarg_map_titles(self):
@@ -215,7 +215,7 @@ class TestAutoGridInitData:
         df = pd.DataFrame([{"string": "test2", "floater": 2.2}])
         grid4 = AutoGrid(schema=DataFrameSchema, data=df)
         assert grid4._data["data"] == [
-            {"key": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
+            {"index": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
         ]
         print("done")
 
@@ -241,7 +241,7 @@ class TestAutoGridInitData:
 
         assert gr._data["data"] == [
             {
-                ("key", ""): 0,
+                ("index", ""): 0,
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
@@ -258,14 +258,14 @@ class TestAutoGridInitData:
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
                 ("ipydguuid", ""): 0,
-                ("key", ""): 0,
+                ("index", ""): 0,
             },
             {
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
                 ("ipydguuid", ""): 1,
-                ("key", ""): 1,
+                ("index", ""): 1,
             },
         ]
 
