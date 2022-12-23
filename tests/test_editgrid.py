@@ -130,7 +130,7 @@ class TestGridSchema:
         assert gridschema.default_data == [
             {"string": "string", "floater": 1.5, "inty": 1}
         ]
-        assert gridschema.default_row == {"floater": 1.5, "inty": 1, 'string': None} 
+        assert gridschema.default_row == {"floater": 1.5, "inty": 1, "string": None}
         # TODO: this doesn't make that much sense ans string=None is not allowed...
         assert gridschema.default_dataframe.equals(
             pd.DataFrame(
@@ -158,7 +158,7 @@ class TestAutoGridInitData:
         grid = AutoGrid(schema=DataFrameSchema)
         assert grid._data["data"] == []
         assert grid._data["schema"]["fields"] == [
-            {"name": "key", "type": "string"},  # NOTE: unable to detect type
+            {"name": "index", "type": "string"},  # NOTE: unable to detect type
             {"name": "String", "type": "string"},
             {"name": "Floater", "type": "string"},  # NOTE: unable to detect type
             {"name": "ipydguuid", "type": "integer"},
@@ -342,7 +342,11 @@ class TestEditGrid:
 
 class TestAutoEditGrid:
     @pytest.mark.skip(
-        reason="not sure if this will work - does it need javascript / backbonejs traitlets stuff to be running? will they not running without the notebook session?"
+        reason=(
+            "not sure if this will work - does it need javascript / backbonejs"
+            " traitlets stuff to be running? will they not running without the notebook"
+            " session?"
+        )
     )
     def test_editgrid_change_data(self):
         grid = AutoObject(schema=EditableGrid)
