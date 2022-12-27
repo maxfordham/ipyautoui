@@ -9,7 +9,8 @@ from .constants import DIR_TESTS, DIR_FILETYPES
 from ipyautoui.custom.editgrid import AutoGrid, EditGrid
 from ipyautoui.custom.save_buttonbar import ButtonBar
 from ipyautoui.demo_schemas import EditableGrid
-from ipyautoui.autoipywidget import AutoObject, _init_model_schema
+from ipyautoui.autoipywidget import AutoObject
+from ipyautoui.automapschema import _init_model_schema
 from ipyautoui.custom.editgrid import GridSchema
 from pydantic import BaseModel, Field
 import typing as ty
@@ -72,7 +73,7 @@ class TestGridSchema:
         assert gridschema.index_name == "title"
         assert (gridschema.index == pd.Index(["String", "Floater"], name="title")).all()
         assert gridschema.default_data == []
-        assert gridschema.default_row == {}
+        assert gridschema.default_row == {"string": None, "floater": None}
         assert gridschema.default_dataframe.equals(
             pd.DataFrame(columns=pd.Index(["String", "Floater"], name="title"))
         )
@@ -93,7 +94,7 @@ class TestGridSchema:
         gridschema = GridSchema(schema)
         assert gridschema.is_multiindex == False
         assert gridschema.default_data == [{"string": "string", "floater": 1.5}]
-        assert gridschema.default_row == {"floater": 1.5}
+        assert gridschema.default_row == {"string": None, "floater": 1.5}
         assert gridschema.default_dataframe.equals(
             pd.DataFrame(
                 [{"String": "string", "Floater": 1.5}],
@@ -129,7 +130,8 @@ class TestGridSchema:
         assert gridschema.default_data == [
             {"string": "string", "floater": 1.5, "inty": 1}
         ]
-        assert gridschema.default_row == {"floater": 1.5, "inty": 1}
+        assert gridschema.default_row == {"floater": 1.5, "inty": 1, "string": None}
+        # TODO: this doesn't make that much sense ans string=None is not allowed...
         assert gridschema.default_dataframe.equals(
             pd.DataFrame(
                 [{("a", "String"): "string", ("b", "Floater"): 1.5, ("b", "Inty"): 1}],
@@ -156,7 +158,7 @@ class TestAutoGridInitData:
         grid = AutoGrid(schema=DataFrameSchema)
         assert grid._data["data"] == []
         assert grid._data["schema"]["fields"] == [
-            {"name": "key", "type": "string"},  # NOTE: unable to detect type
+            {"name": "index", "type": "string"},  # NOTE: unable to detect type
             {"name": "String", "type": "string"},
             {"name": "Floater", "type": "string"},  # NOTE: unable to detect type
             {"name": "ipydguuid", "type": "integer"},
@@ -178,7 +180,7 @@ class TestAutoGridInitData:
 
         grid = AutoGrid(schema=DataFrameSchema)
         assert grid._data["data"] == [
-            {"key": 0, "String": "test", "Floater": 1.5, "ipydguuid": 0}
+            {"index": 0, "String": "test", "Floater": 1.5, "ipydguuid": 0}
         ]
 
     def test_pass_data_as_kwarg(self):
@@ -195,7 +197,7 @@ class TestAutoGridInitData:
         df = pd.DataFrame([{"String": "test2", "Floater": 2.2}])
         grid3 = AutoGrid(schema=DataFrameSchema, data=df)
         assert grid3._data["data"] == [
-            {"key": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
+            {"index": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
         ]
 
     def test_pass_data_as_kwarg_map_titles(self):
@@ -213,7 +215,7 @@ class TestAutoGridInitData:
         df = pd.DataFrame([{"string": "test2", "floater": 2.2}])
         grid4 = AutoGrid(schema=DataFrameSchema, data=df)
         assert grid4._data["data"] == [
-            {"key": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
+            {"index": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
         ]
         print("done")
 
@@ -239,7 +241,7 @@ class TestAutoGridInitData:
 
         assert gr._data["data"] == [
             {
-                ("key", ""): 0,
+                ("index", ""): 0,
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
@@ -256,14 +258,14 @@ class TestAutoGridInitData:
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
                 ("ipydguuid", ""): 0,
-                ("key", ""): 0,
+                ("index", ""): 0,
             },
             {
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
                 ("ipydguuid", ""): 1,
-                ("key", ""): 1,
+                ("index", ""): 1,
             },
         ]
 
@@ -340,7 +342,11 @@ class TestEditGrid:
 
 class TestAutoEditGrid:
     @pytest.mark.skip(
-        reason="not sure if this will work - does it need javascript / backbonejs traitlets stuff to be running? will they not running without the notebook session?"
+        reason=(
+            "not sure if this will work - does it need javascript / backbonejs"
+            " traitlets stuff to be running? will they not running without the notebook"
+            " session?"
+        )
     )
     def test_editgrid_change_data(self):
         grid = AutoObject(schema=EditableGrid)

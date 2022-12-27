@@ -13,7 +13,6 @@
 #     name: python3
 # ---
 
-# +
 """autoui is used to automatically create ipywidget user input (UI) form from a pydantic schema.
 
 This module maps the pydantic fields to appropriate widgets based on type to display the data in the UI.
@@ -43,9 +42,9 @@ from ipyautoui.constants import BUTTON_WIDTH_MIN
 from ipyautoui._utils import display_python_string, obj_from_importstr
 from ipyautoui.custom.save_buttonbar import SaveButtonBar
 from ipyautoui.custom.showhide import ShowHide
+from ipyautoui.autowidgets import Nullable
 
 
-# +
 def _init_widgets_and_labels(
     pr: ty.Dict,
 ) -> tuple[ty.Dict[str, w.HBox], ty.Dict]:
@@ -69,27 +68,6 @@ def _init_widgets_and_labels(
     }
 
     return di_labels, di_widgets
-
-
-def _init_model_schema(schema, by_alias=False):
-    if type(schema) == dict:
-        model = None  # jsonschema_to_pydantic(schema)
-        # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM
-        # jsonschema_to_pydantic
-        # https://koxudaxi.github.io/datamodel-code-generator/using_as_module/
-    else:
-        model = schema  # the "model" passed is a pydantic model
-        schema = model.schema(by_alias=by_alias).copy()
-
-    if "definitions" in schema.keys():
-        li = [l for l in schema.keys() if l != "definitions"]
-        li = ["definitions"] + li
-        schema = {l: schema[l] for l in li}
-    # ^ put definitions at the top of the schema.
-    # otherwise definitions with $ref's in get copied in to the code
-
-    schema = aumap.attach_schema_refs(schema)
-    return model, schema
 
 
 # + tags=[]
@@ -573,7 +551,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         self._init_controls()
 
     def _init_schema(self, schema, by_alias=False):
-        self.model, self.schema = _init_model_schema(schema, by_alias=by_alias)
+        self.model, self.schema = aumap._init_model_schema(schema, by_alias=by_alias)
         # if "type" not in self.schema.keys() and self.schema["type"] != "object":
         #     raise ValueError(
         #         '"type" must be in schema keys and "type" must == "object"'
@@ -591,6 +569,12 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         if self.fdir is not None:
             for v in self.pr.values():
                 v = add_fdir_to_widgetcaller(v, self.fdir)
+
+    # def is_nullable(self, key):
+    #     if "nullable" in self.pr[key].keys() and self.pr[key]["nullable"]:
+    #         return True
+    #     else:
+    #         return False
 
     def _init_widgets(self):
         self.di_labels, self.di_widgets = _init_widgets_and_labels(self.pr)
@@ -662,7 +646,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
     def _update_widgets_from_value(self):
         for k, v in self.value.items():
             if k in self.di_widgets.keys():
-                if v is None:
+                if v is None and not isinstance(self.di_widgets[k], Nullable):
                     v = _get_value_trait(self.di_widgets[k]).default()
                 self.di_widgets[k].value = v
             else:
@@ -692,15 +676,10 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
 
 
 if __name__ == "__main__":
-    from ipyautoui.constants import load_test_constants
-    from ipyautoui.test_schema import TestAutoLogicSimple
+    from ipyautoui.demo_schemas import CoreIpywidgets
 
-    test_constants = load_test_constants()
-    test = TestAutoLogicSimple()
-    schema = test.schema()
-    ui = AutoObject(TestAutoLogicSimple)
+    ui = AutoObject(CoreIpywidgets)
     display(ui)
-# -
 
 
 if __name__ == "__main__":
@@ -743,22 +722,3 @@ if __name__ == "__main__":
     ui.show_description = True
     ui.show_title = True
     ui.show_raw = True
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestEditGrid
-
-    ui = AutoObject(TestEditGrid)
-    ui.auto_open = True
-    display(ui)
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
-
-    ui = AutoObject(TestAutoLogic)
-    display(ui)
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestNested
-
-    ui = AutoObject(TestNested)
-    display(ui)

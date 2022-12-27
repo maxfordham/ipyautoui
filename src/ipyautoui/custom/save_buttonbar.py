@@ -238,6 +238,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     sb.unsaved_changes = True
 
+# TODO: move into editgrid_buttonbar.py
 
 class ButtonBar(w.HBox):
     def __init__(
