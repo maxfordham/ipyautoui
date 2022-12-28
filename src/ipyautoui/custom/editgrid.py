@@ -80,7 +80,8 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema."""
+    """Set the column widths of the data grid based on column_width given in the schema.
+    """
 
     # start with settings in properties
     column_widths = {
@@ -142,7 +143,6 @@ def get_column_renderers_from_schema(
 def get_global_renderer_from_schema(
     schema, renderer_name, **kwargs
 ) -> ty.Union[None, CellRenderer]:
-
     if renderer_name in kwargs:
         return kwargs[renderer_name]
 
@@ -186,6 +186,10 @@ class GridSchema:
         self.schema = schema
         if "datagrid_index_name" not in self.schema.keys():
             self.schema["datagrid_index_name"] = "title"
+        else:
+            self.schema["datagrid_index_name"] = tuple(
+                self.schema["datagrid_index_name"]
+            )
         self.index = self.get_index()
         self.get_traits = get_traits
 
@@ -484,7 +488,6 @@ class AutoGrid(DataGrid):
 
     @tr.observe("transposed")
     def _transposed(self, change):
-
         self.selection_mode = MAP_TRANSPOSED_SELECTION_MODE[change["new"]]
         if change["new"]:
             dft = self.data.T
@@ -852,7 +855,8 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where key is row index. still works if transform applied."""
+        """Return the dictionary of selected rows where key is row index. still works if transform applied.
+        """
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
@@ -1066,7 +1070,8 @@ class UiDelete(w.HBox):
         )
         self.vbx_messages = w.VBox()
         self.message = w.HTML(
-            "⚠️<b>warning</b>⚠️ - <i>pressing button will permanently delete rows from grid</i>"
+            "⚠️<b>warning</b>⚠️ - <i>pressing button will permanently delete rows from"
+            " grid</i>"
         )
         self.message_columns = w.HTML(f"---")
         self.vbx_messages.children = [
@@ -1085,7 +1090,6 @@ class UiDelete(w.HBox):
 
 
 if __name__ == "__main__":
-
     delete = UiDelete()
     display(delete)
 # -
