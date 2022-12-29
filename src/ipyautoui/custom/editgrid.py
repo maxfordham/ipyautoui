@@ -8,12 +8,17 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
+
+# +
+import os, sys, pathlib
+
+sys.path.append(str(pathlib.Path(os.getcwd()).parents[1]))
 
 # +
 """General widget for editing data"""
@@ -80,8 +85,7 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema.
-    """
+    """Set the column widths of the data grid based on column_width given in the schema."""
 
     # start with settings in properties
     column_widths = {
@@ -855,8 +859,7 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where key is row index. still works if transform applied.
-        """
+        """Return the dictionary of selected rows where key is row index. still works if transform applied."""
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
@@ -1528,14 +1531,6 @@ if __name__ == "__main__":
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
 
-# +
-# df = editgrid.grid._init_data(pd.DataFrame(editgrid.value[0:3]))
-# df
-# if editgrid.transposed:
-#     df = df.T
-# df.index
-# -
-
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
     from ipyautoui.autoipywidget import AutoObject
@@ -1552,7 +1547,14 @@ if __name__ == "__main__":
         """a description of TestDataFrame"""
 
         __root__: ty.List[DataFrameCols] = Field(
-            [DataFrameCols().dict()], format="dataframe"
+            [
+                DataFrameCols(
+                    string="String",
+                    integer=1,
+                    floater=2.5,
+                ).dict()
+            ],
+            format="dataframe",
         )
 
     description = markdown(
@@ -1568,39 +1570,6 @@ if __name__ == "__main__":
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
-
-# + active=""
-# s = editgrid.grid.selected_visible_cell_iterator
-# cols = set([l["c"] for l in s])
-# cols = [editgrid.grid.get_col_name_from_index(col_index) for col_index in cols]
-# index = editgrid.grid.get_dataframe_index(editgrid.grid.data)
-# [
-#     editgrid.grid.apply_map_name_title({l[index]: l[col_name] for l in s._data["data"]})
-#     for col_name in cols
-# ]
-
-# + active=""
-# editgrid.grid.selected_index
-
-# + active=""
-# editgrid.grid.data.index.to_list()
-
-# + active=""
-# editgrid.ui_edit.value
-
-# + active=""
-# editgrid.value = [
-#     value
-#     for i, value in enumerate(editgrid.value)
-#     if i not in editgrid.grid.selected_indexes
-# ]
-
-# + active=""
-# editgrid.ui_edit.value
-
-# + active=""
-# editgrid.grid.selected_index
-# -
 
 if __name__ == "__main__":
     editgrid.transposed = True
@@ -1623,3 +1592,5 @@ if __name__ == "__main__":
     ui.observe(lambda c: print("_value change"), "_value")
     ui.di_widgets["__root__"].observe(lambda c: print("grid _value change"), "_value")
     display(ui)
+
+
