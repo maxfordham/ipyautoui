@@ -1143,6 +1143,11 @@ class EditGrid(w.VBox):
             #     df = df.T
             # self.grid.data = df
 
+        # HOTFIX: Setting data creates bugs out transforms currently so reset transform applied
+        _transforms = self.grid._transforms
+        self.grid.transform([])  # Set to no transforms
+        self.grid.transform(_transforms)  # Set to previous transforms
+
     def __init__(
         self,
         schema: ty.Union[dict, ty.Type[BaseModel]],
