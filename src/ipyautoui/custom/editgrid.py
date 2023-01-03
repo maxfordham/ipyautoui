@@ -1473,7 +1473,7 @@ if __name__ == "__main__":
         __root__: ty.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE,
             format="dataframe",
-            datagrid_index_name=("section", "title"),
+            # datagrid_index_name=("section", "title"),
         )
 
     description = markdown(
@@ -1492,7 +1492,7 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
 
-    class AutoObjectFiltered(aui.AutoObject): # TODO: Implement into EditGrid class???
+    class AutoObjectFiltered(aui.AutoObject):  # TODO: Implement into EditGrid class???
         """This extended AutoObject class relies on EditGrid and a passed row_schema.
 
         The AutoObject will update its rows shown based on the visible rows of the grid.
@@ -1532,7 +1532,7 @@ if __name__ == "__main__":
         def _update_order(self, onchange):
             """Update order of AutoObject based on index of dataframe of the DataGrid."""
             if self.app.transposed is True:
-                self.order = self._get_filtered_fields()
+                self.order = self._get_visible_fields()
 
     editgrid = EditGrid(
         schema=TestDataFrame,
