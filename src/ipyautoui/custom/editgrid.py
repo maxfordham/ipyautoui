@@ -1492,7 +1492,7 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
 
-    class AutoObjectFiltered(aui.AutoObject):
+    class AutoObjectFiltered(aui.AutoObject): # TODO: Implement into EditGrid class???
         """This extended AutoObject class relies on EditGrid and a passed row_schema.
 
         The AutoObject will update its rows shown based on the visible rows of the grid.
