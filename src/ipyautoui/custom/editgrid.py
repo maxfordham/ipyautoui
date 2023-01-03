@@ -1469,6 +1469,9 @@ class AutoObjectFiltered(aui.AutoObject):  # TODO: Implement into EditGrid class
         self.app = app
         super().__init__(row_schema, *args, **kwargs)
         self.app.grid.observe(self._update_order, "_visible_rows")
+        self.app.grid.observe(
+            self._save_previous_selections, "selections"
+        )  # Re-apply selection after updating transforms
 
     def _get_visible_fields(self):
         """Get the list of fields that are visible in the DataGrid."""
@@ -1496,6 +1499,11 @@ class AutoObjectFiltered(aui.AutoObject):  # TODO: Implement into EditGrid class
         """Update order instance of AutoObject based on visible fields in the DataGrid."""
         if self.app.transposed is True:
             self.order = self._get_visible_fields()
+            self.app.grid.selections = self._selections
+
+    def _save_previous_selections(self, onchange):
+        if self.app.grid.selections:
+            self._selections = self.app.grid.selections
 
 
 if __name__ == "__main__":
