@@ -1454,9 +1454,9 @@ if __name__ == "__main__":
 
 
 class AutoObjectFiltered(aui.AutoObject):  # TODO: Implement into EditGrid class???
-    """This extended AutoObject class relies on EditGrid and a passed row_schema.
+    """This extended AutoObject class relies on EditGrid and a row_schema dictionary.
 
-    The AutoObject will update its rows shown based on the visible rows of the grid.
+    The AutoObject will update its rows based on the visible rows of the grid.
     """
 
     def __init__(self, row_schema: dict, app: EditGrid, *args, **kwargs):
@@ -1488,7 +1488,7 @@ class AutoObjectFiltered(aui.AutoObject):  # TODO: Implement into EditGrid class
             raise Exception("Index obtained not of correct type.")
 
     def _update_order(self, onchange):
-        """Update order of AutoObject based on index of dataframe of the DataGrid."""
+        """Update order instance of AutoObject based on visible fields in the DataGrid."""
         if self.app.transposed is True:
             self.order = self._get_visible_fields()
 
