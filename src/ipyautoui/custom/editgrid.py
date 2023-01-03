@@ -1414,45 +1414,7 @@ class EditGrid(w.VBox):
 
 
 if __name__ == "__main__":
-    AUTO_GRID_DEFAULT_VALUE = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-        },
-    ]
-    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
-
-    class DataFrameCols(BaseModel):
-        string: str = Field("string", column_width=100, section="a")
-        integer: int = Field(1, column_width=80, section="a")
-        floater: float = Field(3.1415, column_width=70, aui_sig_fig=3, section="b")
-
-    class TestDataFrame(BaseModel):
-        """a description of TestDataFrame"""
-
-        __root__: ty.List[DataFrameCols] = Field(
-            default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
-        )
-
-    description = markdown(
-        "<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes"
-        " whatever they may be 👍"
-    )
-    editgrid = EditGrid(
-        schema=TestDataFrame,
-        description=description,
-        ui_add=None,
-        ui_edit=None,
-        warn_on_delete=False,
-    )
-    editgrid.observe(lambda c: print("_value changed"), "_value")
-    display(editgrid)
-
-if __name__ == "__main__":
-    editgrid.transposed = True
-
-if __name__ == "__main__":
+    # Test: EditGrid instance with multi-indexing.
     AUTO_GRID_DEFAULT_VALUE = [
         {
             "string": "important string",
@@ -1473,7 +1435,7 @@ if __name__ == "__main__":
         __root__: ty.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE,
             format="dataframe",
-            # datagrid_index_name=("section", "title"),
+            datagrid_index_name=("section", "title"),
         )
 
     description = markdown(
@@ -1490,50 +1452,49 @@ if __name__ == "__main__":
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
 
+
+class AutoObjectFiltered(aui.AutoObject):  # TODO: Implement into EditGrid class???
+    """This extended AutoObject class relies on EditGrid and a passed row_schema.
+
+    The AutoObject will update its rows shown based on the visible rows of the grid.
+    """
+
+    def __init__(self, row_schema: dict, app: EditGrid, *args, **kwargs):
+        self.row_schema = row_schema
+        self.app = app
+        super().__init__(row_schema, *args, **kwargs)
+        self.app.grid.observe(self._update_order, "_visible_rows")
+
+    def _get_visible_fields(self):
+        """Get the list of fields that are visible in the DataGrid."""
+        if isinstance(self.app.grid.get_visible_data().index, pd.MultiIndex) is True:
+            title_idx = self.app.grid.get_visible_data().index.names.index("title")
+            visible_titles = [
+                v[title_idx] for v in self.app.grid.get_visible_data().index
+            ]
+            return [
+                k
+                for k, v in self.app.row_schema["properties"].items()
+                if v["title"] in visible_titles
+            ]
+        elif isinstance(self.app.grid.get_visible_data().index, pd.Index) is True:
+            return [
+                k
+                for k, v in self.app.row_schema["properties"].items()
+                if v["title"] in self.app.grid.get_visible_data().index
+            ]
+
+        else:
+            raise Exception("Index obtained not of correct type.")
+
+    def _update_order(self, onchange):
+        """Update order of AutoObject based on index of dataframe of the DataGrid."""
+        if self.app.transposed is True:
+            self.order = self._get_visible_fields()
+
+
 if __name__ == "__main__":
-
-    class AutoObjectFiltered(aui.AutoObject):  # TODO: Implement into EditGrid class???
-        """This extended AutoObject class relies on EditGrid and a passed row_schema.
-
-        The AutoObject will update its rows shown based on the visible rows of the grid.
-        """
-
-        def __init__(self, row_schema: dict, app: EditGrid, *args, **kwargs):
-            self.row_schema = row_schema
-            self.app = app
-            super().__init__(row_schema, *args, **kwargs)
-            self.app.grid.observe(self._update_order, "_visible_rows")
-
-        def _get_visible_fields(self):
-            """Get the list of fields that are visible in the DataGrid."""
-            if (
-                isinstance(self.app.grid.get_visible_data().index, pd.MultiIndex)
-                is True
-            ):
-                title_idx = self.app.grid.get_visible_data().index.names.index("title")
-                visible_titles = [
-                    v[title_idx] for v in self.app.grid.get_visible_data().index
-                ]
-                return [
-                    k
-                    for k, v in self.app.row_schema["properties"].items()
-                    if v["title"] in visible_titles
-                ]
-            elif isinstance(self.app.grid.get_visible_data().index, pd.Index) is True:
-                return [
-                    k
-                    for k, v in self.app.row_schema["properties"].items()
-                    if v["title"] in self.app.grid.get_visible_data().index
-                ]
-
-            else:
-                raise Exception("Index obtained not of correct type.")
-
-        def _update_order(self, onchange):
-            """Update order of AutoObject based on index of dataframe of the DataGrid."""
-            if self.app.transposed is True:
-                self.order = self._get_visible_fields()
-
+    # Test: Using AutoObjectFiltered
     editgrid = EditGrid(
         schema=TestDataFrame,
         description=description,
@@ -1543,36 +1504,6 @@ if __name__ == "__main__":
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
     editgrid.transposed = True
-    display(editgrid)
-
-if __name__ == "__main__":
-
-    class DataFrameCols(BaseModel):
-        string: str = Field(
-            title="Important String",
-            column_width=120,
-        )
-        integer: int = Field(title="Integer of somesort", column_width=150)
-        floater: float = Field(
-            title="Floater", column_width=70  # , renderer={"format": ".2f"}
-        )
-
-    class TestDataFrame(BaseModel):
-        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
-        __root__: ty.List[DataFrameCols] = Field(
-            # [DataFrameCols()], format="dataframe", global_decimal_places=2
-            format="dataframe",
-            global_decimal_places=2,
-        )
-
-    editgrid = EditGrid(
-        schema=TestDataFrame,
-        description=description,
-        ui_add=None,
-        ui_edit=None,
-        warn_on_delete=True,
-    )
-    editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
 
 if __name__ == "__main__":
