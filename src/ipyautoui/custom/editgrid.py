@@ -16,11 +16,6 @@
 # ---
 
 # +
-import os, sys, pathlib
-
-sys.path.append(str(pathlib.Path(os.getcwd()).parents[1]))
-
-# +
 """General widget for editing data"""
 # %run __init__.py
 # %run ../__init__.py
