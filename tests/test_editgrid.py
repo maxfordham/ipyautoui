@@ -340,6 +340,7 @@ class TestEditGrid:
         # print("done")
         
     def test_editgrid_with_auto_object_filtered(self):
+        """Checking that instantiating EditGrid with AutoObjectFiltered."""
         class TestProperties(BaseModel):
             string: str = Field(column_width=100, section="a")
             floater: float = Field(1.5, column_width=70, aui_sig_fig=3, section="b")
@@ -362,6 +363,19 @@ class TestEditGrid:
         )
         editgrid.observe(lambda c: print("_value changed"), "_value")
         editgrid.transposed = True
+        
+        # TODO: Check that transform updates order of AutoObjects
+        # transform = [
+        #     {
+        #         'type': 'filter',
+        #         'columnIndex': 1,
+        #         'operator': 'in',
+        #         'value': ['String', 'Floater']
+        #     }
+        # ]
+        # editgrid.grid.transform(transform)
+        # assert editgrid.ui_add.order == ['string', 'floater']
+        # assert editgrid.ui_edit.order == ['string', 'floater']
 
 
 class TestAutoEditGrid:
