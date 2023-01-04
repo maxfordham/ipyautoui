@@ -1467,6 +1467,7 @@ class AutoObjectFiltered(aui.AutoObject):  # TODO: Implement into EditGrid class
     def __init__(self, row_schema: dict, app: EditGrid, *args, **kwargs):
         self.row_schema = row_schema
         self.app = app
+        self._selections = []
         super().__init__(row_schema, *args, **kwargs)
         self.app.grid.observe(self._update_order, "_visible_rows")
         self.app.grid.observe(
