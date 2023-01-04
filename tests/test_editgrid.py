@@ -11,7 +11,7 @@ from ipyautoui.custom.save_buttonbar import ButtonBar
 from ipyautoui.demo_schemas import EditableGrid
 from ipyautoui.autoipywidget import AutoObject
 from ipyautoui.automapschema import _init_model_schema
-from ipyautoui.custom.editgrid import GridSchema
+from ipyautoui.custom.editgrid import GridSchema, AutoObjectFiltered
 from pydantic import BaseModel, Field
 import typing as ty
 
@@ -338,6 +338,30 @@ class TestEditGrid:
         #     {"string": "test", "floater": 1.5, "inty": 1},
         # )
         # print("done")
+        
+    def test_editgrid_with_auto_object_filtered(self):
+        class TestProperties(BaseModel):
+            string: str = Field(column_width=100, section="a")
+            floater: float = Field(1.5, column_width=70, aui_sig_fig=3, section="b")
+            inty: int = Field(1, section="b")
+
+        class TestGridSchema(BaseModel):
+            """no default"""
+
+            __root__: ty.List[TestProperties] = Field(
+                [TestProperties(string="string").dict()],
+                format="dataframe",
+                datagrid_index_name=("section", "title"),
+            )
+            
+        editgrid = EditGrid(
+            schema=TestGridSchema,
+            ui_add=AutoObjectFiltered,
+            ui_edit=AutoObjectFiltered,
+            warn_on_delete=True,
+        )
+        editgrid.observe(lambda c: print("_value changed"), "_value")
+        editgrid.transposed = True
 
 
 class TestAutoEditGrid:
