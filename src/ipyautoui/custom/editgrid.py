@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -80,8 +80,7 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema.
-    """
+    """Set the column widths of the data grid based on column_width given in the schema."""
 
     # start with settings in properties
     column_widths = {
@@ -855,8 +854,7 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where key is row index. still works if transform applied.
-        """
+        """Return the dictionary of selected rows where key is row index. still works if transform applied."""
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
@@ -972,13 +970,6 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)
-
-# + active=""
-# grid.map_name_index
-
-# + active=""
-# grid._data["data"]
-# -
 
 if __name__ == "__main__":
     grid.transposed = False
@@ -1147,6 +1138,11 @@ class EditGrid(w.VBox):
             #     df = df.T
             # self.grid.data = df
 
+        # HOTFIX: Setting data creates bugs out transforms currently so reset transform applied
+        _transforms = self.grid._transforms
+        self.grid.transform([])  # Set to no transforms
+        self.grid.transform(_transforms)  # Set to previous transforms
+
     def __init__(
         self,
         schema: ty.Union[dict, ty.Type[BaseModel]],
@@ -1169,23 +1165,33 @@ class EditGrid(w.VBox):
         self.datahandler = datahandler
         self.grid = AutoGrid(schema, value=value, by_alias=self.by_alias)
 
+        self._init_form()
         if ui_add is None:
             self.ui_add = aui.AutoObject(self.row_schema)
         else:
-            self.ui_add = ui_add(self.row_schema)
+            self.ui_add = ui_add(self.row_schema, app=self)
         if ui_edit is None:
             self.ui_edit = aui.AutoObject(self.row_schema)
         else:
-            self.ui_edit = ui_edit(self.row_schema)
+            self.ui_edit = ui_edit(self.row_schema, app=self)
         if ui_delete is None:
             self.ui_delete = UiDelete()
         else:
             self.ui_delete = ui_delete()
         self.warn_on_delete = warn_on_delete
         self.ui_delete.fn_delete = self._delete_selected
-        self._init_form()
         self._update_value_from_grid()
         self._init_row_controls()
+        self.children = [
+            self.description,
+            self.buttonbar_grid,
+            self.ui_add,
+            self.ui_edit,
+            self.ui_delete,
+            self.grid,
+        ]
+        self.setview_default()
+        self._init_controls()
 
     def _init_row_controls(self):
         self.ui_edit.show_savebuttonbar = True
@@ -1219,16 +1225,6 @@ class EditGrid(w.VBox):
         )
         self.addrow = w.VBox()
         self.editrow = w.VBox()
-        self.children = [
-            self.description,
-            self.buttonbar_grid,
-            self.ui_add,
-            self.ui_edit,
-            self.ui_delete,
-            self.grid,
-        ]
-        self.setview_default()
-        self._init_controls()
 
     def _init_controls(self):
         self.grid.observe(self._observe_selections, "selections")
@@ -1418,45 +1414,7 @@ class EditGrid(w.VBox):
 
 
 if __name__ == "__main__":
-    AUTO_GRID_DEFAULT_VALUE = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-        },
-    ]
-    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
-
-    class DataFrameCols(BaseModel):
-        string: str = Field("string", column_width=100, section="a")
-        integer: int = Field(1, column_width=80, section="a")
-        floater: float = Field(3.1415, column_width=70, aui_sig_fig=3, section="b")
-
-    class TestDataFrame(BaseModel):
-        """a description of TestDataFrame"""
-
-        __root__: ty.List[DataFrameCols] = Field(
-            default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
-        )
-
-    description = markdown(
-        "<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes"
-        " whatever they may be 👍"
-    )
-    editgrid = EditGrid(
-        schema=TestDataFrame,
-        description=description,
-        ui_add=None,
-        ui_edit=None,
-        warn_on_delete=False,
-    )
-    editgrid.observe(lambda c: print("_value changed"), "_value")
-    display(editgrid)
-
-if __name__ == "__main__":
-    editgrid.transposed = True
-
-if __name__ == "__main__":
+    # Test: EditGrid instance with multi-indexing.
     AUTO_GRID_DEFAULT_VALUE = [
         {
             "string": "important string",
@@ -1494,47 +1452,68 @@ if __name__ == "__main__":
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
 
-if __name__ == "__main__":
-    editgrid.transposed = True
+
+class AutoObjectFiltered(aui.AutoObject):  # TODO: Implement into EditGrid class???
+    """This extended AutoObject class relies on EditGrid and a row_schema dictionary.
+
+    The AutoObject will update its rows based on the visible rows of the grid.
+    """
+
+    def __init__(self, row_schema: dict, app: EditGrid, *args, **kwargs):
+        self.row_schema = row_schema
+        self.app = app
+        self._selections = []
+        super().__init__(row_schema, *args, **kwargs)
+        self.app.grid.observe(self._update_order, "_visible_rows")
+        self.app.grid.observe(
+            self._save_previous_selections, "selections"
+        )  # Re-apply selection after updating transforms
+
+    def _get_visible_fields(self):
+        """Get the list of fields that are visible in the DataGrid."""
+        if isinstance(self.app.grid.get_visible_data().index, pd.MultiIndex) is True:
+            title_idx = self.app.grid.get_visible_data().index.names.index("title")
+            visible_titles = [
+                v[title_idx] for v in self.app.grid.get_visible_data().index
+            ]
+            return [
+                k
+                for k, v in self.app.row_schema["properties"].items()
+                if v["title"] in visible_titles
+            ]
+        elif isinstance(self.app.grid.get_visible_data().index, pd.Index) is True:
+            return [
+                k
+                for k, v in self.app.row_schema["properties"].items()
+                if v["title"] in self.app.grid.get_visible_data().index
+            ]
+
+        else:
+            raise Exception("Index obtained not of correct type.")
+
+    def _update_order(self, onchange):
+        """Update order instance of AutoObject based on visible fields in the DataGrid."""
+        if self.app.transposed is True:
+            self.order = self._get_visible_fields()
+            self.app.grid.selections = self._selections
+
+    def _save_previous_selections(self, onchange):
+        if self.app.grid.selections:
+            self._selections = self.app.grid.selections
 
 
 if __name__ == "__main__":
-
-    class DataFrameCols(BaseModel):
-        string: str = Field(
-            title="Important String",
-            column_width=120,
-        )
-        integer: int = Field(title="Integer of somesort", column_width=150)
-        floater: float = Field(
-            title="Floater", column_width=70  # , renderer={"format": ".2f"}
-        )
-
-    class TestDataFrame(BaseModel):
-        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
-        __root__: ty.List[DataFrameCols] = Field(
-            # [DataFrameCols()], format="dataframe", global_decimal_places=2
-            format="dataframe",
-            global_decimal_places=2,
-        )
-
+    # Test: Using AutoObjectFiltered
     editgrid = EditGrid(
         schema=TestDataFrame,
         description=description,
-        ui_add=None,
-        ui_edit=None,
+        ui_add=AutoObjectFiltered,
+        ui_edit=AutoObjectFiltered,
         warn_on_delete=True,
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
+    editgrid.transposed = True
     display(editgrid)
-
-# +
-# df = editgrid.grid._init_data(pd.DataFrame(editgrid.value[0:3]))
-# df
-# if editgrid.transposed:
-#     df = df.T
-# df.index
-# -
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
@@ -1552,7 +1531,14 @@ if __name__ == "__main__":
         """a description of TestDataFrame"""
 
         __root__: ty.List[DataFrameCols] = Field(
-            [DataFrameCols().dict()], format="dataframe"
+            [
+                DataFrameCols(
+                    string="String",
+                    integer=1,
+                    floater=2.5,
+                ).dict()
+            ],
+            format="dataframe",
         )
 
     description = markdown(
@@ -1568,39 +1554,6 @@ if __name__ == "__main__":
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
-
-# + active=""
-# s = editgrid.grid.selected_visible_cell_iterator
-# cols = set([l["c"] for l in s])
-# cols = [editgrid.grid.get_col_name_from_index(col_index) for col_index in cols]
-# index = editgrid.grid.get_dataframe_index(editgrid.grid.data)
-# [
-#     editgrid.grid.apply_map_name_title({l[index]: l[col_name] for l in s._data["data"]})
-#     for col_name in cols
-# ]
-
-# + active=""
-# editgrid.grid.selected_index
-
-# + active=""
-# editgrid.grid.data.index.to_list()
-
-# + active=""
-# editgrid.ui_edit.value
-
-# + active=""
-# editgrid.value = [
-#     value
-#     for i, value in enumerate(editgrid.value)
-#     if i not in editgrid.grid.selected_indexes
-# ]
-
-# + active=""
-# editgrid.ui_edit.value
-
-# + active=""
-# editgrid.grid.selected_index
-# -
 
 if __name__ == "__main__":
     editgrid.transposed = True
@@ -1623,3 +1576,5 @@ if __name__ == "__main__":
     ui.observe(lambda c: print("_value change"), "_value")
     ui.di_widgets["__root__"].observe(lambda c: print("grid _value change"), "_value")
     display(ui)
+
+
