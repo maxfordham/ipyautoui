@@ -18,16 +18,18 @@
 # %load_ext lab_black
 
 import ipywidgets as w
-from IPython.display import display
-from datetime import datetime
-from markdown import markdown
 import traitlets as tr
 import typing as ty
-import logging
 from ipyautoui.constants import (
     BUTTON_WIDTH_MIN,
     TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT,
 )
+
+from IPython.display import display
+from datetime import datetime
+from markdown import markdown
+import logging
+from enum import Enum
 
 # +
 def merge_callables(callables: ty.Union[ty.Callable, ty.List[ty.Callable]]):
@@ -173,13 +175,13 @@ class SaveButtonBar(w.HBox, SaveActions):
             disabled=True, layout=w.Layout(width=BUTTON_WIDTH_MIN)
         )
         self.bn_save = w.Button(
-            icon="fa-save",
+            icon="save",
             tooltip="save changes",
             button_style="success",
             layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
         self.bn_revert = w.Button(
-            icon="fa-undo",
+            icon="undo",
             tooltip="revert to last save",
             button_style="warning",
             style={"font_weight": "bold"},
@@ -240,7 +242,58 @@ if __name__ == "__main__":
 
 # TODO: move into editgrid_buttonbar.py
 
+
+# +
+BUTTONBAR_CONFIG = {
+    "add": {
+        "tooltip": "add item",
+        "tooltip_clicked": "Go back to table",
+        "button_style": "success",
+        "message": "  ➕ _Adding Value_ ",
+    },
+    "edit": {
+        "tooltip": "edit item",
+        "tooltip_clicked": "Go back to table",
+        "button_style": "success",
+        "message": "  ✏️ _Editing Value_ ",
+    },
+    "copy": {
+        "tooltip": "copy item",
+        "tooltip_clicked": "Go back to table",
+        "button_style": "success",
+        "message": "  📝 _Copying Value_ ",
+    },
+    "delete": {
+        "tooltip": "delete item",
+        "tooltip_clicked": "Go back to table",
+        "button_style": "success",
+        "message": "  🗑️ _Deleting Value_ ",
+    },
+}
+
+
+class StrEnum(str, Enum):
+    pass
+
+
+CrudView = StrEnum(
+    "CrudView", {l: n for n, l in enumerate(list(BUTTONBAR_CONFIG.keys()))}
+)
+
+
+# -
+
+
 class ButtonBar(w.HBox):
+    active = tr.UseEnum(CrudView, allow_none=True, default_value=None)
+
+    @tr.observe("active")
+    def _observe_active(self, change):
+        if change["new"] is None:
+            self.message.value = ""
+        print(change["new"])
+        print(self.message.value)
+
     def __init__(
         self,
         # transpose: # TODO: add transpose datagrid button
@@ -276,7 +329,7 @@ class ButtonBar(w.HBox):
             button_style="warning",
             layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
-        self.copy = w.Button(
+        self.copy = w.ToggleButton(
             icon="copy",
             button_style="primary",
             layout=w.Layout(width=BUTTON_WIDTH_MIN),
@@ -287,84 +340,51 @@ class ButtonBar(w.HBox):
             layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
         self.message = w.HTML()
-        children = [self.add, self.edit, self.copy, self.delete]
-        children.append(self.message)
-        self.children = children
+        self.children = [self.add, self.edit, self.copy, self.delete, self.message]
 
     def _init_controls(self):
         self.add.observe(self._add, "value")
         self.edit.observe(self._edit, "value")
-        self.copy.on_click(self._copy)
+        self.copy.observe(self._copy, "value")
         self.delete.observe(self._delete, "value")
 
-    def _add(self, onchange):
-        self._reset_message()
-        if self.add.value:
-            self.reset_toggles_except("add")
-            self.add.tooltip = "Go back to table"
-            self.add.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
-            self.fn_add()
-            if self.show_message:
-                self.message.value = markdown("  ➕ _Adding Value_ ")
+    def _onclick(self, button_name):
+        w = getattr(self, button_name)
+        fn = getattr(self, ("fn_" + button_name))
+        if w.value:
+            self.reset_toggles_except(button_name)
+            self.active = button_name
+            w.tooltip = BUTTONBAR_CONFIG[button_name]["tooltip_clicked"]
+            w.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
+            self.message.value = markdown(BUTTONBAR_CONFIG[button_name]["message"])
+            fn()
         else:
-            self._reset_message()
-            self.add.tooltip = "Add"
-            self.add.layout.border = None
-            self.add.icon = "plus"
-            self.add.button_style = "success"
+            self.active = None
+            # self.message.value = ""
+            w.tooltip = BUTTONBAR_CONFIG[button_name]["tooltip"]
+            w.layout.border = None
             self.fn_backward()
+        print(self.message.value)
+
+    def _add(self, onchange):
+        self._onclick("add")
 
     def _edit(self, onchange):
-        self._reset_message()
-        if self.edit.value:
-            self.reset_toggles_except("edit")
-            self.edit.tooltip = "Go back to table"
-            self.edit.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
-            self.fn_edit()
-            if self.show_message:
-                self.message.value = markdown("  ✏️ _Editing Value_ ")
-        else:
-            self._reset_message()
-            self.edit.tooltip = "Edit"
-            self.edit.layout.border = None
-            self.edit.icon = "edit"
-            self.edit.button_style = "warning"
-            self.fn_backward()
+        self._onclick("edit")
 
     def _copy(self, onchange):
-        self._reset_message()
-        self.fn_copy()
-        if self.show_message:
-            self.message.value = markdown("  📝 _Copying Value_ ")
+        self._onclick("copy")
 
     def _delete(self, onchange):
-        self._reset_message()
-        if self.delete.value:
-            self.reset_toggles_except("delete")
-            self.delete.tooltip = "Go back to table"
-            self.delete.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
-            self.fn_delete()
-            if self.show_message:
-                self.message.value = markdown("  🗑️ _Deleting Value_ ")
-        else:
-            self._reset_message()
-            self.delete.tooltip = "delete"
-            self.delete.layout.border = None
-            self.delete.icon = "trash-alt"
-            self.delete.button_style = "danger"
-            self.fn_backward()
+        self._onclick("delete")
 
     def reset_toggles_except(self, name):
-        names = ["add", "edit", "delete"]
+        names = ["add", "edit", "delete", "copy"]
         if name not in names:
             raise ValueError(f"`name` must be in {str(names)}. {name} given")
         names = [n for n in names if n != name]
         for n in names:
-            bn = getattr(self, n)
-            setattr(bn, "value", False)
-
-    def _reset_message(self):
-        self.message.value = ""  # Reset message
+            setattr(getattr(self, n), "value", False)
 
 
 if __name__ == "__main__":

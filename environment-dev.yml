@@ -14,7 +14,7 @@ dependencies:
   - jupyterlab-lsp
   - jupyter-lsp-python
   - xeus-python
-  - ipywidgets
+  - ipywidgets>8
   - ipyfilechooser
   - ipydatagrid
   - ipyvuetify

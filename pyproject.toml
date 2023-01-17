@@ -18,7 +18,7 @@ classifiers = [
 dependencies = [
     "immutables",
     "ipython",
-    "ipywidgets",
+    "ipywidgets>8",
     "ipydatagrid>=1.1.14",
     "ipyfilechooser",      # make optional
     "ipyvuetify",          # make optional
