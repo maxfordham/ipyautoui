@@ -112,6 +112,10 @@ class Nullable(w.HBox):
         else:
             self.bn.value = False
             self.widget.value = value
+            # note. as the self.widget.value still exists in the background,
+            #       this may not trigger a change event...
+            #       so we'll manually do it too (below)
+            self._update("")
 
     def _init_controls(self):
         self.bn.observe(self._toggle_none, "value")
