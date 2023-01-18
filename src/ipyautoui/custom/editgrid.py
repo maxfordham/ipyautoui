@@ -766,7 +766,10 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_index(self):
-        return self.selected_indexes[0]
+        try:
+            return self.selected_indexes[0]
+        except:
+            return None
 
     @property
     def selected_indexes(self):
@@ -1089,26 +1092,87 @@ if __name__ == "__main__":
     delete.value = {"key": {"col1": "value1", "col2": "value2"}}
 
 
-class UiCopyDialogue(w.VBox):
-    def __init__(self):
-        super().__init__()
-        self.bn_top = w.Button(icon="sort-up", layout={"width": "40px"})
-        self.bn_inplace = w.Button(icon="sort", layout={"width": "40px"})
-        self.bn_end = w.Button(icon="sort-down", layout={"width": "40px"})
-        self.bn_blank = w.Button(
-            icon="", style={"button_color": "white"}, layout={"width": "40px"}
-        )
-        self.children = [
-            w.HBox([self.bn_top, w.HTML("duplicate selection to beginning")]),
-            w.HBox([self.bn_inplace, w.HTML("duplicate selection to below current")]),
-            w.HBox([self.bn_end, w.HTML("duplicate selection to end")]),
-            w.HBox([self.bn_blank, w.HTML("select new row/col to copy to")]),
-        ]
+# +
+class UiCopy(w.HBox):
+    index = tr.Integer()  # row index copying from... improve user reporting
 
+    def __init__(
+        self,
+        fn_copy_beginning: ty.Callable = lambda: print(
+            "duplicate selection to beginning"
+        ),
+        fn_copy_inplace: ty.Callable = lambda: print(
+            "duplicate selection to below current"
+        ),
+        fn_copy_end: ty.Callable = lambda: print("duplicate selection to end"),
+        fn_copy_to_selection: ty.Callable = lambda: print(
+            "select new row/col to copy to"
+        ),
+        transposed: bool = False,
+    ):
+        super().__init__()
+        self.fn_copy_beginning = fn_copy_beginning
+        self.fn_copy_inplace = fn_copy_inplace
+        self.fn_copy_end = fn_copy_end
+        self.fn_copy_to_selection = fn_copy_to_selection
+        self.map_action = {
+            "duplicate selection to beginning": self.fn_copy_beginning,
+            "duplicate selection to below current": self.fn_copy_inplace,
+            "duplicate selection to end": self.fn_copy_end,
+            "select new row/col to copy to": self.fn_copy_to_selection,
+        }
+        self.ui_copytype = w.RadioButtons(
+            options=list(self.map_action.keys()),
+            value="duplicate selection to end",
+        )
+        self.bn_copy = w.Button(
+            icon="copy",
+            button_style="success",
+            layout=w.Layout(width=BUTTON_WIDTH_MIN),
+        )
+        self.vbx_messages = w.VBox()
+        self.message = w.HTML("ℹ️ <b>Note</b> ℹ️ - <i>copy data from selected row")
+        self.message_columns = w.HTML(f"---")
+        self.vbx_messages.children = [
+            self.message,
+            self.message_columns,
+            self.ui_copytype,
+        ]
+        self.children = [self.bn_copy, self.vbx_messages]
+        self._init_controls()
+
+    def _init_controls(self):
+        self.bn_copy.on_click(self._bn_copy)
+
+    def _bn_copy(self, onclick):
+        self.map_action[self.ui_copytype.value]()
+
+
+if __name__ == "__main__":
+    display(UiCopy())
+
+
+# -
 
 class EditGrid(w.VBox):
     _value = tr.Tuple()  # using a tuple to guarantee no accidental mutation
     warn_on_delete = tr.Bool()
+    show_copy_dialogue = tr.Bool()
+    close_crud_dialogue_on_action = tr.Bool()
+
+    @tr.observe("warn_on_delete")
+    def observe_warn_on_delete(self, on_change):
+        if self.warn_on_delete:
+            self.ui_delete.layout.display = ""
+        else:
+            self.ui_delete.layout.display = "None"
+
+    @tr.observe("show_copy_dialogue")
+    def observe_show_copy_dialogue(self, on_change):
+        if self.show_copy_dialogue:
+            self.ui_copy.layout.display = ""
+        else:
+            self.ui_copy.layout.display = "None"
 
     @property
     def value(self):
@@ -1151,6 +1215,8 @@ class EditGrid(w.VBox):
         ui_delete: ty.Optional[ty.Callable] = None,
         ui_copy: ty.Optional[ty.Callable] = None,
         warn_on_delete: bool = False,
+        show_copy_dialogue: bool = False,
+        close_crud_dialogue_on_action: bool = False,
         description: str = "",
         fn_on_copy: ty.Callable = None,  # TODO: don't think this is required... should be handled by an observe?
     ):
@@ -1174,12 +1240,17 @@ class EditGrid(w.VBox):
             self.ui_delete = UiDelete()
         else:
             self.ui_delete = ui_delete()
+        self.ui_delete.layout.display = "None"
         if ui_copy is None:
-            UiCopy = lambda: w.HBox([w.Button(description="b1")])  # TODO: this
             self.ui_copy = UiCopy()
         else:
             self.ui_copy = ui_copy()
+        self.ui_copy.layout.display = "None"
         self.warn_on_delete = warn_on_delete
+        # self.show_copy_dialogue = show_copy_dialogue
+        self.show_copy_dialogue = False
+        # ^ TODO: delete this when that functionality is added
+        self.close_crud_dialogue_on_action = close_crud_dialogue_on_action
         self.ui_delete.fn_delete = self._delete_selected
         self._update_value_from_grid()
         self._init_row_controls()
@@ -1268,6 +1339,8 @@ class EditGrid(w.VBox):
 
     def _save_edit_to_grid(self):
         self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
+        if self.close_crud_dialogue_on_action:
+            self.buttonbar_grid.edit.value = False
 
     def _set_ui_edit_to_selected_row(self):
         self.ui_edit.value = self.grid.selected
@@ -1300,6 +1373,8 @@ class EditGrid(w.VBox):
             # Append new row onto data frame and set to grid's data.
             # Call setter. syntax below required to avoid editing in place.
             self.value = tuple(list(self.value) + [self.ui_add.value])
+        if self.close_crud_dialogue_on_action:
+            self.buttonbar_grid.add.value = False
 
     def _set_ui_add_to_default_row(self):
         if self.ui_add.value == self.grid.default_row:
@@ -1318,6 +1393,29 @@ class EditGrid(w.VBox):
 
     # copy
     # --------------------------------------------------------------------------
+
+    def _get_selected_data(self):  # TODO: is this required? is it dupe from DataGrid?
+        if self.grid.selected_index is not None:
+            li_values_selected = [
+                self.value[i] for i in sorted([i for i in self.grid.selected_indexes])
+            ]
+        else:
+            li_values_selected = []
+        if self.fn_on_copy is not None:
+            li_values_selected = self.fn_on_copy(li_values_selected)
+        return li_values_selected
+
+    def _copy_selected_inplace(self):
+        pass
+
+    def _copy_selected_to_beginning(self):
+        pass
+
+    def _copy_selected_to_end(self):
+        self.value = tuple(list(self.value) + self._get_selected_data())
+        if self.close_crud_dialogue_on_action:
+            self.buttonbar_grid.copy.value = False
+
     def _copy(self):
         try:
             if self.grid.selected_indexes == []:
@@ -1325,22 +1423,20 @@ class EditGrid(w.VBox):
                     "  👇 _Please select a row from the table!_ "
                 )
             else:
-                li_values_selected = [
-                    self.value[i]
-                    for i in sorted([i for i in self.grid.selected_indexes])
-                ]
-                if self.fn_on_copy is not None:
-                    li_values_selected = self.fn_on_copy(li_values_selected)
-                if self.datahandler is not None:
-                    for value in li_values_selected:
-                        self.datahandler.fn_copy(value)
-                    self._reload_all_data()
-                else:
-                    self.value = tuple(list(self.value) + li_values_selected)
-                    # ^ add copied values. note. above syntax required to avoid editing in place.
+                if not self.show_copy_dialogue:
+                    if self.datahandler is not None:
+                        for value in self._get_selected_data():
+                            self.datahandler.fn_copy(value)
+                        self._reload_all_data()
+                    else:
+                        self._copy_selected_to_end()
+                        # ^ add copied values. note. above syntax required to avoid editing in place.
 
-                self.buttonbar_grid.message.value = markdown("  📝 _Copied Data_ ")
-                self._edit_bool = False  # Want to add the values
+                    self.buttonbar_grid.message.value = markdown("  📝 _Copied Data_ ")
+                    self.buttonbar_grid.copy.value = False
+
+                else:
+                    print("need to implement show copy dialogue")
         except Exception as e:
             self.buttonbar_grid.message.value = markdown(
                 "  👇 _Please select a row from the table!_ "
@@ -1369,7 +1465,8 @@ class EditGrid(w.VBox):
             ]
             # ^ Only set for values NOT in self.grid.selected_indexes
         self.buttonbar_grid.message.value = markdown("  🗑️ _Deleted Row_ ")
-        # self.buttonbar_grid.delete.value = False
+        if self.close_crud_dialogue_on_action:
+            self.buttonbar_grid.delete.value = False
 
     def _set_ui_delete_to_selected_row(self):
         self.ui_delete.value = self.grid.selected_dict
@@ -1379,10 +1476,10 @@ class EditGrid(w.VBox):
             if len(self.grid.selected_indexes) > 0:
                 print(f"Row Number: {self.grid.selected_indexes}")
                 if not self.warn_on_delete:
+                    self.buttonbar_grid.delete.value = False
                     self._delete_selected()
                 else:
                     self.ui_delete.value = self.grid.selected_dict
-                    # self.active_crud_view = "delete"
             else:
                 self.buttonbar_grid.delete.value = False
                 self.buttonbar_grid.message.value = markdown(
@@ -1429,12 +1526,16 @@ if __name__ == "__main__":
         ui_add=None,
         ui_edit=None,
         warn_on_delete=True,
+        show_copy_dialogue=False,
+        close_crud_dialogue_on_action=False,
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
 
 
-class AutoObjectFiltered(aui.AutoObject):  # TODO: Implement into EditGrid class???
+class AutoObjectFiltered(
+    aui.AutoObject
+):  # TODO: Implement into EditGrid class by default... !
     """This extended AutoObject class relies on EditGrid and a row_schema dictionary.
 
     The AutoObject will update its rows based on the visible rows of the grid.
