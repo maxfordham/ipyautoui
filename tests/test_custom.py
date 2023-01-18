@@ -17,7 +17,7 @@ from ipyautoui.custom import (
 )
 from ipyautoui.custom.modelrun import RunName
 from ipyautoui.custom.editgrid import AutoGrid, EditGrid
-from ipyautoui.custom.save_buttonbar import ButtonBar
+from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui.automapschema import attach_schema_refs
 
 

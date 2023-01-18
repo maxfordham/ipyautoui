@@ -40,7 +40,7 @@ from IPython.display import display, clear_output
 import ipyautoui.automapschema as aumap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 from ipyautoui._utils import display_python_string, obj_from_importstr
-from ipyautoui.custom.save_buttonbar import SaveButtonBar
+from ipyautoui.custom.buttonbars import SaveButtonBar
 from ipyautoui.custom.showhide import ShowHide
 from ipyautoui.autowidgets import Nullable
 
@@ -336,7 +336,7 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
 
 def demo_autoobject_form(title="test", description="a description of the title"):
     """for docs and testing only..."""
-    from ipyautoui.custom.save_buttonbar import SaveButtonBar
+    from ipyautoui.custom.buttonbars import SaveButtonBar
 
     form = AutoObjectFormLayout()
     form.title.value = make_bold(title)

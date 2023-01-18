@@ -7,7 +7,7 @@ import pandas as pd
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
 from ipyautoui.custom.editgrid import AutoGrid, EditGrid
-from ipyautoui.custom.save_buttonbar import ButtonBar
+from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui.demo_schemas import EditableGrid
 from ipyautoui.autoipywidget import AutoObject
 from ipyautoui.automapschema import _init_model_schema
@@ -46,7 +46,7 @@ class TestButtonBar:
         def backward():
             return "BACK"
 
-        button_bar = ButtonBar(
+        button_bar = CrudButtonBar(
             add=add,
             edit=edit,
             copy=copy,
@@ -338,9 +338,10 @@ class TestEditGrid:
         #     {"string": "test", "floater": 1.5, "inty": 1},
         # )
         # print("done")
-        
+
     def test_editgrid_with_auto_object_filtered(self):
         """Checking that instantiating EditGrid with AutoObjectFiltered."""
+
         class TestProperties(BaseModel):
             string: str = Field(column_width=100, section="a")
             floater: float = Field(1.5, column_width=70, aui_sig_fig=3, section="b")
@@ -354,7 +355,7 @@ class TestEditGrid:
                 format="dataframe",
                 datagrid_index_name=("section", "title"),
             )
-            
+
         editgrid = EditGrid(
             schema=TestGridSchema,
             ui_add=AutoObjectFiltered,
@@ -363,7 +364,7 @@ class TestEditGrid:
         )
         editgrid.observe(lambda c: print("_value changed"), "_value")
         editgrid.transposed = True
-        
+
         # TODO: Check that transform updates order of AutoObjects
         # transform = [
         #     {

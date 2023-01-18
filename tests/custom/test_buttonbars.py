@@ -1,4 +1,4 @@
-from ipyautoui.custom.save_buttonbar import SaveButtonBar, SaveActions, ButtonBar
+from ipyautoui.custom.buttonbars import SaveButtonBar, SaveActions, CrudButtonBar
 from ipyautoui.constants import TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
 
 
@@ -33,7 +33,7 @@ class TestSaveButtonBar:
         assert sb.tgl_unsaved_changes.button_style == "success"
 
 
-bbar_crud = ButtonBar()
+bbar_crud = CrudButtonBar()
 
 
 class TestButtonBar:
