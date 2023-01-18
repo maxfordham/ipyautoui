@@ -7,7 +7,7 @@ import pandas as pd
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
 from ipyautoui.custom.editgrid import AutoGrid, EditGrid
-from ipyautoui.custom.save_buttonbar import CrudButtonBar
+from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui.demo_schemas import EditableGrid
 from ipyautoui.autoipywidget import AutoObject
 from ipyautoui.automapschema import _init_model_schema

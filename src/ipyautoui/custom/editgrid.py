@@ -35,7 +35,7 @@ from ipydatagrid.datagrid import SelectionHelper
 
 import ipyautoui.autoipywidget as aui
 import ipyautoui.automapschema as asch
-from ipyautoui.custom.save_buttonbar import CrudButtonBar
+from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui._utils import obj_from_importstr, frozenmap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 
