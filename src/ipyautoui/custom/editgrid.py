@@ -806,21 +806,6 @@ class AutoGrid(DataGrid):
     @property
     def selected_cols(self):
         """Get the data selected in the table which is returned as a dataframe."""
-        s = self.selected_visible_cell_iterator
-        cols = set([l["c"] for l in s])
-        cols = [self.get_col_name_from_index(col_index) for col_index in cols]
-
-        index = self.get_dataframe_index(self.data)
-        if isinstance(index, pd.core.indexes.frozen.FrozenList):
-            index = tuple(index)
-        return [
-            self.apply_map_name_title({l[index]: l[col_name] for l in s._data["data"]})
-            for col_name in cols
-        ]
-
-    @property
-    def selected_cols(self):
-        """Get the data selected in the table which is returned as a dataframe."""
         di = self.selected_dict
         index = self.get_dataframe_index(self.data)
         if isinstance(index, pd.core.indexes.frozen.FrozenList):
@@ -1153,6 +1138,7 @@ if __name__ == "__main__":
 
 
 # -
+
 
 class EditGrid(w.VBox):
     _value = tr.Tuple()  # using a tuple to guarantee no accidental mutation
