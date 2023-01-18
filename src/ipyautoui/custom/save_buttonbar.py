@@ -284,7 +284,7 @@ CrudView = StrEnum(
 # -
 
 
-class ButtonBar(w.HBox):
+class CrudButtonBar(w.HBox):
     active = tr.UseEnum(CrudView, allow_none=True, default_value=None)
 
     @tr.observe("active")
@@ -404,7 +404,7 @@ if __name__ == "__main__":
     def backward():
         print("BACK")
 
-    buttonbar = ButtonBar(
+    buttonbar = CrudButtonBar(
         add=add,
         edit=edit,
         copy=copy,

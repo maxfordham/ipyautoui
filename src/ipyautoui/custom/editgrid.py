@@ -35,7 +35,7 @@ from ipydatagrid.datagrid import SelectionHelper
 
 import ipyautoui.autoipywidget as aui
 import ipyautoui.automapschema as asch
-from ipyautoui.custom.save_buttonbar import ButtonBar
+from ipyautoui.custom.save_buttonbar import CrudButtonBar
 from ipyautoui._utils import obj_from_importstr, frozenmap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 
@@ -1288,7 +1288,7 @@ class EditGrid(w.VBox):
 
     def _init_form(self):
         super().__init__()
-        self.buttonbar_grid = ButtonBar(
+        self.buttonbar_grid = CrudButtonBar(
             add=self._add,
             edit=self._edit,
             copy=self._copy,
