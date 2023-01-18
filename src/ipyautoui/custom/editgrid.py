@@ -73,10 +73,6 @@ def get_default_row_data_from_schema_properties(
     get = lambda k, v: v["default"] if "default" in v.keys() else None
     di = {k: get(k, v) for k, v in properties.items()}
     return {k: v for k, v in di.items()}
-    # if None in default_row.values():
-    #     return None
-    # else:
-    #     return default_row
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
@@ -295,14 +291,6 @@ class GridSchema:
             self.properties, self.column_property_types
         )
         return row
-        # if self.default_data is not None:
-        #     if len(self.default_data) == 1:
-        #         return self.default_data[0]
-        #     else:
-        #         return row
-        # else:
-        #     self.default_data = [row]
-        #     return row
 
     @property
     def default_dataframe(self):
@@ -491,6 +479,13 @@ class AutoGrid(DataGrid):
         if change["new"]:
             dft = self.data.T
             dft.index = self.gridschema.index
+            if len(dft.columns) == 0:  # i.e. no data
+                logging.info(
+                    "ipydatagrid does not support dataframes with no columns. adding a column with default row data"
+                )
+                dft = pd.DataFrame(
+                    index=dft.index, columns=[0], data={0: self.default_row_title_keys}
+                )
             self.data = dft
         else:
             dft = self.data.T
@@ -549,13 +544,16 @@ class AutoGrid(DataGrid):
         assert self.count_changes == 0
         # ^ this sets the default value and initiates change observer
 
-    # @property
-    # def by_title(self):
-    #     if self.
-
     @property
     def default_row(self):
         return self.gridschema.default_row
+
+    @property
+    def default_row_title_keys(self):
+        return {
+            self.gridschema.map_name_index[k]: v
+            for k, v in self.gridschema.default_row.items()
+        }
 
     @property
     def datagrid_trait_names(self):
