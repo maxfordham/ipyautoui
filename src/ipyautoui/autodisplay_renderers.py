@@ -16,36 +16,25 @@
 
 """
 displayfile is used to display certain types of files.
-The module lets us preview a file, open a file, and open its directory.
-
-Example:
-    ::
-
-        from ipyautoui.constants import load_test_constants
-        from ipyautoui.displayfile import DisplayFile, Markdown
-        import ipywidgets as w
-
-        DIR_FILETYPES = load_test_constants().DIR_FILETYPES
-
-        fpths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
-
-        # single file
-        d = AutoDisplay(fpths)
-        display(d)
-
+The module lets us preview a data retrieved from: file, request or callable (< TODO)
 """
 # %run __init__.py
 # %load_ext lab_black
 # +
 import os
 import pathlib
+import requests
 import pandas as pd
 from IPython.display import display, Markdown, IFrame, clear_output, HTML
 import json
 import ipydatagrid as ipg
 import ipywidgets as w
 import traitlets as tr
+import typing as ty
 import traitlets_paths
+from io import StringIO, BytesIO
+from pydantic import HttpUrl, parse_obj_as
+
 
 #  local imports
 from ipyautoui.mydocstring_display import display_module_docstring
@@ -68,10 +57,28 @@ ENV = Env()
 if check_installed("plotly"):
     import plotly.io as pio
 
+
 # -
 
 
 # + tags=[]
+
+
+def getbytes(path: ty.Union[pathlib.Path, HttpUrl]) -> ty.ByteString:
+    """common function for read bytes from a request or from file"""
+    if isinstance(path, pathlib.Path):
+        return path.read_bytes()
+    elif isinstance(path, HttpUrl):
+        return requests.get(path).content
+    # elif isinstance(path, ty.Callable):
+    #     pass # TODO: add functionality to get bytes from callable
+    else:
+        raise ValueError(
+            "path must be either a pathlib.Path object or a pydantic.HttpUrl object\n"
+            "to create an HttpUrl object:\n"
+            "`from pydantic import parse_obj_as, HttpUrl`\n"
+            "`url = parse_obj_as(HttpUrl, 'https://jupyter.org/')`"
+        )
 
 
 class PreviewPython:
@@ -168,7 +175,9 @@ def default_grid(df, **kwargs):
     return g
 
 
-def preview_csv(path):
+def preview_csv(path: ty.Union[pathlib.Path, HttpUrl]):
+    byts = getbytes(path)
+    df = pd.read_csv(StringIO(byts.decode()))
     df = del_matching(pd.read_csv(path), "Unnamed")
     return default_grid(df)
 
@@ -177,13 +186,15 @@ class PreviewExcel(w.VBox):
     path = traitlets_paths.Path()
     xl = tr.Instance(klass="pandas.ExcelFile")
 
-    def __init__(self, path):
+    def __init__(self, path: ty.Union[pathlib.Path, HttpUrl]):
         super().__init__()
+
         self.path = path
 
     @tr.observe("path")
     def _observe_path(self, change):
-        self.xl = pd.ExcelFile(self.path)
+        byts = getbytes(self.path)
+        self.xl = pd.ExcelFile(BytesIO(byts))
 
     @tr.observe("xl")
     def _observe_xl(self, change):
@@ -240,21 +251,33 @@ def xlsxtemplated_display(li):
         display(l["grid"])
 
 
-def preview_json(path):
+def preview_json(path: ty.Union[pathlib.Path, HttpUrl]):
+    js = json.loads(getbytes(path).decode())
     return Markdown(
         f"""
 ```json
-{pathlib.Path(path).read_text()}
+{json.dumps(js, indent=4)}
 ```
 """
     )
 
 
-def preview_plotly(path):
-    # For illustrative purposes.
+def preview_yaml(path: ty.Union[pathlib.Path, HttpUrl]):
+    byts = getbytes(path)
+    return Markdown(
+        f"""
+```yaml
+{byts.decode()}
+```
+"""
+    )
+
+
+def preview_plotly(path: ty.Union[pathlib.Path, HttpUrl]):
     package_name = "plotly"
     if check_installed(package_name):
-        return pio.read_json(path)
+        byts = getbytes(path)
+        return pio.from_json(byts.decode())
     else:
         return w.HTML(package_name + " is not installed")
 
@@ -304,55 +327,57 @@ def update_vega_data_url(data: dict, path: pathlib.Path) -> dict:
     return data
 
 
-def preview_vega(path):
-    data = json.loads(pathlib.Path(path).read_text())
-    if isinstance(data["data"], list):
-        data["data"] = [update_vega_data_url(d, path) for d in data["data"]]
-    elif isinstance(data["data"], dict):
-        data["data"] = update_vega_data_url(data["data"], path)
-    else:
-        raise ValueError("vega data must be list or dict")
+def get_vega_data(path: ty.Union[pathlib.Path, HttpUrl]):
+    byts = getbytes(path)
+    data = json.loads(byts.decode())
+    if isinstance(path, pathlib.Path):
+        if isinstance(data["data"], list):
+            data["data"] = [update_vega_data_url(d, path) for d in data["data"]]
+        elif isinstance(data["data"], dict):
+            data["data"] = update_vega_data_url(data["data"], path)
+        else:
+            raise ValueError("vega data must be list or dict")
+    return data
+
+
+def preview_vega(path: ty.Union[pathlib.Path, HttpUrl]):
+    data = get_vega_data(path)
     return Vega(data)
 
 
 def preview_vegalite(path):
-    data = json.load(pathlib.Path(path).read_text())
+    data = get_vega_data(path)
     return VegaLite(data)
 
 
-def preview_yaml(path):
+def preview_image(path: ty.Union[pathlib.Path, HttpUrl], *args, **kwargs):
+    byts = getbytes(path)
+    return w.Image(value=byts, *args, **kwargs)
+
+
+def preview_video(path: ty.Union[pathlib.Path, HttpUrl], *args, **kwargs):
+    byts = getbytes(path)
+    return w.Video(value=byts, *args, **kwargs)
+
+
+def preview_audio(path: ty.Union[pathlib.Path, HttpUrl], *args, **kwargs):
+    byts = getbytes(path)
+    return w.Audio(value=byts, *args, **kwargs)
+
+
+##############TODO: from here:###############################
+def preview_text(path: ty.Union[pathlib.Path, HttpUrl]):
+    byts = getbytes(path)
     return Markdown(
         f"""
-```yaml
-{pathlib.Path(path).read_text()}
+```
+{byts.decode()}
 ```
 """
     )
 
 
-def preview_image(path, *args, **kwargs):
-    return w.Image.from_file(path, *args, **kwargs)
-
-
-def preview_video(path, *args, **kwargs):
-    return w.Video.from_file(path, *args, **kwargs)
-
-
-def preview_audio(path, *args, **kwargs):
-    return w.Audio.from_file(path, *args, **kwargs)
-
-
-def preview_text(path):
-    return Markdown(
-        f"""
-```
-{pathlib.Path(path).read_text()}
-```
-"""
-    )
-
-
-def preview_dir(path):
+def preview_dir(path: pathlib.Path):
     """preview folder"""
     # TODO: make recursive using AutoDisplay?
     li = path.glob("*")
@@ -369,9 +394,13 @@ def preview_text_or_dir(path):
         return preview_dir(path)
 
 
-def preview_markdown(path):
+def preview_markdown(path: pathlib.Path):
     import subprocess
 
+    if not path.is_file():
+        raise ValueError(
+            f"path must be a valid pathlib.Path, not {path}. TODO: create render method."
+        )
     p = os.path.relpath(path, start=ENV.IPYAUTOUI_ROOTDIR)
     c = subprocess.run(
         f"pandoc {str(p)} -f markdown+rebase_relative_paths",
@@ -382,20 +411,12 @@ def preview_markdown(path):
     s = c.stdout.decode("utf-8")
     return HTML(
         f"""
-{s}        
+{s}
 """
     )
 
 
-#     return Markdown(
-#         f"""
-# {WARNING: `IMAGES WON'T DISPLAY UNLESS THE MARKDOWN FILE IS IN THE SAME FOLDER AS THIS JUPYTER NOTEBOOK`
-# {pathlib.Path(path).read_text()}}
-# """
-#     )
-
-
-def preview_pdf(path):
+def preview_pdf(path: pathlib.Path):
     if not isinstance(path, pathlib.PurePath):
         path = pathlib.Path(path)
 
@@ -455,7 +476,7 @@ def handle_compound_ext(ext, map_renderers=DEFAULT_FILE_RENDERERS):
 
 
 def render_file(path: pathlib.Path, map_renderers=DEFAULT_FILE_RENDERERS):
-    """simple file renderer.
+    """simple renderer.
 
     Note:
         this function is not used by AutoDisplay, but is provided here for simple
