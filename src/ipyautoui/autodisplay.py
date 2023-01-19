@@ -298,16 +298,16 @@ class DisplayObject(w.VBox):
         cls,
         path,
         newroot=pathlib.PureWindowsPath("J:/"),
-        file_renderers=None,
+        renderers=None,
         auto_open=False,
         order=None,
     ):
-        if file_renderers is not None:
-            file_renderers = merge_file_renderers(file_renderers)
+        if renderers is not None:
+            renderers = merge_file_renderers(renderers)
         else:
-            file_renderers = DEFAULT_FILE_RENDERERS
+            renderers = DEFAULT_FILE_RENDERERS
         display_actions = DisplayFromPath(
-            path=path, newroot=newroot, map_renderers=file_renderers
+            path=path, newroot=newroot, map_renderers=renderers
         )
         return cls(display_actions, auto_open=auto_open, order=order)
 
@@ -317,17 +317,17 @@ class DisplayObject(w.VBox):
         cls,
         path,
         ext,
-        file_renderers=None,
+        renderers=None,
         auto_open=False,
         order=None,
     ):
-        if file_renderers is not None:
-            file_renderers = merge_file_renderers(file_renderers)
+        if renderers is not None:
+            renderers = merge_file_renderers(renderers)
         else:
-            file_renderers = DEFAULT_FILE_RENDERERS
+            renderers = DEFAULT_FILE_RENDERERS
         order = ORDER_NOTPATH
         display_actions = DisplayFromRequest(
-            path=path, ext=ext, map_renderers=file_renderers
+            path=path, ext=ext, map_renderers=renderers
         )
         return cls(display_actions, auto_open=auto_open, order=order)
 
@@ -452,7 +452,7 @@ if __name__ == "__main__":
     ext = ".catfact"
     display(
         DisplayObject.from_request(
-            path=path, ext=ext, file_renderers={".catfact": display_catfact}
+            path=path, ext=ext, renderers={".catfact": display_catfact}
         )
     )
 
@@ -484,7 +484,7 @@ if __name__ == "__main__":
     )
     path1 = tests_constants.PATH_TEST_AUI
 
-    d = DisplayObject.from_path(path1, file_renderers=user_file_renderers)
+    d = DisplayObject.from_path(path1, renderers=user_file_renderers)
     display(d)
 
 
@@ -527,20 +527,17 @@ class AutoDisplay(tr.HasTraits):
     def __init__(
         self,
         display_objects_actions: ty.List[DisplayObjectActions],
-        patterns: ty.Union[str, ty.List] = None,
-        title: str = None,
+        patterns: ty.Union[str, ty.List, None] = None,
+        title: ty.Union[str, None] = None,
         display_showhide: bool = True,
     ):
         """
-
-
         Args:
             paths (ty.List[pathlib.Path]): list of paths to display
             default_file_renderers: default renderers
-            user_file_renderers: default = {}, custom user-defined file renderers
-            newroot: passed to open_file
             patterns: (str or list), patterns to auto-open
-            title: (str), dfeault = None,
+            title: (str), default = None,
+            display_showhide: bool = True,
 
 
         """
@@ -558,22 +555,22 @@ class AutoDisplay(tr.HasTraits):
         cls,
         paths: ty.List[pathlib.Path],
         newroot=pathlib.PureWindowsPath("J:/"),  # TODO: maproots
-        file_renderers=None,
+        renderers=None,
         patterns: ty.Union[str, ty.List] = None,
-        title: str = None,
+        title: ty.Union[str, None] = None,
         display_showhide: bool = True,
     ):
-        if file_renderers is not None:
-            file_renderers = merge_file_renderers(file_renderers)
+        if renderers is not None:
+            renderers = merge_file_renderers(renderers)
         else:
-            file_renderers = DEFAULT_FILE_RENDERERS
+            renderers = DEFAULT_FILE_RENDERERS
         if not isinstance(paths, list):
             paths = [pathlib.Path(paths)]
 
         display_objects_actions = cls.actions_from_paths(
             paths=paths,
             newroot=newroot,
-            file_renderers=file_renderers,
+            renderers=renderers,
         )
         return cls(
             display_objects_actions,
@@ -586,10 +583,10 @@ class AutoDisplay(tr.HasTraits):
     def actions_from_paths(
         paths: ty.List[pathlib.Path],
         newroot=pathlib.PureWindowsPath("J:/"),
-        file_renderers=None,
+        renderers=None,
     ):
         return [
-            DisplayFromPath(path=path, newroot=newroot, map_renderers=file_renderers)
+            DisplayFromPath(path=path, newroot=newroot, map_renderers=renderers)
             for path in paths
         ]
 
@@ -597,15 +594,15 @@ class AutoDisplay(tr.HasTraits):
         self,
         paths,
         newroot=pathlib.PureWindowsPath("J:/"),
-        file_renderers=None,
+        renderers=None,
     ):
-        if file_renderers is not None:
-            file_renderers = merge_file_renderers(file_renderers)
+        if renderers is not None:
+            renderers = merge_file_renderers(renderers)
         else:
-            file_renderers = DEFAULT_FILE_RENDERERS
+            renderers = DEFAULT_FILE_RENDERERS
         paths = [p for p in paths if p not in self.paths]
         _new_actions = self.actions_from_paths(
-            paths=paths, newroot=newroot, file_renderers=file_renderers
+            paths=paths, newroot=newroot, renderers=renderers
         )
         actions = self.display_objects_actions + _new_actions
         self.display_objects_actions = actions
@@ -751,7 +748,7 @@ if __name__ == "__main__":
 
     test_ui = AutoDisplay.from_paths(
         paths=[tests_constants.PATH_TEST_AUI],
-        file_renderers=user_file_renderers,
+        renderers=user_file_renderers,
         display_showhide=False,
     )
 
