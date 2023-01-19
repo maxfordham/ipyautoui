@@ -75,6 +75,8 @@ from ipyautoui.constants import (
     KWARGS_HOME_DISPLAY_FILES,
 )
 
+import requests
+
 # from mf library
 # try:
 #     from xlsxtemplater import from_excel
@@ -99,8 +101,21 @@ class DisplayObjectActions(BaseModel):
     ext: str = None
     name: str = None
     check_exists: ty.Callable = None
-    renderer: ty.Callable = lambda: print("renderer")
+    renderer: ty.Callable = None
     check_date_modified: ty.Callable = None
+
+    @validator("renderer", always=True)
+    def _renderer(cls, v, values):
+        if v is None:
+            ext = values["ext"]
+            map_ = values["map_renderers"]
+            if ext in map_.keys():
+                fn = functools.partial(map_[ext], values["path"])
+            else:
+                fn = lambda: w.HTML("File renderer not found")
+            return fn
+        else:
+            return functools.partial(v, values["path"])
 
     class Config:
         arbitrary_types_allowed = True
@@ -132,16 +147,6 @@ class DisplayFromPath(DisplayObjectActions):
         if values["path"] is not None:
             v = values["path"].name
         return v
-
-    @validator("renderer", always=True)
-    def _renderer(cls, v, values):
-        ext = values["ext"]
-        map_ = values["map_renderers"]
-        if ext in map_.keys():
-            fn = functools.partial(map_[ext], values["path"])
-        else:
-            fn = lambda: w.HTML("File renderer not found")
-        return fn
 
     @validator("ext", always=True)
     def _ext(cls, v, values):
@@ -185,16 +190,50 @@ class DisplayFromPath(DisplayObjectActions):
         arbitrary_types_allowed = True
 
 
+def url_ok(url):
+
+    # exception block
+    try:
+
+        # pass the url into
+        # request.head
+        # response = requests.head(url)
+        # ^ TODO : why doens't this work?
+
+        response = requests.get(url)
+
+        # check the status code
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except requests.ConnectionError as e:
+        return e
+
+
 # TODO: create a DisplayFromRequest actions. for use with API queries...?
 class DisplayFromRequest(DisplayObjectActions):
-    pass
+    path: HttpUrl
+
+    @validator("check_exists", always=True)
+    def _check_exists(cls, v, values):
+        fn = functools.partial(url_ok, values["path"])
+        return fn
+
+    @validator("name", always=True)
+    def _name(cls, v, values):
+        return values["path"].path
 
 
-# -
-
+# +
 # TODO: separate out the bit that is display data and display from path...
 # TODO: probs useful to have a `value` trait (allowing the object to be updated instead of remade)
 #       this probably means having DisplayObject as a base class and extending it for display file...
+
+ORDER_DEFAULT = ("exists", "openpreview", "openfile", "openfolder", "name")
+ORDER_NOTPATH = ("exists", "openpreview", "name")
+
+
 class DisplayObject(w.VBox):
     """
     class for displaying file-like objects.
@@ -211,7 +250,7 @@ class DisplayObject(w.VBox):
     @tr.validate("order")
     def _validate_order(self, proposal):
         for l in proposal["value"]:
-            if l not in self.default_order:
+            if l not in ORDER_DEFAULT:
                 raise ValueError(
                     """
                     order must include the following: ("exists", "openpreview", "openfile", "openfolder", "name")
@@ -239,12 +278,13 @@ class DisplayObject(w.VBox):
                 default is: ("exists", "openpreview", "openfile", "openfolder", "name")
                 reduce tuple to hide components
         """
-        self.default_order = ("exists", "openpreview", "openfile", "openfolder", "name")
         self.display_actions = display_actions
         self._init()
         self.auto_open = auto_open
-        if order is None:
-            self.order = self.default_order
+        if order is None and isinstance(display_actions.path, pathlib.Path):
+            self.order = ORDER_DEFAULT
+        elif order is None and not isinstance(display_actions.path, pathlib.Path):
+            self.order = ORDER_NOTPATH
         else:
             self.order = order
 
@@ -273,8 +313,23 @@ class DisplayObject(w.VBox):
 
     # TODO: create a from_request classmethod
     @classmethod
-    def from_request(cls, path):
-        pass
+    def from_request(
+        cls,
+        path,
+        ext,
+        file_renderers=None,
+        auto_open=False,
+        order=None,
+    ):
+        if file_renderers is not None:
+            file_renderers = merge_file_renderers(file_renderers)
+        else:
+            file_renderers = DEFAULT_FILE_RENDERERS
+        order = ORDER_NOTPATH
+        display_actions = DisplayFromRequest(
+            path=path, ext=ext, map_renderers=file_renderers
+        )
+        return cls(display_actions, auto_open=auto_open, order=order)
 
     def tooltip_openpath(self, path):
         return str(make_new_path(path, newroot=self.display_actions.newroot))
@@ -366,6 +421,41 @@ open folder:
         self.out_caller.layout.display = "none"
 
 
+# -
+
+if __name__ == "__main__":
+    path = "https://catfact.ninja/fact"
+    ext = ".json"
+    display(DisplayFromRequest(path=path, ext=ext).renderer())
+
+if __name__ == "__main__":
+
+    path = "https://catfact.ninja/fact"
+    ext = ".json"
+    display(DisplayObject.from_request(path=path, ext=ext))
+
+if __name__ == "__main__":
+    import json
+    from datetime import datetime
+
+    def display_catfact(path):
+        di = json.loads(requests.get(path).content)
+        s = f"""
+🐱🐈😹 **CAT FACT** 😾🙀😿
+
+{di['fact']}
+
+*{datetime.now().strftime("%Y-%m-%d, %H:%M:%S")} - https://cat-fact.herokuapp.com/#/*"""
+        return Markdown(s)
+
+    path = "https://catfact.ninja/fact"
+    ext = ".catfact"
+    display(
+        DisplayObject.from_request(
+            path=path, ext=ext, file_renderers={".catfact": display_catfact}
+        )
+    )
+
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
     from ipyautoui.autoui import AutoUi
@@ -385,7 +475,6 @@ if __name__ == "__main__":
         "name",
     )
     d.auto_open = True
-    # d.show_exists = False
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
@@ -554,9 +643,7 @@ class AutoDisplay(tr.HasTraits):
 
     @property
     def paths(self):
-        return [
-            wcPath(d.path) for d in self.display_objects_actions
-        ]  # self._paths  # [d.path for d in self.display_objects]
+        return [wcPath(d.path) for d in self.display_objects_actions]
 
     @property
     def display_objects_actions(self):
@@ -640,8 +727,6 @@ class AutoDisplay(tr.HasTraits):
 
 
 # +
-# TODO: render markdown to html using pandoc and rebase relative paths - https://github.com/jgm/pandoc/issues/3752
-# TODO: render Vega updating the data path
 # TODO: render pdf update the relative path
 
 if __name__ == "__main__":
@@ -671,3 +756,29 @@ if __name__ == "__main__":
     )
 
     display(test_ui)
+
+if __name__ == "__main__":
+    import json
+    from datetime import datetime
+
+    def display_catfact(path):
+        di = json.loads(requests.get(path).content)
+        s = f"""
+🐱🐈😹 **CAT FACT** 😾🙀😿
+
+{di['fact']}
+
+*{datetime.now().strftime("%Y-%m-%d, %H:%M:%S")} - https://cat-fact.herokuapp.com/#/*"""
+        return Markdown(s)
+
+    path = "https://catfact.ninja/fact"
+    ext = ".catfact"
+    d1 = DisplayFromRequest(path=path, ext=ext, renderer=display_catfact)
+
+    path = "https://official-joke-api.appspot.com/random_joke"
+    ext = ".json"
+    d2 = DisplayFromRequest(path=path, ext=ext)
+
+    test_display = AutoDisplay([d1, d2])
+    display(Markdown("### From requests: "))
+    display(test_display)
