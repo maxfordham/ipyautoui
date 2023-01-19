@@ -70,6 +70,8 @@ def getbytes(path: ty.Union[pathlib.Path, HttpUrl]) -> ty.ByteString:
         return path.read_bytes()
     elif isinstance(path, HttpUrl):
         return requests.get(path).content
+    # elif isinstance(path, ty.Callable):
+    #     pass # TODO: add functionality to get bytes from callable
     else:
         raise ValueError(
             "path must be either a pathlib.Path object or a pydantic.HttpUrl object\n"
