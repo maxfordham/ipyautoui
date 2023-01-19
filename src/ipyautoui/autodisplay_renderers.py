@@ -16,23 +16,7 @@
 
 """
 displayfile is used to display certain types of files.
-The module lets us preview a file, open a file, and open its directory.
-
-Example:
-    ::
-
-        from ipyautoui.constants import load_test_constants
-        from ipyautoui.displayfile import DisplayFile, Markdown
-        import ipywidgets as w
-
-        DIR_FILETYPES = load_test_constants().DIR_FILETYPES
-
-        fpths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
-
-        # single file
-        d = AutoDisplay(fpths)
-        display(d)
-
+The module lets us preview a data retrieved from: file, request or callable (< TODO)
 """
 # %run __init__.py
 # %load_ext lab_black
@@ -73,11 +57,12 @@ ENV = Env()
 if check_installed("plotly"):
     import plotly.io as pio
 
-    
+
 # -
 
 
 # + tags=[]
+
 
 def getbytes(path: ty.Union[pathlib.Path, HttpUrl]) -> ty.ByteString:
     """common function for read bytes from a request or from file"""
@@ -92,6 +77,7 @@ def getbytes(path: ty.Union[pathlib.Path, HttpUrl]) -> ty.ByteString:
             "`from pydantic import parse_obj_as, HttpUrl`\n"
             "`url = parse_obj_as(HttpUrl, 'https://jupyter.org/')`"
         )
+
 
 class PreviewPython:
     """
@@ -338,6 +324,7 @@ def update_vega_data_url(data: dict, path: pathlib.Path) -> dict:
             data["url"] = url
     return data
 
+
 def get_vega_data(path: ty.Union[pathlib.Path, HttpUrl]):
     byts = getbytes(path)
     data = json.loads(byts.decode())
@@ -349,6 +336,7 @@ def get_vega_data(path: ty.Union[pathlib.Path, HttpUrl]):
         else:
             raise ValueError("vega data must be list or dict")
     return data
+
 
 def preview_vega(path: ty.Union[pathlib.Path, HttpUrl]):
     data = get_vega_data(path)
@@ -373,6 +361,7 @@ def preview_video(path: ty.Union[pathlib.Path, HttpUrl], *args, **kwargs):
 def preview_audio(path: ty.Union[pathlib.Path, HttpUrl], *args, **kwargs):
     byts = getbytes(path)
     return w.Audio(value=byts, *args, **kwargs)
+
 
 ##############TODO: from here:###############################
 def preview_text(path: ty.Union[pathlib.Path, HttpUrl]):
@@ -405,8 +394,11 @@ def preview_text_or_dir(path):
 
 def preview_markdown(path: pathlib.Path):
     import subprocess
+
     if not path.is_file():
-        raise ValueError(f"path must be a valid pathlib.Path, not {path}. TODO: create render method.")
+        raise ValueError(
+            f"path must be a valid pathlib.Path, not {path}. TODO: create render method."
+        )
     p = os.path.relpath(path, start=ENV.IPYAUTOUI_ROOTDIR)
     c = subprocess.run(
         f"pandoc {str(p)} -f markdown+rebase_relative_paths",
@@ -418,7 +410,8 @@ def preview_markdown(path: pathlib.Path):
     return HTML(
         f"""
 {s}
-""")
+"""
+    )
 
 
 def preview_pdf(path: pathlib.Path):
@@ -481,7 +474,7 @@ def handle_compound_ext(ext, map_renderers=DEFAULT_FILE_RENDERERS):
 
 
 def render_file(path: pathlib.Path, map_renderers=DEFAULT_FILE_RENDERERS):
-    """simple file renderer.
+    """simple renderer.
 
     Note:
         this function is not used by AutoDisplay, but is provided here for simple
