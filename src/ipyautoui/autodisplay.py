@@ -53,7 +53,7 @@ import traitlets as tr
 from pydantic import BaseModel, validator, HttpUrl
 
 #  local imports
-from ipyautoui.autodisplayfile_renderers import (
+from ipyautoui.autodisplay_renderers import (
     DEFAULT_FILE_RENDERERS,
     handle_compound_ext,
 )

@@ -18,7 +18,7 @@ from ipyautoui.constants import DELETE_BUTTON_KWARGS
 from ipyautoui._utils import getuser
 from ipyautoui.autodisplay import DisplayObject
 from ipyautoui.custom.iterable import Dictionary
-from ipyautoui.autodisplayfile_renderers import render_file
+from ipyautoui.autodisplay_renderers import render_file
 from IPython.display import clear_output
 
 IS_IPYWIDGETS8 = (lambda: True if "8" in w.__version__ else False)()
