@@ -1203,13 +1203,14 @@ class EditGrid(w.VBox):
         close_crud_dialogue_on_action: bool = False,
         description: str = "",
         fn_on_copy: ty.Callable = None,  # TODO: don't think this is required... should be handled by an observe?
+        **kwargs,
     ):
         self.description = w.HTML(description)
         self.by_title = by_title
         self.fn_on_copy = fn_on_copy
         self.by_alias = by_alias
         self.datahandler = datahandler
-        self.grid = AutoGrid(schema, value=value, by_alias=self.by_alias)
+        self.grid = AutoGrid(schema, value=value, by_alias=self.by_alias, **kwargs)
 
         self._init_form()
         if ui_add is None:
