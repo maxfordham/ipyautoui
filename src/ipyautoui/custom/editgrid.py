@@ -500,10 +500,8 @@ class AutoGrid(DataGrid):
         else:
             cols_check = self.gridschema.property_keys
         if set(cols_check) == set(self.column_names):
-            # print(f"{str(cols_check)} == {str(set(self.column_names))}")
             return False
         else:
-            # print(f"{str(cols_check)} != {str(set(self.column_names))}")
             return True
 
     def records(self, keys_as_title=False):
@@ -609,6 +607,22 @@ class AutoGrid(DataGrid):
 
             return self.map_column_index_to_data(data)
 
+    def set_cell_value_if_different(self, column_name, primary_key_value, new_value):
+        old = self.get_cell_value(column_name, primary_key_value)
+        if len(old) != 1:
+            raise ValueError(
+                f"multiple values return from: self.get_cell_value({column_name}, {primary_key_value})"
+            )
+        else:
+            old = old[0]
+        if old != new_value:
+            s = f"(column_name={column_name}, primary_key_value={primary_key_value}) old={old}, new={new_value})"
+            logging.info(s)
+            print(s)
+            self.set_cell_value(column_name, primary_key_value, new_value)
+        else:
+            pass
+
     def set_item_value(self, index: int, value: dict):
         """
         set row (transposed==False) or col (transposed==True) value
@@ -636,7 +650,7 @@ class AutoGrid(DataGrid):
         else:
             raise Exception("Columns of value given do not match with value keys.")
         for column, v in value.items():
-            self.set_cell_value(column, index, v)
+            self.set_cell_value_if_different(column, index, v)
 
     def apply_map_name_title(self, row_data):
         return {
@@ -661,10 +675,9 @@ class AutoGrid(DataGrid):
         if set(value.keys()) != set(self.data.index.to_list()):
             raise Exception("Index of datagrid does not match with value keys.")
         for primary_key_value, v in value.items():
-            # set_cell_value(self, column_name, primary_key_value, new_value)
             if isinstance(primary_key_value, tuple):
                 primary_key_value = list(primary_key_value)
-            self.set_cell_value(column_name, primary_key_value, v)
+            self.set_cell_value_if_different(column_name, primary_key_value, v)
 
     def filter_by_column_name(self, column_name: str, li_filter: list):
         """Filter rows to display based on a column name and a list of objects belonging to that column.
@@ -1138,59 +1151,6 @@ if __name__ == "__main__":
 # -
 
 
-
-
-class AutoObjectFiltered(
-    aui.AutoObject
-):  # TODO: Implement into EditGrid class by default... !
-    """This extended AutoObject class relies on EditGrid and a row_schema dictionary.
-
-    The AutoObject will update its rows based on the visible rows of the grid.
-    """
-
-    def __init__(self, row_schema: dict, app: EditGrid, *args, **kwargs):
-        self.row_schema = row_schema
-        self.app = app
-        self._selections = []
-        super().__init__(row_schema, *args, **kwargs)
-        self.app.grid.observe(self._update_order, "_visible_rows")
-        self.app.grid.observe(
-            self._save_previous_selections, "selections"
-        )  # Re-apply selection after updating transforms
-
-    def _get_visible_fields(self):
-        """Get the list of fields that are visible in the DataGrid."""
-        if isinstance(self.app.grid.get_visible_data().index, pd.MultiIndex) is True:
-            title_idx = self.app.grid.get_visible_data().index.names.index("title")
-            visible_titles = [
-                v[title_idx] for v in self.app.grid.get_visible_data().index
-            ]
-            return [
-                k
-                for k, v in self.app.row_schema["properties"].items()
-                if v["title"] in visible_titles
-            ]
-        elif isinstance(self.app.grid.get_visible_data().index, pd.Index) is True:
-            return [
-                k
-                for k, v in self.app.row_schema["properties"].items()
-                if v["title"] in self.app.grid.get_visible_data().index
-            ]
-
-        else:
-            raise Exception("Index obtained not of correct type.")
-
-    def _update_order(self, onchange):
-        """Update order instance of AutoObject based on visible fields in the DataGrid."""
-        if self.app.transposed is True:
-            self.order = self._get_visible_fields()
-            self.app.grid.selections = self._selections
-
-    def _save_previous_selections(self, onchange):
-        if self.app.grid.selections:
-            self._selections = self.app.grid.selections
-
-
 class EditGrid(w.VBox):
     _value = tr.Tuple()  # using a tuple to guarantee no accidental mutation
     warn_on_delete = tr.Bool()
@@ -1224,9 +1184,7 @@ class EditGrid(w.VBox):
         self.grid.transposed = value
 
     def _update_value_from_grid(self):
-        # print(self._value)  # old
         self._value = self.grid.records()
-        # print(self._value)  # new
 
     @value.setter
     def value(self, value):
@@ -1267,11 +1225,11 @@ class EditGrid(w.VBox):
 
         self._init_form()
         if ui_add is None:
-            self.ui_add = aui.AutoObjectFiltered(self.row_schema)
+            self.ui_add = AutoObjectFiltered(self.row_schema, app=self)
         else:
             self.ui_add = ui_add(self.row_schema, app=self)
         if ui_edit is None:
-            self.ui_edit = aui.AutoObjectFiltered(self.row_schema)
+            self.ui_edit = AutoObjectFiltered(self.row_schema, app=self)
         else:
             self.ui_edit = ui_edit(self.row_schema, app=self)
         if ui_delete is None:
@@ -1507,12 +1465,12 @@ class EditGrid(w.VBox):
             self.buttonbar_grid.delete.value = False
 
     def _set_ui_delete_to_selected_row(self):
+        logging.info(f"delete: {self.grid.selected_dict}")
         self.ui_delete.value = self.grid.selected_dict
 
     def _delete(self):
         try:
             if len(self.grid.selected_indexes) > 0:
-                print(f"Row Number: {self.grid.selected_indexes}")
                 if not self.warn_on_delete:
                     self.buttonbar_grid.delete.value = False
                     self._delete_selected()
@@ -1527,6 +1485,57 @@ class EditGrid(w.VBox):
         except Exception as e:
             print("delete error")
             traceback.print_exc()
+
+
+class AutoObjectFiltered(
+    aui.AutoObject
+):  # TODO: Implement into EditGrid class by default... !
+    """This extended AutoObject class relies on EditGrid and a row_schema dictionary.
+
+    The AutoObject will update its rows based on the visible rows of the grid.
+    """
+
+    def __init__(self, row_schema: dict, app: EditGrid, *args, **kwargs):
+        self.row_schema = row_schema
+        self.app = app
+        self._selections = []
+        super().__init__(row_schema, *args, **kwargs)
+        self.app.grid.observe(self._update_order, "_visible_rows")
+        self.app.grid.observe(
+            self._save_previous_selections, "selections"
+        )  # Re-apply selection after updating transforms
+
+    def _get_visible_fields(self):
+        """Get the list of fields that are visible in the DataGrid."""
+        if isinstance(self.app.grid.get_visible_data().index, pd.MultiIndex) is True:
+            title_idx = self.app.grid.get_visible_data().index.names.index("title")
+            visible_titles = [
+                v[title_idx] for v in self.app.grid.get_visible_data().index
+            ]
+            return [
+                k
+                for k, v in self.app.row_schema["properties"].items()
+                if v["title"] in visible_titles
+            ]
+        elif isinstance(self.app.grid.get_visible_data().index, pd.Index) is True:
+            return [
+                k
+                for k, v in self.app.row_schema["properties"].items()
+                if v["title"] in self.app.grid.get_visible_data().index
+            ]
+
+        else:
+            raise Exception("Index obtained not of correct type.")
+
+    def _update_order(self, onchange):
+        """Update order instance of AutoObject based on visible fields in the DataGrid."""
+        if self.app.transposed is True:
+            self.order = self._get_visible_fields()
+            self.app.grid.selections = self._selections
+
+    def _save_previous_selections(self, onchange):
+        if self.app.grid.selections:
+            self._selections = self.app.grid.selections
 
 
 if __name__ == "__main__":
@@ -1569,7 +1578,6 @@ if __name__ == "__main__":
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
-
 
 
 if __name__ == "__main__":
