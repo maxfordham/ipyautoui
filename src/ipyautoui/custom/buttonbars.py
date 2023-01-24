@@ -51,18 +51,14 @@ class SaveActions(tr.HasTraits):
         s = f"fns_onsave - action called @ {datetime.now().strftime('%H:%M:%S')}"
         log_fns_onsave = lambda: logging.info(s)
         log_fns_onsave.__name__ = "log_fns_onsave"
-        print_fns_onsave = lambda: print(s)
-        print_fns_onsave.__name__ = "print_fns_onsave"
-        return [log_fns_onsave, print_fns_onsave]
+        return [log_fns_onsave]  # , print_fns_onsave
 
     @tr.default("fns_onrevert")
     def _default_fn_revert(self):
         s = f"log_fns_onrevert - action called @ {datetime.now().strftime('%H:%M:%S')}"
         log_fns_onrevert = lambda: logging.info(s)
         log_fns_onrevert.__name__ = "log_fns_onrevert"
-        print_fns_onrevert = lambda: print(s)
-        print_fns_onrevert.__name__ = "print_fns_onrevert"
-        return [log_fns_onrevert, print_fns_onrevert]
+        return [log_fns_onrevert]  # , print_fns_onrevert
 
     def fn_save(self):
         """do not edit"""
@@ -113,7 +109,7 @@ class SaveActions(tr.HasTraits):
             fns = [fn_add] + fns
         else:
             fns = fns + [fn_add]
-        setattr(self, action_name, fns + [fn_add])
+        setattr(self, action_name, fns)
 
     def fns_onsave_add_action(
         self,
@@ -149,14 +145,24 @@ class SaveActions(tr.HasTraits):
 if __name__ == "__main__":
     actions = SaveActions()
     f = lambda: print("test")
-    f.__name__ = "asdf"
-    f1 = lambda: print("test1")
-    f1.__name__ = "asdf"
+    f.__name__ = "f"
+    actions.fns_onsave_add_action(f)
+    print(actions.fns_onsave)
+# -
 
+if __name__ == "__main__":
+    f = lambda: print("test")
+    f.__name__ = "f"
+    f1 = lambda: print("test1")
+    f1.__name__ = "f1"
+    print("f")
+    print("-----")
     actions.fns_onsave_add_action(f)
     actions.fns_onsave_add_action(f1)
     actions.fn_save()
-
+    print("")
+    print("f1")
+    print("-----")
     actions.fns_onrevert_add_action(f)
     actions.fns_onrevert_add_action(f1)
     actions.fn_revert()
@@ -291,8 +297,7 @@ class CrudButtonBar(w.HBox):
     def _observe_active(self, change):
         if change["new"] is None:
             self.message.value = ""
-        print(change["new"])
-        print(self.message.value)
+        logging.info(f"active CRUD view = {change['new']}")
 
     def __init__(
         self,
@@ -364,7 +369,6 @@ class CrudButtonBar(w.HBox):
             w.tooltip = BUTTONBAR_CONFIG[button_name]["tooltip"]
             w.layout.border = None
             self.fn_backward()
-        print(self.message.value)
 
     def _add(self, onchange):
         self._onclick("add")
