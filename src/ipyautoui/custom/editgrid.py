@@ -164,7 +164,7 @@ def is_incremental(li):
 
 
 # TODO: create an AutoUiSchema class to handle schema gen and then extend it here...
-# TODO: consider extending by using pandera
+# TODO: consider extending by using pandera (schema defs and validation for pandas)
 class GridSchema:
     """
     NOTE: index below can be either column index or row index. it can be swapped using
@@ -620,6 +620,11 @@ class AutoGrid(DataGrid):
             logging.info(s)
             print(s)
             self.set_cell_value(column_name, primary_key_value, new_value)
+            return {
+                "column_name": column_name,
+                "primary_key_value": primary_key_value,
+                "new_value": new_value,
+            }
         else:
             pass
 
@@ -628,9 +633,9 @@ class AutoGrid(DataGrid):
         set row (transposed==False) or col (transposed==True) value
         """
         if self.transposed:
-            self.set_col_value(index, value)
+            return self.set_col_value(index, value)
         else:
-            self.set_row_value(index, value)
+            return self.set_row_value(index, value)
 
     def set_row_value(self, index: int, value: dict):
         """Set a chosen row using the key and a value given.
@@ -649,8 +654,11 @@ class AutoGrid(DataGrid):
             pass
         else:
             raise Exception("Columns of value given do not match with value keys.")
-        for column, v in value.items():
+        changes = [
             self.set_cell_value_if_different(column, index, v)
+            for column, v in value.items()
+        ]
+        return [c for c in changes if c is not None]
 
     def apply_map_name_title(self, row_data):
         return {
@@ -674,10 +682,14 @@ class AutoGrid(DataGrid):
             value = {self.map_name_index.get(name): v for name, v in value.items()}
         if set(value.keys()) != set(self.data.index.to_list()):
             raise Exception("Index of datagrid does not match with value keys.")
+        changes = []
         for primary_key_value, v in value.items():
             if isinstance(primary_key_value, tuple):
                 primary_key_value = list(primary_key_value)
-            self.set_cell_value_if_different(column_name, primary_key_value, v)
+            changes.append(
+                self.set_cell_value_if_different(column_name, primary_key_value, v)
+            )
+        return [c for c in changes if c is not None]
 
     def filter_by_column_name(self, column_name: str, li_filter: list):
         """Filter rows to display based on a column name and a list of objects belonging to that column.
@@ -1259,7 +1271,6 @@ class EditGrid(w.VBox):
             self.stk_crud,
             self.grid,
         ]
-        # self.setview_default()
         self._init_controls()
 
     def _init_row_controls(self):
@@ -1334,7 +1345,8 @@ class EditGrid(w.VBox):
         self._check_one_row_selected()
 
     def _save_edit_to_grid(self):
-        self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
+        changes = self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
+        # TODO: patch changes back to source
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.edit.value = False
 
