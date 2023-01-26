@@ -142,15 +142,10 @@ class SaveActions(tr.HasTraits):
         )
 
 
-if __name__ == "__main__":
-    actions = SaveActions()
-    f = lambda: print("test")
-    f.__name__ = "f"
-    actions.fns_onsave_add_action(f)
-    print(actions.fns_onsave)
 # -
 
 if __name__ == "__main__":
+    actions = SaveActions()
     f = lambda: print("test")
     f.__name__ = "f"
     f1 = lambda: print("test1")
@@ -244,10 +239,18 @@ if __name__ == "__main__":
 # -
 
 if __name__ == "__main__":
+    f = lambda: print("test")
+    f.__name__ = "f"
+    f1 = lambda: print("test1")
+    f1.__name__ = "f1"
+    sb.fns_onsave_add_action(f)
+    sb.fns_onsave_add_action(f1)
+
+    sb.fns_onrevert_add_action(f)
+    sb.fns_onrevert_add_action(f1)
+
+if __name__ == "__main__":
     sb.unsaved_changes = True
-
-# TODO: move into editgrid_buttonbar.py
-
 
 # +
 BUTTONBAR_CONFIG = {
