@@ -164,7 +164,7 @@ def is_incremental(li):
 
 
 # TODO: create an AutoUiSchema class to handle schema gen and then extend it here...
-# TODO: consider extending by using pandera
+# TODO: consider extending by using pandera (schema defs and validation for pandas)
 class GridSchema:
     """
     NOTE: index below can be either column index or row index. it can be swapped using
@@ -500,10 +500,8 @@ class AutoGrid(DataGrid):
         else:
             cols_check = self.gridschema.property_keys
         if set(cols_check) == set(self.column_names):
-            # print(f"{str(cols_check)} == {str(set(self.column_names))}")
             return False
         else:
-            # print(f"{str(cols_check)} != {str(set(self.column_names))}")
             return True
 
     def records(self, keys_as_title=False):
@@ -609,14 +607,35 @@ class AutoGrid(DataGrid):
 
             return self.map_column_index_to_data(data)
 
+    def set_cell_value_if_different(self, column_name, primary_key_value, new_value):
+        old = self.get_cell_value(column_name, primary_key_value)
+        if len(old) != 1:
+            raise ValueError(
+                f"multiple values return from: self.get_cell_value({column_name}, {primary_key_value})"
+            )
+        else:
+            old = old[0]
+        if old != new_value:
+            s = f"(column_name={column_name}, primary_key_value={primary_key_value}) old={old}, new={new_value})"
+            logging.info(s)
+            print(s)
+            self.set_cell_value(column_name, primary_key_value, new_value)
+            return {
+                "column_name": column_name,
+                "primary_key_value": primary_key_value,
+                "new_value": new_value,
+            }
+        else:
+            pass
+
     def set_item_value(self, index: int, value: dict):
         """
         set row (transposed==False) or col (transposed==True) value
         """
         if self.transposed:
-            self.set_col_value(index, value)
+            return self.set_col_value(index, value)
         else:
-            self.set_row_value(index, value)
+            return self.set_row_value(index, value)
 
     def set_row_value(self, index: int, value: dict):
         """Set a chosen row using the key and a value given.
@@ -635,8 +654,11 @@ class AutoGrid(DataGrid):
             pass
         else:
             raise Exception("Columns of value given do not match with value keys.")
-        for column, v in value.items():
-            self.set_cell_value(column, index, v)
+        changes = [
+            self.set_cell_value_if_different(column, index, v)
+            for column, v in value.items()
+        ]
+        return [c for c in changes if c is not None]
 
     def apply_map_name_title(self, row_data):
         return {
@@ -660,11 +682,14 @@ class AutoGrid(DataGrid):
             value = {self.map_name_index.get(name): v for name, v in value.items()}
         if set(value.keys()) != set(self.data.index.to_list()):
             raise Exception("Index of datagrid does not match with value keys.")
+        changes = []
         for primary_key_value, v in value.items():
-            # set_cell_value(self, column_name, primary_key_value, new_value)
             if isinstance(primary_key_value, tuple):
                 primary_key_value = list(primary_key_value)
-            self.set_cell_value(column_name, primary_key_value, v)
+            changes.append(
+                self.set_cell_value_if_different(column_name, primary_key_value, v)
+            )
+        return [c for c in changes if c is not None]
 
     def filter_by_column_name(self, column_name: str, li_filter: list):
         """Filter rows to display based on a column name and a list of objects belonging to that column.
@@ -1171,9 +1196,7 @@ class EditGrid(w.VBox):
         self.grid.transposed = value
 
     def _update_value_from_grid(self):
-        # print(self._value)  # old
         self._value = self.grid.records()
-        # print(self._value)  # new
 
     @value.setter
     def value(self, value):
@@ -1203,21 +1226,22 @@ class EditGrid(w.VBox):
         close_crud_dialogue_on_action: bool = False,
         description: str = "",
         fn_on_copy: ty.Callable = None,  # TODO: don't think this is required... should be handled by an observe?
+        **kwargs,
     ):
         self.description = w.HTML(description)
         self.by_title = by_title
         self.fn_on_copy = fn_on_copy
         self.by_alias = by_alias
         self.datahandler = datahandler
-        self.grid = AutoGrid(schema, value=value, by_alias=self.by_alias)
+        self.grid = AutoGrid(schema, value=value, by_alias=self.by_alias, **kwargs)
 
         self._init_form()
         if ui_add is None:
-            self.ui_add = aui.AutoObject(self.row_schema)
+            self.ui_add = AutoObjectFiltered(self.row_schema, app=self)
         else:
             self.ui_add = ui_add(self.row_schema, app=self)
         if ui_edit is None:
-            self.ui_edit = aui.AutoObject(self.row_schema)
+            self.ui_edit = AutoObjectFiltered(self.row_schema, app=self)
         else:
             self.ui_edit = ui_edit(self.row_schema, app=self)
         if ui_delete is None:
@@ -1247,7 +1271,6 @@ class EditGrid(w.VBox):
             self.stk_crud,
             self.grid,
         ]
-        # self.setview_default()
         self._init_controls()
 
     def _init_row_controls(self):
@@ -1322,7 +1345,8 @@ class EditGrid(w.VBox):
         self._check_one_row_selected()
 
     def _save_edit_to_grid(self):
-        self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
+        changes = self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
+        # TODO: patch changes back to source
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.edit.value = False
 
@@ -1453,12 +1477,12 @@ class EditGrid(w.VBox):
             self.buttonbar_grid.delete.value = False
 
     def _set_ui_delete_to_selected_row(self):
+        logging.info(f"delete: {self.grid.selected_dict}")
         self.ui_delete.value = self.grid.selected_dict
 
     def _delete(self):
         try:
             if len(self.grid.selected_indexes) > 0:
-                print(f"Row Number: {self.grid.selected_indexes}")
                 if not self.warn_on_delete:
                     self.buttonbar_grid.delete.value = False
                     self._delete_selected()
@@ -1473,48 +1497,6 @@ class EditGrid(w.VBox):
         except Exception as e:
             print("delete error")
             traceback.print_exc()
-
-
-if __name__ == "__main__":
-    # Test: EditGrid instance with multi-indexing.
-    AUTO_GRID_DEFAULT_VALUE = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-        },
-    ]
-    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
-
-    class DataFrameCols(BaseModel):
-        string: str = Field("string", column_width=100, section="a")
-        integer: int = Field(1, column_width=80, section="a")
-        floater: float = Field(None, column_width=70, aui_sig_fig=3, section="b")
-
-    class TestDataFrame(BaseModel):
-        """a description of TestDataFrame"""
-
-        __root__: ty.List[DataFrameCols] = Field(
-            default=AUTO_GRID_DEFAULT_VALUE,
-            format="dataframe",
-            datagrid_index_name=("section", "title"),
-        )
-
-    description = markdown(
-        "<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes"
-        " whatever they may be 👍"
-    )
-    editgrid = EditGrid(
-        schema=TestDataFrame,
-        description=description,
-        ui_add=None,
-        ui_edit=None,
-        warn_on_delete=True,
-        show_copy_dialogue=False,
-        close_crud_dialogue_on_action=False,
-    )
-    editgrid.observe(lambda c: print("_value changed"), "_value")
-    display(editgrid)
 
 
 class AutoObjectFiltered(
@@ -1566,6 +1548,48 @@ class AutoObjectFiltered(
     def _save_previous_selections(self, onchange):
         if self.app.grid.selections:
             self._selections = self.app.grid.selections
+
+
+if __name__ == "__main__":
+    # Test: EditGrid instance with multi-indexing.
+    AUTO_GRID_DEFAULT_VALUE = [
+        {
+            "string": "important string",
+            "integer": 1,
+            "floater": 3.14,
+        },
+    ]
+    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
+
+    class DataFrameCols(BaseModel):
+        string: str = Field("string", column_width=100, section="a")
+        integer: int = Field(1, column_width=80, section="a")
+        floater: float = Field(None, column_width=70, aui_sig_fig=3, section="b")
+
+    class TestDataFrame(BaseModel):
+        """a description of TestDataFrame"""
+
+        __root__: ty.List[DataFrameCols] = Field(
+            default=AUTO_GRID_DEFAULT_VALUE,
+            format="dataframe",
+            datagrid_index_name=("section", "title"),
+        )
+
+    description = markdown(
+        "<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes"
+        " whatever they may be 👍"
+    )
+    editgrid = EditGrid(
+        schema=TestDataFrame,
+        description=description,
+        ui_add=None,
+        ui_edit=None,
+        warn_on_delete=True,
+        show_copy_dialogue=False,
+        close_crud_dialogue_on_action=False,
+    )
+    editgrid.observe(lambda c: print("_value changed"), "_value")
+    display(editgrid)
 
 
 if __name__ == "__main__":
