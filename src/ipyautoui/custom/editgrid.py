@@ -652,7 +652,7 @@ class AutoGrid(DataGrid):
             index (int): The key of the row. # TODO: is this defo an int?
             value (dict): The data we want to input into the row.
         """
-        if set(value.keys()) == set(self.map_name_index.keys()):
+        if set(value.keys()).issubset(set(self.map_name_index.keys())):
             # value_with_titles is used for datagrid
             value = {self.map_name_index.get(name): v for name, v in value.items()}
             # ^ self.apply_map_name_title(value)  ? ??
