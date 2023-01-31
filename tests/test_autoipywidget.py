@@ -75,7 +75,7 @@ class TestAutoObject:
         assert ui.value == {"text": "Test"}
         print("done")
 
-    def test_simple_dict(self):
+    def test_dict_raises_error(self):
         class ExampleSchema(BaseModel):
             text: dict = Field(
                 default={"test": 1}, description="This test is important"
