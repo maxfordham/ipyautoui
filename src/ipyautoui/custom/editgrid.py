@@ -193,7 +193,7 @@ class GridSchema:
         self.map_index_name = {v: k for k, v in self.map_name_index.items()}
         {
             setattr(self, k, v)
-            for k, v in get_global_renderers_from_schema(self.schema, **kwargs)
+            for k, v in get_global_renderers_from_schema(self.schema, **kwargs).items()
         }
         # ^ sets: ["default_renderer", "header_renderer", "corner_renderer"]
         self.renderers = get_column_renderers_from_schema(
@@ -1232,12 +1232,10 @@ class EditGrid(w.VBox):
         show_copy_dialogue: bool = False,
         close_crud_dialogue_on_action: bool = False,
         description: str = "",
-        fn_on_copy: ty.Callable = None,  # TODO: don't think this is required... should be handled by an observe?
         **kwargs,
     ):
         self.description = w.HTML(description)
         self.by_title = by_title
-        self.fn_on_copy = fn_on_copy
         self.by_alias = by_alias
         self.datahandler = datahandler
         self.grid = AutoGrid(schema, value=value, by_alias=self.by_alias, **kwargs)
@@ -1417,8 +1415,6 @@ class EditGrid(w.VBox):
             ]
         else:
             li_values_selected = []
-        if self.fn_on_copy is not None:
-            li_values_selected = self.fn_on_copy(li_values_selected)
         return li_values_selected
 
     def _copy_selected_inplace(self):
