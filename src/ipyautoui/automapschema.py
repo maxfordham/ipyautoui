@@ -124,6 +124,10 @@ def add_nullable_to_object(schema_obj):
         req = schema_obj["required"]
     else:
         req = []
+    if "properties" not in schema_obj.keys():
+        raise ValueError(
+            "Dictionaries not allowed in AutoUi. Must have defined properties."
+        )
     for k, v in schema_obj["properties"].items():
         if k not in req and "default" not in v.keys():
             v["nullable"] = True
@@ -617,7 +621,6 @@ def update_widgets_map(widgets_map, di_update=None):
 
 
 def get_widgets_map(di_update=None):
-
     WIDGETS_MAP = frozenmap(
         **{
             "AutoOveride": WidgetMapper(
