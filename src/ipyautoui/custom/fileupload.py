@@ -57,6 +57,14 @@ class File(BaseModel):
         return values["fdir"] / values["name"]
 
 
+class Files(BaseModel):
+    __root__: ty.List[File]
+
+
+# +
+#Files.schema()
+# -
+
 class Caption(tr.HasTraits):
     show_caption = tr.Bool(default_value=True)
 
@@ -247,7 +255,6 @@ class FilesUploadToDir(w.VBox):
 if __name__ == "__main__":
     upld = FilesUploadToDir()
     display(upld)
-# -
 
 
 # +
