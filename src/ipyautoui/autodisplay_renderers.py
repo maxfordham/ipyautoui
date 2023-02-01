@@ -25,7 +25,7 @@ import os
 import pathlib
 import requests
 import pandas as pd
-from IPython.display import display, Markdown, IFrame, clear_output, HTML
+from IPython.display import display, Markdown, IFrame, clear_output, HTML, SVG
 import json
 import ipydatagrid as ipg
 import ipywidgets as w
@@ -177,7 +177,7 @@ def default_grid(df, **kwargs):
     return g
 
 
-def preview_csv(path: ty.Union[pathlib.Path, HttpUrl]):
+def preview_csv(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
     byts = getbytes(path)
     df = pd.read_csv(StringIO(byts.decode()))
     df = del_matching(pd.read_csv(path), "Unnamed")
@@ -188,7 +188,7 @@ class PreviewExcel(w.VBox):
     path = traitlets_paths.Path()
     xl = tr.Instance(klass="pandas.ExcelFile")
 
-    def __init__(self, path: ty.Union[pathlib.Path, HttpUrl]):
+    def __init__(self, path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
         super().__init__()
 
         self.path = path
@@ -253,7 +253,7 @@ def xlsxtemplated_display(li):
         display(l["grid"])
 
 
-def preview_json(path: ty.Union[pathlib.Path, HttpUrl]):
+def preview_json(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
     js = json.loads(getbytes(path).decode())
     return Markdown(
         f"""
@@ -264,7 +264,7 @@ def preview_json(path: ty.Union[pathlib.Path, HttpUrl]):
     )
 
 
-def preview_yaml(path: ty.Union[pathlib.Path, HttpUrl]):
+def preview_yaml(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
     byts = getbytes(path)
     return Markdown(
         f"""
@@ -275,7 +275,7 @@ def preview_yaml(path: ty.Union[pathlib.Path, HttpUrl]):
     )
 
 
-def preview_plotly(path: ty.Union[pathlib.Path, HttpUrl]):
+def preview_plotly(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
     package_name = "plotly"
     if check_installed(package_name):
         byts = getbytes(path)
@@ -329,7 +329,7 @@ def update_vega_data_url(data: dict, path: pathlib.Path) -> dict:
     return data
 
 
-def get_vega_data(path: ty.Union[pathlib.Path, HttpUrl]):
+def get_vega_data(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
     byts = getbytes(path)
     data = json.loads(byts.decode())
     if isinstance(path, pathlib.Path):
@@ -342,7 +342,7 @@ def get_vega_data(path: ty.Union[pathlib.Path, HttpUrl]):
     return data
 
 
-def preview_vega(path: ty.Union[pathlib.Path, HttpUrl]):
+def preview_vega(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
     data = get_vega_data(path)
     return Vega(data)
 
@@ -352,23 +352,27 @@ def preview_vegalite(path):
     return VegaLite(data)
 
 
-def preview_image(path: ty.Union[pathlib.Path, HttpUrl], *args, **kwargs):
+def preview_image(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable], *args, **kwargs):
     byts = getbytes(path)
     return w.Image(value=byts, *args, **kwargs)
 
+def preview_svg(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable], *args, **kwargs):
+    byts = getbytes(path)
+    return SVG(byts, *args, **kwargs)
 
-def preview_video(path: ty.Union[pathlib.Path, HttpUrl], *args, **kwargs):
+
+def preview_video(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable], *args, **kwargs):
     byts = getbytes(path)
     return w.Video(value=byts, *args, **kwargs)
 
 
-def preview_audio(path: ty.Union[pathlib.Path, HttpUrl], *args, **kwargs):
+def preview_audio(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable], *args, **kwargs):
     byts = getbytes(path)
     return w.Audio(value=byts, *args, **kwargs)
 
 
 ##############TODO: from here:###############################
-def preview_text(path: ty.Union[pathlib.Path, HttpUrl]):
+def preview_text(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
     byts = getbytes(path)
     return Markdown(
         f"""
@@ -441,13 +445,14 @@ DEFAULT_FILE_RENDERERS = frozenmap(
         ".jpg": preview_image,
         ".jpeg": preview_image,
         ".gif": preview_image,
+        ".svg": preview_svg,
         ".mp4": preview_video,
         ".mp3": preview_audio,
         #'.obj': obj_prev, # TODO: add ipyvolume viewer?
         ".txt": preview_text,
         ".bat": preview_text,
         ".rst": preview_text,
-        "": preview_text_or_dir,
+        "": preview_text_or_dir,  # make this recursive ?
         ".toml": preview_text,
         ".md": preview_markdown,
         ".py": PreviewPython,
