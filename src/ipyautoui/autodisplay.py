@@ -97,7 +97,7 @@ class DisplayObjectActions(BaseModel):
     """base object with callables for creating a display object"""
 
     map_renderers: frozenmap = DEFAULT_FILE_RENDERERS
-    path: ty.Union[str, pathlib.Path, HttpUrl]
+    path: ty.Union[str, pathlib.Path, HttpUrl, ty.Callable]
     ext: str = None
     name: str = None
     check_exists: ty.Callable = None
@@ -175,7 +175,9 @@ class DisplayFromPath(DisplayObjectActions):
         p = values["path"]
         if p is not None:
             fn = functools.partial(open_file, p, newroot=values["newroot"])
-        return fn
+            return fn
+        else:
+            return lambda: "Error: path given is None"
 
     @validator("open_folder", always=True)
     def _open_folder(cls, v, values):
@@ -184,7 +186,9 @@ class DisplayFromPath(DisplayObjectActions):
             p = p.parent
         if p is not None:
             fn = functools.partial(open_file, p, newroot=values["newroot"])
-        return fn
+            return fn
+        else:
+            return lambda: "Error: path given is None"
 
     class Config:
         arbitrary_types_allowed = True
@@ -223,6 +227,28 @@ class DisplayFromRequest(DisplayObjectActions):
     @validator("name", always=True)
     def _name(cls, v, values):
         return values["path"].path
+
+
+def check_callable_in_namespace(fn: ty.Callable):
+    if fn.__name__ in dir():
+        return True
+    else:
+        return False
+
+
+class DisplayFromCallable(DisplayObjectActions):
+    path: ty.Callable
+
+    @validator("check_exists", always=True)
+    def _check_exists(cls, v, values):
+        return check_callable_in_namespace(values["path"])
+
+    @validator("name", always=True)
+    def _name(cls, v, values):
+        if v is not None:
+            return v
+        else:
+            return values["path"].__name__
 
 
 # +
@@ -422,11 +448,20 @@ open folder:
 
 
 # -
-
 if __name__ == "__main__":
     path = "https://catfact.ninja/fact"
     ext = ".json"
     display(DisplayFromRequest(path=path, ext=ext).renderer())
+
+
+if __name__ == "__main__":
+    path = "https://catfact.ninja/fact"
+    ext = ".json"
+
+    def get_catfact():
+        return requests.get(path).content
+
+    display(DisplayFromCallable(path=get_catfact, ext=ext).renderer())
 
 if __name__ == "__main__":
 
