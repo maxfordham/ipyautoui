@@ -540,10 +540,10 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         else:
             return json.dumps(self.value, indent=4)
 
-    def get_description(self):  # TODO: put this in AutoObjectFormLayout
+    def get_description(self):
         return get_from_schema_root(self.schema, "description")
 
-    def get_title(self):  # TODO: put this in AutoObjectFormLayout
+    def get_title(self):
         return get_from_schema_root(self.schema, "title")
 
     def _init_ui(self):
@@ -636,12 +636,21 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         )
 
     def _watch_change(self, change, key=None, watch="value"):
-        # print(f"changed: {key}")
+        # if self.validate_on_change:
+        #     if self.model is not None:
+        #         new_value = json.loads(self.model(**self.di_widgets_value).json())
+        #     else:
+        #         raise ValueError(
+        #             "currently a pydantic model is required to validate on change"
+        #         )
+
         self._value = self.di_widgets_value
         self.savebuttonbar.unsaved_changes = True
         # NOTE: it is required to set the whole "_value" otherwise
         #       traitlets doesn't register the change.
         #       -@jovyan at 7/18/2022, 12:45:48 PMsavebuttonbar
+
+    # def _update_widgets_value(self, value):
 
     def _update_widgets_from_value(self):
         for k, v in self.value.items():
