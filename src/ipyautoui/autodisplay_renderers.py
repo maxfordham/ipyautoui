@@ -64,17 +64,19 @@ if check_installed("plotly"):
 # + tags=[]
 
 
-def getbytes(path: ty.Union[pathlib.Path, HttpUrl]) -> ty.ByteString:
-    """common function for read bytes from a request or from file"""
+def getbytes(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]) -> ty.ByteString:
+    """common function for read bytes from: a request, file or callable
+    NOTE: if a callable the data must be returned as bytes
+    """
     if isinstance(path, pathlib.Path):
         return path.read_bytes()
     elif isinstance(path, HttpUrl):
         return requests.get(path).content
-    # elif isinstance(path, ty.Callable):
-    #     pass # TODO: add functionality to get bytes from callable
+    elif isinstance(path, ty.Callable):
+        return path()
     else:
         raise ValueError(
-            "path must be either a pathlib.Path object or a pydantic.HttpUrl object\n"
+            "path must be either a pathlib.Path, pydantic.HttpUrl or typing.Callable object\n"
             "to create an HttpUrl object:\n"
             "`from pydantic import parse_obj_as, HttpUrl`\n"
             "`url = parse_obj_as(HttpUrl, 'https://jupyter.org/')`"
