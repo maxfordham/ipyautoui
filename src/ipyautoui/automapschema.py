@@ -125,9 +125,7 @@ def add_nullable_to_object(schema_obj):
     else:
         req = []
     if "properties" not in schema_obj.keys():
-        raise ValueError(
-            "Dictionaries not allowed in AutoUi. Must have defined properties."
-        )
+        return schema_obj
     for k, v in schema_obj["properties"].items():
         if k not in req and "default" not in v.keys():
             v["nullable"] = True
