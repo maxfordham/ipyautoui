@@ -76,7 +76,8 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema."""
+    """Set the column widths of the data grid based on column_width given in the schema.
+    """
 
     # start with settings in properties
     column_widths = {
@@ -752,6 +753,7 @@ class AutoGrid(DataGrid):
         Args:
             li_index (ty.List[int]): ty.List of row indexes.
         """
+        self.clear_selection()
         if is_incremental(sorted(li_indexes)) is False:
             raise Exception("Only select a property or block of properties.")
         for index in sorted(li_indexes):
@@ -766,6 +768,7 @@ class AutoGrid(DataGrid):
         Args:
             li_index (ty.List[int]): ty.List of row indexes.
         """
+        self.clear_selection()
         if is_incremental(sorted(li_indexes)) is False:
             raise Exception("Only select a property or block of properties.")
         for index in sorted(li_indexes, reverse=True):
@@ -868,7 +871,8 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where index is row index. still works if transform applied."""
+        """Return the dictionary of selected rows where index is row index. still works if transform applied.
+        """
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
@@ -921,6 +925,7 @@ if __name__ == "__main__":
             [
                 DataFrameCols(string="string", integer=1, floater=1.2),
                 DataFrameCols(string="another string", integer=10, floater=2.5),
+                DataFrameCols(string="test", integer=42, floater=0.78),
             ],
             format="dataframe",
             global_decimal_places=2,
