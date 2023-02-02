@@ -9,7 +9,7 @@ class TestSaveActions:
         f.__name__ = "fn_test"
         actions.fns_onsave_add_action(f)
         li = actions.fn_save()
-        assert li[2] == "test"
+        assert li[1] == "test"
 
 
 class TestSaveButtonBar:
