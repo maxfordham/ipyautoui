@@ -76,8 +76,7 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema.
-    """
+    """Set the column widths of the data grid based on column_width given in the schema."""
 
     # start with settings in properties
     column_widths = {
@@ -713,68 +712,74 @@ class AutoGrid(DataGrid):
             ]
         )
 
-    # move rows around
+    # move indexes around
     # ----------------
-    def _swap_rows(self, index_a: int, index_b: int):
-        """Swap two rows by giving their indexes.
+    def _swap_indexes(self, index_a: int, index_b: int):
+        """Swap two indexes by giving their indexes.
 
         Args:
-            index_a (int): index of a row.
-            index_b (int): index of another row.
+            index_a (int): index of a index.
+            index_b (int): index of another index.
         """
-        di_a = self.data.loc[index_a].to_dict()
-        di_b = self.data.loc[index_b].to_dict()
-        self.set_row_value(index=index_b, value=di_a)
-        self.set_row_value(index=index_a, value=di_b)
+        if self.transposed is False:
+            di_a = self.data.loc[index_a].to_dict()
+            di_b = self.data.loc[index_b].to_dict()
+            self.set_row_value(index=index_b, value=di_a)
+            self.set_row_value(index=index_a, value=di_b)
+        else:
+            di_a = self.data.loc[:, index_a].to_dict()
+            di_b = self.data.loc[:, index_b].to_dict()
+            self.set_col_value(index=index_b, value=di_a)
+            self.set_col_value(index=index_a, value=di_b)
 
-    def _move_row_down(self, index: int):
-        """Move a row down.
+    def _move_index_down(self, index: int):
+        """Move an index down numerically e.g. 1 -> 0
 
         Args:
-            index (int): index of the row
+            index (int): index of the index
         """
         if index + 1 == len(self.data):
-            raise Exception("Can't move down last row.")
-        self._swap_rows(index_a=index, index_b=index + 1)
+            raise Exception("Can't move down last index.")
+        self._swap_indexes(index_a=index, index_b=index - 1)
 
-    def _move_row_up(self, index: int):
-        """Move a row up.
+    def _move_index_up(self, index: int):
+        """Move an index up numerically e.g. 1 -> 2.
 
         Args:
-            index (int): index of the row
+            index (int): index of the index
         """
         if index - 1 == -1:
-            raise Exception("Can't move up first row.")
-        self._swap_rows(index_a=index, index_b=index - 1)
+            raise Exception("Can't move up first index.")
+        self._swap_indexes(index_a=index, index_b=index + 1)
 
-    def _move_rows_up(self, li_indexes: ty.List[int]):
-        """Move multiple rows up.
+    def _move_indexes_up(self, li_indexes: ty.List[int]):
+        """Move multiple indexes up numerically.
 
         Args:
-            li_index (ty.List[int]): ty.List of row indexes.
+            li_index (ty.List[int]): ty.List of index indexes.
         """
         self.clear_selection()
         if is_incremental(sorted(li_indexes)) is False:
             raise Exception("Only select a property or block of properties.")
         for index in sorted(li_indexes):
-            self._move_row_up(index)
+            self._move_index_up(index)
         self.selections = [
-            {"r1": min(li_indexes) - 1, "r2": max(li_indexes) - 1, "c1": 0, "c2": 2}
+            {"r1": min(li_indexes) + 1, "r2": max(li_indexes) + 1, "c1": 0, "c2": 2}
         ]
 
-    def _move_rows_down(self, li_indexes: ty.List[int]):
-        """Move multiple rows down.
+    def _move_indexes_down(self, li_indexes: ty.List[int]):
+        """Move multiple indexes down numerically.
 
         Args:
-            li_index (ty.List[int]): ty.List of row indexes.
+            li_index (ty.List[int]): ty.List of index indexes.
         """
         self.clear_selection()
         if is_incremental(sorted(li_indexes)) is False:
             raise Exception("Only select a property or block of properties.")
         for index in sorted(li_indexes, reverse=True):
-            self._move_row_down(index)
+            self._move_index_down(index)
         self.selections = [
-            {"r1": min(li_indexes) + 1, "r2": max(li_indexes) + 1, "c1": 0, "c2": 2}
+            {"r1": min(li_indexes) - 1, "r2": max(li_indexes) - 1, "c1": 0, "c2": 2}
         ]
 
     # ----------------
@@ -871,8 +876,7 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where index is row index. still works if transform applied.
-        """
+        """Return the dictionary of selected rows where index is row index. still works if transform applied."""
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
