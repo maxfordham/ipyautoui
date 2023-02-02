@@ -76,7 +76,8 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema."""
+    """Set the column widths of the data grid based on column_width given in the schema.
+    """
 
     # start with settings in properties
     column_widths = {
@@ -192,7 +193,7 @@ class GridSchema:
         self.map_index_name = {v: k for k, v in self.map_name_index.items()}
         {
             setattr(self, k, v)
-            for k, v in get_global_renderers_from_schema(self.schema, **kwargs)
+            for k, v in get_global_renderers_from_schema(self.schema, **kwargs).items()
         }
         # ^ sets: ["default_renderer", "header_renderer", "corner_renderer"]
         self.renderers = get_column_renderers_from_schema(
@@ -481,7 +482,8 @@ class AutoGrid(DataGrid):
             dft.index = self.gridschema.index
             if len(dft.columns) == 0:  # i.e. no data
                 logging.info(
-                    "ipydatagrid does not support dataframes with no columns. adding a column with default row data"
+                    "ipydatagrid does not support dataframes with no columns. adding a"
+                    " column with default row data"
                 )
                 dft = pd.DataFrame(
                     index=dft.index, columns=[0], data={0: self.default_row_title_keys}
@@ -611,12 +613,16 @@ class AutoGrid(DataGrid):
         old = self.get_cell_value(column_name, primary_key_value)
         if len(old) != 1:
             raise ValueError(
-                f"multiple values return from: self.get_cell_value({column_name}, {primary_key_value})"
+                f"multiple values return from: self.get_cell_value({column_name},"
+                f" {primary_key_value})"
             )
         else:
             old = old[0]
         if old != new_value:
-            s = f"(column_name={column_name}, primary_key_value={primary_key_value}) old={old}, new={new_value})"
+            s = (
+                f"(column_name={column_name}, primary_key_value={primary_key_value})"
+                f" old={old}, new={new_value})"
+            )
             logging.info(s)
             print(s)
             self.set_cell_value(column_name, primary_key_value, new_value)
@@ -646,7 +652,7 @@ class AutoGrid(DataGrid):
             index (int): The key of the row. # TODO: is this defo an int?
             value (dict): The data we want to input into the row.
         """
-        if set(value.keys()) == set(self.map_name_index.keys()):
+        if set(value.keys()).issubset(set(self.map_name_index.keys())):
             # value_with_titles is used for datagrid
             value = {self.map_name_index.get(name): v for name, v in value.items()}
             # ^ self.apply_map_name_title(value)  ? ??
@@ -865,7 +871,8 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where key is row index. still works if transform applied."""
+        """Return the dictionary of selected rows where key is row index. still works if transform applied.
+        """
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
@@ -1225,12 +1232,10 @@ class EditGrid(w.VBox):
         show_copy_dialogue: bool = False,
         close_crud_dialogue_on_action: bool = False,
         description: str = "",
-        fn_on_copy: ty.Callable = None,  # TODO: don't think this is required... should be handled by an observe?
         **kwargs,
     ):
         self.description = w.HTML(description)
         self.by_title = by_title
-        self.fn_on_copy = fn_on_copy
         self.by_alias = by_alias
         self.datahandler = datahandler
         self.grid = AutoGrid(schema, value=value, by_alias=self.by_alias, **kwargs)
@@ -1275,10 +1280,10 @@ class EditGrid(w.VBox):
 
     def _init_row_controls(self):
         self.ui_edit.show_savebuttonbar = True
-        self.ui_edit.savebuttonbar.fns_onsave = [self._save_edit_to_grid, self._patch]
+        self.ui_edit.savebuttonbar.fns_onsave = [self._patch, self._save_edit_to_grid]
         self.ui_edit.savebuttonbar.fns_onrevert = [self._set_ui_edit_to_selected_row]
         self.ui_add.show_savebuttonbar = True
-        self.ui_add.savebuttonbar.fns_onsave = [self._save_add_to_grid, self._post]
+        self.ui_add.savebuttonbar.fns_onsave = [self._post, self._save_add_to_grid]
         self.ui_add.savebuttonbar.fns_onrevert = [self._set_ui_add_to_default_row]
 
     @property
@@ -1340,7 +1345,8 @@ class EditGrid(w.VBox):
     def _validate_edit_click(self):
         if len(self.grid.selected_indexes) == 0:
             raise ValueError(
-                "you must select an index (row if transposed==True, col if transposed==True)"
+                "you must select an index (row if transposed==True, col if"
+                " transposed==True)"
             )
         self._check_one_row_selected()
 
@@ -1409,8 +1415,6 @@ class EditGrid(w.VBox):
             ]
         else:
             li_values_selected = []
-        if self.fn_on_copy is not None:
-            li_values_selected = self.fn_on_copy(li_values_selected)
         return li_values_selected
 
     def _copy_selected_inplace(self):
@@ -1540,7 +1544,8 @@ class AutoObjectFiltered(
             raise Exception("Index obtained not of correct type.")
 
     def _update_order(self, onchange):
-        """Update order instance of AutoObject based on visible fields in the DataGrid."""
+        """Update order instance of AutoObject based on visible fields in the DataGrid.
+        """
         if self.app.transposed is True:
             self.order = self._get_visible_fields()
             self.app.grid.selections = self._selections
