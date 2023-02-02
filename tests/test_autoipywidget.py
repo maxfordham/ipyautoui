@@ -5,6 +5,7 @@
 from pprint import pprint
 import shutil
 import pathlib
+import pytest
 
 # from src.ipyautoui.test_schema import TestSchema
 
@@ -73,6 +74,20 @@ class TestAutoObject:
         ui = AutoObject(auto_ui_eg)
         assert ui.value == {"text": "Test"}
         print("done")
+
+    def test_dict_raises_error(self):
+        class ExampleSchema(BaseModel):
+            text: dict = Field(
+                default={"test": 1}, description="This test is important"
+            )
+
+        with pytest.raises(
+            ValueError,
+            match="AutoUi does not support rendering generic dictionaries."
+            " This can be overridden by specifying a `autoui` pyobject renderer.",
+        ):
+            auto_ui_eg = ExampleSchema()
+            ui = AutoObject(auto_ui_eg)
 
     def test_TestAutoLogicSimple(self):
         ui = AutoObject(TestAutoLogicSimple)
