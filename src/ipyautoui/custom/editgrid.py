@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -646,8 +646,6 @@ class AutoGrid(DataGrid):
     def set_row_value(self, index: int, value: dict):
         """Set a chosen row using the key and a value given.
 
-        Note: We do not call value setter to apply values as it resets the datagrid.
-
         Args:
             index (int): The key of the row. # TODO: is this defo an int?
             value (dict): The data we want to input into the row.
@@ -715,66 +713,74 @@ class AutoGrid(DataGrid):
             ]
         )
 
-    # move rows around
+    # move indexes around
     # ----------------
-    def _swap_rows(self, key_a: int, key_b: int):  # TODO: fix!
-        """Swap two rows by giving their keys.
+    def _swap_indexes(self, index_a: int, index_b: int):
+        """Swap two indexes by giving their indexes.
 
         Args:
-            key_a (int): Key of a row.
-            key_b (int): Key of another row.
+            index_a (int): index of a index.
+            index_b (int): index of another index.
         """
-        di_a = self.value[key_a]
-        di_b = self.value[key_b]
-        self.set_row_value(key=key_b, value=di_a)
-        self.set_row_value(key=key_a, value=di_b)
+        if self.transposed is False:
+            di_a = self.data.loc[index_a].to_dict()
+            di_b = self.data.loc[index_b].to_dict()
+            self.set_row_value(index=index_b, value=di_a)
+            self.set_row_value(index=index_a, value=di_b)
+        else:
+            di_a = self.data.loc[:, index_a].to_dict()
+            di_b = self.data.loc[:, index_b].to_dict()
+            self.set_col_value(index=index_b, value=di_a)
+            self.set_col_value(index=index_a, value=di_b)
 
-    def _move_row_down(self, key: int):
-        """Move a row down.
+    def _move_index_down(self, index: int):
+        """Move an index down numerically e.g. 1 -> 0
 
         Args:
-            key (int): Key of the row
+            index (int): index of the index
         """
-        if key + 1 == len(self.data):
-            raise Exception("Can't move down last row.")
-        self._swap_rows(key_a=key, key_b=key + 1)
+        if index + 1 == len(self.data):
+            raise Exception("Can't move down last index.")
+        self._swap_indexes(index_a=index, index_b=index - 1)
 
-    def _move_row_up(self, key: int):
-        """Move a row up.
+    def _move_index_up(self, index: int):
+        """Move an index up numerically e.g. 1 -> 2.
 
         Args:
-            key (int): Key of the row
+            index (int): index of the index
         """
-        if key - 1 == -1:
-            raise Exception("Can't move up first row.")
-        self._swap_rows(key_a=key, key_b=key - 1)
+        if index - 1 == -1:
+            raise Exception("Can't move up first index.")
+        self._swap_indexes(index_a=index, index_b=index + 1)
 
-    def _move_rows_up(self, li_keys: ty.List[int]):
-        """Move multiple rows up.
+    def _move_indexes_up(self, li_indexes: ty.List[int]):
+        """Move multiple indexes up numerically.
 
         Args:
-            li_key (ty.List[int]): ty.List of row keys.
+            li_indexes (ty.List[int]): ty.List of index indexes.
         """
-        if is_incremental(sorted(li_keys)) is False:
+        self.clear_selection()
+        if is_incremental(sorted(li_indexes)) is False:
             raise Exception("Only select a property or block of properties.")
-        for key in sorted(li_keys):
-            self._move_row_up(key)
+        for index in sorted(li_indexes):
+            self._move_index_up(index)
         self.selections = [
-            {"r1": min(li_keys) - 1, "r2": max(li_keys) - 1, "c1": 0, "c2": 2}
+            {"r1": min(li_indexes) + 1, "r2": max(li_indexes) + 1, "c1": 0, "c2": 2}
         ]
 
-    def _move_rows_down(self, li_keys: ty.List[int]):
-        """Move multiple rows down.
+    def _move_indexes_down(self, li_indexes: ty.List[int]):
+        """Move multiple indexes down numerically.
 
         Args:
-            li_key (ty.List[int]): ty.List of row keys.
+            li_indexes (ty.List[int]): ty.List of index indexes.
         """
-        if is_incremental(sorted(li_keys)) is False:
+        self.clear_selection()
+        if is_incremental(sorted(li_indexes)) is False:
             raise Exception("Only select a property or block of properties.")
-        for key in sorted(li_keys, reverse=True):
-            self._move_row_down(key)
+        for index in sorted(li_indexes, reverse=True):
+            self._move_index_down(index)
         self.selections = [
-            {"r1": min(li_keys) + 1, "r2": max(li_keys) + 1, "c1": 0, "c2": 2}
+            {"r1": min(li_indexes) - 1, "r2": max(li_indexes) - 1, "c1": 0, "c2": 2}
         ]
 
     # ----------------
@@ -850,7 +856,7 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_row_indexes(self):
-        """Return the keys of the selected rows. still works if transform applied."""
+        """Return the indexes of the selected rows. still works if transform applied."""
         s = self.selected_visible_cell_iterator
         index = self.get_dataframe_index(self.data)
         if isinstance(index, pd.core.indexes.frozen.FrozenList):
@@ -865,13 +871,13 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_col_indexes(self):
-        """Return the keys of the selected rows. still works if transform applied."""
+        """Return the indexes of the selected rows. still works if transform applied."""
         s = self.selected_visible_cell_iterator
         return list(set([l["c"] for l in s]))
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where key is row index. still works if transform applied.
+        """Return the dictionary of selected rows where index is row index. still works if transform applied.
         """
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
@@ -921,9 +927,12 @@ if __name__ == "__main__":
         )
 
     class TestDataFrame(BaseModel):
-        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
         __root__: ty.List[DataFrameCols] = Field(
-            [DataFrameCols(string="string", integer=1, floater=1.2)],
+            [
+                DataFrameCols(string="string", integer=1, floater=1.2),
+                DataFrameCols(string="another string", integer=10, floater=2.5),
+                DataFrameCols(string="test", integer=42, floater=0.78),
+            ],
             format="dataframe",
             global_decimal_places=2,
         )
