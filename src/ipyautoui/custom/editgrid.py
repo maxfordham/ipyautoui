@@ -76,7 +76,8 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema."""
+    """Set the column widths of the data grid based on column_width given in the schema.
+    """
 
     # start with settings in properties
     column_widths = {
@@ -756,7 +757,7 @@ class AutoGrid(DataGrid):
         """Move multiple indexes up numerically.
 
         Args:
-            li_index (ty.List[int]): ty.List of index indexes.
+            li_indexes (ty.List[int]): ty.List of index indexes.
         """
         self.clear_selection()
         if is_incremental(sorted(li_indexes)) is False:
@@ -771,7 +772,7 @@ class AutoGrid(DataGrid):
         """Move multiple indexes down numerically.
 
         Args:
-            li_index (ty.List[int]): ty.List of index indexes.
+            li_indexes (ty.List[int]): ty.List of index indexes.
         """
         self.clear_selection()
         if is_incremental(sorted(li_indexes)) is False:
@@ -876,7 +877,8 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where index is row index. still works if transform applied."""
+        """Return the dictionary of selected rows where index is row index. still works if transform applied.
+        """
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
