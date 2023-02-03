@@ -780,7 +780,7 @@ class AutoGrid(DataGrid):
         Args:
             index (int): index of the index
         """
-        if index + 1 == len(self.data):
+        if index - 1 == -1:
             raise Exception("Can't move down last index.")
         self._swap_indexes(index_a=index, index_b=index - 1)
 
@@ -790,7 +790,7 @@ class AutoGrid(DataGrid):
         Args:
             index (int): index of the index
         """
-        if index - 1 == -1:
+        if index + 1 == len(self.data):
             raise Exception("Can't move up first index.")
         self._swap_indexes(index_a=index, index_b=index + 1)
 
