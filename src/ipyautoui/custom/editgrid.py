@@ -803,7 +803,7 @@ class AutoGrid(DataGrid):
         self.clear_selection()
         if is_incremental(sorted(li_indexes)) is False:
             raise Exception("Only select a property or block of properties.")
-        for index in sorted(li_indexes):
+        for index in sorted(li_indexes, reverse=True):
             self._move_index_up(index)
         self.selections = [
             {"r1": min(li_indexes) + 1, "r2": max(li_indexes) + 1, "c1": 0, "c2": 2}
@@ -818,7 +818,7 @@ class AutoGrid(DataGrid):
         self.clear_selection()
         if is_incremental(sorted(li_indexes)) is False:
             raise Exception("Only select a property or block of properties.")
-        for index in sorted(li_indexes, reverse=True):
+        for index in sorted(li_indexes):
             self._move_index_down(index)
         self.selections = [
             {"r1": min(li_indexes) - 1, "r2": max(li_indexes) - 1, "c1": 0, "c2": 2}
