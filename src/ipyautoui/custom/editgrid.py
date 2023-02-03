@@ -582,13 +582,39 @@ class AutoGrid(DataGrid):
     def get_col_name_from_index(self, index):
         return self.column_names[index]
 
+    def get_index_based_on_data(self, data):
+        """Get pandas Index based on the data passed. The data index
+        must be a subset of the gridschema index.
+
+        Args:
+            data (pd.DataFrame): pandas dataframe of data related to schema
+
+        Returns:
+            Union[pd.MultiIndex, pd.Index]: pandas index
+        """
+        if self.gridschema.is_multiindex:
+            return pd.MultiIndex.from_tuples(
+                [self.gridschema.map_name_index.get(v) for v in data.columns],
+                names=self.gridschema.index_name,
+            )
+        else:
+            return pd.Index(
+                [self.gridschema.map_name_index.get(v) for v in data.columns],
+                name=self.gridschema.index_name,
+            )
+
     def map_column_index_to_data(self, data):
         map_transposed = {True: "index", False: "columns"}
         working_index = map_transposed[self.transposed]  # either "index" or "columns
-        if set(getattr(data, working_index)) == set(self.map_name_index.keys()):
-            setattr(data, working_index, self.gridschema.index)
+        if set(getattr(data, working_index)).issubset(set(self.map_name_index.keys())):
+            setattr(data, working_index, self.get_index_based_on_data(data=data))
             return data  # .rename(columns=self.map_name_index)
-        elif set(getattr(data, working_index)) == set(self.map_name_index.values()):
+        elif set(getattr(data, working_index)) == set(self.map_name_index.keys()):
+            setattr(data, working_index, self.gridschema.index)
+            return data
+        elif set(getattr(data, working_index)).issubset(
+            set(self.map_name_index.values())
+        ):
             return data  # i.e. using prperty key not title field... improve this...
         else:
             raise ValueError("input data does not match specified schema")
