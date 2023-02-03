@@ -582,13 +582,39 @@ class AutoGrid(DataGrid):
     def get_col_name_from_index(self, index):
         return self.column_names[index]
 
+    def get_index_based_on_data(self, data):
+        """Get pandas Index based on the data passed. The data index
+        must be a subset of the gridschema index.
+
+        Args:
+            data (pd.DataFrame): pandas dataframe of data related to schema
+
+        Returns:
+            Union[pd.MultiIndex, pd.Index]: pandas index
+        """
+        if self.gridschema.is_multiindex:
+            return pd.MultiIndex.from_tuples(
+                [self.gridschema.map_name_index.get(v) for v in data.columns],
+                names=self.gridschema.index_name,
+            )
+        else:
+            return pd.Index(
+                [self.gridschema.map_name_index.get(v) for v in data.columns],
+                name=self.gridschema.index_name,
+            )
+
     def map_column_index_to_data(self, data):
         map_transposed = {True: "index", False: "columns"}
         working_index = map_transposed[self.transposed]  # either "index" or "columns
         if set(getattr(data, working_index)) == set(self.map_name_index.keys()):
             setattr(data, working_index, self.gridschema.index)
+            return data
+        elif set(getattr(data, working_index)) < set(self.map_name_index.keys()):
+            setattr(data, working_index, self.get_index_based_on_data(data=data))
             return data  # .rename(columns=self.map_name_index)
-        elif set(getattr(data, working_index)) == set(self.map_name_index.values()):
+        elif set(getattr(data, working_index)).issubset(
+            set(self.map_name_index.values())
+        ):
             return data  # i.e. using prperty key not title field... improve this...
         else:
             raise ValueError("input data does not match specified schema")
@@ -715,6 +741,21 @@ class AutoGrid(DataGrid):
 
     # move indexes around
     # ----------------
+    def map_value_keys_index_name(self, value: dict) -> dict:
+        """Checks if the keys of the dictionary are using the original field
+        names and, if not, returns a new dict using the original field names.
+
+        Args:
+            value (dict): dictionary (potentially) using index names
+
+        Returns:
+            dict: New dictionary of same values but using original field names
+        """
+        if not set(value.keys()).issubset(set(self.gridschema.property_keys)):
+            return {self.map_index_name.get(k): v for k, v in value.items()}
+        else:
+            return value
+
     def _swap_indexes(self, index_a: int, index_b: int):
         """Swap two indexes by giving their indexes.
 
@@ -723,13 +764,13 @@ class AutoGrid(DataGrid):
             index_b (int): index of another index.
         """
         if self.transposed is False:
-            di_a = self.data.loc[index_a].to_dict()
-            di_b = self.data.loc[index_b].to_dict()
+            di_a = self.map_value_keys_index_name(self.data.loc[index_a].to_dict())
+            di_b = self.map_value_keys_index_name(self.data.loc[index_b].to_dict())
             self.set_row_value(index=index_b, value=di_a)
             self.set_row_value(index=index_a, value=di_b)
         else:
-            di_a = self.data.loc[:, index_a].to_dict()
-            di_b = self.data.loc[:, index_b].to_dict()
+            di_a = self.map_value_keys_index_name(self.data.loc[:, index_a].to_dict())
+            di_b = self.map_value_keys_index_name(self.data.loc[:, index_b].to_dict())
             self.set_col_value(index=index_b, value=di_a)
             self.set_col_value(index=index_a, value=di_b)
 
@@ -739,7 +780,7 @@ class AutoGrid(DataGrid):
         Args:
             index (int): index of the index
         """
-        if index + 1 == len(self.data):
+        if index - 1 == -1:
             raise Exception("Can't move down last index.")
         self._swap_indexes(index_a=index, index_b=index - 1)
 
@@ -749,7 +790,7 @@ class AutoGrid(DataGrid):
         Args:
             index (int): index of the index
         """
-        if index - 1 == -1:
+        if index + 1 == len(self.data):
             raise Exception("Can't move up first index.")
         self._swap_indexes(index_a=index, index_b=index + 1)
 
@@ -762,7 +803,7 @@ class AutoGrid(DataGrid):
         self.clear_selection()
         if is_incremental(sorted(li_indexes)) is False:
             raise Exception("Only select a property or block of properties.")
-        for index in sorted(li_indexes):
+        for index in sorted(li_indexes, reverse=True):
             self._move_index_up(index)
         self.selections = [
             {"r1": min(li_indexes) + 1, "r2": max(li_indexes) + 1, "c1": 0, "c2": 2}
@@ -777,7 +818,7 @@ class AutoGrid(DataGrid):
         self.clear_selection()
         if is_incremental(sorted(li_indexes)) is False:
             raise Exception("Only select a property or block of properties.")
-        for index in sorted(li_indexes, reverse=True):
+        for index in sorted(li_indexes):
             self._move_index_down(index)
         self.selections = [
             {"r1": min(li_indexes) - 1, "r2": max(li_indexes) - 1, "c1": 0, "c2": 2}
