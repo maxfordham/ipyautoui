@@ -741,6 +741,21 @@ class AutoGrid(DataGrid):
 
     # move indexes around
     # ----------------
+    def map_value_keys_index_name(self, value: dict) -> dict:
+        """Checks if the keys of the dictionary are using the original field
+        names and, if not, returns a new dict using the original field names.
+
+        Args:
+            value (dict): dictionary (potentially) using index names
+
+        Returns:
+            dict: New dictionary of same values but using original field names
+        """
+        if not set(value.keys()).issubset(set(self.gridschema.property_keys)):
+            return {self.map_index_name.get(k): v for k, v in value.items()}
+        else:
+            return value
+
     def _swap_indexes(self, index_a: int, index_b: int):
         """Swap two indexes by giving their indexes.
 
@@ -749,13 +764,13 @@ class AutoGrid(DataGrid):
             index_b (int): index of another index.
         """
         if self.transposed is False:
-            di_a = self.data.loc[index_a].to_dict()
-            di_b = self.data.loc[index_b].to_dict()
+            di_a = self.map_value_keys_index_name(self.data.loc[index_a].to_dict())
+            di_b = self.map_value_keys_index_name(self.data.loc[index_b].to_dict())
             self.set_row_value(index=index_b, value=di_a)
             self.set_row_value(index=index_a, value=di_b)
         else:
-            di_a = self.data.loc[:, index_a].to_dict()
-            di_b = self.data.loc[:, index_b].to_dict()
+            di_a = self.map_value_keys_index_name(self.data.loc[:, index_a].to_dict())
+            di_b = self.map_value_keys_index_name(self.data.loc[:, index_b].to_dict())
             self.set_col_value(index=index_b, value=di_a)
             self.set_col_value(index=index_a, value=di_b)
 
