@@ -606,12 +606,12 @@ class AutoGrid(DataGrid):
     def map_column_index_to_data(self, data):
         map_transposed = {True: "index", False: "columns"}
         working_index = map_transposed[self.transposed]  # either "index" or "columns
-        if set(getattr(data, working_index)).issubset(set(self.map_name_index.keys())):
-            setattr(data, working_index, self.get_index_based_on_data(data=data))
-            return data  # .rename(columns=self.map_name_index)
-        elif set(getattr(data, working_index)) == set(self.map_name_index.keys()):
+        if set(getattr(data, working_index)) == set(self.map_name_index.keys()):
             setattr(data, working_index, self.gridschema.index)
             return data
+        elif set(getattr(data, working_index)) < set(self.map_name_index.keys()):
+            setattr(data, working_index, self.get_index_based_on_data(data=data))
+            return data  # .rename(columns=self.map_name_index)
         elif set(getattr(data, working_index)).issubset(
             set(self.map_name_index.values())
         ):
