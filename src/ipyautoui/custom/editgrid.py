@@ -1555,7 +1555,7 @@ class EditGrid(w.VBox):
 
 class AutoObjectFiltered(
     aui.AutoObject
-):  # TODO: Implement into EditGrid class by default... !
+):
     """This extended AutoObject class relies on EditGrid and a row_schema dictionary.
 
     The AutoObject will update its rows based on the visible rows of the grid.
