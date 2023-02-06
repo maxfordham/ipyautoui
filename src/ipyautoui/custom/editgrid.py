@@ -1562,14 +1562,14 @@ class AutoObjectFiltered(
     """
 
     def __init__(self, row_schema: dict, app: EditGrid, *args, **kwargs):
-        self.row_schema = row_schema
         self.app = app
         self._selections = []
         super().__init__(row_schema, *args, **kwargs)
-        self.app.grid.observe(self._update_order, "_visible_rows")
-        self.app.grid.observe(
-            self._save_previous_selections, "selections"
-        )  # Re-apply selection after updating transforms
+        if self.app is not None:
+            self.app.grid.observe(self._update_order, "_visible_rows")
+            self.app.grid.observe(
+                self._save_previous_selections, "selections"
+            )  # Re-apply selection after updating transforms
 
     def _get_visible_fields(self):
         """Get the list of fields that are visible in the DataGrid."""
