@@ -669,15 +669,25 @@ class AutoGrid(DataGrid):
         else:
             return self.set_row_value(index, value)
 
+    def _check_indexes(self, value: dict):
+        """Check whether indexes of value are a subset of the schema
+        
+        Args:
+            value (dict): The data we want to input into the row.
+        """
+        if set(value.keys()).issubset(set(self.map_name_index.keys())):
+            return True
+        else:
+            return False
+
     def set_row_value(self, index: int, value: dict):
-        """Set a chosen row using the key and a value given.
+        """Set a chosen row using the index and a value given.
 
         Args:
             index (int): The key of the row. # TODO: is this defo an int?
             value (dict): The data we want to input into the row.
         """
-        if set(value.keys()).issubset(set(self.map_name_index.keys())):
-            # value_with_titles is used for datagrid
+        if self._check_indexes(value=value):
             value = {self.map_name_index.get(name): v for name, v in value.items()}
             # ^ self.apply_map_name_title(value)  ? ??
         elif set(value.keys()) == set(self.map_name_index.values()):
@@ -698,17 +708,16 @@ class AutoGrid(DataGrid):
         }
 
     def set_col_value(self, index: int, value: dict):
-        """Set a chosen col using the key and a value given.
+        """Set a chosen col using the index and a value given.
 
         Note: We do not call value setter to apply values as it resets the datagrid.
 
         Args:
-            key (int): The key of the col
+            index (int): The index of the col
             value (dict): The data we want to input into the col.
         """
         column_name = self.get_col_name_from_index(index)
-        if set(value.keys()) == set(self.map_name_index.keys()):
-            # value_with_titles is used for datagrid
+        if self._check_indexes(value=value):
             value = {self.map_name_index.get(name): v for name, v in value.items()}
         if set(value.keys()) != set(self.data.index.to_list()):
             raise Exception("Index of datagrid does not match with value keys.")
