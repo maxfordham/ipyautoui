@@ -1410,8 +1410,11 @@ class EditGrid(w.VBox):
         self._check_one_row_selected()
 
     def _save_edit_to_grid(self):
-        changes = self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
-        # TODO: patch changes back to source
+        if self.datahandler is not None:
+            self._reload_all_data()
+        else:
+            changes = self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
+            
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.edit.value = False
 
