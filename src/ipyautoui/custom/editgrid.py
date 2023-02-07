@@ -1440,12 +1440,15 @@ class EditGrid(w.VBox):
     # add row
     # --------------------------------------------------------------------------
     def _save_add_to_grid(self):
-        if not self.grid._data["data"]:  # If no data in grid
-            self.value = tuple([self.ui_add.value])
+        if self.datahandler is None:
+            if not self.grid._data["data"]:  # If no data in grid
+                self.value = tuple([self.ui_add.value])
+            else:
+                # Append new row onto data frame and set to grid's data.
+                # Call setter. syntax below required to avoid editing in place.
+                self.value = tuple(list(self.value) + [self.ui_add.value])
         else:
-            # Append new row onto data frame and set to grid's data.
-            # Call setter. syntax below required to avoid editing in place.
-            self.value = tuple(list(self.value) + [self.ui_add.value])
+            self._reload_all_data()
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.add.value = False
 
