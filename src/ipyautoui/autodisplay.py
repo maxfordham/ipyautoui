@@ -243,8 +243,15 @@ class DisplayFromRequest(DisplayObjectActions):
         return values["path"].path
 
 
-def check_callable_in_namespace(fn: ty.Callable):
+def check_callable_in_namespace(fn: ty.Callable):  # NTO USED
     if fn.__name__ in globals():
+        return True
+    else:
+        return False
+
+
+def check_callable(fn: ty.Callable):  # NTO USED
+    if isinstance(fn, ty.Callable):
         return True
     else:
         return False
@@ -255,7 +262,7 @@ class DisplayFromCallable(DisplayObjectActions):
 
     @validator("check_exists", always=True)
     def _check_exists(cls, v, values):
-        return functools.partial(check_callable_in_namespace, values["path"])
+        return functools.partial(check_callable, values["path"])
 
     @validator("name", always=True)
     def _name(cls, v, values):
@@ -606,7 +613,9 @@ class AutoDisplay(tr.HasTraits):
     def __init__(
         self,
         display_objects_actions: ty.List[DisplayObjectActions],
-        patterns: ty.Union[str, ty.List, None] = None,  # TODO: add pattern matching. currently only works with paths
+        patterns: ty.Union[
+            str, ty.List, None
+        ] = None,  # TODO: add pattern matching. currently only works with paths
         title: ty.Union[str, None] = None,
         display_showhide: bool = True,
     ):
@@ -683,7 +692,7 @@ class AutoDisplay(tr.HasTraits):
     @classmethod
     def from_callables(
         cls,
-        map_callables: ty.Dict[str, HttpUrl],
+        map_callables: ty.Dict[str, ty.Callable],
         renderers=None,
         extend_default_renderers=True,
         patterns: ty.Union[str, ty.List] = None,
@@ -691,8 +700,6 @@ class AutoDisplay(tr.HasTraits):
         display_showhide: bool = True,
     ):
         renderers = get_renderers(renderers, extend_default_renderers)
-        if not isinstance(paths, list):
-            paths = [paths]
 
         display_objects_actions = cls.actions_from_callables(
             map_callables=map_callables,
@@ -1019,5 +1026,3 @@ if __name__ == "__main__":
     test_display = AutoDisplay([d1, d2])
     display(Markdown("### From requests: "))
     display(test_display)
-
-
