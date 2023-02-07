@@ -87,16 +87,30 @@ import requests
 # -
 
 
-def merge_file_renderers(merge_renderers, default_renderers=DEFAULT_FILE_RENDERERS):
-    ext_map = {**dict(default_renderers), **merge_renderers}
-    return frozenmap(**ext_map)
+def merge_default_renderers(
+    renderers: dict[str, ty.Callable],
+    default_renderers: frozenmap[str, ty.Callable] = DEFAULT_FILE_RENDERERS,
+) -> dict[str, ty.Callable]:
+    return {**dict(default_renderers), **renderers}
+
+
+def get_renderers(
+    renderers: ty.Optional[dict[str, ty.Callable]],
+    extend_default_renderers: bool = True,
+) -> dict[str, ty.Callable]:
+    if renderers is None and not extend_default_renderers:
+        raise ValueError("renderers must be given if extend_default_renderers is False")
+    if renderers is not None and extend_default_renderers:
+        return merge_default_renderers(renderers)
+    else:
+        return dict(DEFAULT_FILE_RENDERERS)
 
 
 # +
 class DisplayObjectActions(BaseModel):
     """base object with callables for creating a display object"""
 
-    map_renderers: frozenmap = DEFAULT_FILE_RENDERERS
+    renderers: dict[str, ty.Callable] = dict(DEFAULT_FILE_RENDERERS)
     path: ty.Union[str, pathlib.Path, HttpUrl, ty.Callable]
     ext: str = None
     name: str = None
@@ -108,7 +122,7 @@ class DisplayObjectActions(BaseModel):
     def _renderer(cls, v, values):
         if v is None:
             ext = values["ext"]
-            map_ = values["map_renderers"]
+            map_ = values["renderers"]
             if ext in map_.keys():
                 fn = functools.partial(map_[ext], values["path"])
             else:
@@ -152,7 +166,7 @@ class DisplayFromPath(DisplayObjectActions):
     def _ext(cls, v, values):
         if values["path"] is not None:
             v = get_ext(values["path"])
-            v = handle_compound_ext(v, map_renderers=values["map_renderers"])
+            v = handle_compound_ext(v, renderers=values["renderers"])
         if v is None:
             ValueError("ext must be given to map data to renderer")
         return v
@@ -229,8 +243,15 @@ class DisplayFromRequest(DisplayObjectActions):
         return values["path"].path
 
 
-def check_callable_in_namespace(fn: ty.Callable):
-    if fn.__name__ in dir():
+def check_callable_in_namespace(fn: ty.Callable):  # NTO USED
+    if fn.__name__ in globals():
+        return True
+    else:
+        return False
+
+
+def check_callable(fn: ty.Callable):  # NTO USED
+    if isinstance(fn, ty.Callable):
         return True
     else:
         return False
@@ -241,7 +262,7 @@ class DisplayFromCallable(DisplayObjectActions):
 
     @validator("check_exists", always=True)
     def _check_exists(cls, v, values):
-        return check_callable_in_namespace(values["path"])
+        return functools.partial(check_callable, values["path"])
 
     @validator("name", always=True)
     def _name(cls, v, values):
@@ -325,36 +346,50 @@ class DisplayObject(w.VBox):
         path,
         newroot=pathlib.PureWindowsPath("J:/"),
         renderers=None,
+        extend_default_renderers=True,
         auto_open=False,
         order=None,
     ):
-        if renderers is not None:
-            renderers = merge_file_renderers(renderers)
-        else:
-            renderers = DEFAULT_FILE_RENDERERS
+        renderers = get_renderers(
+            renderers=renderers, extend_default_renderers=extend_default_renderers
+        )
         display_actions = DisplayFromPath(
-            path=path, newroot=newroot, map_renderers=renderers
+            path=path, newroot=newroot, renderers=renderers
         )
         return cls(display_actions, auto_open=auto_open, order=order)
 
-    # TODO: create a from_request classmethod
     @classmethod
     def from_request(
         cls,
         path,
         ext,
         renderers=None,
+        extend_default_renderers=True,
         auto_open=False,
         order=None,
     ):
-        if renderers is not None:
-            renderers = merge_file_renderers(renderers)
-        else:
-            renderers = DEFAULT_FILE_RENDERERS
-        order = ORDER_NOTPATH
-        display_actions = DisplayFromRequest(
-            path=path, ext=ext, map_renderers=renderers
+        renderers = get_renderers(
+            renderers=renderers, extend_default_renderers=extend_default_renderers
         )
+        order = ORDER_NOTPATH
+        display_actions = DisplayFromRequest(path=path, ext=ext, renderers=renderers)
+        return cls(display_actions, auto_open=auto_open, order=order)
+
+    @classmethod
+    def from_callable(
+        cls,
+        path,
+        ext,
+        renderers=None,
+        extend_default_renderers=True,
+        auto_open=False,
+        order=None,
+    ):
+        renderers = get_renderers(
+            renderers=renderers, extend_default_renderers=extend_default_renderers
+        )
+        order = ORDER_NOTPATH
+        display_actions = DisplayFromCallable(path=path, ext=ext, renderers=renderers)
         return cls(display_actions, auto_open=auto_open, order=order)
 
     def tooltip_openpath(self, path):
@@ -470,11 +505,20 @@ if __name__ == "__main__":
     display(DisplayObject.from_request(path=path, ext=ext))
 
 if __name__ == "__main__":
+
+    ext = ".json"
+    dobj = DisplayObject.from_callable(path=get_catfact, ext=ext)
+    display(dobj)
+
+if __name__ == "__main__":
     import json
     from datetime import datetime
 
     def display_catfact(path):
-        di = json.loads(requests.get(path).content)
+        if callable(path):
+            di = json.loads(path())
+        else:
+            di = json.loads(requests.get(path).content)
         s = f"""
 🐱🐈😹 **CAT FACT** 😾🙀😿
 
@@ -504,6 +548,10 @@ if __name__ == "__main__":
     display(d)
 
 
+# +
+# DisplayFromPath(path=path)
+# -
+
 if __name__ == "__main__":
     d.order = (
         "openpreview",
@@ -521,6 +569,9 @@ if __name__ == "__main__":
 
     d = DisplayObject.from_path(path1, renderers=user_file_renderers)
     display(d)
+
+# +
+from wcmatch import fnmatch
 
 
 class AutoDisplay(tr.HasTraits):
@@ -562,14 +613,15 @@ class AutoDisplay(tr.HasTraits):
     def __init__(
         self,
         display_objects_actions: ty.List[DisplayObjectActions],
-        patterns: ty.Union[str, ty.List, None] = None,
+        patterns: ty.Union[
+            str, ty.List, None
+        ] = None,  # TODO: add pattern matching. currently only works with paths
         title: ty.Union[str, None] = None,
         display_showhide: bool = True,
     ):
         """
         Args:
-            paths (ty.List[pathlib.Path]): list of paths to display
-            default_file_renderers: default renderers
+            display_objects_actions (ty.List[DisplayObjectActions]):
             patterns: (str or list), patterns to auto-open
             title: (str), default = None,
             display_showhide: bool = True,
@@ -596,7 +648,7 @@ class AutoDisplay(tr.HasTraits):
         display_showhide: bool = True,
     ):
         if renderers is not None:
-            renderers = merge_file_renderers(renderers)
+            renderers = merge_default_renderers(renderers)
         else:
             renderers = DEFAULT_FILE_RENDERERS
         if not isinstance(paths, list):
@@ -614,15 +666,134 @@ class AutoDisplay(tr.HasTraits):
             display_showhide=display_showhide,
         )
 
+    @classmethod
+    def from_requests(
+        cls,
+        map_requests: ty.Dict[str, HttpUrl],
+        renderers: ty.Optional[ty.Dict[str, ty.Callable]] = None,
+        extend_default_renderers: bool = True,
+        patterns: ty.Union[str, ty.List] = None,
+        title: ty.Union[str, None] = None,
+        display_showhide: bool = True,
+    ):
+        renderers = get_renderers(renderers, extend_default_renderers)
+
+        display_objects_actions = cls.actions_from_requests(
+            map_requests=map_requests,
+            renderers=renderers,
+        )
+        return cls(
+            display_objects_actions,
+            patterns=patterns,
+            title=title,
+            display_showhide=display_showhide,
+        )
+
+    @classmethod
+    def from_callables(
+        cls,
+        map_callables: ty.Dict[str, ty.Callable],
+        renderers=None,
+        extend_default_renderers=True,
+        patterns: ty.Union[str, ty.List] = None,
+        title: ty.Union[str, None] = None,
+        display_showhide: bool = True,
+    ):
+        renderers = get_renderers(renderers, extend_default_renderers)
+
+        display_objects_actions = cls.actions_from_callables(
+            map_callables=map_callables,
+            renderers=renderers,
+        )
+        return cls(
+            display_objects_actions,
+            patterns=patterns,
+            title=title,
+            display_showhide=display_showhide,
+        )
+
+    @classmethod
+    def from_any(
+        cls,
+        paths: ty.List[
+            ty.Union[ty.Dict[str, HttpUrl], ty.Dict[str, ty.Callable], pathlib.Path]
+        ],
+        renderers=None,
+        extend_default_renderers=True,
+        patterns: ty.Union[str, ty.List] = None,
+        title: ty.Union[str, None] = None,
+        display_showhide: bool = True,
+    ):
+        renderers = get_renderers(renderers, extend_default_renderers)
+        if not isinstance(paths, list):
+            paths = [paths]
+
+        display_objects_actions = cls.actions_from_any(
+            paths=paths,
+            renderers=renderers,
+        )
+        return cls(
+            display_objects_actions,
+            patterns=patterns,
+            title=title,
+            display_showhide=display_showhide,
+        )
+
+    @staticmethod
+    def actions_from_any(
+        paths: ty.List[pathlib.Path],
+        renderers=None,
+    ):
+        def choose(path, renderers):
+            if isinstance(path, pathlib.Path):
+                return DisplayFromPath(path=path, renderers=renderers)
+            elif isinstance(path, dict):
+                if len(path) == 1:
+                    k, v = list(path.items())[0]
+                    if isinstance(v, pathlib.Path):
+                        return DisplayFromPath(path=v, ext=k, renderers=renderers)
+                    elif isinstance(v, HttpUrl):
+                        return DisplayFromRequest(path=v, ext=k, renderers=renderers)
+                    elif callable(v):
+                        return DisplayFromCallable(path=v, ext=k, renderers=renderers)
+                    else:
+                        raise TypeError(
+                            f"expected pathlib.Path or HttpUrl, got {type(v)}"
+                        )
+                else:
+                    raise TypeError(
+                        f"expected a dict with one key, got {len(path)} keys"
+                    )
+            else:
+                raise TypeError(f"expected pathlib.Path or dict, got {type(path)}")
+
+        return [choose(path=path, renderers=renderers) for path in paths]
+
     @staticmethod
     def actions_from_paths(
         paths: ty.List[pathlib.Path],
-        newroot=pathlib.PureWindowsPath("J:/"),
+        newroot=pathlib.PureWindowsPath("J:/"),  # maproots
         renderers=None,
     ):
         return [
-            DisplayFromPath(path=path, newroot=newroot, map_renderers=renderers)
+            DisplayFromPath(path=path, newroot=newroot, renderers=renderers)
             for path in paths
+        ]
+
+    @staticmethod
+    def actions_from_requests(map_requests: ty.Dict[str, HttpUrl], renderers=None):
+        return [
+            DisplayFromRequest(path=v, ext=k, renderers=renderers)
+            for k, v in map_requests.items()
+        ]
+
+    @staticmethod
+    def actions_from_callables(
+        map_callables: ty.Dict[str, ty.Callable], renderers=None
+    ):
+        return [
+            DisplayFromCallable(path=v, ext=k, renderers=renderers)
+            for k, v in map_callables.items()
         ]
 
     def add_from_paths(
@@ -632,7 +803,7 @@ class AutoDisplay(tr.HasTraits):
         renderers=None,
     ):
         if renderers is not None:
-            renderers = merge_file_renderers(renderers)
+            renderers = merge_default_renderers(renderers)
         else:
             renderers = DEFAULT_FILE_RENDERERS
         paths = [p for p in paths if p not in self.paths]
@@ -675,7 +846,11 @@ class AutoDisplay(tr.HasTraits):
 
     @property
     def paths(self):
-        return [wcPath(d.path) for d in self.display_objects_actions]
+        return [d.path for d in self.display_objects_actions]
+
+    @property
+    def map_names_paths(self):
+        return {d.name: d.path for d in self.display_objects_actions}
 
     @property
     def display_objects_actions(self):
@@ -699,7 +874,13 @@ class AutoDisplay(tr.HasTraits):
             self.b_display_default.layout.display = "None"
             self.auto_open = [False] * len(self.paths)
         else:
-            self.auto_open = [p.match(value) for p in self.paths]
+            match = (
+                lambda name, path: str(path) if isinstance(path, pathlib.Path) else name
+            )
+            self.auto_open = [
+                fnmatch.fnmatch(match(name, path), patterns=self.patterns)
+                for name, path in self.map_names_paths.items()
+            ]
             if sum(self.auto_open) == len(self.paths):
                 self.b_display_default.layout.display = "None"
             else:
@@ -770,7 +951,7 @@ if __name__ == "__main__":
     DIR_FILETYPES = load_test_constants().DIR_FILETYPES
     paths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
     ad = AutoDisplay.from_paths(
-        paths, newroot=pathlib.PureWindowsPath("C:/")  # , patterns="*.csv"
+        paths, newroot=pathlib.PureWindowsPath("C:/"), patterns="*.csv"
     )
     display(ad)
 # -
@@ -785,6 +966,37 @@ if __name__ == "__main__":
         paths=[tests_constants.PATH_TEST_AUI],
         renderers=user_file_renderers,
         display_showhide=False,
+    )
+
+    display(test_ui)
+
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestAutoLogic
+
+    test_ui = AutoDisplay.from_requests(
+        map_requests={
+            ".catfact": "https://catfact.ninja/fact",
+            ".json": "https://official-joke-api.appspot.com/random_joke",
+        },
+        renderers={".catfact": display_catfact},
+        display_showhide=False,
+    )
+
+    display(test_ui)
+
+if __name__ == "__main__":
+    from ipyautoui.test_schema import TestAutoLogic
+    from pydantic import parse_obj_as
+
+    test_ui = AutoDisplay.from_any(
+        paths=[
+            {".catfact": parse_obj_as(HttpUrl, "https://catfact.ninja/fact")},
+            {".catfact": get_catfact},
+            paths[0],
+        ],
+        renderers={".catfact": display_catfact},
+        display_showhide=False,
+        patterns="get_catfact",
     )
 
     display(test_ui)

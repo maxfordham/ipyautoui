@@ -461,18 +461,18 @@ DEFAULT_FILE_RENDERERS = frozenmap(
 )
 
 
-def handle_compound_ext(ext, map_renderers=DEFAULT_FILE_RENDERERS):
+def handle_compound_ext(ext, renderers=DEFAULT_FILE_RENDERERS):
     """_summary_
 
     Args:
         ext (_type_): _description_
-        map_renderers (_type_, optional): _description_. Defaults to DEFAULT_FILE_RENDERERS.
+        renderers (_type_, optional): _description_. Defaults to DEFAULT_FILE_RENDERERS.
 
     Returns:
         _type_: _description_
     """
     li_ext = ext.split(".")
-    if ext in list(map_renderers.keys()):
+    if ext in list(renderers.keys()):
         return ext
     elif len(li_ext) > 2:
         # it is a compound filetype when the compound didn't match
@@ -482,7 +482,7 @@ def handle_compound_ext(ext, map_renderers=DEFAULT_FILE_RENDERERS):
         return ext
 
 
-def render_file(path: pathlib.Path, map_renderers=DEFAULT_FILE_RENDERERS):
+def render_file(path: pathlib.Path, renderers=DEFAULT_FILE_RENDERERS):
     """simple renderer.
 
     Note:
@@ -491,7 +491,7 @@ def render_file(path: pathlib.Path, map_renderers=DEFAULT_FILE_RENDERERS):
 
     Args:
         path (pathlib.Path):
-        map_renderers (_type_, optional): _description_. Defaults to DEFAULT_FILE_RENDERERS.
+        renderers (_type_, optional): _description_. Defaults to DEFAULT_FILE_RENDERERS.
 
     Returns:
         something to display
@@ -500,4 +500,4 @@ def render_file(path: pathlib.Path, map_renderers=DEFAULT_FILE_RENDERERS):
     path = pathlib.Path(path)
     ext = get_ext(path)
     ext = handle_compound_ext(ext)
-    return map_renderers[ext](path)
+    return renderers[ext](path)
