@@ -566,6 +566,8 @@ class AutoGrid(DataGrid):
         self.gridschema.get_traits = self.datagrid_trait_names
         super().__init__(self._init_data(data))
         {setattr(self, k, v) for k, v in self.gridschema.datagrid_traits.items()}
+        if order_override is not None:
+            self.order_override = order_override
         # annoyingly have to add this due to renderers being overwritten...
         if "global_decimal_places" in self.gridschema.datagrid_traits.keys():
             self.global_decimal_places = self.gridschema.datagrid_traits[
@@ -573,8 +575,6 @@ class AutoGrid(DataGrid):
             ]
         assert self.count_changes == 0
         # ^ this sets the default value and initiates change observer
-        if order_override is not None:
-            self.order_override = order_override
 
     @property
     def default_row(self):
@@ -666,8 +666,10 @@ class AutoGrid(DataGrid):
                 return self.gridschema.default_dataframe
         else:
             data = data.copy(deep=True)
-            if self.transposed:
-                data = data.T
+            if self.transposed is True:
+                # If dataframe passed is not transposed but contains correct data
+                if set(data.columns).issubset(set(self.map_index_name.keys())) is True:
+                    data = data.T
 
             return self.map_column_index_to_data(data)
 
@@ -998,6 +1000,32 @@ if __name__ == "__main__":
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
     display(grid)
 
+
+if __name__ == "__main__":
+    # ORDER OVERRIDE
+    class DataFrameCols(BaseModel):
+        string: str = Field(
+            "string",
+            title="Important String",
+            column_width=120,
+        )
+        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        floater: float = Field(
+            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
+        )
+
+    class TestDataFrame(BaseModel):
+        __root__: ty.List[DataFrameCols] = Field(
+            format="dataframe",
+            global_decimal_places=2,
+        )
+
+    grid = AutoGrid(
+        schema=TestDataFrame,
+        transposed=True,
+        order_override=("floater", "string", "integer"),
+    )
+    display(grid)
 
 if __name__ == "__main__":
     # ORDER OVERRIDE
