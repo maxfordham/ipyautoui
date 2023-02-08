@@ -43,6 +43,13 @@ MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 # TODO: rename "add" to "fn_add" so not ambiguous...
 
 # +
+import warnings
+
+warnings.filterwarnings("ignore")
+# REVIEW: Using for now as "No such comm" warning and "UserWarning: Index name of 'index' is not round-trippable" keep popping up.
+# Should be resolved at a later date but will ignore for now as not crucial to fix
+
+# +
 def get_property_types(properties):
     def fn(t):
         if t == "number":
@@ -76,8 +83,7 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema.
-    """
+    """Set the column widths of the data grid based on column_width given in the schema."""
 
     # start with settings in properties
     column_widths = {
@@ -494,6 +500,10 @@ class AutoGrid(DataGrid):
         else:
             raise tr.TraitError('schema must be of of type == "array"')
 
+    @tr.observe("order_override")
+    def _observe_order_override(self, change):
+        self.data = self._init_data(self.data)
+
     @tr.observe("transposed")
     def _transposed(self, change):
         self.selection_mode = MAP_TRANSPOSED_SELECTION_MODE[change["new"]]
@@ -543,7 +553,7 @@ class AutoGrid(DataGrid):
         data: ty.Optional[pd.DataFrame] = None,
         by_alias: bool = False,
         by_title: bool = True,
-        order_override: tuple = None,
+        order_override: ty.Optional[tuple] = None,
         **kwargs,
     ):
         # accept schema or pydantic schema
@@ -553,11 +563,9 @@ class AutoGrid(DataGrid):
         self.by_title = by_title
         self.selection_mode = MAP_TRANSPOSED_SELECTION_MODE[self.transposed]
         self.model, self.schema = asch._init_model_schema(schema, by_alias=by_alias)
-        self.order_override = order_override
         self.gridschema.get_traits = self.datagrid_trait_names
         super().__init__(self._init_data(data))
         {setattr(self, k, v) for k, v in self.gridschema.datagrid_traits.items()}
-
         # annoyingly have to add this due to renderers being overwritten...
         if "global_decimal_places" in self.gridschema.datagrid_traits.keys():
             self.global_decimal_places = self.gridschema.datagrid_traits[
@@ -565,6 +573,8 @@ class AutoGrid(DataGrid):
             ]
         assert self.count_changes == 0
         # ^ this sets the default value and initiates change observer
+        if order_override is not None:
+            self.order_override = order_override
 
     @property
     def default_row(self):
@@ -601,11 +611,6 @@ class AutoGrid(DataGrid):
     def column_names(self):
         return self._get_col_headers(self._data)
 
-    # @observe("order_override")
-    # def _observe_order_override(self, change):
-    #     print(self.order_override)
-    #     self.data = self._init_data(self.data)
-
     def get_col_name_from_index(self, index):
         return self.column_names[index]
 
@@ -632,19 +637,18 @@ class AutoGrid(DataGrid):
 
     def map_column_index_to_data(self, data):
         map_transposed = {True: "index", False: "columns"}
-        working_index = map_transposed[self.transposed]  # either "index" or "columns
-        if set(getattr(data, working_index)) == set(self.map_name_index.keys()):
+        working_index = map_transposed[self.transposed]  # either "index" or "columns"
+        names = [
+            self.map_index_name.get(index) for index in getattr(data, working_index)
+        ]
+        # Map pandas index to names (snakecase names)
+        if set(names) == set(self.map_name_index.keys()):
             setattr(data, working_index, self.gridschema.get_index(self.order_override))
-            return data
-        elif set(getattr(data, working_index)) < set(self.map_name_index.keys()):
+        elif set(names) < set(self.map_name_index.keys()):
             setattr(data, working_index, self.get_index_based_on_data(data=data))
-            return data  # .rename(columns=self.map_name_index)
-        elif set(getattr(data, working_index)).issubset(
-            set(self.map_name_index.values())
-        ):
-            return data  # i.e. using prperty key not title field... improve this...
         else:
             raise ValueError("input data does not match specified schema")
+        return data
 
     def get_default_data(self):
         data = pd.DataFrame(self.gridschema.default_data)
@@ -654,8 +658,10 @@ class AutoGrid(DataGrid):
 
     def _init_data(self, data) -> pd.DataFrame:
         if data is None:
-            if self.order_override:
-                return self.gridschema.default_dataframe[self.order_override]
+            if self.order_override is not None:
+                return self.gridschema.default_dataframe[
+                    [self.map_name_index.get(name) for name in self.order_override]
+                ]
             else:
                 return self.gridschema.default_dataframe
         else:
@@ -957,8 +963,7 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where index is row index. still works if transform applied.
-        """
+        """Return the dictionary of selected rows where index is row index. still works if transform applied."""
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
@@ -993,6 +998,30 @@ if __name__ == "__main__":
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
     display(grid)
 
+
+if __name__ == "__main__":
+    # ORDER OVERRIDE
+    class DataFrameCols(BaseModel):
+        string: str = Field(
+            "string",
+            title="Important String",
+            column_width=120,
+        )
+        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        floater: float = Field(
+            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
+        )
+
+    class TestDataFrame(BaseModel):
+        __root__: ty.List[DataFrameCols] = Field(
+            format="dataframe",
+            global_decimal_places=2,
+        )
+
+    grid = AutoGrid(
+        schema=TestDataFrame, order_override=("floater", "string", "integer")
+    )
+    display(grid)
 
 if __name__ == "__main__":
 
