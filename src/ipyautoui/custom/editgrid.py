@@ -638,10 +638,13 @@ class AutoGrid(DataGrid):
     def map_column_index_to_data(self, data):
         map_transposed = {True: "index", False: "columns"}
         working_index = map_transposed[self.transposed]  # either "index" or "columns"
-        names = [
-            self.map_index_name.get(index) for index in getattr(data, working_index)
-        ]
-        # Map pandas index to names (snakecase names)
+        pd_working_index = getattr(data, working_index)
+        if set(pd_working_index).issubset(self.map_name_index.keys()):
+            # Already snakecase names
+            names = list(pd_working_index)
+        else:
+            # Map pandas index to names (snakecase names)
+            names = [self.map_index_name.get(index) for index in pd_working_index]
         if set(names) == set(self.map_name_index.keys()):
             setattr(data, working_index, self.gridschema.get_index(self.order_override))
         elif set(names) < set(self.map_name_index.keys()):
