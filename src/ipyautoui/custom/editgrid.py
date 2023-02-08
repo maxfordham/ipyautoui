@@ -1410,8 +1410,11 @@ class EditGrid(w.VBox):
         self._check_one_row_selected()
 
     def _save_edit_to_grid(self):
-        changes = self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
-        # TODO: patch changes back to source
+        if self.datahandler is not None:
+            self._reload_all_data()
+        else:
+            changes = self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
+            
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.edit.value = False
 
@@ -1440,12 +1443,15 @@ class EditGrid(w.VBox):
     # add row
     # --------------------------------------------------------------------------
     def _save_add_to_grid(self):
-        if not self.grid._data["data"]:  # If no data in grid
-            self.value = tuple([self.ui_add.value])
+        if self.datahandler is None:
+            if not self.grid._data["data"]:  # If no data in grid
+                self.value = tuple([self.ui_add.value])
+            else:
+                # Append new row onto data frame and set to grid's data.
+                # Call setter. syntax below required to avoid editing in place.
+                self.value = tuple(list(self.value) + [self.ui_add.value])
         else:
-            # Append new row onto data frame and set to grid's data.
-            # Call setter. syntax below required to avoid editing in place.
-            self.value = tuple(list(self.value) + [self.ui_add.value])
+            self._reload_all_data()
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.add.value = False
 
