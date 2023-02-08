@@ -475,7 +475,7 @@ class AutoGrid(DataGrid):
 
     schema = tr.Dict()
     transposed = tr.Bool(default_value=False)
-    order_override = tr.Tuple(default_value=None)
+    order_override = tr.Tuple(default_value=None, allow_none=True)
 
     @tr.observe("schema")
     def _update_from_schema(self, change):
@@ -543,6 +543,7 @@ class AutoGrid(DataGrid):
         data: ty.Optional[pd.DataFrame] = None,
         by_alias: bool = False,
         by_title: bool = True,
+        order_override: tuple = None,
         **kwargs,
     ):
         # accept schema or pydantic schema
@@ -552,6 +553,7 @@ class AutoGrid(DataGrid):
         self.by_title = by_title
         self.selection_mode = MAP_TRANSPOSED_SELECTION_MODE[self.transposed]
         self.model, self.schema = asch._init_model_schema(schema, by_alias=by_alias)
+        self.order_override = order_override
         self.gridschema.get_traits = self.datagrid_trait_names
         super().__init__(self._init_data(data))
         {setattr(self, k, v) for k, v in self.gridschema.datagrid_traits.items()}
@@ -598,6 +600,11 @@ class AutoGrid(DataGrid):
     @property
     def column_names(self):
         return self._get_col_headers(self._data)
+
+    # @observe("order_override")
+    # def _observe_order_override(self, change):
+    #     print(self.order_override)
+    #     self.data = self._init_data(self.data)
 
     def get_col_name_from_index(self, index):
         return self.column_names[index]
@@ -647,7 +654,10 @@ class AutoGrid(DataGrid):
 
     def _init_data(self, data) -> pd.DataFrame:
         if data is None:
-            return self.gridschema.default_dataframe(self.order_override)
+            if self.order_override:
+                return self.gridschema.default_dataframe[self.order_override]
+            else:
+                return self.gridschema.default_dataframe
         else:
             data = data.copy(deep=True)
             if self.transposed:
