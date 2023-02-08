@@ -255,15 +255,19 @@ class GridSchema:
                 for k, v in self.properties.items()
             }
 
-    def get_index(self):
+    def get_index(self, order_override=None):
         if self.is_multiindex:
             return pd.MultiIndex.from_tuples(
-                self.get_field_names_from_properties(self.index_name),
+                self.get_field_names_from_properties(
+                    self.index_name, order_override=order_override
+                ),
                 names=self.index_name,
             )
         else:
             return pd.Index(
-                self.get_field_name_from_properties(self.index_name),
+                self.get_field_name_from_properties(
+                    self.index_name, order_override=order_override
+                ),
                 name=self.index_name,
             )
 
@@ -310,11 +314,26 @@ class GridSchema:
     def property_keys(self):
         return self.properties.keys()
 
-    def get_field_name_from_properties(self, field_name: str) -> list:
-        return [p[field_name] for p in self.properties.values()]
+    def get_field_name_from_properties(
+        self, field_name: str, order_override: tuple = None
+    ) -> list:
+        if order_override:
+            return [self.properties.get(_).get(field_name) for _ in order_override]
+        else:
+            return [p[field_name] for p in self.properties.values()]
 
-    def get_field_names_from_properties(self, li_field_names: list) -> list[tuple]:
-        return [tuple(p[l] for l in li_field_names) for p in self.properties.values()]
+    def get_field_names_from_properties(
+        self, li_field_names: list, order_override: tuple = None
+    ) -> list[tuple]:
+        if order_override:
+            return [
+                tuple(self.properties.get(_).get(l) for l in li_field_names)
+                for _ in order_override
+            ]
+        else:
+            return [
+                tuple(p[l] for l in li_field_names) for p in self.properties.values()
+            ]
 
     @property
     def property_titles(self):
@@ -456,6 +475,7 @@ class AutoGrid(DataGrid):
 
     schema = tr.Dict()
     transposed = tr.Bool(default_value=False)
+    order_override = tr.Tuple(default_value=None)
 
     @tr.observe("schema")
     def _update_from_schema(self, change):
@@ -607,7 +627,7 @@ class AutoGrid(DataGrid):
         map_transposed = {True: "index", False: "columns"}
         working_index = map_transposed[self.transposed]  # either "index" or "columns
         if set(getattr(data, working_index)) == set(self.map_name_index.keys()):
-            setattr(data, working_index, self.gridschema.index)
+            setattr(data, working_index, self.gridschema.get_index(self.order_override))
             return data
         elif set(getattr(data, working_index)) < set(self.map_name_index.keys()):
             setattr(data, working_index, self.get_index_based_on_data(data=data))
@@ -627,7 +647,7 @@ class AutoGrid(DataGrid):
 
     def _init_data(self, data) -> pd.DataFrame:
         if data is None:
-            return self.gridschema.default_dataframe
+            return self.gridschema.default_dataframe(self.order_override)
         else:
             data = data.copy(deep=True)
             if self.transposed:
@@ -671,7 +691,7 @@ class AutoGrid(DataGrid):
 
     def _check_indexes(self, value: dict):
         """Check whether indexes of value are a subset of the schema
-        
+
         Args:
             value (dict): The data we want to input into the row.
         """
@@ -1413,8 +1433,10 @@ class EditGrid(w.VBox):
         if self.datahandler is not None:
             self._reload_all_data()
         else:
-            changes = self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
-            
+            changes = self.grid.set_item_value(
+                self.grid.selected_index, self.ui_edit.value
+            )
+
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.edit.value = False
 
@@ -1568,9 +1590,7 @@ class EditGrid(w.VBox):
             traceback.print_exc()
 
 
-class AutoObjectFiltered(
-    aui.AutoObject
-):
+class AutoObjectFiltered(aui.AutoObject):
     """This extended AutoObject class relies on EditGrid and a row_schema dictionary.
 
     The AutoObject will update its rows based on the visible rows of the grid.
