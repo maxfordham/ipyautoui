@@ -83,7 +83,8 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema."""
+    """Set the column widths of the data grid based on column_width given in the schema.
+    """
 
     # start with settings in properties
     column_widths = {
@@ -336,6 +337,7 @@ class GridSchema:
                 tuple(self.properties.get(_).get(l) for l in li_field_names)
                 for _ in order_override
             ]
+
         else:
             return [
                 tuple(p[l] for l in li_field_names) for p in self.properties.values()
@@ -566,8 +568,6 @@ class AutoGrid(DataGrid):
         self.gridschema.get_traits = self.datagrid_trait_names
         super().__init__(self._init_data(data))
         {setattr(self, k, v) for k, v in self.gridschema.datagrid_traits.items()}
-        if order_override is not None:
-            self.order_override = order_override
         # annoyingly have to add this due to renderers being overwritten...
         if "global_decimal_places" in self.gridschema.datagrid_traits.keys():
             self.global_decimal_places = self.gridschema.datagrid_traits[
@@ -575,6 +575,8 @@ class AutoGrid(DataGrid):
             ]
         assert self.count_changes == 0
         # ^ this sets the default value and initiates change observer
+        if order_override is not None:
+            self.order_override = order_override
 
     @property
     def default_row(self):
@@ -646,7 +648,13 @@ class AutoGrid(DataGrid):
             # Map pandas index to names (snakecase names)
             names = [self.map_index_name.get(index) for index in pd_working_index]
         if set(names) == set(self.map_name_index.keys()):
-            setattr(data, working_index, self.gridschema.get_index(self.order_override))
+            index = self.gridschema.get_index(self.order_override)
+            if self.transposed is False and self.gridschema.is_multiindex:
+                index.names = [None for name in index.names]
+                # ^ Set each index name in columns attribute to None to avoid ipydatagrid error.
+                data.index = pd.Index([], dtype="object")
+                # ^ Remove index. If kept in, ipydatagrid setter raises error.
+            setattr(data, working_index, index)
         elif set(names) < set(self.map_name_index.keys()):
             setattr(data, working_index, self.get_index_based_on_data(data=data))
         else:
@@ -968,7 +976,8 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where index is row index. still works if transform applied."""
+        """Return the dictionary of selected rows where index is row index. still works if transform applied.
+        """
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
