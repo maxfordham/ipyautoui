@@ -76,8 +76,7 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema.
-    """
+    """Set the column widths of the data grid based on column_width given in the schema."""
 
     # start with settings in properties
     column_widths = {
@@ -671,7 +670,7 @@ class AutoGrid(DataGrid):
 
     def _check_indexes(self, value: dict):
         """Check whether indexes of value are a subset of the schema
-        
+
         Args:
             value (dict): The data we want to input into the row.
         """
@@ -927,8 +926,7 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where index is row index. still works if transform applied.
-        """
+        """Return the dictionary of selected rows where index is row index. still works if transform applied."""
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
@@ -1056,6 +1054,17 @@ if __name__ == "__main__":
 
 
 class DataHandler(BaseModel):
+    """CRUD operations for a for EditGrid.
+    Can be used to connect to a database or other data source.
+
+    Args:
+        fn_get_all_data (Callable): Function to get all data.
+        fn_post (Callable): Function to post data. is passed a dict of a single row/col to post.
+        fn_patch (Callable): Function to patch data. is passed a dict of a single row/col to patch.
+        fn_delete (callable): Function to delete data. is passed the index of the row/col to delete.
+        fn_copy (Callable): Function to copy data. is passed the dict value of row/col to copy.
+        """
+
     fn_get_all_data: ty.Callable  # TODO: rename to fn_get
     fn_post: ty.Callable
     fn_patch: ty.Callable
@@ -1421,7 +1430,7 @@ class EditGrid(w.VBox):
 
     def _patch(self):
         if self.datahandler is not None:
-            self.datahandler.fn_patch(self.ui_edit.value)
+            self.datahandler.fn_patch(self.ui_edit.value)  # TODO: add index
 
     def _edit(self):
         try:
@@ -1562,9 +1571,7 @@ class EditGrid(w.VBox):
             traceback.print_exc()
 
 
-class AutoObjectFiltered(
-    aui.AutoObject
-):
+class AutoObjectFiltered(aui.AutoObject):
     """This extended AutoObject class relies on EditGrid and a row_schema dictionary.
 
     The AutoObject will update its rows based on the visible rows of the grid.
@@ -1603,8 +1610,7 @@ class AutoObjectFiltered(
             raise Exception("Index obtained not of correct type.")
 
     def _update_order(self, onchange):
-        """Update order instance of AutoObject based on visible fields in the DataGrid.
-        """
+        """Update order instance of AutoObject based on visible fields in the DataGrid."""
         if self.app.transposed is True:
             self.order = self._get_visible_fields()
             self.app.grid.selections = self._selections
