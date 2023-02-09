@@ -261,7 +261,8 @@ class GridSchema:
                 for k, v in self.properties.items()
             }
 
-    def get_index(self, order_override=None):
+    def get_index(self, order_override=None, column_override=None):
+        
         if self.is_multiindex:
             return pd.MultiIndex.from_tuples(
                 self.get_field_names_from_properties(
@@ -503,6 +504,7 @@ class AutoGrid(DataGrid):
 
     @tr.observe("order_override")
     def _observe_order_override(self, change):
+        # data = pd.DataFrame(columns=self.gridschema.get_index(orde))
         self.data = self._init_data(self.data)
 
     @tr.observe("transposed")
@@ -615,6 +617,7 @@ class AutoGrid(DataGrid):
     def get_col_name_from_index(self, index):
         return self.column_names[index]
 
+    # TODO: Deprecate once "order" added to get_index
     def get_index_based_on_data(self, data):
         """Get pandas Index based on the data passed. The data index
         must be a subset of the gridschema index.
@@ -636,28 +639,46 @@ class AutoGrid(DataGrid):
                 name=self.gridschema.index_name,
             )
 
-    def map_column_index_to_data(self, data):
+    def map_column_index_to_data(self, data: pd.DataFrame) -> pd.DataFrame:
+        """
+        function receives dataframe, checks index using "backend" names and 
+        coerces otherwise, returning dataframe 
+        """
+        
+        # NOTES: 
+        # 1. data has 1no name based index (multi or otherwise) and 1no. integer index
+        # 2. data can be transposed. if transposed integer index = columns, else rows. 
+        # 3. data name based index must have a "back-end" "name" and front-end "index"
+        #    i.e. allowing for a different title on the frontend. this is mapped using 
+        #    `map_name_index` or `map_index_name`. 
+        
+        def coerce_pd_index_names(data: pd.DataFrame, working_index: str) -> list:
+            """Check that the name index is in snakecase."""
+            pd_name_index = getattr(data, working_index)
+            if set(pd_name_index).issubset(self.map_name_index.keys()):
+                # Already snakecase names
+                names = list(pd_name_index)
+            else:
+                # Map pandas index to names (snakecase names)
+                names = [self.map_index_name.get(index) for index in pd_name_index]
+            return names
+            
+        def validate_pd_index_names(names: list) -> bool:
+            return set(names) <= set(self.map_name_index.keys())
+            
         map_transposed = {True: "index", False: "columns"}
         working_index = map_transposed[self.transposed]  # either "index" or "columns"
-        pd_working_index = getattr(data, working_index)
-
-        if set(pd_working_index).issubset(self.map_name_index.keys()):
-            # Already snakecase names
-            names = list(pd_working_index)
-        else:
-            # Map pandas index to names (snakecase names)
-            names = [self.map_index_name.get(index) for index in pd_working_index]
-        print(names)
-        if set(names) == set(self.map_name_index.keys()):
+        names = coerce_pd_index_names(data, working_index)
+        if validate_pd_index_names(names):
             index = self.gridschema.get_index(self.order_override)
-            if self.transposed is False and self.gridschema.is_multiindex:
-                index.names = [None for name in index.names]
-                # ^ Set each index name in columns attribute to None to avoid ipydatagrid error.
-                data.index = pd.Index(list(data.index), dtype="object")
-                # ^ Remove index. If kept in, ipydatagrid setter raises error.
+            # if self.transposed is False and self.gridschema.is_multiindex:
+            #     index.names = [None for name in index.names]
+            #     # ^ Set each index name in columns attribute to None to avoid ipydatagrid error.
+            #     data.index = pd.Index(list(data.index), dtype="object")
+            #     # ^ Remove index. If kept in, ipydatagrid setter raises error.
             setattr(data, working_index, index)
-        elif set(names) < set(self.map_name_index.keys()):
-            setattr(data, working_index, self.get_index_based_on_data(data=data))
+        # elif set(names) < set(self.map_name_index.keys()):
+        #     setattr(data, working_index, self.get_index_based_on_data(data=data))
         else:
             raise ValueError("input data does not match specified schema")
         return data
@@ -678,7 +699,9 @@ class AutoGrid(DataGrid):
                 return self.gridschema.default_dataframe
         else:
             data = data.copy(deep=True)
-            if self.transposed is True: # If dataframe passed is not transposed but contains correct data
+            if (
+                self.transposed is True
+            ):  # If dataframe passed is not transposed but contains correct data
                 if set(data.columns).issubset(set(self.map_name_index.keys())) is True:
                     data = data.T
 
@@ -985,6 +1008,30 @@ class AutoGrid(DataGrid):
     # ----------------
 
 
+# -
+
+grid.data = grid.data
+
+
+# +
+class Cols(BaseModel):
+    string: str = Field(aui_column_width=100, title="String", section="a")
+    floater: float = Field(
+        aui_column_width=70, aui_sig_fig=3, title="Floater", section="a"
+    )
+
+
+class DataFrameSchema(BaseModel):
+    """no default"""
+
+    __root__: ty.List[Cols] = Field(
+        format="dataframe",
+    )
+
+
+order_override = ("floater", "string")
+grid = AutoGrid(schema=DataFrameSchema, transposed=False, order_override=order_override)
+grid
 # -
 
 if __name__ == "__main__":
