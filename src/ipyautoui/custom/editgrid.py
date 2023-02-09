@@ -83,8 +83,7 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema.
-    """
+    """Set the column widths of the data grid based on column_width given in the schema."""
 
     # start with settings in properties
     column_widths = {
@@ -641,18 +640,20 @@ class AutoGrid(DataGrid):
         map_transposed = {True: "index", False: "columns"}
         working_index = map_transposed[self.transposed]  # either "index" or "columns"
         pd_working_index = getattr(data, working_index)
+
         if set(pd_working_index).issubset(self.map_name_index.keys()):
             # Already snakecase names
             names = list(pd_working_index)
         else:
             # Map pandas index to names (snakecase names)
             names = [self.map_index_name.get(index) for index in pd_working_index]
+        print(names)
         if set(names) == set(self.map_name_index.keys()):
             index = self.gridschema.get_index(self.order_override)
             if self.transposed is False and self.gridschema.is_multiindex:
                 index.names = [None for name in index.names]
                 # ^ Set each index name in columns attribute to None to avoid ipydatagrid error.
-                data.index = pd.Index([], dtype="object")
+                data.index = pd.Index(list(data.index), dtype="object")
                 # ^ Remove index. If kept in, ipydatagrid setter raises error.
             setattr(data, working_index, index)
         elif set(names) < set(self.map_name_index.keys()):
@@ -677,9 +678,8 @@ class AutoGrid(DataGrid):
                 return self.gridschema.default_dataframe
         else:
             data = data.copy(deep=True)
-            if self.transposed is True:
-                # If dataframe passed is not transposed but contains correct data
-                if set(data.columns).issubset(set(self.map_index_name.keys())) is True:
+            if self.transposed is True: # If dataframe passed is not transposed but contains correct data
+                if set(data.columns).issubset(set(self.map_name_index.keys())) is True:
                     data = data.T
 
             return self.map_column_index_to_data(data)
@@ -976,8 +976,7 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where index is row index. still works if transform applied.
-        """
+        """Return the dictionary of selected rows where index is row index. still works if transform applied."""
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
