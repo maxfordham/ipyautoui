@@ -669,13 +669,14 @@ class AutoGrid(DataGrid):
         names = coerce_pd_index_names(data, working_index)
         if validate_pd_index_names(names):
             index = self.gridschema.get_index(self.order_override)
-            names_to_drop = [
-                self.map_name_index.get(name)
-                for name in names
-                if not name in self.order_override
-            ]
-            if names_to_drop:
-                data = drop_indexes(names_to_drop, data, working_index)
+            if self.order_override:
+                names_to_drop = [
+                    self.map_name_index.get(name)
+                    for name in names
+                    if not name in self.order_override
+                ]
+                if names_to_drop:
+                    data = drop_indexes(names_to_drop, data, working_index)
             if self.transposed is False and self.gridschema.is_multiindex:
                 data.index = pd.Index(list(data.index), dtype="object")
                 # ^ Remove index. If kept in, ipydatagrid setter raises error.
@@ -1056,12 +1057,12 @@ if __name__ == "__main__":
 
     grid = AutoGrid(
         schema=TestDataFrame,
-        # transposed=True,
-        # order_override=(
-        #     "floater",
-        #     "string",
-        #     "integer",
-        # ),
+        transposed=True,
+        order_override=(
+            "floater",
+            "string",
+            "integer",
+        ),
     )
     display(grid)
 
