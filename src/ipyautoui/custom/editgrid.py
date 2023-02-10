@@ -1297,7 +1297,7 @@ class EditGrid(w.VBox):
         self.by_title = by_title
         self.by_alias = by_alias
         self.datahandler = datahandler
-        self.grid = AutoGrid(schema, value=value, by_alias=self.by_alias, **kwargs)
+        self.grid = AutoGrid(schema, data=pd.DataFrame(value), by_alias=self.by_alias, **kwargs)
 
         self._init_form()
         if ui_add is None:
