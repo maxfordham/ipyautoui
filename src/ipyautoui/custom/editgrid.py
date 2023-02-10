@@ -507,7 +507,10 @@ class AutoGrid(DataGrid):
 
     @tr.observe("order")
     def _observe_order(self, change):
-        # data = pd.DataFrame(columns=self.gridschema.get_index(orde))
+        if not set(self.order) <= set(self.gridschema.properties.keys()):
+            raise ValueError(
+                "set(self.order) <= set(self.gridschema.properties.keys()) must be true. (i.e. on valid scheam properties allowed)"
+            )
         self.data = self._init_data(self.data)
 
     @tr.observe("transposed")
