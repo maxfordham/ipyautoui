@@ -622,11 +622,9 @@ class AutoGrid(DataGrid):
         return self.column_names[index]
 
     def map_column_index_to_data(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Function receives dataframe, checks index using "backend" names and coerces,.
+        and finally applies ordering if any order is passed.
         """
-        function receives dataframe, checks index using "backend" names and
-        coerces otherwise, returning dataframe
-        """
-
         # NOTES:
         # 1. data has 1no name based index (multi or otherwise) and 1no. integer index
         # 2. data can be transposed. if transposed integer index = columns, else rows.
@@ -682,18 +680,19 @@ class AutoGrid(DataGrid):
             return data
 
         def coerce_pd_names_index(
-            data: pd.DataFrame, working_index: str, map_name_index: dict
+            data: pd.DataFrame,
+            working_index: str,
+            map_name_index: dict,
         ) -> pd.DataFrame:
             """Check that the names in the dataframe are field names (snakecase)
-            and if so coerce them to index names (title names)."""
+            and if so coerce them to index names."""
             if (
                 set(getattr(data, working_index)).issubset(set(map_name_index.keys()))
                 is True
             ):
+                data_index_order = tuple(getattr(data, working_index))
                 setattr(
-                    data,
-                    working_index,
-                    [map_name_index.get(name) for name in getattr(data, working_index)],
+                    data, working_index, self.gridschema.get_index(data_index_order)
                 )
             return data
 
@@ -704,11 +703,9 @@ class AutoGrid(DataGrid):
             data = coerce_pd_names_index(data, working_index, map_name_index)
             li_index = list(index)
             if working_index == "index":
-                # Use to reorder row indexes
-                data = data.loc[li_index]
+                data = data.loc[li_index] # Reorder row indexes
             elif working_index == "columns":
-                # Use to reorder col
-                data = data[li_index]
+                data = data[li_index] # Reorder columns
             else:
                 raise ValueError(f"{working_index} is not supported as an index type.")
             return data
@@ -717,16 +714,16 @@ class AutoGrid(DataGrid):
         working_index = map_transposed[self.transposed]  # either "index" or "columns"
         names = coerce_pd_index_names(data, working_index)
         if validate_pd_index_names(names):
-            index = self.gridschema.get_index(self.order)
             if self.order:
                 names_to_drop = get_names_to_drop(
                     data, working_index, self.order, self.map_name_index
                 )
                 if names_to_drop:
                     data = drop_indexes(names_to_drop, data, working_index)
-            if self.transposed is False and self.gridschema.is_multiindex:
+            if self.transposed is False and self.gridschema.is_multiindex is True:
                 data.index = pd.Index(list(data.index), dtype="object")
                 # ^ Remove index. If kept in, ipydatagrid setter raises error.
+            index = self.gridschema.get_index(self.order)
             data = set_index_to_data(data, working_index, index, self.map_name_index)
         else:
             raise ValueError("input data does not match specified schema")
@@ -1783,8 +1780,7 @@ class AutoObjectFiltered(aui.AutoObject):
             raise Exception("Index obtained not of correct type.")
 
     def _update_order(self, onchange):
-        """Update order instance of AutoObject based on visible fields in the DataGrid.
-        """
+        """Update order instance of AutoObject based on visible fields in the DataGrid."""
         if self.app.transposed is True:
             self.order = self._get_visible_fields()
             self.app.grid.selections = self._selections
@@ -1910,3 +1906,5 @@ if __name__ == "__main__":
     ui.observe(lambda c: print("_value change"), "_value")
     ui.di_widgets["__root__"].observe(lambda c: print("grid _value change"), "_value")
     display(ui)
+
+
