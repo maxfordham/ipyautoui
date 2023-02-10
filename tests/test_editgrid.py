@@ -286,31 +286,34 @@ class TestAutoGridInitData:
 
             __root__: ty.List[Cols] = Field(format="dataframe")
 
-        order_override = ("floater", "string")
+        order = (
+            "floater",
+            "string",
+        )
         # Test without data passed
         grid_without_data = AutoGrid(
-            schema=DataFrameSchema, transposed=transposed, order_override=order_override
+            schema=DataFrameSchema, transposed=transposed, order=order
         )
         # Test with data passed
         grid_with_data = AutoGrid(
             schema=DataFrameSchema,
             data=pd.DataFrame([Cols(string="test", floater=2.5).dict()]),
             transposed=transposed,
-            order_override=order_override,
+            order=order,
         )
         if transposed is True:
             assert tuple(grid_without_data.data.index) == tuple(
-                [grid_without_data.map_name_index.get(name) for name in order_override]
+                [grid_without_data.map_name_index.get(name) for name in order]
             )
             assert tuple(grid_with_data.data.index) == tuple(
-                [grid_with_data.map_name_index.get(name) for name in order_override]
+                [grid_with_data.map_name_index.get(name) for name in order]
             )
         else:
             assert tuple(grid_without_data.data.columns) == tuple(
-                [grid_without_data.map_name_index.get(name) for name in order_override]
+                [grid_without_data.map_name_index.get(name) for name in order]
             )
             assert tuple(grid_with_data.data.columns) == tuple(
-                [grid_with_data.map_name_index.get(name) for name in order_override]
+                [grid_with_data.map_name_index.get(name) for name in order]
             )
 
     @pytest.mark.parametrize("transposed", [True, False])
@@ -329,31 +332,34 @@ class TestAutoGridInitData:
                 datagrid_index_name=("section", "title"),
             )
 
-        order_override = ("floater", "string")
+        order = (
+            "floater",
+            "string",
+        )
         # Test without data passed
         grid_without_data = AutoGrid(
-            schema=DataFrameSchema, transposed=transposed, order_override=order_override
+            schema=DataFrameSchema, transposed=transposed, order=order
         )
         # Test with data passed
         grid_with_data = AutoGrid(
             schema=DataFrameSchema,
             data=pd.DataFrame([Cols(string="test", floater=2.5).dict()]),
             transposed=transposed,
-            order_override=order_override,
+            order=order,
         )
         if transposed is True:
             assert tuple(grid_without_data.data.index) == tuple(
-                [grid_without_data.map_name_index.get(name) for name in order_override]
+                [grid_without_data.map_name_index.get(name) for name in order]
             )
             assert tuple(grid_with_data.data.index) == tuple(
-                [grid_with_data.map_name_index.get(name) for name in order_override]
+                [grid_with_data.map_name_index.get(name) for name in order]
             )
         else:
             assert tuple(grid_without_data.data.columns) == tuple(
-                [grid_without_data.map_name_index.get(name) for name in order_override]
+                [grid_without_data.map_name_index.get(name) for name in order]
             )
             assert tuple(grid_with_data.data.columns) == tuple(
-                [grid_with_data.map_name_index.get(name) for name in order_override]
+                [grid_with_data.map_name_index.get(name) for name in order]
             )
 
 
