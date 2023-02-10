@@ -83,7 +83,8 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema."""
+    """Set the column widths of the data grid based on column_width given in the schema.
+    """
 
     # start with settings in properties
     column_widths = {
@@ -261,28 +262,24 @@ class GridSchema:
                 for k, v in self.properties.items()
             }
 
-    def get_index(self, order_override=None):
+    def get_index(self, order=None):
         """Get pandas Index based on the data passed. The data index
         must be a subset of the gridschema index.
 
         Args:
-            order_override (list): ordered columns
+            order (list): ordered columns
 
         Returns:
             Union[pd.MultiIndex, pd.Index]: pandas index
         """
         if self.is_multiindex:
             return pd.MultiIndex.from_tuples(
-                self.get_field_names_from_properties(
-                    self.index_name, order_override=order_override
-                ),
+                self.get_field_names_from_properties(self.index_name, order=order),
                 names=self.index_name,
             )
         else:
             return pd.Index(
-                self.get_field_name_from_properties(
-                    self.index_name, order_override=order_override
-                ),
+                self.get_field_name_from_properties(self.index_name, order=order),
                 name=self.index_name,
             )
 
@@ -330,22 +327,20 @@ class GridSchema:
         return self.properties.keys()
 
     def get_field_name_from_properties(
-        self, field_name: str, order_override: tuple = None
+        self, field_name: str, order: tuple = None
     ) -> list:
-        if order_override:
-            return [
-                self.properties.get(_).get(field_name) for _ in list(order_override)
-            ]
+        if order:
+            return [self.properties.get(_).get(field_name) for _ in list(order)]
         else:
             return [p[field_name] for p in self.properties.values()]
 
     def get_field_names_from_properties(
-        self, li_field_names: list, order_override: tuple = None
+        self, li_field_names: list, order: tuple = None
     ) -> list[tuple]:
-        if order_override:
+        if order:
             return [
                 tuple(self.properties.get(_).get(l) for l in li_field_names)
-                for _ in list(order_override)
+                for _ in list(order)
             ]
 
         else:
@@ -493,7 +488,7 @@ class AutoGrid(DataGrid):
 
     schema = tr.Dict()
     transposed = tr.Bool(default_value=False)
-    order_override = tr.Tuple(default_value=None, allow_none=True)
+    order = tr.Tuple(default_value=None, allow_none=True)
 
     @tr.observe("schema")
     def _update_from_schema(self, change):
@@ -512,8 +507,8 @@ class AutoGrid(DataGrid):
         else:
             raise tr.TraitError('schema must be of of type == "array"')
 
-    @tr.observe("order_override")
-    def _observe_order_override(self, change):
+    @tr.observe("order")
+    def _observe_order(self, change):
         # data = pd.DataFrame(columns=self.gridschema.get_index(orde))
         self.data = self._init_data(self.data)
 
@@ -566,7 +561,7 @@ class AutoGrid(DataGrid):
         data: ty.Optional[pd.DataFrame] = None,
         by_alias: bool = False,
         by_title: bool = True,
-        order_override: ty.Optional[tuple] = None,
+        order: ty.Optional[tuple] = None,
         **kwargs,
     ):
         # accept schema or pydantic schema
@@ -586,8 +581,8 @@ class AutoGrid(DataGrid):
             ]
         assert self.count_changes == 0
         # ^ this sets the default value and initiates change observer
-        if order_override is not None:
-            self.order_override = order_override
+        if order is not None:
+            self.order = order
 
     @property
     def default_row(self):
@@ -668,12 +663,12 @@ class AutoGrid(DataGrid):
         working_index = map_transposed[self.transposed]  # either "index" or "columns"
         names = coerce_pd_index_names(data, working_index)
         if validate_pd_index_names(names):
-            index = self.gridschema.get_index(self.order_override)
-            if self.order_override:
+            index = self.gridschema.get_index(self.order)
+            if self.order:
                 names_to_drop = [
                     self.map_name_index.get(name)
                     for name in names
-                    if not name in self.order_override
+                    if not name in self.order
                 ]
                 if names_to_drop:
                     data = drop_indexes(names_to_drop, data, working_index)
@@ -693,9 +688,9 @@ class AutoGrid(DataGrid):
 
     def _init_data(self, data) -> pd.DataFrame:
         if data is None:
-            if self.order_override is not None:
+            if self.order is not None:
                 return self.gridschema.default_dataframe[
-                    [self.map_name_index.get(name) for name in self.order_override]
+                    [self.map_name_index.get(name) for name in self.order]
                 ]
             else:
                 return self.gridschema.default_dataframe
@@ -1000,7 +995,8 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where index is row index. still works if transform applied."""
+        """Return the dictionary of selected rows where index is row index. still works if transform applied.
+        """
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
@@ -1058,7 +1054,7 @@ if __name__ == "__main__":
     grid = AutoGrid(
         schema=TestDataFrame,
         transposed=True,
-        order_override=(
+        order=(
             "floater",
             "string",
             "integer",
@@ -1085,9 +1081,7 @@ if __name__ == "__main__":
             global_decimal_places=2,
         )
 
-    grid = AutoGrid(
-        schema=TestDataFrame, order_override=("floater", "string", "integer")
-    )
+    grid = AutoGrid(schema=TestDataFrame, order=("floater", "string", "integer"))
     display(grid)
 
 if __name__ == "__main__":
