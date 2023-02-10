@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -1056,20 +1056,23 @@ if __name__ == "__main__":
 class DataHandler(BaseModel):
     """CRUD operations for a for EditGrid.
     Can be used to connect to a database or other data source.
+    note - the TypeHints below are hints only. The functions can be any callable.
 
     Args:
         fn_get_all_data (Callable): Function to get all data.
         fn_post (Callable): Function to post data. is passed a dict of a single row/col to post.
+            Following the post, fn_get_all_data is called
         fn_patch (Callable): Function to patch data. is passed a dict of a single row/col to patch.
         fn_delete (callable): Function to delete data. is passed the index of the row/col to delete.
-        fn_copy (Callable): Function to copy data. is passed the dict value of row/col to copy.
-        """
+        fn_copy (Callable): Function to copy data. is passed a list of dicts with values of rows/cols to copy.
+    """
 
+    # REVIEW... MAYBE SHOULD USE *ARGS AND **KWARGS
     fn_get_all_data: ty.Callable  # TODO: rename to fn_get
-    fn_post: ty.Callable
-    fn_patch: ty.Callable
-    fn_delete: ty.Callable
-    fn_copy: ty.Callable
+    fn_post: ty.Callable[[dict], None]
+    fn_patch: ty.Callable[[ty.Any, dict], None]  # TODO: need to add index
+    fn_delete: ty.Callable[[list[int]], None]
+    fn_copy: ty.Callable[[list[int]], None]
 
 
 if __name__ == "__main__":
@@ -1422,8 +1425,10 @@ class EditGrid(w.VBox):
         if self.datahandler is not None:
             self._reload_all_data()
         else:
-            changes = self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
-            
+            changes = self.grid.set_item_value(
+                self.grid.selected_index, self.ui_edit.value
+            )
+
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.edit.value = False
 
@@ -1433,6 +1438,8 @@ class EditGrid(w.VBox):
 
     def _patch(self):
         if self.datahandler is not None:
+            # , self.selected_index
+
             self.datahandler.fn_patch(self.ui_edit.value)  # TODO: add index
 
     def _edit(self):
