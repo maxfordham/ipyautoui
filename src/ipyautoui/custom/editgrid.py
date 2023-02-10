@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -325,27 +325,26 @@ class GridSchema:
     def property_keys(self):
         return self.properties.keys()
 
+    @property
+    def default_order(self):
+        return tuple(self.properties.keys())
+
     def get_field_name_from_properties(
-        self, field_name: str, order: tuple = None
+        self, field_name: str, order: ty.Optional[tuple] = None
     ) -> list:
-        if order:
-            return [self.properties.get(_).get(field_name) for _ in list(order)]
-        else:
-            return [p[field_name] for p in self.properties.values()]
+        if not order:
+            order = self.default_order
+        return [self.properties[_][field_name] for _ in order]
 
     def get_field_names_from_properties(
-        self, li_field_names: list, order: tuple = None
+        self, li_field_names: list, order: ty.Optional[tuple] = None
     ) -> list[tuple]:
-        if order:
-            return [
-                tuple(self.properties.get(_).get(l) for l in li_field_names)
-                for _ in list(order)
-            ]
-
-        else:
-            return [
-                tuple(p[l] for l in li_field_names) for p in self.properties.values()
-            ]
+        if not order:
+            order = self.default_order
+        return [
+            tuple(self.properties[_][field_name] for field_name in li_field_names)
+            for _ in list(order)
+        ]
 
     @property
     def property_titles(self):
@@ -703,9 +702,9 @@ class AutoGrid(DataGrid):
             data = coerce_pd_names_index(data, working_index, map_name_index)
             li_index = list(index)
             if working_index == "index":
-                data = data.loc[li_index] # Reorder row indexes
+                data = data.loc[li_index]  # Reorder row indexes
             elif working_index == "columns":
-                data = data[li_index] # Reorder columns
+                data = data[li_index]  # Reorder columns
             else:
                 raise ValueError(f"{working_index} is not supported as an index type.")
             return data
@@ -721,11 +720,11 @@ class AutoGrid(DataGrid):
                 )
                 if names_to_drop:
                     data = drop_indexes(names_to_drop, data, working_index)
-            
+
             # Remove index. If kept in, ipydatagrid setter raises error.
             if self.transposed is False and self.gridschema.is_multiindex is True:
                 data.index = pd.Index(list(data.index), dtype="object")
-                
+
             index = self.gridschema.get_index(self.order)
             data = set_index_to_data(data, working_index, index, self.map_name_index)
         else:
@@ -1909,5 +1908,3 @@ if __name__ == "__main__":
     ui.observe(lambda c: print("_value change"), "_value")
     ui.di_widgets["__root__"].observe(lambda c: print("grid _value change"), "_value")
     display(ui)
-
-
