@@ -714,15 +714,18 @@ class AutoGrid(DataGrid):
         working_index = map_transposed[self.transposed]  # either "index" or "columns"
         names = coerce_pd_index_names(data, working_index)
         if validate_pd_index_names(names):
+            # Check if order not None and obtain names that need to be dropped
             if self.order:
                 names_to_drop = get_names_to_drop(
                     data, working_index, self.order, self.map_name_index
                 )
                 if names_to_drop:
                     data = drop_indexes(names_to_drop, data, working_index)
+            
+            # Remove index. If kept in, ipydatagrid setter raises error.
             if self.transposed is False and self.gridschema.is_multiindex is True:
                 data.index = pd.Index(list(data.index), dtype="object")
-                # ^ Remove index. If kept in, ipydatagrid setter raises error.
+                
             index = self.gridschema.get_index(self.order)
             data = set_index_to_data(data, working_index, index, self.map_name_index)
         else:
