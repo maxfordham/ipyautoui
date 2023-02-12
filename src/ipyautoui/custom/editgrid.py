@@ -39,6 +39,8 @@ from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui._utils import obj_from_importstr, frozenmap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 
+from ipyautoui.custom.editgridschema import GridSchema
+
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 # TODO: rename "add" to "fn_add" so not ambiguous...
 
@@ -48,333 +50,6 @@ import warnings
 warnings.filterwarnings("ignore")
 # REVIEW: Using for now as "No such comm" warning and "UserWarning: Index name of 'index' is not round-trippable" keep popping up.
 # Should be resolved at a later date but will ignore for now as not crucial to fix
-
-# +
-def get_property_types(properties):
-    def fn(t):
-        if t == "number":
-            t = "float"
-        try:
-            return eval(t)
-        except:
-            return str
-
-    return {k: fn(v["type"])() for k, v in properties.items()}
-
-
-# ui.schema
-def get_default_row_data_from_schema_properties(
-    properties: dict, property_types: dict
-) -> ty.Optional[dict]:
-    """pulls default value from schema. intended for a dataframe (i.e. rows
-    of known columns only). assumes all fields have a 'title' (true when using
-    pydantic)
-
-    Args:
-        properties (dict): schema["items"]["properties"]
-        property_types (dict)
-
-    Returns:
-        dict: dictionary column values
-    """
-    get = lambda k, v: v["default"] if "default" in v.keys() else None
-    di = {k: get(k, v) for k, v in properties.items()}
-    return {k: v for k, v in di.items()}
-
-
-def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema."""
-
-    # start with settings in properties
-    column_widths = {
-        v["title"]: v["column_width"]
-        for v in column_properties.values()
-        if "column_width" in v
-    }
-
-    # override with high level schema props
-    if "column_widths" in schema:
-        column_widths = column_widths | schema["column_widths"]
-
-    # overide with kwargs passed to AutoDataGrid
-    if "column_widths" in kwargs:
-        _ = {map_name_index[k]: v for k, v in kwargs["column_widths"].items()}
-        column_widths = column_widths | _
-
-    return column_widths
-
-
-def build_renderer(var: ty.Union[str, dict]) -> CellRenderer:
-    """builds a renderer for datagrid. if the input is a dict, the function assumes
-    the renderer to use is `ipydatagrid.TextRenderer` and initiates it with the dict.
-    This is appropriate for simple renderers only. If it is a string, it assumes that
-    the renderer must be built by a zero-arg callable function that is referenced by an
-    object string.
-
-    Args:
-        var (ty.Union[str, dict]): _description_
-    """
-    fn = lambda v: TextRenderer(**v) if isinstance(v, dict) else obj_from_importstr(v)()
-    return fn(var)
-
-
-def get_column_renderers_from_schema(
-    schema, column_properties, map_name_index, **kwargs
-) -> dict:
-    """when saved to schema the renderer is a PyObject callable..."""
-
-    # start with settings in properties
-    renderers = {
-        v["title"]: build_renderer(v["renderer"])
-        for v in column_properties.values()
-        if "renderer" in v
-    }
-
-    # override with high level schema props
-    if "renderers" in schema:
-        renderers = renderers | {k: build_renderer(v) for k, v in schema["renderers"]}
-
-    # overide with kwargs passed to AutoDataGrid
-    if "renderers" in kwargs:
-        _ = {map_name_index[k]: v for k, v in kwargs["renderers"].items()}
-        renderers = renderers | _
-
-    return renderers
-
-
-def get_global_renderer_from_schema(
-    schema, renderer_name, **kwargs
-) -> ty.Union[None, CellRenderer]:
-    if renderer_name in kwargs:
-        return kwargs[renderer_name]
-
-    get_from_schema = lambda r, schema: schema[r] if r in schema.keys() else None
-    _ = get_from_schema(renderer_name, schema)
-
-    if _ is not None:
-        return build_renderer(_)
-    else:
-        return None
-
-
-def get_global_renderers_from_schema(schema, **kwargs) -> dict:
-    li_renderers = ["default_renderer", "header_renderer", "corner_renderer"]
-    # ^ globally specified ipydatagrid renderers
-    renderers = {
-        l: get_global_renderer_from_schema(schema, l, **kwargs) for l in li_renderers
-    }
-    return {k: v for k, v in renderers.items() if v is not None}
-
-
-def is_incremental(li):
-    return li == list(range(li[0], li[0] + len(li)))
-
-
-# TODO: create an AutoUiSchema class to handle schema gen and then extend it here...
-# TODO: consider extending by using pandera (schema defs and validation for pandas)
-class GridSchema:
-    """
-    NOTE: index below can be either column index or row index. it can be swapped using
-          transposed=True / False. the other index is always a range.
-    """
-
-    def __init__(self, schema, get_traits=None, **kwargs):
-        """
-        Args:
-            schema: dict, jsonschema. must be array of properties
-            get_traits: ty.Callable, passed from EditGrid to get a list of datagrid traits
-            **kwargs: keyword args passed to datagrid on init
-        """
-        self.schema = schema
-        if "datagrid_index_name" not in self.schema.keys():
-            self.schema["datagrid_index_name"] = "title"
-        else:
-            self.schema["datagrid_index_name"] = tuple(
-                self.schema["datagrid_index_name"]
-            )
-        self.index = self.get_index()
-        self.get_traits = get_traits
-
-        self.map_name_index = self.get_map_name_index()
-        self.map_index_name = {v: k for k, v in self.map_name_index.items()}
-        {
-            setattr(self, k, v)
-            for k, v in get_global_renderers_from_schema(self.schema, **kwargs).items()
-        }
-        # ^ sets: ["default_renderer", "header_renderer", "corner_renderer"]
-        self.renderers = get_column_renderers_from_schema(
-            schema,
-            column_properties=self.properties,
-            map_name_index=self.map_name_index,
-            **kwargs,
-        )
-        if len(self.renderers) == 0:
-            self.renderers = None
-        self.column_widths = get_column_widths_from_schema(
-            schema, self.properties, self.map_name_index, **kwargs
-        )
-        self.column_property_types = get_property_types(self.properties)
-        self.default_data = self._get_default_data()
-        self.default_row = self._get_default_row()
-
-        # set any other kwargs ignoring ones that are handled above
-        ignore_kwargs = [
-            "default_renderer",
-            "header_renderer",
-            "corner_renderer",
-            "renderers",
-            "column_widths",
-        ]
-        {setattr(self, k, v) for k, v in kwargs.items() if k not in ignore_kwargs}
-
-        # set any other field attributes ignoring ones that are handled above
-        ignore_schema_keys = [
-            "title",
-            "format",
-            "type",
-            "items",
-            "definitions",
-        ]
-        {
-            setattr(self, k, v)
-            for k, v in self.schema.items()
-            if k not in ignore_schema_keys
-        }
-
-    @property
-    def index_name(self):
-        return self.schema["datagrid_index_name"]
-
-    @property
-    def is_multiindex(self):
-        if isinstance(self.schema["datagrid_index_name"], tuple):
-            return True
-        else:
-            return False
-
-    def get_map_name_index(self):
-        if not self.is_multiindex:
-            return {k: v[self.index_name] for k, v in self.properties.items()}
-        else:
-            return {
-                k: tuple(v[l] for l in self.index_name)
-                for k, v in self.properties.items()
-            }
-
-    def get_index(self, order=None):
-        """Get pandas Index based on the data passed. The data index
-        must be a subset of the gridschema index.
-
-        Args:
-            order (list): ordered columns
-
-        Returns:
-            Union[pd.MultiIndex, pd.Index]: pandas index
-        """
-        if self.is_multiindex:
-            return pd.MultiIndex.from_tuples(
-                self.get_field_names_from_properties(self.index_name, order=order),
-                names=self.index_name,
-            )
-        else:
-            return pd.Index(
-                self.get_field_name_from_properties(self.index_name, order=order),
-                name=self.index_name,
-            )
-
-    @property
-    def datagrid_traits(self) -> dict[str, ty.Any]:
-        def try_getattr(obj, name):
-            try:
-                return getattr(obj, name)
-            except:
-                pass
-
-        if self.get_traits is None:
-            return {}
-        else:
-            _ = {t: try_getattr(self, t) for t in self.get_traits}
-            return {k: v for k, v in _.items() if v is not None}
-
-    def _get_default_data(self):
-        if "default" in self.schema.keys():
-            return self.schema["default"]
-        else:
-            return []
-
-    def _get_default_row(self):
-        row = get_default_row_data_from_schema_properties(
-            self.properties, self.column_property_types
-        )
-        return row
-
-    @property
-    def default_dataframe(self):
-        if len(self.default_data) == 0:
-            return pd.DataFrame(self.default_data, columns=self.index)
-        else:
-            df = pd.DataFrame(self.default_data)
-            df.columns = self.index
-            return df
-
-    @property
-    def properties(self):
-        return self.schema["items"]["properties"]
-
-    @property
-    def property_keys(self):
-        return self.properties.keys()
-
-    @property
-    def default_order(self):
-        return tuple(self.properties.keys())
-
-    def get_field_name_from_properties(
-        self, field_name: str, order: ty.Optional[tuple] = None
-    ) -> list:
-        if not order:
-            order = self.default_order
-        return [self.properties[_][field_name] for _ in order]
-
-    def get_field_names_from_properties(
-        self, li_field_names: list, order: ty.Optional[tuple] = None
-    ) -> list[tuple]:
-        if not order:
-            order = self.default_order
-        return [
-            tuple(self.properties[_][field_name] for field_name in li_field_names)
-            for _ in list(order)
-        ]
-
-    @property
-    def property_titles(self):
-        return self.get_field_name_from_properties("title")
-
-
-# -
-
-
-if __name__ == "__main__":
-
-    class DataFrameCols(BaseModel):
-        string: str = Field(
-            "string",
-            title="Important String",
-            column_width=120,
-        )
-        integer: int = Field(40, title="Integer of somesort", column_width=150)
-        floater: float = Field(
-            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
-        )
-
-    class TestDataFrame(BaseModel):
-        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
-        __root__: ty.List[DataFrameCols] = Field(
-            ..., format="dataframe", global_decimal_places=2
-        )
-
-    model, schema = asch._init_model_schema(TestDataFrame)
-    gridschema = GridSchema(schema)
 
 
 class DataGrid(DataGrid):
@@ -424,7 +99,11 @@ class DataGrid(DataGrid):
 
     def get_dataframe_index(self, dataframe):
         """Returns a primary key to be used in ipydatagrid's
-        view of the passed DataFrame"""
+        view of the passed DataFrame.
+
+        OVERRIDES get_dataframe_index in ipydatagrid. addes support for multi-index.
+        TODO: add support for multi-index in ipydatagrid
+        """
 
         # Passed index_name takes highest priority
         if self._index_name is not None:
@@ -509,7 +188,8 @@ class AutoGrid(DataGrid):
     def _observe_order(self, change):
         if not set(self.order) <= set(self.gridschema.properties.keys()):
             raise ValueError(
-                "set(self.order) <= set(self.gridschema.properties.keys()) must be true. (i.e. on valid scheam properties allowed)"
+                "set(self.order) <= set(self.gridschema.properties.keys()) must be true."
+                " (i.e. on valid scheam properties allowed)"
             )
         self.data = self._init_data(self.data)
 
@@ -627,12 +307,6 @@ class AutoGrid(DataGrid):
         """Function receives dataframe, checks index using "backend" names and coerces,.
         and finally applies ordering if any order is passed.
         """
-        # NOTES:
-        # 1. data has 1no name based index (multi or otherwise) and 1no. integer index
-        # 2. data can be transposed. if transposed integer index = columns, else rows.
-        # 3. data name based index must have a "back-end" "name" and front-end "index"
-        #    i.e. allowing for a different title on the frontend. this is mapped using
-        #    `map_name_index` or `map_index_name`.
 
         def coerce_pd_index_names(data: pd.DataFrame, working_index: str) -> list:
             """Check that the name index is in snakecase."""
