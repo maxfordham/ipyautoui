@@ -262,7 +262,7 @@ class GridSchema:
 
     @property
     def is_multiindex(self):
-        if isinstance(self.schema["datagrid_index_name"], tuple):
+        if isinstance(self.index_name, tuple) or isinstance(self.index_name, list):
             return True
         else:
             return False
@@ -286,16 +286,11 @@ class GridSchema:
         Returns:
             Union[pd.MultiIndex, pd.Index]: pandas index
         """
+        ind = self.get_field_names_from_properties(self.index_name, order=order)
         if self.is_multiindex:
-            return pd.MultiIndex.from_tuples(
-                self.get_field_names_from_properties(self.index_name, order=order),
-                names=self.index_name,
-            )
+            return pd.MultiIndex.from_tuples(ind, names=self.index_name)
         else:
-            return pd.Index(
-                self.get_field_names_from_properties(self.index_name, order=order),
-                name=self.index_name,
-            )
+            return pd.Index(ind, name=self.index_name)
 
     @property
     def datagrid_traits(self) -> dict[str, ty.Any]:
