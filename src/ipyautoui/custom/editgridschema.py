@@ -322,9 +322,14 @@ class GridSchema:
         )
 
     def get_default_dataframe(self, order=None, transposed=False):
-
+        if len(self.default_data) == 0:
+            df = pd.DataFrame(
+                self.default_data, columns=self.index, index=pd.RangeIndex(0)
+            )
+        else:
+            df = pd.DataFrame(self.default_data)
         return self.coerce_data(
-            pd.DataFrame(self._get_default_data(order=order)),
+            df,
             order=order,
             transposed=transposed,
         )
@@ -332,7 +337,9 @@ class GridSchema:
     @property
     def default_dataframe(self):
         if len(self.default_data) == 0:
-            return pd.DataFrame(self.default_data, columns=self.index)
+            return pd.DataFrame(
+                self.default_data, columns=self.index, index=pd.RangeIndex(0)
+            )
         else:
             df = pd.DataFrame(self.default_data)
             df.columns = self.index
@@ -385,7 +392,8 @@ class GridSchema:
         """
 
         if not isinstance(data.index, pd.RangeIndex):
-            raise ValueError("Data must have a RangeIndex")
+            # raise ValueError("Data must have a RangeIndex")
+            logging.warning("Data must have a RangeIndex")
 
         def is_bykeys(col_names):
             if set(col_names) <= set(self.map_name_index.keys()):
@@ -424,6 +432,8 @@ class GridSchema:
 
         # ensure columns are in correct order
         data.columns = self.get_index(order)
+
+        data.index = pd.RangeIndex(len(data))
 
         # transpose if necessary
         if transposed:
