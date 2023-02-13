@@ -1048,6 +1048,7 @@ class AutoGrid(DataGrid):
     # ----------------
 
 
+# +
 if __name__ == "__main__":
 
     class DataFrameCols(BaseModel):
@@ -1217,3 +1218,6 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
+# -
+
+
