@@ -206,8 +206,6 @@ class GridSchema:
             schema, self.properties, self.map_name_index, **kwargs
         )
         self.column_property_types = get_property_types(self.properties)
-        self._get_default_data(order=order) = self._get_default_data()
-        self.default_row = self._get_default_row()
 
         # set any other kwargs ignoring ones that are handled above
         ignore_kwargs = [
@@ -329,7 +327,9 @@ class GridSchema:
     def get_default_dataframe(self, order=None, transposed=False):
         if len(self._get_default_data(order=order)) == 0:
             df = pd.DataFrame(
-                self._get_default_data(order=order), columns=self.index, index=pd.RangeIndex(0)
+                self._get_default_data(order=order),
+                columns=self.index,
+                index=pd.RangeIndex(0),
             )
         else:
             df = pd.DataFrame(self._get_default_data(order=order))
@@ -338,7 +338,6 @@ class GridSchema:
             order=order,
             transposed=transposed,
         )
-
 
     @property
     def properties(self):
@@ -1209,5 +1208,3 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
 # -
-
-
