@@ -206,7 +206,7 @@ class GridSchema:
             schema, self.properties, self.map_name_index, **kwargs
         )
         self.column_property_types = get_property_types(self.properties)
-        self.default_data = self._get_default_data()
+        self._get_default_data(order=order) = self._get_default_data()
         self.default_row = self._get_default_row()
 
         # set any other kwargs ignoring ones that are handled above
@@ -327,12 +327,12 @@ class GridSchema:
         )
 
     def get_default_dataframe(self, order=None, transposed=False):
-        if len(self.default_data) == 0:
+        if len(self._get_default_data(order=order)) == 0:
             df = pd.DataFrame(
-                self.default_data, columns=self.index, index=pd.RangeIndex(0)
+                self._get_default_data(order=order), columns=self.index, index=pd.RangeIndex(0)
             )
         else:
-            df = pd.DataFrame(self.default_data)
+            df = pd.DataFrame(self._get_default_data(order=order))
         return self.coerce_data(
             df,
             order=order,
@@ -341,12 +341,12 @@ class GridSchema:
 
     @property
     def default_dataframe(self):
-        if len(self.default_data) == 0:
+        if len(self._get_default_data(order=order)) == 0:
             return pd.DataFrame(
-                self.default_data, columns=self.index, index=pd.RangeIndex(0)
+                self._get_default_data(order=order), columns=self.index, index=pd.RangeIndex(0)
             )
         else:
-            df = pd.DataFrame(self.default_data)
+            df = pd.DataFrame(self._get_default_data(order=order))
             df.columns = self.index
             return df
 
