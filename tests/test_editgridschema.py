@@ -11,7 +11,7 @@ from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui.demo_schemas import EditableGrid
 from ipyautoui.autoipywidget import AutoObject
 from ipyautoui.automapschema import _init_model_schema
-from ipyautoui.custom.editgridschema import GridSchema
+from ipyautoui.custom.autogrid import GridSchema
 from pydantic import BaseModel, Field
 import typing as ty
 

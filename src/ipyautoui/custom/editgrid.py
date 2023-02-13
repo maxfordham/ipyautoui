@@ -39,7 +39,7 @@ from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui._utils import obj_from_importstr, frozenmap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 
-from ipyautoui.custom.editgridschema import GridSchema
+from ipyautoui.custom.autogrid import GridSchema
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 # TODO: rename "add" to "fn_add" so not ambiguous...
