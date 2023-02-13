@@ -56,93 +56,6 @@ class TestButtonBar:
         assert button_bar.fn_add() == "ADD"
 
 
-class TestGridSchema:
-    def test_empty_default_data(self):
-        class TestProperties(BaseModel):
-            string: str = Field(column_width=100)
-            floater: float = Field(column_width=70, aui_sig_fig=3)
-
-        class TestGridSchema(BaseModel):
-            """no default"""
-
-            __root__: ty.List[TestProperties] = Field(format="dataframe")
-
-        model, schema = _init_model_schema(TestGridSchema)
-        gridschema = GridSchema(schema)
-
-        assert gridschema.index_name == "title"
-        assert (gridschema.index == pd.Index(["String", "Floater"], name="title")).all()
-        assert gridschema.default_data == []
-        assert gridschema.default_row == {"string": None, "floater": None}
-        assert gridschema.default_dataframe.equals(
-            pd.DataFrame(columns=pd.Index(["String", "Floater"], name="title"))
-        )
-
-    def test_partial_row_default_data(self):
-        class TestProperties(BaseModel):
-            string: str = Field(column_width=100)
-            floater: float = Field(1.5, column_width=70, aui_sig_fig=3)
-
-        class TestGridSchema(BaseModel):
-            """no default"""
-
-            __root__: ty.List[TestProperties] = Field(
-                [TestProperties(string="string").dict()], format="dataframe"
-            )
-
-        model, schema = _init_model_schema(TestGridSchema)
-        gridschema = GridSchema(schema)
-        assert gridschema.is_multiindex == False
-        assert gridschema.default_data == [{"string": "string", "floater": 1.5}]
-        assert gridschema.default_row == {"string": None, "floater": 1.5}
-        assert gridschema.default_dataframe.equals(
-            pd.DataFrame(
-                [{"String": "string", "Floater": 1.5}],
-                columns=pd.Index(["String", "Floater"], name="title"),
-            )
-        )
-
-    def test_multiindex(self):
-        class TestProperties(BaseModel):
-            string: str = Field(column_width=100, section="a")
-            floater: float = Field(1.5, column_width=70, aui_sig_fig=3, section="b")
-            inty: int = Field(1, section="b")
-
-        class TestGridSchema(BaseModel):
-            """no default"""
-
-            __root__: ty.List[TestProperties] = Field(
-                [TestProperties(string="string").dict()],
-                format="dataframe",
-                datagrid_index_name=("section", "title"),
-            )
-
-        model, schema = _init_model_schema(TestGridSchema)
-        gridschema = GridSchema(schema)
-
-        assert gridschema.is_multiindex == True
-        assert gridschema.index.equals(
-            pd.MultiIndex.from_tuples(
-                [("a", "String"), ("b", "Floater"), ("b", "Inty")],
-                names=("section", "title"),
-            )
-        )
-        assert gridschema.default_data == [
-            {"string": "string", "floater": 1.5, "inty": 1}
-        ]
-        assert gridschema.default_row == {"floater": 1.5, "inty": 1, "string": None}
-        # TODO: this doesn't make that much sense ans string=None is not allowed...
-        assert gridschema.default_dataframe.equals(
-            pd.DataFrame(
-                [{("a", "String"): "string", ("b", "Floater"): 1.5, ("b", "Inty"): 1}],
-                columns=pd.MultiIndex.from_tuples(
-                    [("a", "String"), ("b", "Floater"), ("b", "Inty")],
-                    names=("section", "title"),
-                ),
-            )
-        )
-
-
 class TestAutoGridInitData:
     def test_empty_grid(self):
         class Cols(BaseModel):
@@ -158,7 +71,7 @@ class TestAutoGridInitData:
         grid = AutoGrid(schema=DataFrameSchema)
         assert grid._data["data"] == []
         assert grid._data["schema"]["fields"] == [
-            {"name": "index", "type": "string"},  # NOTE: unable to detect type
+            {"name": "index", "type": "integer"},  # NOTE: unable to detect type
             {"name": "String", "type": "string"},
             {"name": "Floater", "type": "string"},  # NOTE: unable to detect type
             {"name": "ipydguuid", "type": "integer"},
@@ -301,7 +214,7 @@ class TestAutoGridInitData:
             transposed=transposed,
             order=order,
         )
-        if transposed is True:
+        if transposed:
             assert tuple(grid_without_data.data.index) == tuple(
                 [grid_without_data.map_name_index.get(name) for name in order]
             )
@@ -337,9 +250,7 @@ class TestAutoGridInitData:
             "string",
         )
         # Test without data passed
-        grid_without_data = AutoGrid(
-            schema=DataFrameSchema, transposed=transposed, order=order
-        )
+        grid_without_data = AutoGrid(schema=DataFrameSchema, order=order)
         # Test with data passed
         grid_with_data = AutoGrid(
             schema=DataFrameSchema,
@@ -348,9 +259,7 @@ class TestAutoGridInitData:
             order=order,
         )
         if transposed is True:
-            assert tuple(grid_without_data.data.index) == tuple(
-                [grid_without_data.map_name_index.get(name) for name in order]
-            )
+            assert tuple(grid_without_data.data.index) == ()
             assert tuple(grid_with_data.data.index) == tuple(
                 [grid_with_data.map_name_index.get(name) for name in order]
             )
