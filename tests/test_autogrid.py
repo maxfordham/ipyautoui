@@ -1,18 +1,12 @@
-import shutil
 import pytest
 import pandas as pd
-
-# from src.ipyautoui.test_schema import TestSchema
-
-# from ipyautoui.tests import test_display_widget_mapping
-from .constants import DIR_TESTS, DIR_FILETYPES
-from ipyautoui.custom.autogrid import AutoGrid, GridSchema
-from ipyautoui.custom.buttonbars import CrudButtonBar
-from ipyautoui.demo_schemas import EditableGrid
-from ipyautoui.autoipywidget import AutoObject
-from ipyautoui.automapschema import _init_model_schema
 from pydantic import BaseModel, Field
 import typing as ty
+
+from ipyautoui.custom.autogrid import AutoGrid, GridSchema
+from ipyautoui.automapschema import _init_model_schema
+
+from .constants import DIR_TESTS
 
 # from ipyautoui.demo_schemas.editable_datagrid import DATAGRID_TEST_VALUE
 

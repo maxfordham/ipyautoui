@@ -17,11 +17,13 @@
 
 # +
 """defines a schema for a datagrid. this is used to build the datagrid and
-contains methods for validation, coercion, and default values."""
+contains methods for validation, coercion, and default values. 
+
+defines AutoGrid, a datagrid generated from a jsonschema."""
 # %run __init__.py
 # %run ../__init__.py
 # %load_ext lab_black
-# TODO: move editgrid.py to root
+
 import typing as ty
 import traitlets as tr
 import logging
@@ -384,11 +386,12 @@ class GridSchema:
     def coerce_data(
         self, data: pd.DataFrame, order=None, transposed=False
     ) -> pd.DataFrame:
-        """data must be passed with an integer index and columns matching the schema
+        """data must be passed with an integer index and columns matching the schema.
+        Column names can be either the outward facing index names or the schema property keys.
         if transposed is True, the data will be transposed before getting passed to the grid
 
         Args:
-            data (pd.DataFrame, optional): data to coerce. Defaults to None.
+            data (pd.DataFrame, optional): data to coerce
 
         Returns:
             pd.DataFrame: coerced data

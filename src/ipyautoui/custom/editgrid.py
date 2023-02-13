@@ -30,11 +30,11 @@ import ipywidgets as w
 from IPython.display import clear_output
 from markdown import markdown
 from pydantic import BaseModel, Field
+
 import ipyautoui.autoipywidget as aui
 from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui._utils import frozenmap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-
 from ipyautoui.custom.autogrid import AutoGrid
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
