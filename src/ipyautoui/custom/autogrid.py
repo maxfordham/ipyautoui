@@ -23,12 +23,15 @@ contains methods for validation, coercion, and default values."""
 # %load_ext lab_black
 # TODO: move editgrid.py to root
 import typing as ty
+import traitlets as tr
 import logging
 import pandas as pd
 from pydantic import BaseModel, Field
-from ipydatagrid import CellRenderer, TextRenderer
 import ipyautoui.automapschema as asch
 from ipyautoui._utils import obj_from_importstr, frozenmap
+
+from ipydatagrid import CellRenderer, DataGrid, TextRenderer
+from ipydatagrid.datagrid import SelectionHelper
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 
@@ -466,3 +469,748 @@ if __name__ == "__main__":
 
     model, schema = asch._init_model_schema(TestDataFrame)
     gridschema = GridSchema(schema)
+
+
+class DataGrid(DataGrid):
+    """extends DataGrid with useful generic functions"""
+
+    global_decimal_places = tr.Int(default_value=None, allow_none=True)
+    count_changes = tr.Int()
+
+    @tr.default("count_changes")
+    def _default_count_changes(self):
+        self._observe_changes()
+        return 0
+
+    @tr.observe("global_decimal_places")
+    def _global_decimal_places(self, change):
+        newfmt = f".{str(self.global_decimal_places)}f"
+        number_cols = [
+            f["name"] for f in self.datagrid_schema_fields if f["type"] == "number"
+        ]
+        di = {}
+        for col in number_cols:
+            if col in self.renderers.keys():
+                if self.renderers[col].format is None:  # no overwrite format if set
+                    self.renderers[col].format = newfmt
+            else:
+                di[col] = TextRenderer(format=newfmt)
+        self.renderers = self.renderers | di
+
+    @property
+    def datagrid_schema_fields(self):
+        return self._data["schema"]["fields"]
+
+    def _observe_changes(self):
+        self.on_cell_change(self._count_cell_changes)
+        self.observe(self._count_data_change, "_data")
+
+    def _count_cell_changes(self, cell):
+        logging.info(
+            "DataGrid Change --> {row}:{column}".format(
+                row=cell["row"], column=cell["column_index"]
+            )
+        )
+        self.count_changes += 1
+
+    def _count_data_change(self, cell):
+        self.count_changes += 1
+
+    def get_dataframe_index(self, dataframe):
+        """Returns a primary key to be used in ipydatagrid's
+        view of the passed DataFrame.
+
+        OVERRIDES get_dataframe_index in ipydatagrid. addes support for multi-index.
+        TODO: add support for multi-index in ipydatagrid
+        """
+
+        # Passed index_name takes highest priority
+        if self._index_name is not None:
+            return self._index_name
+
+        # Dataframe with names index used by default
+        if dataframe.index.name is not None:
+            return dataframe.index.name
+
+        # as above but for multi-index
+        if dataframe.index.names is not None:
+            return dataframe.index.names
+
+        # If no index_name param, nor named-index DataFrame
+        # have been passed, revert to default "key"
+        return "key"
+
+    # ----------------
+    # https://github.com/bloomberg/ipydatagrid/issues/340
+    # selecting when a transform is applied...
+    @property
+    def selected_visible_cell_iterator(self):
+        """
+        An iterator to traverse selected cells one by one.
+        """
+        # Copy of the front-end data model
+        view_data = self.get_visible_data()
+
+        # Get primary key from dataframe
+        index_key = self.get_dataframe_index(view_data)
+
+        # Serielize to JSON table schema
+        view_data_object = self.generate_data_object(view_data, "ipydguuid", index_key)
+
+        return SelectionHelper(view_data_object, self.selections, self.selection_mode)
+
+    # these terms (below) avoid row or col terminology and can be used if transposed or not...
+    # only these methods are called be EditGrid, allowing it to operate the same if the
+    # view is transposed or not.
+    # ----------
+
+
+# +
+# datagrid_index = "title"
+
+
+class AutoGrid(DataGrid):
+    """a thin wrapper around DataGrid that makes makes it possible to initiate the
+    grid from a json-schema / pydantic model.
+
+    Traits that can be set in a DataGrid instance can be reviewed using gr.traits().
+    Note that of these traits, `column_widths` and `renderers` have the format
+    {'column_name': <setting>}.
+
+    NOTE:
+    - Currently only supports a range index (or transposed therefore range columns)
+
+    """
+
+    schema = tr.Dict()
+    transposed = tr.Bool(default_value=False)
+    order = tr.Tuple(default_value=None, allow_none=True)
+
+    @tr.observe("schema")
+    def _update_from_schema(self, change):
+        self.gridschema = GridSchema(self.schema, **self.kwargs)
+
+    @tr.validate("schema")
+    def _valid_schema(self, proposal):
+        if "type" in proposal["value"] and proposal["value"]["type"] == "array":
+            if (
+                "items" in proposal["value"]
+                and "properties" in proposal["value"]["items"]
+            ):
+                return proposal["value"]
+            else:
+                raise tr.TraitError("schema have items and properties")
+        else:
+            raise tr.TraitError('schema must be of of type == "array"')
+
+    @tr.observe("order")
+    def _observe_order(self, change):
+        if not set(self.order) <= set(self.gridschema.properties.keys()):
+            raise ValueError(
+                "set(self.order) <= set(self.gridschema.properties.keys()) must be true."
+                " (i.e. on valid scheam properties allowed)"
+            )
+        if self.transposed:
+            data = self.data.T
+        else:
+            data = self.data
+        self.data = self._init_data(data)
+
+    @tr.observe("transposed")
+    def _transposed(self, change):
+        self.selection_mode = MAP_TRANSPOSED_SELECTION_MODE[change["new"]]
+        if change["new"]:
+            dft = self.data.T
+            dft.index = self.gridschema.index
+            if len(dft.columns) == 0:  # i.e. no data
+                logging.info(
+                    "ipydatagrid does not support dataframes with no columns. adding a"
+                    " column with default row data"
+                )
+                dft = pd.DataFrame(
+                    index=dft.index, columns=[0], data={0: self.default_row_title_keys}
+                )
+            self.data = dft
+        else:
+            dft = self.data.T
+            dft.columns = self.gridschema.index
+            self.data = dft
+        # TODO: add method to allow for the setting/reverting of layout on change here...
+
+    @property
+    def is_transposed(self):
+        if self.by_title:
+            cols_check = self.gridschema.property_titles
+        else:
+            cols_check = self.gridschema.property_keys
+        if set(cols_check) == set(self.column_names):
+            return False
+        else:
+            return True
+
+    def records(self, keys_as_title=False):
+        if self.transposed:
+            data = self.data.T
+        else:
+            data = self.data
+        if keys_as_title:
+            return data.to_dict(orient="records")
+        else:
+            data.columns = self.gridschema.property_keys
+            return data.to_dict(orient="records")
+
+    def __init__(
+        self,
+        schema: ty.Union[dict, ty.Type[BaseModel]],
+        data: ty.Optional[pd.DataFrame] = None,
+        by_alias: bool = False,
+        by_title: bool = True,
+        order: ty.Optional[tuple] = None,
+        **kwargs,
+    ):
+        # accept schema or pydantic schema
+        self.kwargs = (
+            kwargs  # NOTE: kwargs are set from self.gridschema.datagrid_traits below...
+        )
+        self.by_title = by_title
+        self.selection_mode = MAP_TRANSPOSED_SELECTION_MODE[self.transposed]
+        self.model, self.schema = asch._init_model_schema(schema, by_alias=by_alias)
+        # ^ generates gridschema
+        self.gridschema.get_traits = self.datagrid_trait_names
+        _data = self._init_data(data)
+        super().__init__(_data)
+        {setattr(self, k, v) for k, v in self.gridschema.datagrid_traits.items()}
+        # annoyingly have to add this due to renderers being overwritten...
+        if "global_decimal_places" in self.gridschema.datagrid_traits.keys():
+            self.global_decimal_places = self.gridschema.datagrid_traits[
+                "global_decimal_places"
+            ]
+        assert self.count_changes == 0
+        # ^ this sets the default value and initiates change observer
+        if order is not None:
+            self.order = order
+
+    @property
+    def default_row(self):
+        return self.gridschema.default_row
+
+    @property
+    def default_row_title_keys(self):
+        return {
+            self.gridschema.map_name_index[k]: v
+            for k, v in self.gridschema.default_row.items()
+        }
+
+    @property
+    def datagrid_trait_names(self):
+        return [l for l in self.trait_names() if l[0] != "_" and l != "schema"]
+
+    @property
+    def properties(self):
+        return self.gridschema.properties
+
+    @property
+    def map_name_index(self):
+        return self.gridschema.map_name_index
+
+    @property
+    def map_index_name(self):
+        return self.gridschema.map_index_name
+
+    @property
+    def index_names(self):
+        pass  # TODO: add this?
+
+    @property
+    def column_names(self):
+        return self._get_col_headers(self._data)
+
+    def get_col_name_from_index(self, index):
+        return self.column_names[index]
+
+    def get_default_data(self):
+        data = pd.DataFrame(self.gridschema.default_data)
+        if self.by_title:
+            data = data.rename(columns=self.map_name_index)
+        return data
+
+    def _init_data(self, data) -> pd.DataFrame:
+        if data is None:
+            return self.gridschema.get_default_dataframe(
+                order=self.order, transposed=self.transposed
+            )
+        else:
+            return self.gridschema.coerce_data(
+                data, order=self.order, transposed=self.transposed
+            )
+
+    def set_cell_value_if_different(self, column_name, primary_key_value, new_value):
+        old = self.get_cell_value(column_name, primary_key_value)
+        if len(old) != 1:
+            raise ValueError(
+                f"multiple values return from: self.get_cell_value({column_name},"
+                f" {primary_key_value})"
+            )
+        else:
+            old = old[0]
+        if old != new_value:
+            s = (
+                f"(column_name={column_name}, primary_key_value={primary_key_value})"
+                f" old={old}, new={new_value})"
+            )
+            logging.info(s)
+            print(s)
+            self.set_cell_value(column_name, primary_key_value, new_value)
+            return {
+                "column_name": column_name,
+                "primary_key_value": primary_key_value,
+                "new_value": new_value,
+            }
+        else:
+            pass
+
+    def set_item_value(self, index: int, value: dict):
+        """
+        set row (transposed==False) or col (transposed==True) value
+        """
+        if self.transposed:
+            return self.set_col_value(index, value)
+        else:
+            return self.set_row_value(index, value)
+
+    def _check_indexes(self, value: dict):
+        """Check whether indexes of value are a subset of the schema
+
+        Args:
+            value (dict): The data we want to input into the row.
+        """
+        if set(value.keys()).issubset(set(self.map_name_index.keys())):
+            return True
+        else:
+            return False
+
+    def set_row_value(self, index: int, value: dict):
+        """Set a chosen row using the index and a value given.
+
+        Args:
+            index (int): The key of the row. # TODO: is this defo an int?
+            value (dict): The data we want to input into the row.
+        """
+        if self._check_indexes(value=value):
+            value = {self.map_name_index.get(name): v for name, v in value.items()}
+            # ^ self.apply_map_name_title(value)  ? ??
+        elif set(value.keys()) == set(self.map_name_index.values()):
+            pass
+        else:
+            raise Exception("Columns of value given do not match with value keys.")
+        changes = [
+            self.set_cell_value_if_different(column, index, v)
+            for column, v in value.items()
+        ]
+        return [c for c in changes if c is not None]
+
+    def apply_map_name_title(self, row_data):
+        return {
+            self.map_index_name[k]: v
+            for k, v in row_data.items()
+            if k in self.map_index_name.keys()
+        }
+
+    def set_col_value(self, index: int, value: dict):
+        """Set a chosen col using the index and a value given.
+
+        Note: We do not call value setter to apply values as it resets the datagrid.
+
+        Args:
+            index (int): The index of the col
+            value (dict): The data we want to input into the col.
+        """
+        column_name = self.get_col_name_from_index(index)
+        if self._check_indexes(value=value):
+            value = {self.map_name_index.get(name): v for name, v in value.items()}
+        if set(value.keys()) != set(self.data.index.to_list()):
+            raise Exception("Index of datagrid does not match with value keys.")
+        changes = []
+        for primary_key_value, v in value.items():
+            if isinstance(primary_key_value, tuple):
+                primary_key_value = list(primary_key_value)
+            changes.append(
+                self.set_cell_value_if_different(column_name, primary_key_value, v)
+            )
+        return [c for c in changes if c is not None]
+
+    def filter_by_column_name(self, column_name: str, li_filter: list):
+        """Filter rows to display based on a column name and a list of objects belonging to that column.
+
+        Args:
+            column_name (str): column name we want to apply the transform to.
+            li_filter (list): Values within the column we want to display in the grid.
+        """
+        self.transform(
+            [
+                {
+                    "type": "filter",
+                    "columnIndex": self.data.columns.get_loc(column_name) + 1,
+                    "operator": "in",
+                    "value": li_filter,
+                }
+            ]
+        )
+
+    # move indexes around
+    # ----------------
+    def map_value_keys_index_name(self, value: dict) -> dict:
+        """Checks if the keys of the dictionary are using the original field
+        names and, if not, returns a new dict using the original field names.
+
+        Args:
+            value (dict): dictionary (potentially) using index names
+
+        Returns:
+            dict: New dictionary of same values but using original field names
+        """
+        if not set(value.keys()).issubset(set(self.gridschema.property_keys)):
+            return {self.map_index_name.get(k): v for k, v in value.items()}
+        else:
+            return value
+
+    def _swap_indexes(self, index_a: int, index_b: int):
+        """Swap two indexes by giving their indexes.
+
+        Args:
+            index_a (int): index of a index.
+            index_b (int): index of another index.
+        """
+        if self.transposed is False:
+            di_a = self.map_value_keys_index_name(self.data.loc[index_a].to_dict())
+            di_b = self.map_value_keys_index_name(self.data.loc[index_b].to_dict())
+            self.set_row_value(index=index_b, value=di_a)
+            self.set_row_value(index=index_a, value=di_b)
+        else:
+            di_a = self.map_value_keys_index_name(self.data.loc[:, index_a].to_dict())
+            di_b = self.map_value_keys_index_name(self.data.loc[:, index_b].to_dict())
+            self.set_col_value(index=index_b, value=di_a)
+            self.set_col_value(index=index_a, value=di_b)
+
+    def _move_index_down(self, index: int):
+        """Move an index down numerically e.g. 1 -> 0
+
+        Args:
+            index (int): index of the index
+        """
+        if index - 1 == -1:
+            raise Exception("Can't move down last index.")
+        self._swap_indexes(index_a=index, index_b=index - 1)
+
+    def _move_index_up(self, index: int):
+        """Move an index up numerically e.g. 1 -> 2.
+
+        Args:
+            index (int): index of the index
+        """
+        if index + 1 == len(self.data):
+            raise Exception("Can't move up first index.")
+        self._swap_indexes(index_a=index, index_b=index + 1)
+
+    def _move_indexes_up(self, li_indexes: ty.List[int]):
+        """Move multiple indexes up numerically.
+
+        Args:
+            li_indexes (ty.List[int]): ty.List of index indexes.
+        """
+        self.clear_selection()
+        if is_incremental(sorted(li_indexes)) is False:
+            raise Exception("Only select a property or block of properties.")
+        for index in sorted(li_indexes, reverse=True):
+            self._move_index_up(index)
+        self.selections = [
+            {"r1": min(li_indexes) + 1, "r2": max(li_indexes) + 1, "c1": 0, "c2": 2}
+        ]
+
+    def _move_indexes_down(self, li_indexes: ty.List[int]):
+        """Move multiple indexes down numerically.
+
+        Args:
+            li_indexes (ty.List[int]): ty.List of index indexes.
+        """
+        self.clear_selection()
+        if is_incremental(sorted(li_indexes)) is False:
+            raise Exception("Only select a property or block of properties.")
+        for index in sorted(li_indexes):
+            self._move_index_down(index)
+        self.selections = [
+            {"r1": min(li_indexes) - 1, "r2": max(li_indexes) - 1, "c1": 0, "c2": 2}
+        ]
+
+    # ----------------
+
+    @property
+    def selected(self):
+        if self.transposed:
+            return self.selected_col
+        else:
+            return self.selected_row
+
+    @property
+    def selected_items(self):
+        if self.transposed:
+            return self.selected_cols
+        else:
+            return self.selected_rows
+
+    @property
+    def selected_index(self):
+        try:
+            return self.selected_indexes[0]
+        except:
+            return None
+
+    @property
+    def selected_indexes(self):
+        if self.transposed:
+            return self.selected_col_indexes
+        else:
+            return self.selected_row_indexes
+
+    # ----------
+
+    @property
+    def selected_row(self):
+        """Get the data selected in the table which is returned as a dataframe."""
+        try:
+            return self.selected_rows[0]
+        except:
+            return None
+
+    @property
+    def selected_rows(self):
+        """Get the data selected in the table which is returned as a dataframe."""
+        s = self.selected_visible_cell_iterator
+        rows = set([l["r"] for l in s])
+        return [self.apply_map_name_title(s._data["data"][r]) for r in rows]
+
+    @property
+    def selected_col(self):
+        """Get the data selected in the table which is returned as a dataframe."""
+        try:
+            return self.selected_cols[0]
+        except:
+            return None
+
+    @property
+    def selected_cols(self):
+        """Get the data selected in the table which is returned as a dataframe."""
+        di = self.selected_dict
+        index = self.get_dataframe_index(self.data)
+        if isinstance(index, pd.core.indexes.frozen.FrozenList):
+            index = tuple(index)
+        return [self.apply_map_name_title(v) for v in di.values()]
+
+    @property
+    def selected_row_index(self) -> ty.Any:
+        try:
+            return self.selected_row_indexes[0]
+        except:
+            return None
+
+    @property
+    def selected_row_indexes(self):
+        """Return the indexes of the selected rows. still works if transform applied."""
+        s = self.selected_visible_cell_iterator
+        index = self.get_dataframe_index(self.data)
+        if isinstance(index, pd.core.indexes.frozen.FrozenList):
+            index = tuple(index)
+        rows = set([l["r"] for l in s])
+        return [s._data["data"][r][index] for r in rows]
+
+    @property
+    def selected_col_index(self):
+        """returns the first."""
+        return self.selected_col_indexes[0]
+
+    @property
+    def selected_col_indexes(self):
+        """Return the indexes of the selected rows. still works if transform applied."""
+        s = self.selected_visible_cell_iterator
+        return list(set([l["c"] for l in s]))
+
+    @property
+    def selected_dict(self):
+        """Return the dictionary of selected rows where index is row index. still works if transform applied."""
+        if self.transposed:
+            return self.data.T.loc[self.selected_col_indexes].to_dict("index")
+        else:
+            return self.data.loc[self.selected_row_indexes].to_dict("index")
+
+    # ----------------
+
+
+if __name__ == "__main__":
+
+    class DataFrameCols(BaseModel):
+        string: str = Field(
+            "string",
+            title="Important String",
+            column_width=120,
+        )
+        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        floater: float = Field(
+            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
+        )
+
+    class TestDataFrame(BaseModel):
+        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
+        __root__: ty.List[DataFrameCols] = Field(
+            # [DataFrameCols()], format="dataframe", global_decimal_places=2
+            format="dataframe",
+            global_decimal_places=2,
+        )
+
+    grid = AutoGrid(schema=TestDataFrame, by_title=True)
+    display(grid)
+
+
+if __name__ == "__main__":
+    # ORDER OVERRIDE
+    class DataFrameCols(BaseModel):
+        string: str = Field(
+            "string",
+            title="Important String",
+            column_width=120,
+        )
+        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        floater: float = Field(
+            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
+        )
+
+    class TestDataFrame(BaseModel):
+        __root__: ty.List[DataFrameCols] = Field(
+            format="dataframe",
+            global_decimal_places=2,
+        )
+
+    grid = AutoGrid(
+        schema=TestDataFrame,
+        # transposed=True,
+        order=(
+            "floater",
+            "string",
+            # "integer",
+        ),
+    )
+    display(grid)
+    grid.data = grid._init_data(
+        pd.DataFrame([DataFrameCols(string="test", floater=2.45, integer=2).dict()])
+    )
+
+if __name__ == "__main__":
+    # ORDER OVERRIDE
+    class DataFrameCols(BaseModel):
+        string: str = Field(
+            "string",
+            title="Important String",
+            column_width=120,
+        )
+        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        floater: float = Field(
+            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
+        )
+
+    class TestDataFrame(BaseModel):
+        __root__: ty.List[DataFrameCols] = Field(
+            format="dataframe",
+            global_decimal_places=2,
+        )
+
+    grid = AutoGrid(schema=TestDataFrame, order=("floater", "string", "integer"))
+    display(grid)
+
+if __name__ == "__main__":
+
+    class DataFrameCols(BaseModel):
+        string: str = Field(
+            title="Important String",
+            column_width=120,
+        )
+        integer: int = Field(title="Integer of somesort", column_width=150)
+        floater: float = Field(
+            title="Floater", column_width=70  # , renderer={"format": ".2f"}
+        )
+
+    class TestDataFrame(BaseModel):
+        __root__: ty.List[DataFrameCols] = Field(
+            [
+                DataFrameCols(string="string", integer=1, floater=1.2),
+                DataFrameCols(string="another string", integer=10, floater=2.5),
+                DataFrameCols(string="test", integer=42, floater=0.78),
+            ],
+            format="dataframe",
+            global_decimal_places=2,
+        )
+
+    grid = AutoGrid(schema=TestDataFrame, by_title=True)
+    display(grid)
+
+if __name__ == "__main__":
+    grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)  # .T
+
+if __name__ == "__main__":
+    print(grid.is_transposed)
+
+if __name__ == "__main__":
+    grid.transposed = True
+
+if __name__ == "__main__":
+    grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
+
+if __name__ == "__main__":
+    # test pd.to_dict
+    df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
+    display(df)
+    # ('dict', list, 'series', 'split', 'records', 'index')
+    print(df.to_dict(orient="dict"))
+    print(df.to_dict(orient="list"))
+    # print(df.to_dict(orient="series", into=dict))
+    print(df.to_dict(orient="split"))
+    print(df.to_dict(orient="records"))
+    print(df.to_dict(orient="index"))
+
+if __name__ == "__main__":
+    print(grid.count_changes)
+
+if __name__ == "__main__":
+
+    class DataFrameCols(BaseModel):
+        string: str = Field(
+            "string", title="Important String", column_width=120, section="a"
+        )
+        integer: int = Field(
+            40, title="Integer of somesort", column_width=150, section="a"
+        )
+        floater: float = Field(
+            1.3398234,
+            title="Floater",
+            column_width=70,
+            section="b",  # , renderer={"format": ".2f"}
+        )
+
+    class TestDataFrame(BaseModel):
+        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
+        __root__: ty.List[DataFrameCols] = Field(
+            [DataFrameCols()],
+            format="dataframe",
+            global_decimal_places=2,
+            datagrid_index_name=("section", "title"),
+        )
+
+    grid = AutoGrid(schema=TestDataFrame, by_title=True)
+    display(grid)
+
+if __name__ == "__main__":
+    grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)
+
+if __name__ == "__main__":
+    grid.transposed = False
+
+if __name__ == "__main__":
+    grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
