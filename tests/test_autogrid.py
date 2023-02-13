@@ -53,7 +53,7 @@ class TestGridSchema:
 
         assert gridschema.index_name == "title"
         assert (gridschema.index == pd.Index(["String", "Floater"], name="title")).all()
-        assert gridschema.default_data == []
+        assert gridschema._get_default_data() == []
         assert gridschema.default_row == {"string": None, "floater": None}
         assert gridschema.get_default_dataframe().equals(
             pd.DataFrame(columns=pd.Index(["String", "Floater"], name="title"))
@@ -74,7 +74,7 @@ class TestGridSchema:
         model, schema = _init_model_schema(TestGridSchema)
         gridschema = GridSchema(schema)
         assert gridschema.is_multiindex == False
-        assert gridschema.default_data == [{"string": "string", "floater": 1.5}]
+        assert gridschema._get_default_data() == [{"string": "string", "floater": 1.5}]
         assert gridschema.default_row == {"string": None, "floater": 1.5}
         assert gridschema.get_default_dataframe().equals(
             pd.DataFrame(
@@ -108,7 +108,7 @@ class TestGridSchema:
                 names=("section", "title"),
             )
         )
-        assert gridschema.default_data == [
+        assert gridschema._get_default_data() == [
             {"string": "string", "floater": 1.5, "inty": 1}
         ]
         assert gridschema.default_row == {"floater": 1.5, "inty": 1, "string": None}
@@ -194,7 +194,7 @@ class TestGridSchema:
         assert list(data.columns) == list(gridschema.map_index_name.keys())
         # data = data.rename(columns=gridschema.map_index_name) # doesn't work
         # assert list(data.columns) == list(gridschema.map_index_name.values())
-        df = pd.DataFrame.from_records(gridschema.default_data)
+        df = pd.DataFrame.from_records(gridschema._get_default_data())
         data = gridschema.coerce_data(df)
         assert data.equals(df_check)
 

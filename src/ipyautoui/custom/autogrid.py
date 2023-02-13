@@ -230,6 +230,7 @@ class GridSchema:
             for k, v in self.schema.items()
             if k not in ignore_schema_keys
         }
+        self.default_row = self._get_default_row()
 
     def set_renderers(self, **kwargs):
         {
@@ -721,7 +722,7 @@ class AutoGrid(DataGrid):
         return self.column_names[index]
 
     def get_default_data(self):
-        data = pd.DataFrame(self.gridschema.default_data)
+        data = pd.DataFrame(self.gridschema._get_default_data())
         if self.by_title:
             data = data.rename(columns=self.map_name_index)
         return data
