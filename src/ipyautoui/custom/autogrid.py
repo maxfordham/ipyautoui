@@ -339,16 +339,6 @@ class GridSchema:
             transposed=transposed,
         )
 
-    @property
-    def default_dataframe(self):
-        if len(self._get_default_data(order=order)) == 0:
-            return pd.DataFrame(
-                self._get_default_data(order=order), columns=self.index, index=pd.RangeIndex(0)
-            )
-        else:
-            df = pd.DataFrame(self._get_default_data(order=order))
-            df.columns = self.index
-            return df
 
     @property
     def properties(self):
