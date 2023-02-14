@@ -305,8 +305,13 @@ class EditGrid(w.VBox):
         self.by_title = by_title
         self.by_alias = by_alias
         self.datahandler = datahandler
+        getvalue = (
+            lambda value: None
+            if value is None or value == [{}]
+            else pd.DataFrame(value)
+        )
         self.grid = AutoGrid(
-            schema, data=pd.DataFrame(value), by_alias=self.by_alias, **kwargs
+            schema, data=getvalue(value), by_alias=self.by_alias, **kwargs
         )
 
         self._init_form()
@@ -436,8 +441,6 @@ class EditGrid(w.VBox):
 
     def _patch(self):
         if self.datahandler is not None:
-            # , self.selected_index
-
             self.datahandler.fn_patch(self.ui_edit.value)  # TODO: add index
 
     def _edit(self):
