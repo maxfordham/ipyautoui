@@ -201,6 +201,34 @@ class TestGridSchema:
         print("done")
         # assert data == pd.DataFrame.
 
+    def test_coerce_data_from_incomplete(self):
+        class TestProperties(BaseModel):
+            string: str
+            floater: float = 1.5
+            inty: int = 1
+
+        class TestGridSchema(BaseModel):
+            """no default"""
+
+            __root__: ty.List[TestProperties] = Field(
+                [TestProperties(string="string").dict()],
+                format="dataframe",
+            )
+
+        model, schema = _init_model_schema(TestGridSchema)
+        gridschema = GridSchema(schema)
+        data = gridschema.coerce_data(
+            pd.DataFrame.from_dict({"string": ["asdf"], "floater": [1.0]})
+        )
+
+        assert list(data.columns) == [
+            p["title"]
+            for p in TestGridSchema.schema()["definitions"]["TestProperties"][
+                "properties"
+            ].values()
+        ]
+        print("done")
+
 
 class TestAutoGridInitData:
     def test_empty_grid(self):
