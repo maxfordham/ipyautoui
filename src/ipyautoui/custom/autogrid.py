@@ -413,6 +413,13 @@ class GridSchema:
         if len(col_names) > len(order):
             data = filter_input_data(data, order, bykeys)
 
+        if len(col_names) < len(order):
+            # add missing columns
+            data = data.reindex(
+                columns=order,
+                # fill_value=self._get_default_row(),  # TODO: check this.
+            )
+
         # map column names to outward facing names
         if bykeys:
             data = data.rename(
@@ -423,7 +430,6 @@ class GridSchema:
 
         # ensure columns are in correct order
         data.columns = self.get_index(order)
-
         data.index = pd.RangeIndex(len(data))
 
         # transpose if necessary
@@ -511,7 +517,6 @@ class DataGrid(DataGrid):
         OVERRIDES get_dataframe_index in ipydatagrid. addes support for multi-index.
         TODO: add support for multi-index in ipydatagrid
         """
-
         # Passed index_name takes highest priority
         if self._index_name is not None:
             return self._index_name
