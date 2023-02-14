@@ -55,6 +55,7 @@ class TestButtonBar:
         )
         assert button_bar.fn_add() == "ADD"
 
+
 class TestEditGrid:
     def test_editgrid_change_data(self):
         grid = EditGrid(schema=EditableGrid)
@@ -87,7 +88,7 @@ class TestEditGrid:
         # add
         egrid._save_add_to_grid()
         assert egrid.value == (
-            {"string": "string", "floater": 1.5, "inty": 1},
+            {"string": "test2", "floater": 2.2, "inty": 1},
             {"string": "", "floater": 1.5, "inty": 1},
         )
 
@@ -95,7 +96,7 @@ class TestEditGrid:
         egrid.grid.select(row1=1, column1=1, row2=1, column2=1, clear_mode="all")
         egrid._copy()
         assert egrid.value == (
-            {"string": "string", "floater": 1.5, "inty": 1},
+            {"string": "test2", "floater": 2.2, "inty": 1},
             {"string": "", "floater": 1.5, "inty": 1},
             {"string": "", "floater": 1.5, "inty": 1},
         )
@@ -104,7 +105,7 @@ class TestEditGrid:
         egrid.grid.select(row1=1, column1=2, row2=1, column2=2, clear_mode="all")
         egrid._delete_selected()
         assert egrid.value == (
-            {"string": "string", "floater": 1.5, "inty": 1},
+            {"string": "test2", "floater": 2.2, "inty": 1},
             {"string": "", "floater": 1.5, "inty": 1},
         )
 
