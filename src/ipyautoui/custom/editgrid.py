@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -39,15 +39,7 @@ from ipyautoui.custom.autogrid import AutoGrid
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 # TODO: rename "add" to "fn_add" so not ambiguous...
-
-# +
-import warnings
-
-warnings.filterwarnings("ignore")
-# REVIEW: Using for now as "No such comm" warning and "UserWarning: Index name of 'index' is not round-trippable" keep popping up.
-# Should be resolved at a later date but will ignore for now as not crucial to fix
 # -
-
 
 class DataHandler(BaseModel):
     """CRUD operations for a for EditGrid.
