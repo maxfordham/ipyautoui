@@ -328,11 +328,11 @@ class TestAutoGridInitData:
 
         assert gr._data["data"] == [
             {
-                ("index", ""): 0,
+                "index": 0,
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
-                ("ipydguuid", ""): 0,
+                "ipydguuid": 0,
             }
         ]
 
@@ -344,15 +344,15 @@ class TestAutoGridInitData:
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
-                ("ipydguuid", ""): 0,
-                ("index", ""): 0,
+                "ipydguuid": 0,
+                "index": 0,
             },
             {
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
-                ("ipydguuid", ""): 1,
-                ("index", ""): 1,
+                "ipydguuid": 1,
+                "index": 1,
             },
         ]
 
@@ -382,12 +382,14 @@ class TestAutoGridInitData:
             schema=DataFrameSchema, transposed=transposed, order=order
         )
         # Test with data passed
+        data = pd.DataFrame([Cols(string="test", floater=2.5).dict()])
         grid_with_data = AutoGrid(
             schema=DataFrameSchema,
-            data=pd.DataFrame([Cols(string="test", floater=2.5).dict()]),
+            data=data,
             transposed=transposed,
-            order=order,
         )
+        di_grid_with_data = grid_with_data.data.to_dict()
+        grid_with_data.order = order
         if transposed:
             assert tuple(grid_without_data.data.index) == tuple(
                 [grid_without_data.map_name_index.get(name) for name in order]
@@ -395,6 +397,7 @@ class TestAutoGridInitData:
             assert tuple(grid_with_data.data.index) == tuple(
                 [grid_with_data.map_name_index.get(name) for name in order]
             )
+            assert di_grid_with_data == grid_with_data.data.to_dict()
         else:
             assert tuple(grid_without_data.data.columns) == tuple(
                 [grid_without_data.map_name_index.get(name) for name in order]
@@ -402,6 +405,7 @@ class TestAutoGridInitData:
             assert tuple(grid_with_data.data.columns) == tuple(
                 [grid_with_data.map_name_index.get(name) for name in order]
             )
+            assert di_grid_with_data == grid_with_data.data.to_dict()
 
     @pytest.mark.parametrize("transposed", [True, False])
     def test_order_multi_index(self, transposed: bool):
@@ -426,17 +430,20 @@ class TestAutoGridInitData:
         # Test without data passed
         grid_without_data = AutoGrid(schema=DataFrameSchema, order=order)
         # Test with data passed
+        data = pd.DataFrame([Cols(string="test", floater=2.5).dict()])
         grid_with_data = AutoGrid(
             schema=DataFrameSchema,
-            data=pd.DataFrame([Cols(string="test", floater=2.5).dict()]),
+            data=data,
             transposed=transposed,
-            order=order,
         )
+        di_grid_with_data = grid_with_data.data.to_dict()
+        grid_with_data.order = order
         if transposed is True:
             assert tuple(grid_without_data.data.index) == ()
             assert tuple(grid_with_data.data.index) == tuple(
                 [grid_with_data.map_name_index.get(name) for name in order]
             )
+            assert di_grid_with_data == grid_with_data.data.to_dict()
         else:
             assert tuple(grid_without_data.data.columns) == tuple(
                 [grid_without_data.map_name_index.get(name) for name in order]
@@ -444,3 +451,4 @@ class TestAutoGridInitData:
             assert tuple(grid_with_data.data.columns) == tuple(
                 [grid_with_data.map_name_index.get(name) for name in order]
             )
+            assert di_grid_with_data == grid_with_data.data.to_dict()
