@@ -388,7 +388,7 @@ class TestAutoGridInitData:
             data=data,
             transposed=transposed,
         )
-        di_grid_with_data = grid_with_data.data.to_dict()
+        di_grid_with_data_before_order = grid_with_data.data.to_dict()
         grid_with_data.order = order
         if transposed:
             assert tuple(grid_without_data.data.index) == tuple(
@@ -397,7 +397,7 @@ class TestAutoGridInitData:
             assert tuple(grid_with_data.data.index) == tuple(
                 [grid_with_data.map_name_index.get(name) for name in order]
             )
-            assert di_grid_with_data == grid_with_data.data.to_dict()
+            assert di_grid_with_data_before_order == grid_with_data.data.to_dict()
         else:
             assert tuple(grid_without_data.data.columns) == tuple(
                 [grid_without_data.map_name_index.get(name) for name in order]
@@ -405,7 +405,7 @@ class TestAutoGridInitData:
             assert tuple(grid_with_data.data.columns) == tuple(
                 [grid_with_data.map_name_index.get(name) for name in order]
             )
-            assert di_grid_with_data == grid_with_data.data.to_dict()
+            assert di_grid_with_data_before_order == grid_with_data.data.to_dict()
 
     @pytest.mark.parametrize("transposed", [True, False])
     def test_order_multi_index(self, transposed: bool):
@@ -436,14 +436,14 @@ class TestAutoGridInitData:
             data=data,
             transposed=transposed,
         )
-        di_grid_with_data = grid_with_data.data.to_dict()
+        di_grid_with_data_before_order = grid_with_data.data.to_dict()
         grid_with_data.order = order
         if transposed is True:
             assert tuple(grid_without_data.data.index) == ()
             assert tuple(grid_with_data.data.index) == tuple(
                 [grid_with_data.map_name_index.get(name) for name in order]
             )
-            assert di_grid_with_data == grid_with_data.data.to_dict()
+            assert di_grid_with_data_before_order == grid_with_data.data.to_dict()
         else:
             assert tuple(grid_without_data.data.columns) == tuple(
                 [grid_without_data.map_name_index.get(name) for name in order]
@@ -451,4 +451,4 @@ class TestAutoGridInitData:
             assert tuple(grid_with_data.data.columns) == tuple(
                 [grid_with_data.map_name_index.get(name) for name in order]
             )
-            assert di_grid_with_data == grid_with_data.data.to_dict()
+            assert di_grid_with_data_before_order == grid_with_data.data.to_dict()
