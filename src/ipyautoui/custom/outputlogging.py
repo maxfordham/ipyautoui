@@ -23,7 +23,6 @@ import logging
 import ipywidgets as w
 
 # import logging.config
-import yaml
 from ipyautoui.constants import DELETE_BUTTON_KWARGS
 from IPython.display import clear_output
 
@@ -74,7 +73,61 @@ class Output(w.Output):
         logger.addHandler(WidgetLogger(self, *args, **kwargs))
 
 
-class LoggingAccordion(w.Accordion):
+import traitlets as tr
+
+
+class LoggingUiBase(tr.HasTraits):
+    clearable_logs = tr.Boolean(default_value=True)
+
+    @tr.observe("clearable_logs")
+    def _clearable_logs(self, on_change):
+        if on_change["new"]:
+            if not hasattr(self, "bn_clear"):
+                self._init_clearable_logs()
+            self.hbx_clear.children = [self.bn_clear, self.title_clear]
+        else:
+            self.hbx_clear.children = []
+
+    def _init_clearable_logs(self):
+        self.bn_clear = w.Button(**DELETE_BUTTON_KWARGS)
+        self.title_clear = w.HTML("<i><b>clear logs</b></i>")
+        self.bn_clear.on_click(self._call_clear_logs)
+
+    def __init__(
+        self,
+        loggers=None,
+        logging_format=logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        ),
+        title="Execution Log",
+        clearable_logs=True,
+    ):
+
+        if loggers is None:
+            loggers = [
+                logging.getLogger(name) for name in logging.root.manager.loggerDict
+            ]
+        self.out_logging_console = Output()
+        [
+            self.out_logging_console.register_logger(l, format=logging_format)
+            for l in loggers
+        ]
+        
+        self.hbx_clear = w.HBox()
+        self.vbx_logging_console = w.VBox([self.hbx_clear, self.out_logging_console])
+        self.clearable_logs = clearable_logs
+
+    def _call_clear_logs(self, on_click):
+        self.clear_logs()
+
+    def clear_logs(self):
+        with self.out_logging_console:
+            clear_output()
+
+    # def _init_LoggingUiBase()
+
+
+class LoggingAccordion(w.Accordion): # TODO; inherit from LoggingUiBase
     def __init__(
         self,
         loggers=None,
@@ -90,22 +143,25 @@ class LoggingAccordion(w.Accordion):
             loggers = [
                 logging.getLogger(name) for name in logging.root.manager.loggerDict
             ]
-        self.out = Output()
-        [self.out.register_logger(l, format=logging_format) for l in loggers]
+        self.out_logging_console = Output()
+        [
+            self.out_logging_console.register_logger(l, format=logging_format)
+            for l in loggers
+        ]
         self.bn_clear = w.Button(**DELETE_BUTTON_KWARGS)
         self.title_clear = w.HTML("<i><b>clear logs</b></i>")
         self.hbx_clear = w.HBox([self.bn_clear, self.title_clear])
-        self.vbx = w.VBox([self.hbx_clear, self.out])
+        self.vbx_logging_console = w.VBox([self.hbx_clear, self.out_logging_console])
 
-        self.children = [self.vbx]
+        self.children = [self.vbx_logging_console]
         self.titles = (title,)
         self._init_controls()
 
     def _init_controls(self):
-        self.bn_clear.on_click(self._clear_logs)
+        self.bn_clear.on_click(self.clear_logs)
 
-    def _clear_logs(self, on_click):
-        with self.out:
+    def clear_logs(self, on_click):
+        with self.out_logging_console:
             clear_output()
 
 
@@ -126,9 +182,9 @@ if __name__ == "__main__":
             self.a = w.IntText()
             self.b = w.IntText()
             self.c = w.IntText()
-            self.out = Output()
+            self.out_logging_console = Output()
             [
-                self.out.register_logger(
+                self.out_logging_console.register_logger(
                     logger,
                     format=logging.Formatter(
                         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -136,7 +192,9 @@ if __name__ == "__main__":
                 )
                 for logger in loggers
             ]
-            self.acc = w.Tab(children=[self.out], titles=["Execution Log"])
+            self.acc = w.Tab(
+                children=[self.out_logging_console], titles=["Execution Log"]
+            )
             self.c.disabled = True
             self.div = w.Button(description="operate")
             self.div.on_click(self.on_div)
@@ -182,5 +240,3 @@ if __name__ == "__main__":
     logger.level = "INFO"
     ui = Ui()
     display(ui)
-
-
