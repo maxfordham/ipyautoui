@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -72,7 +72,8 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema."""
+    """Set the column widths of the data grid based on column_width given in the schema.
+    """
 
     # start with settings in properties
     column_widths = {
@@ -384,7 +385,10 @@ class GridSchema:
 
         if not isinstance(data.index, pd.RangeIndex):
             # raise ValueError("Data must have a RangeIndex")
-            logging.warning("Data must have a RangeIndex")
+            logging.warning(
+                "ipyautoui.custom.autogrid.AutoGrid (and EditGrid) data must have a"
+                " RangeIndex"
+            )
 
         def is_bykeys(col_names):
             if set(col_names) <= set(self.map_name_index.keys()):
@@ -393,7 +397,8 @@ class GridSchema:
                 return False
             else:
                 raise ValueError(
-                    "Columns must be a subset of the schema property keys or outward facing index names"
+                    "Columns must be a subset of the schema property keys or outward"
+                    " facing index names"
                 )
 
         def filter_input_data(data, order, bykeys):
@@ -429,7 +434,7 @@ class GridSchema:
             )
 
         # ensure columns are in correct order
-        data.columns = self.get_index(order)
+        data = data.loc[:, self.get_index(order)]
         data.index = pd.RangeIndex(len(data))
 
         # transpose if necessary
@@ -600,13 +605,14 @@ class AutoGrid(DataGrid):
     def _observe_order(self, change):
         if not set(self.order) <= set(self.gridschema.properties.keys()):
             raise ValueError(
-                "set(self.order) <= set(self.gridschema.properties.keys()) must be true."
-                " (i.e. on valid scheam properties allowed)"
+                "set(self.order) <= set(self.gridschema.properties.keys()) must be"
+                " true. (i.e. on valid scheam properties allowed)"
             )
         if self.transposed:
             data = self.data.T
         else:
             data = self.data
+        data.index = pd.RangeIndex(0, len(data))
         self.data = self._init_data(data)
 
     @tr.observe("transposed")
@@ -1029,7 +1035,8 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where index is row index. still works if transform applied."""
+        """Return the dictionary of selected rows where index is row index. still works if transform applied.
+        """
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:
