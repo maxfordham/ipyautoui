@@ -138,8 +138,8 @@ class UiDelete(w.HBox):
         )
         self.vbx_messages = w.VBox()
         self.message = w.HTML(
-            "⚠️<b>warning</b>⚠️ - <i>pressing button will permanently delete rows from"
-            " grid</i>"
+            "⚠️<b>Are you sure you want to delete?</b>⚠️ - <i>pressing the button will"
+            " permanently delete the selected data from the datagrid</i>"
         )
         self.message_columns = w.HTML(f"---")
         self.vbx_messages.children = [
