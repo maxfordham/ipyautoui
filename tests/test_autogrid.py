@@ -197,6 +197,7 @@ class TestGridSchema:
         df = pd.DataFrame.from_records(gridschema._get_default_data())
         data = gridschema.coerce_data(df)
         assert data.equals(df_check)
+        assert gridschema.coerce_data(df, transposed=True).equals(df_check.T)
 
         print("done")
         # assert data == pd.DataFrame.
