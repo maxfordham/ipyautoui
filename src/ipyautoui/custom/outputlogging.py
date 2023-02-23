@@ -30,7 +30,11 @@ from IPython.display import clear_output
 # +
 class Output(w.Output):
     def register_logger(self, logger, *args, **kwargs):
-        """Registers a handler to given logger to send output to output widget"""
+        """Registers a handler to given logger to send output to output widget
+
+        References:
+            https://github.com/jupyter-widgets/ipywidgets/pull/2268/files
+        """
 
         class WidgetLogger(logging.Handler):
             """Class to implement a logging interface that outputs to the
@@ -77,7 +81,7 @@ import traitlets as tr
 
 
 class LoggingUiBase(tr.HasTraits):
-    clearable_logs = tr.Boolean(default_value=True)
+    clearable_logs = tr.Bool(default_value=True)
 
     @tr.observe("clearable_logs")
     def _clearable_logs(self, on_change):
@@ -112,7 +116,7 @@ class LoggingUiBase(tr.HasTraits):
             self.out_logging_console.register_logger(l, format=logging_format)
             for l in loggers
         ]
-        
+
         self.hbx_clear = w.HBox()
         self.vbx_logging_console = w.VBox([self.hbx_clear, self.out_logging_console])
         self.clearable_logs = clearable_logs
@@ -127,7 +131,7 @@ class LoggingUiBase(tr.HasTraits):
     # def _init_LoggingUiBase()
 
 
-class LoggingAccordion(w.Accordion): # TODO; inherit from LoggingUiBase
+class LoggingAccordion(w.Accordion):  # TODO; inherit from LoggingUiBase
     def __init__(
         self,
         loggers=None,
