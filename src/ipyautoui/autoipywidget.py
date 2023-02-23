@@ -13,6 +13,7 @@
 #     name: python3
 # ---
 
+# +
 """autoui is used to automatically create ipywidget user input (UI) form from a pydantic schema.
 
 This module maps the pydantic fields to appropriate widgets based on type to display the data in the UI.
@@ -44,6 +45,10 @@ from ipyautoui.custom.buttonbars import SaveButtonBar
 from ipyautoui.custom.showhide import ShowHide
 from ipyautoui.autowidgets import Nullable
 
+logger = logging.getLogger(__name__)
+
+
+# -
 
 def _init_widgets_and_labels(
     pr: ty.Dict,
@@ -393,6 +398,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
     order = tr.List(default_value=None, allow_none=True)
     order_can_hide_rows = tr.Bool(default_value=True)
     insert_rows = tr.Dict(default_value=None, allow_none=True)
+    disabled = tr.Bool(default_value=False)
 
     @tr.validate("insert_rows")
     def validate_insert_rows(self, proposal):
@@ -410,6 +416,26 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
             if not fn_checkisintkeys(v):
                 raise ValueError("keys of insert_rows must be integers")
         return v
+
+    @tr.observe("disabled")
+    def observe_disabled(self, on_change):
+        if self.disabled:
+            for k, v in self.di_widgets.items():
+                try:
+                    v.disabled = True
+                except:
+                    logger.warning(f"{k}: widget does not have a `disabled` traitlet")
+        else:
+            for k, v in self.di_widgets.items():
+                if "disabled" in self.pr[k].schema_ and self.pr[k].schema_["disabled"]:
+                    logger.info(f"{k}: widget disabled in base schema")
+                else:
+                    try:
+                        v.disabled = False
+                    except:
+                        logger.warning(
+                            f"{k}: widget does not have a `disabled` traitlet"
+                        )
 
     @tr.validate("order")
     def _order(self, proposal):
@@ -690,13 +716,14 @@ if __name__ == "__main__":
     ui = AutoObject(CoreIpywidgets)
     display(ui)
 
-
+# +
 if __name__ == "__main__":
     ui.order = [
         "text",
         "int_text",
         "int_slider",
-        # "int_range_slider",
+        "int_range_slider",
+        "int_range_slider_disabled",
         # "float_slider",
         # "float_text",
         # "float_text_locked",
@@ -705,15 +732,23 @@ if __name__ == "__main__":
         # "dropdown",
         # "dropdown_edge_case",
         # "dropdown_simple",
-        "combobox",
         "text_short",
         "text_area",
-        "auto_markdown",
     ]
 
-if __name__ == "__main__":
-    ui.align_horizontal = False
+# "combobox", "auto_markdown"
+# -
 
+if __name__ == "__main__":
+    ui.disabled = True
+
+if __name__ == "__main__":
+    ui.disabled = False
+
+if __name__ == "__main__":
+    ui.align_horizontal = True
+
+# +
 if __name__ == "__main__":
     ui.nested_widgets = []
 
@@ -731,3 +766,6 @@ if __name__ == "__main__":
     ui.show_description = True
     ui.show_title = True
     ui.show_raw = True
+# -
+
+

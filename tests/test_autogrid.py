@@ -197,6 +197,7 @@ class TestGridSchema:
         df = pd.DataFrame.from_records(gridschema._get_default_data())
         data = gridschema.coerce_data(df)
         assert data.equals(df_check)
+        assert gridschema.coerce_data(df, transposed=True).equals(df_check.T)
 
         print("done")
         # assert data == pd.DataFrame.
@@ -328,11 +329,11 @@ class TestAutoGridInitData:
 
         assert gr._data["data"] == [
             {
-                "index": 0,
+                ("index", ""): 0,
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
-                "ipydguuid": 0,
+                ("ipydguuid", ""): 0,
             }
         ]
 
@@ -344,15 +345,15 @@ class TestAutoGridInitData:
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
-                "ipydguuid": 0,
-                "index": 0,
+                ("ipydguuid", ""): 0,
+                ("index", ""): 0,
             },
             {
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
-                "ipydguuid": 1,
-                "index": 1,
+                ("ipydguuid", ""): 1,
+                ("index", ""): 1,
             },
         ]
 

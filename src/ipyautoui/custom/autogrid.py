@@ -72,8 +72,7 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema.
-    """
+    """Set the column widths of the data grid based on column_width given in the schema."""
 
     # start with settings in properties
     column_widths = {
@@ -434,7 +433,7 @@ class GridSchema:
             )
 
         # ensure columns are in correct order
-        data = data.loc[:, self.get_index(order)]
+        data = data.reindex(self.get_index(order), axis=1)
         data.index = pd.RangeIndex(len(data))
 
         # transpose if necessary
@@ -1035,8 +1034,7 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where index is row index. still works if transform applied.
-        """
+        """Return the dictionary of selected rows where index is row index. still works if transform applied."""
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:

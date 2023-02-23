@@ -27,7 +27,8 @@ class CoreIpywidgets(BaseModel):
     int_slider_nullable: conint(ge=1, le=3) = None
     int_slider: conint(ge=1, le=3) = 2
     int_text: int = 1
-    int_range_slider: tuple[int, int] = Field(default=(0, 3), ge=0, le=4)  # check
+    int_range_slider: tuple[int, int] = Field(default=(0, 3), ge=0, le=4)
+    int_range_slider_disabled: tuple[int, int] = Field(default=(0, 3), ge=0, le=4, disabled=True)
     float_slider: float = Field(default=2.2, ge=1, le=3)
     float_text: float = 2.2
     float_text_locked: float = Field(default=2.2, disabled=True)
