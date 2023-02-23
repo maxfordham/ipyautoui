@@ -4,6 +4,7 @@
 format: jb-book
 root: intro
 chapters:
+- file: demo
 - file: autoui
 - file: autovuetify
 - file: autodisplay
