@@ -142,21 +142,36 @@ def horizontal_row_nested(widget, label, auto_open=False):
     )
 
 
-def horizontal_row_simple(widget, label):
-    return w.HBox([widget, w.HTML(label)])
+def add_spacer_to_form_with_nullables(children, widget, contains_nullable):
+    if contains_nullable and not isinstance(widget, Nullable):
+        children = [w.HBox(layout={"width": "45px"})] + children
+    return children
 
 
-def vertical_row(widget, label, auto_open=None):
+def horizontal_row_simple(widget, label, contains_nullable=False):
+    children = [widget, w.HTML(label)]
+    children = add_spacer_to_form_with_nullables(children, widget, contains_nullable)
+    return w.HBox(children)
+
+
+def vertical_row(widget, label, auto_open=None, contains_nullable=False):
+    children = [w.HBox(layout={"width": "40px"}), widget]
+    children = add_spacer_to_form_with_nullables(children, widget, contains_nullable)
     return w.VBox(
         [
             w.HTML(label),
-            w.HBox([w.HBox(layout={"width": "40px"}), widget]),
+            w.HBox(children),
         ]
     )
 
 
 def create_row(
-    widget, label, align_horizontal=True, auto_open=False, nested_widgets=None
+    widget,
+    label,
+    align_horizontal=True,
+    auto_open=False,
+    nested_widgets=None,
+    contains_nullable=False,
 ):
     """creates a row for a given widget. applies
 
@@ -176,9 +191,11 @@ def create_row(
         if True in [isinstance(widget, w) for w in nested_widgets]:
             return horizontal_row_nested(widget, label, auto_open=auto_open)
         else:
-            return horizontal_row_simple(widget, label)
+            return horizontal_row_simple(
+                widget, label, contains_nullable=contains_nullable
+            )
     else:
-        return vertical_row(widget, label)
+        return vertical_row(widget, label, contains_nullable=contains_nullable)
 
 
 def show_hide_widget(widget, show: bool):
@@ -592,6 +609,11 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
             )
             for property_key, property_schema in pr.items()
         }
+        for v in self.pr.values():
+            if "nullable" in v.schema_:
+                self.contains_nullable = True
+                break
+
         if self.fdir is not None:
             for v in self.pr.values():
                 v = add_fdir_to_widgetcaller(v, self.fdir)
@@ -622,6 +644,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
                 align_horizontal=self.align_horizontal,
                 auto_open=self.auto_open,
                 nested_widgets=self.nested_widgets,
+                contains_nullable=self.contains_nullable,
             )
             for row in order
         ]
@@ -722,6 +745,7 @@ if __name__ == "__main__":
         "text",
         "int_text",
         "int_slider",
+        "int_slider_nullable",
         "int_range_slider",
         "int_range_slider_disabled",
         # "float_slider",
@@ -747,6 +771,9 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     ui.align_horizontal = True
+
+if __name__ == "__main__":
+    ui.align_horizontal = False
 
 # +
 if __name__ == "__main__":
