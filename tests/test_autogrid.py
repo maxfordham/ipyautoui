@@ -329,11 +329,11 @@ class TestAutoGridInitData:
 
         assert gr._data["data"] == [
             {
-                "index": 0,
+                ("index", ""): 0,
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
-                "ipydguuid": 0,
+                ("ipydguuid", ""): 0,
             }
         ]
 
@@ -345,15 +345,15 @@ class TestAutoGridInitData:
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
-                "ipydguuid": 0,
-                "index": 0,
+                ("ipydguuid", ""): 0,
+                ("index", ""): 0,
             },
             {
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
-                "ipydguuid": 1,
-                "index": 1,
+                ("ipydguuid", ""): 1,
+                ("index", ""): 1,
             },
         ]
 
