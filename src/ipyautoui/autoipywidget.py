@@ -609,6 +609,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
             )
             for property_key, property_schema in pr.items()
         }
+        self.contains_nullable = False
         for v in self.pr.values():
             if "nullable" in v.schema_:
                 self.contains_nullable = True
