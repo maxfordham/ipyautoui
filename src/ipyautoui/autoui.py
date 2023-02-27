@@ -28,7 +28,7 @@ Example:
         DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
 """
 # %run __init__.py
-# #%load_ext lab_black
+# %load_ext lab_black
 
 import pathlib
 from IPython.display import display
@@ -38,16 +38,10 @@ import traitlets as tr
 import traitlets_paths
 import typing as ty
 
-from ipyautoui.custom import SaveButtonBar # ^ NOTE: removing creates circular import errors
-
-
-
+from ipyautoui.custom import SaveButtonBar  # removing makes circular import error
 from ipyautoui.autoipywidget import AutoObject, get_from_schema_root
 
-
 # +
-
-
 def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
     """recursive function to replace all keys beginning x_ --> x-
     this allows schema Field keys to be definied in pydantic and then
@@ -119,7 +113,6 @@ class AutoUiFileMethods(tr.HasTraits):
     def _observe_path(self, proposal):
         self.savebuttonbar.fns_onsave_add_action(self.file, to_beginning=True)
         self.savebuttonbar.fns_onrevert_add_action(self.load_file, to_beginning=True)
-        self.show_savebuttonbar = True
 
     def _get_path(self, path=None) -> pathlib.Path:
         if path is None:
@@ -183,9 +176,6 @@ class AutoUiFileMethods(tr.HasTraits):
         self.load_value(parse_json_file(p, model=self.model), unsaved_changes)
 
 
-# +
-
-
 class AutoRenderMethods:
     @classmethod
     def create_autoui_renderer(
@@ -237,8 +227,8 @@ class AutoRenderMethods:
 # +
 class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
     """extends AutoObject and AutoUiCommonMethods to create an
-    AutoUi of user widgets with data that can be saved to a json
-    file and loaded from a json file.
+    AutoUi user-input form. The data that can be saved to a json
+    file `path` and loaded from a json file.
 
     Attributes:
         # inherited from AutoFileMethods
@@ -273,22 +263,49 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
         schema: ty.Union[ty.Type[BaseModel], dict],
         value: dict = None,
         path: pathlib.Path = None,  # TODO: generalise data retrieval?
+        update_map_widgets=None,
+        fns_onsave=None,
+        fns_onrevert=None,
         # validate_onchange=True,  # TODO: sort out how the validation works
-        # update_fdir_to_path_parent=True,
         **kwargs,
     ):
+        """initialises the AutoUi. in Jupyter hit "cntrl + I" to load "inspector"
+        and see the attributes.
 
-        if path is not None:
-            fdir = str(pathlib.Path(path).parent)  # TODO: use traitlets_paths
-        else:
-            fdir = None
+        Args:
+            schema (ty.Union[ty.Type[BaseModel], dict]): defines the form
+            value (dict, optional): form value. Defaults to None.
+            path (pathlib.Path, optional): read / write file location. Defaults to None.
+            update_map_widgets (dict, optional): allows user to update the map_widgets. Defaults to None.
+            fns_onsave (list, optional): list of functions to run on save. Defaults to None.
+            fns_onrevert (list, optional): list of functions to run on revert. Defaults to None.
+            **kwargs: passed to AutoObject. see attributes for details.
+        """
 
+        fdir = self.get_fdir(path=path, fdir=kwargs.get("fdir", None))
         # init app
         super().__init__(
-            schema, value=value, update_map_widgets=None, fdir=fdir, **kwargs
+            schema,
+            value=None,
+            update_map_widgets=update_map_widgets,
+            fdir=fdir,
+            fns_onsave=fns_onsave,
+            fns_onrevert=fns_onrevert,
+            **kwargs,
         )
         self.path = path
         self.value = self._get_value(value, self.path)
+
+    def get_fdir(self, path=None, fdir=None):
+
+        if path is not None and fdir is None:
+            return str(pathlib.Path(path).parent)  # TODO: use traitlets_paths
+        elif path is None and fdir is not None:
+            return fdir
+        elif path is not None and fdir is not None:
+            return fdir
+        else:
+            return None
 
 
 if __name__ == "__main__":
@@ -297,11 +314,15 @@ if __name__ == "__main__":
     aui = AutoUi(
         TestAutoLogicSimple,
         path="test.json",
+        show_description=False,
         show_raw=True,
-        show_savebuttonbar = False
+        show_savebuttonbar=False,
     )
     # aui.show_savebuttonbar = False
     display(aui)
+
+# +
+# aui.savebuttonbar.layout.display
 
 # + active=""
 # aui.save_actions.fns_onrevert[1]()
