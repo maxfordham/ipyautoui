@@ -13,7 +13,11 @@ import pytest
 from .constants import DIR_TESTS, DIR_FILETYPES
 
 from ipyautoui import AutoUi, AutoDisplay, AutoVjsf
-from ipyautoui.autoipywidget import AutoObject, demo_autoobject_form, AutoObjectShowRaw
+from ipyautoui.autoipywidget import (
+    AutoObject,
+    demo_autoobject_form,
+    AutoObjectFormLayout,
+)
 from ipyautoui.demo_schemas import RootEnum, RootArrayEnum
 from ipyautoui.test_schema import TestAutoLogicSimple
 import stringcase
@@ -162,17 +166,3 @@ class TestAutoObjectRowOrder:
         self.ui.order_can_hide_rows = False
         assert self.ui.order == self.ui.default_order
         assert len(self.ui.autowidget.children) == len(self.ui.default_order)
-
-
-class TestAutoObjectKwargs:
-
-
-    def test_show_raw(self):
-
-        ui_showraw = AutoObjectShowRaw(show_raw=True)
-        assert ui_showraw.bn_showraw.layout.display == "None"
-
-        # ui = AutoObject(TestAutoLogicSimple, show_raw=True)
-        # assert ui.bn_showraw.layout.display == "None"
-
-
