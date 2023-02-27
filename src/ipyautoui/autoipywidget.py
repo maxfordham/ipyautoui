@@ -23,7 +23,7 @@ This information can also be stored to file.
 Example:
     see example for a pydantic schema that can be automatically converted into a 
     ipywidgets UI. Currently nesting is not supported::
-    
+
         from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
         DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
 """
@@ -49,6 +49,7 @@ logger = logging.getLogger(__name__)
 
 
 # -
+
 
 def _init_widgets_and_labels(
     pr: ty.Dict,
@@ -218,16 +219,18 @@ class AutoObjectShowRaw(w.VBox):
     def _observe_show_raw(self, change):
         show_hide_widget(self.bn_showraw, self.show_raw)
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+
+        self._init_bn_showraw()
+        self._init_bn_showraw_controls()
         super().__init__(
             layout=w.Layout(
                 width="100%",
                 display="flex",
                 flex="flex-grow",
-            )
+            ),
+            **kwargs,
         )
-        self._init_bn_showraw()
-        self._init_bn_showraw_controls()
 
     def _init_bn_showraw(self):
         self.bn_showraw = w.ToggleButton(
@@ -262,13 +265,13 @@ class AutoObjectShowRaw(w.VBox):
 
 
 if __name__ == "__main__":
-    ui_showraw = AutoObjectShowRaw()
+    ui_showraw = AutoObjectShowRaw(show_raw=True)
     display(ui_showraw.bn_showraw)
     display(ui_showraw.vbx_showraw)
 # -
 
 if __name__ == "__main__":
-    ui_showraw.show_raw = True
+    ui_showraw.show_raw = False
 
 
 # +
@@ -294,8 +297,8 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
     def _observe_show_savebuttonbar(self, change):
         show_hide_widget(self.savebuttonbar, self.show_savebuttonbar)
 
-    def __init__(self, fns_onsave=None, fns_onrevert=None):
-        super().__init__()
+    def __init__(self, fns_onsave=None, fns_onrevert=None, **kwargs):
+
         self._init_form()
         self._init_bn_showraw_controls()
         self.fn_onshowraw = self.display_showraw
@@ -304,6 +307,14 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
             self.fns_onsave = fns_onsave
         if fns_onrevert is not None:
             self.fns_onrevert = fns_onrevert
+        super().__init__(**kwargs)
+        self.children = [
+            self.savebuttonbar,
+            self.hbx_title,
+            self.description,
+            self.autowidget,
+            self.vbx_showraw,
+        ]
 
     def _init_form(self):
         self.autowidget = w.VBox()
@@ -314,13 +325,6 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
         self._init_bn_showraw()
         self.hbx_title.children = [self.bn_showraw, self.title]
         self.description = w.HTML()  #
-        self.children = [
-            self.savebuttonbar,
-            self.hbx_title,
-            self.description,
-            self.autowidget,
-            self.vbx_showraw,
-        ]
 
     def display_ui(self):
         self.autowidget.layout.display = ""
@@ -356,6 +360,11 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
             raise ValueError("fns_onrevert must be a callable or list of callables")
 
 
+if __name__ == "__main__":
+    ui = AutoObjectFormLayout(description="description", show_description=True)
+    display(ui)
+
+# +
 def demo_autoobject_form(title="test", description="a description of the title"):
     """for docs and testing only..."""
     from ipyautoui.custom.buttonbars import SaveButtonBar
@@ -405,10 +414,33 @@ def autogen(schema) -> object:
 
 # +
 class AutoObject(AutoObjectFormLayout):  # w.VBox
-    """creates an ipywidgets form from a json-schema or pydantic model. datatype must be "object" """
+    """creates an ipywidgets form from a json-schema or pydantic model.
+    datatype must be "object"
+
+    Attributes:
+        _value (dict): use `value` to set and get. the value of the form. this is a dict of the form {key: value}
+        fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
+        align_horizontal (bool, optional): aligns widgets horizontally. Defaults to True.
+        nested_widgets (list, optional): allows user to indicate widgets that should be show / hide type. Defaults to [].
+        auto_open (bool, optional): automatically opens the nested_widget. Defaults to True.
+        order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
+        order_can_hide_rows (bool): allows user to hide rows by removing them from the order list.
+        insert_rows (dict): e.g. {3:w.Button()}. allows user to insert a widget into the rows. its presence
+            is ignored by the widget otherwise.
+        disabled (bool, optional): disables all widgets. If widgets are disabled
+            using schema kwargs this is remembered when re-enabled. Defaults to False.
+
+        # inherited from AutoObjectFormLayout
+
+        show_raw (bool, optional): show the raw json. Defaults to False.
+        show_description (bool, optional): show the description. Defaults to True.
+        show_title (bool, optional): show the title. Defaults to True.
+        show_savebuttonbar (bool, optional): show the savebuttonbar. Defaults to True.
+
+    """
 
     _value = tr.Dict(allow_none=True)
-    fdir = tr.Unicode(allow_none=True)
+    fdir = tr.Unicode(default_value=None, allow_none=True)
     align_horizontal = tr.Bool(default_value=True)
     auto_open = tr.Bool(default_value=True)
     nested_widgets = tr.List()
@@ -416,6 +448,42 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
     order_can_hide_rows = tr.Bool(default_value=True)
     insert_rows = tr.Dict(default_value=None, allow_none=True)
     disabled = tr.Bool(default_value=False)
+
+    def __init__(
+        self,
+        schema,
+        by_alias=False,
+        value=None,
+        update_map_widgets=None,
+        fns_onsave=None,
+        fns_onrevert=None,
+        **kwargs,
+    ):
+        """creates a widget input form from schema. datatype must be "object"
+
+        Args:
+            schema (dict): json schema defining widget to generate
+            by_alias (bool, optional): use alias in schema. Defaults to False.
+            value (dict, optional): value of json. Defaults to None.
+            update_map_widgets (frozenmap, optional): frozen dict of widgets to map to schema items. Defaults to None.
+            fn_onsave (callable, optional): function to run on save. Defaults to None.
+            fn_onrevert (callable, optional): function to run on revert. Defaults to None.
+
+        Returns:
+            AutoObject(w.VBox)
+        """
+
+        self.update_map_widgets = update_map_widgets
+        self._init_schema(schema, by_alias=by_alias)  # TODO: make schema a trait
+        self._init_ui()
+        super().__init__(fns_onsave=fns_onsave, fns_onrevert=fns_onrevert, **kwargs)
+        self.title.value = make_bold(self.get_title())
+        self.description.value = self.get_description()
+        self._format_rows()
+        if value is not None:
+            self.value = value
+        else:
+            self._value = self.di_widgets_value
 
     @tr.validate("insert_rows")
     def validate_insert_rows(self, proposal):
@@ -468,7 +536,6 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
                         "if you want to use order to hide rows then set:"
                         "`order_hides_rows = True`"
                     )
-        # BUG: order not updating
         return v
 
     @tr.validate("order_can_hide_rows")
@@ -523,55 +590,6 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
             if hasattr(self, "di_widgets"):
                 self._update_widgets_from_value()
 
-    def __init__(
-        self,
-        schema,
-        value=None,
-        by_alias=False,
-        update_map_widgets=None,
-        fdir=None,
-        order=None,
-        insert_rows=None,
-        nested_widgets=None,  # TODO
-        show_description: bool = True,
-        show_title: bool = True,
-        fns_onsave=None,
-        fns_onrevert=None,
-    ):
-        """creates a widget input form from schema. datatype must be "object"
-
-        Args:
-            schema (dict): json schema defining widget to generate
-            value (dict, optional): value of json. Defaults to None.
-            update_map_widgets (frozenmap, optional): frozen dict of widgets to map to schema items. Defaults to None.
-            fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
-            order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
-            insert_rows (dict): e.g. {3:w.Button()}. allows user to insert a widget into the rows. its presence
-                is ignored by the widget otherwise.
-            nested_widgets (list): e.g. [FileUploadToDir]. allows user to indicate widgets that should be show / hide
-                type
-
-        Returns:
-            AutoObject(w.VBox)
-        """
-        super().__init__(fns_onsave=fns_onsave, fns_onrevert=fns_onrevert)
-        self.insert_rows = insert_rows
-        self.update_map_widgets = update_map_widgets
-        self.fdir = fdir
-        self._init_schema(schema, by_alias=by_alias)  # TODO: make schema a trait
-        self._init_ui()
-        self._format_rows()
-        setdefault = lambda val, default: default if val is None else val
-        self.order = setdefault(order, None)
-        self.show_description = show_description
-        self.show_title = show_title
-        self.title.value = make_bold(self.get_title())
-        self.description.value = self.get_description()
-        if value is not None:
-            self.value = value
-        else:
-            self._value = self.di_widgets_value
-
     def display_showraw(self):
         self.autowidget.layout.display = "None"
         return self.json
@@ -595,10 +613,6 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
 
     def _init_schema(self, schema, by_alias=False):
         self.model, self.schema = aumap._init_model_schema(schema, by_alias=by_alias)
-        # if "type" not in self.schema.keys() and self.schema["type"] != "object":
-        #     raise ValueError(
-        #         '"type" must be in schema keys and "type" must == "object"'
-        #     )
         if "properties" in self.schema.keys():
             pr = self.schema["properties"]
         else:
@@ -619,16 +633,8 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
             for v in self.pr.values():
                 v = add_fdir_to_widgetcaller(v, self.fdir)
 
-    # def is_nullable(self, key):
-    #     if "nullable" in self.pr[key].keys() and self.pr[key]["nullable"]:
-    #         return True
-    #     else:
-    #         return False
-
     def _init_widgets(self):
         self.di_labels, self.di_widgets = _init_widgets_and_labels(self.pr)
-        # self._value = self.di_widgets_value
-        # self._update_widgets_from_value()
 
     def _insert_rows(self):
         if self.insert_rows is not None:
@@ -700,8 +706,6 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         #       traitlets doesn't register the change.
         #       -@jovyan at 7/18/2022, 12:45:48 PMsavebuttonbar
 
-    # def _update_widgets_value(self, value):
-
     def _update_widgets_from_value(self):
         for k, v in self.value.items():
             if k in self.di_widgets.keys():
@@ -737,12 +741,18 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
 
-    ui = AutoObject(CoreIpywidgets)
+    ui = AutoObject(
+        CoreIpywidgets,
+        order=["text", "int_text", "int_slider", "int_slider_nullable"],
+        show_description=False,
+        show_savebuttonbar=False,
+        show_raw=True,
+    )
     display(ui)
 
 # +
 if __name__ == "__main__":
-    ui.order = [
+    order = [
         "text",
         "int_text",
         "int_slider",
@@ -760,6 +770,7 @@ if __name__ == "__main__":
         "text_short",
         "text_area",
     ]
+    ui.order = order
 
 # "combobox", "auto_markdown"
 # -
@@ -771,10 +782,10 @@ if __name__ == "__main__":
     ui.disabled = False
 
 if __name__ == "__main__":
-    ui.align_horizontal = True
+    ui.align_horizontal = False
 
 if __name__ == "__main__":
-    ui.align_horizontal = False
+    ui.align_horizontal = True
 
 # +
 if __name__ == "__main__":
@@ -794,6 +805,3 @@ if __name__ == "__main__":
     ui.show_description = True
     ui.show_title = True
     ui.show_raw = True
-# -
-
-

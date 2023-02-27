@@ -38,9 +38,10 @@ import traitlets as tr
 import traitlets_paths
 import typing as ty
 
-from ipyautoui.custom import (
-    SaveButtonBar,
-)  # NOTE: removing this unused import creates circular import errors
+from ipyautoui.custom import SaveButtonBar # ^ NOTE: removing creates circular import errors
+
+
+
 from ipyautoui.autoipywidget import AutoObject, get_from_schema_root
 
 
@@ -101,6 +102,12 @@ def jsonschema_to_pydantic(
 
 
 class AutoUiFileMethods(tr.HasTraits):
+    """AutoUiFileMethods is a mixin class that adds file methods to a AutoUi class
+
+    Attributes:
+        path (traitlets_paths.Path): path to file
+    """
+
     path = traitlets_paths.Path(allow_none=True)
 
     @tr.validate("path")
@@ -196,9 +203,6 @@ class AutoRenderMethods:
                 f"AutoRenderer for {get_from_schema_root(schema.schema(), 'title')}"
             )
 
-        # TODO: revert to using *args and **kwargs for these types of wrappers
-        #       so they only need redefining once in the main __init__
-
         class AutoRenderer(cls):
             def __init__(self, path: pathlib.Path = path):
                 f"""{docstring}"""
@@ -227,30 +231,50 @@ class AutoRenderMethods:
         AutoRenderer = cls.create_autoui_renderer(
             schema, show_raw=show_raw, fns_onsave=fns_onsave, fns_onrevert=fns_onrevert
         )
-        # if isinstance(schema, dict):
-        #     AutoRenderer.__doc__ = (
-        #         f"AutoRenderer for {get_from_schema_root(schema, 'title')}"
-        #     )
-        # else:
-        #     AutoRenderer.__doc__ = (
-        #         f"AutoRenderer for {get_from_schema_root(schema.schema(), 'title')}"
-        #     )
         return {ext: AutoRenderer}
 
 
 # +
 class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
     """extends AutoObject and AutoUiCommonMethods to create an
-    AutoUi capable of interacting with a json file"""
+    AutoUi of user widgets with data that can be saved to a json
+    file and loaded from a json file.
+
+    Attributes:
+        # inherited from AutoFileMethods
+        # ------------------------------
+        path (traitlets_paths.Path): path to file
+
+        # inherited from AutoObject
+        # -------------------------
+        _value (dict): use `value` to set and get. the value of the form. this is a dict of the form {key: value}
+        fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
+        align_horizontal (bool, optional): aligns widgets horizontally. Defaults to True.
+        nested_widgets (list, optional): allows user to indicate widgets that should be show / hide type. Defaults to [].
+        auto_open (bool, optional): automatically opens the nested_widget. Defaults to True.
+        order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
+        order_can_hide_rows (bool): allows user to hide rows by removing them from the order list.
+        insert_rows (dict): e.g. {3:w.Button()}. allows user to insert a widget into the rows. its presence
+            is ignored by the widget otherwise.
+        disabled (bool, optional): disables all widgets. If widgets are disabled
+            using schema kwargs this is remembered when re-enabled. Defaults to False.
+
+        # inherited from AutoObjectFormLayout
+        # ----------------------------------
+        show_raw (bool, optional): show the raw json. Defaults to False.
+        show_description (bool, optional): show the description. Defaults to True.
+        show_title (bool, optional): show the title. Defaults to True.
+        show_savebuttonbar (bool, optional): show the savebuttonbar. Defaults to True.
+
+    """
 
     def __init__(
         self,
         schema: ty.Union[ty.Type[BaseModel], dict],
         value: dict = None,
         path: pathlib.Path = None,  # TODO: generalise data retrieval?
-        show_raw: bool = True,
-        validate_onchange=True,  # TODO: sort out how the validation works
-        update_fdir_to_path_parent=True,
+        # validate_onchange=True,  # TODO: sort out how the validation works
+        # update_fdir_to_path_parent=True,
         **kwargs,
     ):
 
@@ -265,7 +289,6 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
         )
         self.path = path
         self.value = self._get_value(value, self.path)
-        self.show_raw = show_raw
 
 
 if __name__ == "__main__":
@@ -275,8 +298,9 @@ if __name__ == "__main__":
         TestAutoLogicSimple,
         path="test.json",
         show_raw=True,
+        show_savebuttonbar = False
     )
-    aui.show_savebuttonbar = True
+    # aui.show_savebuttonbar = False
     display(aui)
 
 # + active=""
