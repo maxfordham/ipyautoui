@@ -218,7 +218,7 @@ class AutoObjectFormLayout(w.VBox):
 
     show_description = tr.Bool(default_value=True)
     show_title = tr.Bool(default_value=True)
-    show_savebuttonbar = tr.Bool(default_value=True)
+    show_savebuttonbar = tr.Bool(default_value=False)
     fn_onshowraw = tr.Callable(default_value=lambda: "{'test':'json'}")
     fn_onhideraw = tr.Callable(default_value=lambda: None)
     show_raw = tr.Bool(default_value=False)
@@ -268,7 +268,7 @@ class AutoObjectFormLayout(w.VBox):
     def _init_form(self):
         self.autowidget = w.VBox()
         self.hbx_title = w.HBox()
-        self.savebuttonbar = SaveButtonBar()  # layout={"display": "None"}
+        self.savebuttonbar = SaveButtonBar(layout={"display": "None"})  #
         self.title = w.HTML()
         self._init_bn_showraw()
         self.hbx_title.children = [self.bn_showraw, self.title]
