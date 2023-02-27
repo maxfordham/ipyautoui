@@ -210,7 +210,15 @@ def show_hide_widget(widget, show: bool):
 
 
 # +
-class AutoObjectShowRaw(w.VBox):
+def make_bold(s: str) -> str:
+    return f"<big><b>{s}</b></big>"
+
+
+class AutoObjectFormLayout(w.VBox):
+
+    show_description = tr.Bool(default_value=True)
+    show_title = tr.Bool(default_value=True)
+    show_savebuttonbar = tr.Bool(default_value=True)
     fn_onshowraw = tr.Callable(default_value=lambda: "{'test':'json'}")
     fn_onhideraw = tr.Callable(default_value=lambda: None)
     show_raw = tr.Bool(default_value=False)
@@ -219,10 +227,28 @@ class AutoObjectShowRaw(w.VBox):
     def _observe_show_raw(self, change):
         show_hide_widget(self.bn_showraw, self.show_raw)
 
-    def __init__(self, **kwargs):
+    @tr.observe("show_description")
+    def _observe_show_description(self, change):
+        show_hide_widget(self.description, self.show_description)
 
-        self._init_bn_showraw()
+    @tr.observe("show_title")
+    def _observe_show_title(self, change):
+        show_hide_widget(self.title, self.show_title)
+
+    @tr.observe("show_savebuttonbar")
+    def _observe_show_savebuttonbar(self, change):
+        show_hide_widget(self.savebuttonbar, self.show_savebuttonbar)
+
+    def __init__(self, fns_onsave=None, fns_onrevert=None, **kwargs):
+
+        self._init_form()
         self._init_bn_showraw_controls()
+        self.fn_onshowraw = self.display_showraw
+        self.fn_onhideraw = self.display_ui
+        if fns_onsave is not None:
+            self.fns_onsave = fns_onsave
+        if fns_onrevert is not None:
+            self.fns_onrevert = fns_onrevert
         super().__init__(
             layout=w.Layout(
                 width="100%",
@@ -231,6 +257,22 @@ class AutoObjectShowRaw(w.VBox):
             ),
             **kwargs,
         )
+        self.children = [
+            self.savebuttonbar,
+            self.hbx_title,
+            self.description,
+            self.autowidget,
+            self.vbx_showraw,
+        ]
+
+    def _init_form(self):
+        self.autowidget = w.VBox()
+        self.hbx_title = w.HBox()
+        self.savebuttonbar = SaveButtonBar()  # layout={"display": "None"}
+        self.title = w.HTML()
+        self._init_bn_showraw()
+        self.hbx_title.children = [self.bn_showraw, self.title]
+        self.description = w.HTML()  #
 
     def _init_bn_showraw(self):
         self.bn_showraw = w.ToggleButton(
@@ -262,69 +304,6 @@ class AutoObjectShowRaw(w.VBox):
             self.bn_showraw.icon = "code"
             self.fn_onhideraw()
             self.vbx_showraw.layout.display = "None"
-
-
-if __name__ == "__main__":
-    ui_showraw = AutoObjectShowRaw(show_raw=True)
-    display(ui_showraw.bn_showraw)
-    display(ui_showraw.vbx_showraw)
-# -
-
-if __name__ == "__main__":
-    ui_showraw.show_raw = False
-
-
-# +
-def make_bold(s: str) -> str:
-    return f"<big><b>{s}</b></big>"
-
-
-class AutoObjectFormLayout(AutoObjectShowRaw):
-
-    show_description = tr.Bool(default_value=True)
-    show_title = tr.Bool(default_value=True)
-    show_savebuttonbar = tr.Bool(default_value=False)
-
-    @tr.observe("show_description")
-    def _observe_show_description(self, change):
-        show_hide_widget(self.description, self.show_description)
-
-    @tr.observe("show_title")
-    def _observe_show_title(self, change):
-        show_hide_widget(self.title, self.show_title)
-
-    @tr.observe("show_savebuttonbar")
-    def _observe_show_savebuttonbar(self, change):
-        show_hide_widget(self.savebuttonbar, self.show_savebuttonbar)
-
-    def __init__(self, fns_onsave=None, fns_onrevert=None, **kwargs):
-
-        self._init_form()
-        self._init_bn_showraw_controls()
-        self.fn_onshowraw = self.display_showraw
-        self.fn_onhideraw = self.display_ui
-        if fns_onsave is not None:
-            self.fns_onsave = fns_onsave
-        if fns_onrevert is not None:
-            self.fns_onrevert = fns_onrevert
-        super().__init__(**kwargs)
-        self.children = [
-            self.savebuttonbar,
-            self.hbx_title,
-            self.description,
-            self.autowidget,
-            self.vbx_showraw,
-        ]
-
-    def _init_form(self):
-        self.autowidget = w.VBox()
-        self.hbx_title = w.HBox()
-        self.savebuttonbar = SaveButtonBar()
-        self.savebuttonbar.layout.display = "None"
-        self.title = w.HTML()
-        self._init_bn_showraw()
-        self.hbx_title.children = [self.bn_showraw, self.title]
-        self.description = w.HTML()  #
 
     def display_ui(self):
         self.autowidget.layout.display = ""
@@ -361,7 +340,7 @@ class AutoObjectFormLayout(AutoObjectShowRaw):
 
 
 if __name__ == "__main__":
-    ui = AutoObjectFormLayout(description="description", show_description=True)
+    ui = AutoObjectFormLayout(description="description", show_savebuttonbar=True)
     display(ui)
 
 # +
@@ -393,6 +372,9 @@ def demo_autoobject_form(title="test", description="a description of the title")
 if __name__ == "__main__":
     form = demo_autoobject_form()
     display(form)
+
+# +
+# form.show_raw = True
 # -
 
 if __name__ == "__main__":
@@ -745,10 +727,14 @@ if __name__ == "__main__":
         CoreIpywidgets,
         order=["text", "int_text", "int_slider", "int_slider_nullable"],
         show_description=False,
+        show_title=False,
         show_savebuttonbar=False,
-        show_raw=True,
+        show_raw=False,
     )
     display(ui)
+
+# +
+# ui.show_savebuttonbar = True
 
 # +
 if __name__ == "__main__":
