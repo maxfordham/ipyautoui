@@ -13,7 +13,11 @@ import pytest
 from .constants import DIR_TESTS, DIR_FILETYPES
 
 from ipyautoui import AutoUi, AutoDisplay, AutoVjsf
-from ipyautoui.autoipywidget import AutoObject, demo_autoobject_form
+from ipyautoui.autoipywidget import (
+    AutoObject,
+    demo_autoobject_form,
+    AutoObjectFormLayout,
+)
 from ipyautoui.demo_schemas import RootEnum, RootArrayEnum
 from ipyautoui.test_schema import TestAutoLogicSimple
 import stringcase

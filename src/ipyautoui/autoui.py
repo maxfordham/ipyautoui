@@ -28,7 +28,7 @@ Example:
         DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
 """
 # %run __init__.py
-# #%load_ext lab_black
+# %load_ext lab_black
 
 import pathlib
 from IPython.display import display
@@ -38,15 +38,10 @@ import traitlets as tr
 import traitlets_paths
 import typing as ty
 
-from ipyautoui.custom import (
-    SaveButtonBar,
-)  # NOTE: removing this unused import creates circular import errors
+from ipyautoui.custom import SaveButtonBar  # removing makes circular import error
 from ipyautoui.autoipywidget import AutoObject, get_from_schema_root
 
-
 # +
-
-
 def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
     """recursive function to replace all keys beginning x_ --> x-
     this allows schema Field keys to be definied in pydantic and then
@@ -101,6 +96,12 @@ def jsonschema_to_pydantic(
 
 
 class AutoUiFileMethods(tr.HasTraits):
+    """AutoUiFileMethods is a mixin class that adds file methods to a AutoUi class
+
+    Attributes:
+        path (traitlets_paths.Path): path to file
+    """
+
     path = traitlets_paths.Path(allow_none=True)
 
     @tr.validate("path")
@@ -112,7 +113,6 @@ class AutoUiFileMethods(tr.HasTraits):
     def _observe_path(self, proposal):
         self.savebuttonbar.fns_onsave_add_action(self.file, to_beginning=True)
         self.savebuttonbar.fns_onrevert_add_action(self.load_file, to_beginning=True)
-        self.show_savebuttonbar = True
 
     def _get_path(self, path=None) -> pathlib.Path:
         if path is None:
@@ -176,9 +176,6 @@ class AutoUiFileMethods(tr.HasTraits):
         self.load_value(parse_json_file(p, model=self.model), unsaved_changes)
 
 
-# +
-
-
 class AutoRenderMethods:
     @classmethod
     def create_autoui_renderer(
@@ -195,9 +192,6 @@ class AutoRenderMethods:
             docstring = (
                 f"AutoRenderer for {get_from_schema_root(schema.schema(), 'title')}"
             )
-
-        # TODO: revert to using *args and **kwargs for these types of wrappers
-        #       so they only need redefining once in the main __init__
 
         class AutoRenderer(cls):
             def __init__(self, path: pathlib.Path = path):
@@ -227,45 +221,91 @@ class AutoRenderMethods:
         AutoRenderer = cls.create_autoui_renderer(
             schema, show_raw=show_raw, fns_onsave=fns_onsave, fns_onrevert=fns_onrevert
         )
-        # if isinstance(schema, dict):
-        #     AutoRenderer.__doc__ = (
-        #         f"AutoRenderer for {get_from_schema_root(schema, 'title')}"
-        #     )
-        # else:
-        #     AutoRenderer.__doc__ = (
-        #         f"AutoRenderer for {get_from_schema_root(schema.schema(), 'title')}"
-        #     )
         return {ext: AutoRenderer}
 
 
 # +
 class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
     """extends AutoObject and AutoUiCommonMethods to create an
-    AutoUi capable of interacting with a json file"""
+    AutoUi user-input form. The data that can be saved to a json
+    file `path` and loaded from a json file.
+
+    Attributes:
+        # inherited from AutoFileMethods
+        # ------------------------------
+        path (traitlets_paths.Path): path to file
+
+        # inherited from AutoObject
+        # -------------------------
+        _value (dict): use `value` to set and get. the value of the form. this is a dict of the form {key: value}
+        fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
+        align_horizontal (bool, optional): aligns widgets horizontally. Defaults to True.
+        nested_widgets (list, optional): allows user to indicate widgets that should be show / hide type. Defaults to [].
+        auto_open (bool, optional): automatically opens the nested_widget. Defaults to True.
+        order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
+        order_can_hide_rows (bool): allows user to hide rows by removing them from the order list.
+        insert_rows (dict): e.g. {3:w.Button()}. allows user to insert a widget into the rows. its presence
+            is ignored by the widget otherwise.
+        disabled (bool, optional): disables all widgets. If widgets are disabled
+            using schema kwargs this is remembered when re-enabled. Defaults to False.
+
+        # inherited from AutoObjectFormLayout
+        # ----------------------------------
+        show_raw (bool, optional): show the raw json. Defaults to False.
+        show_description (bool, optional): show the description. Defaults to True.
+        show_title (bool, optional): show the title. Defaults to True.
+        show_savebuttonbar (bool, optional): show the savebuttonbar. Defaults to True.
+
+    """
 
     def __init__(
         self,
         schema: ty.Union[ty.Type[BaseModel], dict],
         value: dict = None,
         path: pathlib.Path = None,  # TODO: generalise data retrieval?
-        show_raw: bool = True,
-        validate_onchange=True,  # TODO: sort out how the validation works
-        update_fdir_to_path_parent=True,
+        update_map_widgets=None,
+        fns_onsave=None,
+        fns_onrevert=None,
+        # validate_onchange=True,  # TODO: sort out how the validation works
         **kwargs,
     ):
+        """initialises the AutoUi. in Jupyter hit "cntrl + I" to load "inspector"
+        and see the attributes.
 
-        if path is not None:
-            fdir = str(pathlib.Path(path).parent)  # TODO: use traitlets_paths
-        else:
-            fdir = None
+        Args:
+            schema (ty.Union[ty.Type[BaseModel], dict]): defines the form
+            value (dict, optional): form value. Defaults to None.
+            path (pathlib.Path, optional): read / write file location. Defaults to None.
+            update_map_widgets (dict, optional): allows user to update the map_widgets. Defaults to None.
+            fns_onsave (list, optional): list of functions to run on save. Defaults to None.
+            fns_onrevert (list, optional): list of functions to run on revert. Defaults to None.
+            **kwargs: passed to AutoObject. see attributes for details.
+        """
 
+        fdir = self.get_fdir(path=path, fdir=kwargs.get("fdir", None))
         # init app
         super().__init__(
-            schema, value=value, update_map_widgets=None, fdir=fdir, **kwargs
+            schema,
+            value=None,
+            update_map_widgets=update_map_widgets,
+            fdir=fdir,
+            fns_onsave=fns_onsave,
+            fns_onrevert=fns_onrevert,
+            **kwargs,
         )
         self.path = path
         self.value = self._get_value(value, self.path)
-        self.show_raw = show_raw
+
+    def get_fdir(self, path=None, fdir=None):
+
+        if path is not None and fdir is None:
+            return str(pathlib.Path(path).parent)  # TODO: use traitlets_paths
+        elif path is None and fdir is not None:
+            return fdir
+        elif path is not None and fdir is not None:
+            return fdir
+        else:
+            return None
 
 
 if __name__ == "__main__":
@@ -274,10 +314,15 @@ if __name__ == "__main__":
     aui = AutoUi(
         TestAutoLogicSimple,
         path="test.json",
+        show_description=False,
         show_raw=True,
+        show_savebuttonbar=False,
     )
-    aui.show_savebuttonbar = True
+    # aui.show_savebuttonbar = False
     display(aui)
+
+# +
+# aui.savebuttonbar.layout.display
 
 # + active=""
 # aui.save_actions.fns_onrevert[1]()

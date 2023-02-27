@@ -166,10 +166,9 @@ if __name__ == "__main__":
 # +
 class SaveButtonBar(w.HBox, SaveActions):
     def __init__(self, **kwargs):
-        super().__init__()
+        super().__init__(**kwargs)
         self._init_form()
         self._init_controls()
-        [setattr(self, k, v) for k, v in kwargs.items()]
 
     def _init_form(self):
         self.tgl_unsaved_changes = w.ToggleButton(

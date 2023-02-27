@@ -41,6 +41,12 @@ class TestAutoUi:
         assert ui.value["text"] == value_changed["text"]
         print("done")
 
+
+    def test_pass_kwargs(self):
+        ui = AutoUi(CoreIpywidgets, path=PATH_TEST_AUTO_READ_FILE, show_savebuttonbar=False)
+        assert ui.savebuttonbar.layout.display == "None"
+        print("done")
+
     # def test_display_file(self):
     #     fpths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
     #     d0 = DisplayFile(fpths[0])
