@@ -199,9 +199,6 @@ class TestGridSchema:
         assert data.equals(df_check)
         assert gridschema.coerce_data(df, transposed=True).equals(df_check.T)
 
-        print("done")
-        # assert data == pd.DataFrame.
-
     def test_coerce_data_from_incomplete(self):
         class TestProperties(BaseModel):
             string: str
@@ -228,7 +225,6 @@ class TestGridSchema:
                 "properties"
             ].values()
         ]
-        print("done")
 
 
 class TestAutoGrid:
@@ -305,7 +301,6 @@ class TestAutoGrid:
         assert grid4._data["data"] == [
             {"index": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
         ]
-        print("done")
 
     def test_reset_multiindex_data_with_init_data(self):
         # get default data passed as kwarg, keys as column headers. maps to titles
@@ -361,10 +356,11 @@ class TestAutoGrid:
         df = gr._init_data(
             pd.DataFrame([{"string": "test2", "floater": 2.2, "inty": 1}])
         )
-        print("done")
 
     @pytest.mark.parametrize("transposed", [True, False])
     def test_order_index(self, transposed: bool):
+        """Test that the order works"""
+
         class Cols(BaseModel):
             string: str = Field(aui_column_width=100)
             floater: float = Field(aui_column_width=70, aui_sig_fig=3)
@@ -410,6 +406,8 @@ class TestAutoGrid:
 
     @pytest.mark.parametrize("transposed", [True, False])
     def test_order_multi_index(self, transposed: bool):
+        """Test order with multi index"""
+
         class Cols(BaseModel):
             string: str = Field(aui_column_width=100, title="String", section="a")
             floater: float = Field(
@@ -456,6 +454,9 @@ class TestAutoGrid:
 
     @pytest.mark.parametrize("transposed", [True, False])
     def test_order_index_with_strict_subset(self, transposed: bool):
+        """Test that the order is applied to the data even if the order is a strict subset of the data columns
+        """
+
         class Cols(BaseModel):
             string: str = Field(aui_column_width=100)
             floater: float = Field(aui_column_width=70, aui_sig_fig=3)
@@ -502,6 +503,8 @@ class TestAutoGrid:
 
     @pytest.mark.parametrize("transposed", [True, False])
     def test_order_multi_index_with_strict_subset(self, transposed: bool):
+        """Test that order works with multi-index and strict subset of columns"""
+
         class Cols(BaseModel):
             string: str = Field(aui_column_width=100, title="String", section="a")
             floater: float = Field(
