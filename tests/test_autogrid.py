@@ -231,7 +231,7 @@ class TestGridSchema:
         print("done")
 
 
-class TestAutoGridInitData:
+class TestAutoGrid:
     def test_empty_grid(self):
         class Cols(BaseModel):
             string: str = Field(aui_column_width=100)
@@ -453,3 +453,117 @@ class TestAutoGridInitData:
                 [grid_with_data.map_name_index.get(name) for name in order]
             )
             assert di_grid_with_data_before_order == grid_with_data.data.to_dict()
+
+    @pytest.mark.parametrize("transposed", [True, False])
+    def test_order_index_with_strict_subset(self, transposed: bool):
+        class Cols(BaseModel):
+            string: str = Field(aui_column_width=100)
+            floater: float = Field(aui_column_width=70, aui_sig_fig=3)
+
+        class DataFrameSchema(BaseModel):
+            """no default"""
+
+            __root__: ty.List[Cols] = Field(format="dataframe")
+
+        order = ("floater",)
+        # Test without data passed
+        grid_without_data = AutoGrid(
+            schema=DataFrameSchema, transposed=transposed, order=order
+        )
+        # Test with data passed
+        data = pd.DataFrame([Cols(string="test", floater=2.5).dict()])
+        grid_with_data = AutoGrid(
+            schema=DataFrameSchema,
+            data=data,
+            transposed=transposed,
+        )
+        di_grid_with_data_before_order = grid_with_data.data.to_dict()
+        grid_with_data.order = order
+        if transposed:
+            assert tuple(grid_without_data.data.index) == tuple(
+                [grid_without_data.map_name_index.get(name) for name in order]
+            )
+            assert tuple(grid_with_data.data.index) == tuple(
+                [grid_with_data.map_name_index.get(name) for name in order]
+            )
+            assert di_grid_with_data_before_order.get(
+                "Floater"
+            ) == grid_with_data.data.to_dict().get("Floater")
+        else:
+            assert tuple(grid_without_data.data.columns) == tuple(
+                [grid_without_data.map_name_index.get(name) for name in order]
+            )
+            assert tuple(grid_with_data.data.columns) == tuple(
+                [grid_with_data.map_name_index.get(name) for name in order]
+            )
+            assert di_grid_with_data_before_order.get(
+                "Floater"
+            ) == grid_with_data.data.to_dict().get("Floater")
+
+    @pytest.mark.parametrize("transposed", [True, False])
+    def test_order_multi_index_with_strict_subset(self, transposed: bool):
+        class Cols(BaseModel):
+            string: str = Field(aui_column_width=100, title="String", section="a")
+            floater: float = Field(
+                aui_column_width=70, aui_sig_fig=3, title="Floater", section="a"
+            )
+
+        class DataFrameSchema(BaseModel):
+            """no default"""
+
+            __root__: ty.List[Cols] = Field(
+                format="dataframe",
+                datagrid_index_name=("section", "title"),
+            )
+
+        order = ("floater",)
+        # Test without data passed
+        grid_without_data = AutoGrid(schema=DataFrameSchema, order=order)
+        # Test with data passed
+        data = pd.DataFrame([Cols(string="test", floater=2.5).dict()])
+        grid_with_data = AutoGrid(
+            schema=DataFrameSchema,
+            data=data,
+            transposed=transposed,
+        )
+        di_grid_with_data_before_order = grid_with_data.data.to_dict()
+        grid_with_data.order = order
+        if transposed is True:
+            assert tuple(grid_without_data.data.index) == ()
+            assert tuple(grid_with_data.data.index) == tuple(
+                [grid_with_data.map_name_index.get(name) for name in order]
+            )
+            assert di_grid_with_data_before_order.get(
+                ("a", "Floater")
+            ) == grid_with_data.data.to_dict().get(("a", "Floater"))
+        else:
+            assert tuple(grid_without_data.data.columns) == tuple(
+                [grid_without_data.map_name_index.get(name) for name in order]
+            )
+            assert tuple(grid_with_data.data.columns) == tuple(
+                [grid_with_data.map_name_index.get(name) for name in order]
+            )
+            assert di_grid_with_data_before_order.get(
+                ("a", "Floater")
+            ) == grid_with_data.data.to_dict().get(("a", "Floater"))
+
+    def test_records(self):
+        """Test records method of AutoGrid. Also test that re-ordering indexes
+        works correctly."""
+
+        class Cols(BaseModel):
+            string: str = Field(aui_column_width=100)
+            floater: float = Field(aui_column_width=70, aui_sig_fig=3)
+
+        class DataFrameSchema(BaseModel):
+            """no default"""
+
+            __root__: ty.List[Cols] = Field(format="dataframe")
+
+        data = pd.DataFrame([Cols(string="test", floater=2.5).dict()])
+        grid = AutoGrid(schema=DataFrameSchema, data=data)
+        assert grid.records() == [{"string": "test", "floater": 2.5}]
+        grid.order = ("floater", "string")
+        assert grid.records() == [{"floater": 2.5, "string": "test"}]
+        grid.order = ("floater",)
+        assert grid.records() == [{"floater": 2.5}]
