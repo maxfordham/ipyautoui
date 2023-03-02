@@ -62,8 +62,9 @@ class Files(BaseModel):
 
 
 # +
-#Files.schema()
+# Files.schema()
 # -
+
 
 class Caption(tr.HasTraits):
     show_caption = tr.Bool(default_value=True)
