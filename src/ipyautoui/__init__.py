@@ -18,10 +18,10 @@ Example::
     DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
     
 """
-import pathlib
-import sys
+# import pathlib
+# import sys
 
-sys.path.append(str(pathlib.Path(__file__).parents[1]))
+# sys.path.append(str(pathlib.Path(__file__).parents[1]))
 # #  ^ for dev only. TODO: comment out at build time
 
 from ipyautoui.autoui import AutoUi
