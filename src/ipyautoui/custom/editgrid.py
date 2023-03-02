@@ -8,11 +8,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.14.5
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python 3.9 (XPython)
 #     language: python
-#     name: python3
+#     name: xpython
 # ---
 
 # +
@@ -40,6 +40,7 @@ from ipyautoui.custom.autogrid import AutoGrid
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 # TODO: rename "add" to "fn_add" so not ambiguous...
 # -
+
 
 class DataHandler(BaseModel):
     """CRUD operations for a for EditGrid.
@@ -588,38 +589,50 @@ class AutoObjectFiltered(aui.AutoObject):
         self._selections = []
         super().__init__(row_schema, *args, **kwargs)
         if self.app is not None:
+            self.observe(self._update_order, "order")
             self.app.grid.observe(self._update_order, "_visible_rows")
             self.app.grid.observe(
                 self._save_previous_selections, "selections"
             )  # Re-apply selection after updating transforms
 
-    def _get_visible_fields(self):
+    def _get_visible_fields(self, is_column: bool):
         """Get the list of fields that are visible in the DataGrid."""
-        if isinstance(self.app.grid.get_visible_data().index, pd.MultiIndex) is True:
-            title_idx = self.app.grid.get_visible_data().index.names.index("title")
+        if is_column:
+            attr = "columns"
+        else:
+            attr = "index"
+        if (
+            isinstance(getattr(self.app.grid.get_visible_data(), attr), pd.MultiIndex)
+            is True
+        ):
+            title_idx = getattr(self.app.grid.get_visible_data(), attr).names.index(
+                "title"
+            )
             visible_titles = [
-                v[title_idx] for v in self.app.grid.get_visible_data().index
+                v[title_idx] for v in getattr(self.app.grid.get_visible_data(), attr)
             ]
+            return [self.app.grid.map_index_name.get(k) for k in visible_titles]
+        elif (
+            isinstance(getattr(self.app.grid.get_visible_data(), attr), pd.Index)
+            is True
+        ):
             return [
-                k
-                for k, v in self.app.row_schema["properties"].items()
-                if v["title"] in visible_titles
-            ]
-        elif isinstance(self.app.grid.get_visible_data().index, pd.Index) is True:
-            return [
-                k
-                for k, v in self.app.row_schema["properties"].items()
-                if v["title"] in self.app.grid.get_visible_data().index
+                self.app.grid.map_index_name.get(k)
+                for k in getattr(self.app.grid.get_visible_data(), attr)
             ]
 
         else:
             raise Exception("Index obtained not of correct type.")
 
     def _update_order(self, onchange):
-        """Update order instance of AutoObject based on visible fields in the DataGrid."""
-        if self.app.transposed is True:
-            self.order = self._get_visible_fields()
-            self.app.grid.selections = self._selections
+        """Update order instance of AutoObject based on visible fields in the DataGrid.
+        """
+        if self.app.transposed:
+            is_column = False
+        else:
+            is_column = True
+        self.order = self._get_visible_fields(is_column=is_column)
+        self.app.grid.selections = self._selections
 
     def _save_previous_selections(self, onchange):
         if self.app.grid.selections:
