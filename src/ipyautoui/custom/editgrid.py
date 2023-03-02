@@ -8,11 +8,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.14.0
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python 3.9 (XPython)
 #     language: python
-#     name: python3
+#     name: xpython
 # ---
 
 # +
@@ -40,6 +40,7 @@ from ipyautoui.custom.autogrid import AutoGrid
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 # TODO: rename "add" to "fn_add" so not ambiguous...
 # -
+
 
 class DataHandler(BaseModel):
     """CRUD operations for a for EditGrid.
@@ -249,6 +250,7 @@ class EditGrid(w.VBox):
         else:
             self.ui_copy.layout.display = "None"
 
+
     @property
     def value(self):
         return self._value
@@ -308,11 +310,11 @@ class EditGrid(w.VBox):
 
         self._init_form()
         if ui_add is None:
-            self.ui_add = AutoObjectFiltered(self.row_schema, app=self)
+            self.ui_add = aui.AutoObject(self.row_schema, app=self)
         else:
             self.ui_add = ui_add(self.row_schema, app=self)
         if ui_edit is None:
-            self.ui_edit = AutoObjectFiltered(self.row_schema, app=self)
+            self.ui_edit = aui.AutoObject(self.row_schema, app=self)
         else:
             self.ui_edit = ui_edit(self.row_schema, app=self)
         if ui_delete is None:
@@ -381,6 +383,15 @@ class EditGrid(w.VBox):
         self.grid.observe(self._observe_selections, "selections")
         self.grid.observe(self._grid_changed, "count_changes")
         self.buttonbar_grid.observe(self._setview, "active")
+        self.grid.observe(self._observe_order, "order")
+        self._observe_order(None) # prompts order if it is set in by grid setter above
+        
+
+    def _observe_order(self, on_change):
+        if "order" in self.ui_add.traits() and self.grid.order is not None:
+            self.ui_add.order = self.grid.order
+        if "order" in self.ui_edit.traits() and self.grid.order is not None:
+            self.ui_edit.order = self.grid.order
 
     def _observe_selections(self, onchange):
         if self.buttonbar_grid.edit.value:
@@ -577,55 +588,6 @@ class EditGrid(w.VBox):
             traceback.print_exc()
 
 
-class AutoObjectFiltered(aui.AutoObject):
-    """This extended AutoObject class relies on EditGrid and a row_schema dictionary.
-
-    The AutoObject will update its rows based on the visible rows of the grid.
-    """
-
-    def __init__(self, row_schema: dict, app: EditGrid, *args, **kwargs):
-        self.app = app
-        self._selections = []
-        super().__init__(row_schema, *args, **kwargs)
-        if self.app is not None:
-            self.app.grid.observe(self._update_order, "_visible_rows")
-            self.app.grid.observe(
-                self._save_previous_selections, "selections"
-            )  # Re-apply selection after updating transforms
-
-    def _get_visible_fields(self):
-        """Get the list of fields that are visible in the DataGrid."""
-        if isinstance(self.app.grid.get_visible_data().index, pd.MultiIndex) is True:
-            title_idx = self.app.grid.get_visible_data().index.names.index("title")
-            visible_titles = [
-                v[title_idx] for v in self.app.grid.get_visible_data().index
-            ]
-            return [
-                k
-                for k, v in self.app.row_schema["properties"].items()
-                if v["title"] in visible_titles
-            ]
-        elif isinstance(self.app.grid.get_visible_data().index, pd.Index) is True:
-            return [
-                k
-                for k, v in self.app.row_schema["properties"].items()
-                if v["title"] in self.app.grid.get_visible_data().index
-            ]
-
-        else:
-            raise Exception("Index obtained not of correct type.")
-
-    def _update_order(self, onchange):
-        """Update order instance of AutoObject based on visible fields in the DataGrid."""
-        if self.app.transposed is True:
-            self.order = self._get_visible_fields()
-            self.app.grid.selections = self._selections
-
-    def _save_previous_selections(self, onchange):
-        if self.app.grid.selections:
-            self._selections = self.app.grid.selections
-
-
 if __name__ == "__main__":
     # Test: EditGrid instance with multi-indexing.
     AUTO_GRID_DEFAULT_VALUE = [
@@ -669,17 +631,9 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
-    # Test: Using AutoObjectFiltered
-    editgrid = EditGrid(
-        schema=TestDataFrame,
-        description=description,
-        ui_add=AutoObjectFiltered,
-        ui_edit=AutoObjectFiltered,
-        warn_on_delete=True,
-    )
-    editgrid.observe(lambda c: print("_value changed"), "_value")
-    editgrid.transposed = True
-    display(editgrid)
+    editgrid.grid.order = ('floater', 'string') 
+    # ^ NOTE: this will result in a value change in the grid
+
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
