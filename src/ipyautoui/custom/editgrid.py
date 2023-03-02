@@ -587,67 +587,6 @@ class EditGrid(w.VBox):
             print("delete error")
             traceback.print_exc()
 
-# +
-# class AutoObjectFiltered(aui.AutoObject):
-#     """This extended AutoObject class relies on EditGrid and a row_schema dictionary.
-
-#     The AutoObject will update its rows based on the visible rows of the grid.
-#     """
-
-#     def __init__(self, row_schema: dict, app: EditGrid, *args, **kwargs):
-#         self.app = app
-#         self._selections = []
-#         super().__init__(row_schema, *args, **kwargs)
-#         if self.app is not None:
-#             self.observe(self._update_order, "order")
-#             self.app.grid.observe(self._update_order, "_visible_rows")
-#             self.app.grid.observe(
-#                 self._save_previous_selections, "selections"
-#             )  # Re-apply selection after updating transforms
-
-#     def _get_visible_fields(self, is_column: bool):
-#         """Get the list of fields that are visible in the DataGrid."""
-#         if is_column:
-#             attr = "columns"
-#         else:
-#             attr = "index"
-#         if (
-#             isinstance(getattr(self.app.grid.get_visible_data(), attr), pd.MultiIndex)
-#             is True
-#         ):
-#             title_idx = getattr(self.app.grid.get_visible_data(), attr).names.index(
-#                 "title"
-#             )
-#             visible_titles = [
-#                 v[title_idx] for v in getattr(self.app.grid.get_visible_data(), attr)
-#             ]
-#             return [self.app.grid.map_index_name.get(k) for k in visible_titles]
-#         elif (
-#             isinstance(getattr(self.app.grid.get_visible_data(), attr), pd.Index)
-#             is True
-#         ):
-#             return [
-#                 self.app.grid.map_index_name.get(k)
-#                 for k in getattr(self.app.grid.get_visible_data(), attr)
-#             ]
-
-#         else:
-#             raise Exception("Index obtained not of correct type.")
-
-#     def _update_order(self, onchange):
-#         """Update order instance of AutoObject based on visible fields in the DataGrid.
-#         """
-#         if self.app.transposed:
-#             is_column = False
-#         else:
-#             is_column = True
-#         self.order = self._get_visible_fields(is_column=is_column)
-#         self.app.grid.selections = self._selections
-
-#     def _save_previous_selections(self, onchange):
-#         if self.app.grid.selections:
-#             self._selections = self.app.grid.selections
-# -
 
 if __name__ == "__main__":
     # Test: EditGrid instance with multi-indexing.
@@ -695,20 +634,6 @@ if __name__ == "__main__":
     editgrid.grid.order = ('floater', 'string') 
     # ^ NOTE: this will result in a value change in the grid
 
-# +
-# if __name__ == "__main__":
-#     # Test: Using AutoObjectFiltered
-#     editgrid = EditGrid(
-#         schema=TestDataFrame,
-#         description=description,
-#         ui_add=AutoObjectFiltered,
-#         ui_edit=AutoObjectFiltered,
-#         warn_on_delete=True,
-#     )
-#     editgrid.observe(lambda c: print("_value changed"), "_value")
-#     editgrid.transposed = True
-#     display(editgrid)
-# -
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
