@@ -1,7 +1,7 @@
-# import sys
-# import pathlib
+import sys
+import pathlib
 
-# sys.path.append(str(pathlib.Path(__file__).parents[2]))
+sys.path.append(str(pathlib.Path(__file__).parents[2]))
 # ^ for dev only. TODO: comment out at build time
 
 from ipyautoui.custom.filechooser import FileChooser
