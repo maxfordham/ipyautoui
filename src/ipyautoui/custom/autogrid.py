@@ -20,7 +20,9 @@
 contains methods for validation, coercion, and default values. 
 
 defines AutoGrid, a datagrid generated from a jsonschema."""
+# %run _dev_sys_path_append.py
 # %run __init__.py
+#
 # %run ../__init__.py
 # %load_ext lab_black
 
@@ -72,8 +74,7 @@ def get_default_row_data_from_schema_properties(
 
 
 def get_column_widths_from_schema(schema, column_properties, map_name_index, **kwargs):
-    """Set the column widths of the data grid based on column_width given in the schema.
-    """
+    """Set the column widths of the data grid based on column_width given in the schema."""
 
     # start with settings in properties
     column_widths = {
@@ -1037,8 +1038,7 @@ class AutoGrid(DataGrid):
 
     @property
     def selected_dict(self):
-        """Return the dictionary of selected rows where index is row index. still works if transform applied.
-        """
+        """Return the dictionary of selected rows where index is row index. still works if transform applied."""
         if self.transposed:
             return self.data.T.loc[self.selected_col_indexes].to_dict("index")
         else:

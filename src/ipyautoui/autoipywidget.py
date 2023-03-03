@@ -27,7 +27,9 @@ Example:
         from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
         DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
 """
+# %run _dev_sys_path_append.py
 # %run __init__.py
+#
 # %load_ext lab_black
 import logging
 import functools

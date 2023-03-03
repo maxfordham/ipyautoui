@@ -14,16 +14,10 @@ all widgets, as a minimum must satisfy the following criteria:
 
 Example::
 
-    from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
-    DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
+    from ipyautoui import AutoUi, demo
+    demo()
     
 """
-# import pathlib
-# import sys
-
-# sys.path.append(str(pathlib.Path(__file__).parents[1]))
-# #  ^ for dev only. TODO: comment out at build time
-
 from ipyautoui.autoui import AutoUi
 from ipyautoui.autodisplay import AutoDisplay
 from ipyautoui.autovjsf import AutoVjsf

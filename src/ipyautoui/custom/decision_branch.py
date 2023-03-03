@@ -20,7 +20,9 @@
 a UI element that loads a folder for data caching, whilst storing a record of folders in use
 """
 
+# %run _dev_sys_path_append.py
 # %run __init__.py
+#
 # %load_ext lab_black
 from pydantic import BaseModel
 import ipywidgets as w
@@ -129,5 +131,3 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     ui.value = ["J0001", "Calcs", "WUFI"]
     ui.disabled = [False, False, True]
-
-

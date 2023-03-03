@@ -14,7 +14,9 @@
 # ---
 
 # +
+# %run _dev_sys_path_append.py
 # %run __init__.py
+#
 # %load_ext lab_black
 import typing as ty
 from pydantic import BaseModel, Field
@@ -131,7 +133,7 @@ def add_nullable_to_object(schema_obj):
             raise ValueError(
                 "AutoUi does not support rendering generic dictionaries."
                 " This can be overridden by specifying a `autoui` pyobject renderer."
-                )
+            )
     for k, v in schema_obj["properties"].items():
         if k not in req and "default" not in v.keys():
             v["nullable"] = True

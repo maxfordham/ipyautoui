@@ -14,7 +14,9 @@
 #     name: python3
 # ---
 
+# %run _dev_sys_path_append.py
 # %run __init__.py
+#
 # %load_ext lab_black
 
 # +
