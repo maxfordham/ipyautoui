@@ -15,7 +15,7 @@
 
 # +
 # %run __init__.py
-# %run _dev_sys_path_append_.py
+# %run _dev_sys_path_append.py
 # %load_ext lab_black
 
 from IPython.display import display, HTML, clear_output
