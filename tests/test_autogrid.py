@@ -18,7 +18,7 @@ class TestGridSchema:
     def test_validate_editable_grid_schema(self):
         class TestProperties(BaseModel):
             string: str = Field(column_width=100)
-            floater: float = Field(column_width=70, aui_sig_fig=3)
+            floater: float = Field(column_width=70, global_decimal_places=3)
 
         class TestGridSchema(BaseModel):
             """no default"""
@@ -41,7 +41,7 @@ class TestGridSchema:
     def test_empty_default_data(self):
         class TestProperties(BaseModel):
             string: str = Field(column_width=100)
-            floater: float = Field(column_width=70, aui_sig_fig=3)
+            floater: float = Field(column_width=70, global_decimal_places=3)
 
         class TestGridSchema(BaseModel):
             """no default"""
@@ -62,7 +62,7 @@ class TestGridSchema:
     def test_partial_row_default_data(self):
         class TestProperties(BaseModel):
             string: str = Field(column_width=100)
-            floater: float = Field(1.5, column_width=70, aui_sig_fig=3)
+            floater: float = Field(1.5, column_width=70, global_decimal_places=3)
 
         class TestGridSchema(BaseModel):
             """no default"""
@@ -86,7 +86,9 @@ class TestGridSchema:
     def test_multiindex(self):
         class TestProperties(BaseModel):
             string: str = Field(column_width=100, section="a")
-            floater: float = Field(1.5, column_width=70, aui_sig_fig=3, section="b")
+            floater: float = Field(
+                1.5, column_width=70, global_decimal_places=3, section="b"
+            )
             inty: int = Field(1, section="b")
 
         class TestGridSchema(BaseModel):
@@ -126,7 +128,9 @@ class TestGridSchema:
     def test_get_field_names_from_properties(self):
         class TestProperties(BaseModel):
             string: str = Field(column_width=100, section="a")
-            floater: float = Field(1.5, column_width=70, aui_sig_fig=3, section="b")
+            floater: float = Field(
+                1.5, column_width=70, global_decimal_places=3, section="b"
+            )
 
         class TestGridSchema(BaseModel):
             """no default"""
@@ -171,7 +175,9 @@ class TestGridSchema:
     def test_coerce_data(self):
         class TestProperties(BaseModel):
             string: str = Field(column_width=100, section="a")
-            floater: float = Field(1.5, column_width=70, aui_sig_fig=3, section="b")
+            floater: float = Field(
+                1.5, column_width=70, global_decimal_places=3, section="b"
+            )
 
         class TestGridSchema(BaseModel):
             """no default"""
@@ -231,7 +237,7 @@ class TestAutoGrid:
     def test_empty_grid(self):
         class Cols(BaseModel):
             string: str = Field(aui_column_width=100)
-            floater: float = Field(aui_column_width=70, aui_sig_fig=3)
+            floater: float = Field(aui_column_width=70, global_decimal_places=3)
 
         class DataFrameSchema(BaseModel):
             """no default"""
@@ -253,7 +259,7 @@ class TestAutoGrid:
 
         class Cols(BaseModel):
             string: str = Field("string", aui_column_width=100)
-            floater: float = Field(3.14, aui_column_width=70, aui_sig_fig=3)
+            floater: float = Field(3.14, aui_column_width=70, global_decimal_places=3)
 
         class DataFrameSchema(BaseModel):
             """default."""
@@ -271,7 +277,7 @@ class TestAutoGrid:
         # get default data passed as kwarg, titles as column headers
         class Cols(BaseModel):
             string: str = Field("string", aui_column_width=100)
-            floater: float = Field(3.14, aui_column_width=70, aui_sig_fig=3)
+            floater: float = Field(3.14, aui_column_width=70, global_decimal_places=3)
 
         class DataFrameSchema(BaseModel):
             """no default. but properties have default"""
@@ -289,7 +295,7 @@ class TestAutoGrid:
 
         class Cols(BaseModel):
             string: str = Field("string", aui_column_width=100)
-            floater: float = Field(3.14, aui_column_width=70, aui_sig_fig=3)
+            floater: float = Field(3.14, aui_column_width=70, global_decimal_places=3)
 
         class DataFrameSchema(BaseModel):
             """no default. but properties have default"""
@@ -307,7 +313,9 @@ class TestAutoGrid:
 
         class TestProperties(BaseModel):
             string: str = Field(column_width=100, section="a")
-            floater: float = Field(1.5, column_width=70, aui_sig_fig=3, section="b")
+            floater: float = Field(
+                1.5, column_width=70, global_decimal_places=3, section="b"
+            )
             inty: int = Field(1, section="b")
 
         class TestGridSchema(BaseModel):
@@ -363,7 +371,7 @@ class TestAutoGrid:
 
         class Cols(BaseModel):
             string: str = Field(aui_column_width=100)
-            floater: float = Field(aui_column_width=70, aui_sig_fig=3)
+            floater: float = Field(aui_column_width=70, global_decimal_places=3)
 
         class DataFrameSchema(BaseModel):
             """no default"""
@@ -411,7 +419,10 @@ class TestAutoGrid:
         class Cols(BaseModel):
             string: str = Field(aui_column_width=100, title="String", section="a")
             floater: float = Field(
-                aui_column_width=70, aui_sig_fig=3, title="Floater", section="a"
+                aui_column_width=70,
+                global_decimal_places=3,
+                title="Floater",
+                section="a",
             )
 
         class DataFrameSchema(BaseModel):
@@ -454,12 +465,11 @@ class TestAutoGrid:
 
     @pytest.mark.parametrize("transposed", [True, False])
     def test_order_index_with_strict_subset(self, transposed: bool):
-        """Test that the order is applied to the data even if the order is a strict subset of the data columns
-        """
+        """Test that the order is applied to the data even if the order is a strict subset of the data columns"""
 
         class Cols(BaseModel):
             string: str = Field(aui_column_width=100)
-            floater: float = Field(aui_column_width=70, aui_sig_fig=3)
+            floater: float = Field(aui_column_width=70, global_decimal_places=3)
 
         class DataFrameSchema(BaseModel):
             """no default"""
@@ -508,7 +518,10 @@ class TestAutoGrid:
         class Cols(BaseModel):
             string: str = Field(aui_column_width=100, title="String", section="a")
             floater: float = Field(
-                aui_column_width=70, aui_sig_fig=3, title="Floater", section="a"
+                aui_column_width=70,
+                global_decimal_places=3,
+                title="Floater",
+                section="a",
             )
 
         class DataFrameSchema(BaseModel):
@@ -556,7 +569,7 @@ class TestAutoGrid:
 
         class Cols(BaseModel):
             string: str = Field(aui_column_width=100)
-            floater: float = Field(aui_column_width=70, aui_sig_fig=3)
+            floater: float = Field(aui_column_width=70, global_decimal_places=3)
 
         class DataFrameSchema(BaseModel):
             """no default"""

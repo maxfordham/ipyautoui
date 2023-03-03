@@ -54,7 +54,7 @@ class RecursiveNest(BaseModel):
 class DataFrameCols(BaseModel):
     string: str = Field("string", aui_column_width=100)
     integer: int = Field(1, aui_column_width=80)
-    floater: float = Field(3.1415, aui_column_width=70, aui_sig_fig=3)
+    floater: float = Field(3.1415, aui_column_width=70, global_decimal_places=3)
     something_else: float = Field(324, aui_column_width=100)
 
 

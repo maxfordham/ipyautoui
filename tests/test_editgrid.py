@@ -64,7 +64,9 @@ class TestEditGrid:
     def test_editgrid_multiindex_change_data(self):
         class TestProperties(BaseModel):
             string: str = Field(column_width=100, section="a")
-            floater: float = Field(1.5, column_width=70, aui_sig_fig=3, section="b")
+            floater: float = Field(
+                1.5, column_width=70, global_decimal_places=3, section="b"
+            )
             inty: int = Field(1, section="b")
 
         class TestGridSchema(BaseModel):

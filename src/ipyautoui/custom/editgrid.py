@@ -250,7 +250,6 @@ class EditGrid(w.VBox):
         else:
             self.ui_copy.layout.display = "None"
 
-
     @property
     def value(self):
         return self._value
@@ -384,8 +383,7 @@ class EditGrid(w.VBox):
         self.grid.observe(self._grid_changed, "count_changes")
         self.buttonbar_grid.observe(self._setview, "active")
         self.grid.observe(self._observe_order, "order")
-        self._observe_order(None) # prompts order if it is set in by grid setter above
-        
+        self._observe_order(None)  # prompts order if it is set in by grid setter above
 
     def _observe_order(self, on_change):
         if "order" in self.ui_add.traits() and self.grid.order is not None:
@@ -602,7 +600,9 @@ if __name__ == "__main__":
     class DataFrameCols(BaseModel):
         string: str = Field("string", column_width=100, section="a")
         integer: int = Field(1, column_width=80, section="a")
-        floater: float = Field(None, column_width=70, aui_sig_fig=3, section="b")
+        floater: float = Field(
+            None, column_width=70, global_decimal_places=3, section="b"
+        )
 
     class TestDataFrame(BaseModel):
         """a description of TestDataFrame"""
@@ -631,7 +631,7 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
-    editgrid.grid.order = ('floater', 'string') 
+    editgrid.grid.order = ("floater", "string")
     # ^ NOTE: this will result in a value change in the grid
 
 
