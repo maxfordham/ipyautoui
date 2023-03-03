@@ -19,6 +19,7 @@ displayfile is used to display certain types of files.
 The module lets us preview a data retrieved from: file, request or callable (< TODO)
 """
 # %run __init__.py
+# %run _dev_sys_path_append_.py
 # %load_ext lab_black
 # +
 import os
@@ -355,6 +356,7 @@ def preview_vegalite(path):
 def preview_image(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable], *args, **kwargs):
     byts = getbytes(path)
     return w.Image(value=byts, *args, **kwargs)
+
 
 def preview_svg(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable], *args, **kwargs):
     byts = getbytes(path)

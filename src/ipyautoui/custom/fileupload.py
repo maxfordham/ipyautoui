@@ -2,6 +2,7 @@
 """file upload wrapper"""
 # %load_ext lab_black
 # %run __init__.py
+# %run _dev_sys_path_append_.py
 # %run ../__init__.py
 import ipywidgets as w
 from markdown import markdown
@@ -62,8 +63,9 @@ class Files(BaseModel):
 
 
 # +
-#Files.schema()
+# Files.schema()
 # -
+
 
 class Caption(tr.HasTraits):
     show_caption = tr.Bool(default_value=True)

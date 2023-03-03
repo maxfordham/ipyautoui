@@ -15,6 +15,7 @@
 
 """simple markdown widget"""
 # %run __init__.py
+# %run _dev_sys_path_append_.py
 # %load_ext lab_black
 
 # +
