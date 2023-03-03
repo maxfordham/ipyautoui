@@ -1,8 +1,9 @@
 # +
 """file upload wrapper"""
 # %load_ext lab_black
-# %run __init__.py
 # %run _dev_sys_path_append.py
+# %run __init__.py
+#
 # %run ../__init__.py
 import ipywidgets as w
 from markdown import markdown

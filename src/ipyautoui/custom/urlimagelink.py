@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.5
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -14,8 +14,9 @@
 # ---
 
 # +
-# %run __init__.py
 # %run _dev_sys_path_append.py
+# %run __init__.py
+#
 # %load_ext lab_black
 
 from IPython.display import display, HTML, clear_output
@@ -111,3 +112,6 @@ if __name__ == "__main__":
         "https://github.com/maxfordham/ipyautoui/blob/main/docs/logo.png?raw=true",
     )
     display(im)
+# -
+
+

@@ -1,5 +1,5 @@
 """this is only used when running the python files as jupyter notebooks
-in the dev environment. It is called with a `%run _dev_sys_path_append.py`
+in the dev environment. It is called with a ``
 magic command so is not run when the module is imported.
 """
 import sys
