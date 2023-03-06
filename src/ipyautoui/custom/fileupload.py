@@ -7,7 +7,7 @@
 # %run ../__init__.py
 import ipywidgets as w
 from markdown import markdown
-from IPython.display import display
+from IPython.display import display, clear_output
 from pydantic import BaseModel, validator, Field
 import pathlib
 import typing as ty
@@ -15,14 +15,16 @@ import stringcase
 from datetime import datetime
 import traitlets as tr
 import json
+import logging
 
 from ipyautoui.constants import DELETE_BUTTON_KWARGS
 from ipyautoui._utils import getuser
 from ipyautoui.autodisplay import DisplayObject
 from ipyautoui.custom.iterable import Dictionary
 from ipyautoui.autodisplay_renderers import render_file
-from IPython.display import clear_output
+from ipyautoui.env import Env
 
+IPYAUTOUI_ROOTDIR = Env().IPYAUTOUI_ROOTDIR
 IS_IPYWIDGETS8 = (lambda: True if "8" in w.__version__ else False)()
 
 # +
@@ -34,37 +36,189 @@ IS_IPYWIDGETS8 = (lambda: True if "8" in w.__version__ else False)()
 # -
 
 
-class File(BaseModel):
-    name: str
-    type: str = None
-    last_modified: datetime = None
-    size: int = None
-    fdir: pathlib.Path = pathlib.Path(".")
-    path: pathlib.Path = None
-    caption: str = None
-    added_by: str = None
-
-    class Config:
-        alias_generator = stringcase.camelcase
-        allow_population_by_field_name = True
-
-    @validator("last_modified", always=True, pre=True)
-    def _last_modified(cls, v, values):
-        if isinstance(v, int):
-            v = datetime.fromtimestamp(v / 1e3)
-        return v
-
-    @validator("path", always=True, pre=True)
-    def _path(cls, v, values):
-        return values["fdir"] / values["name"]
-
-
-class Files(BaseModel):
-    __root__: ty.List[File]
+logger = logging.getLogger(__name__)
 
 
 # +
-# Files.schema()
+def is_sublist(l1, l2):
+    return all(i in l2 for i in l1)
+
+
+def is_parent(fdir, path, error_if_false=True):
+    if not is_sublist(fdir.parts, path.parts):
+        if error_if_false:
+            raise ValueError(
+                f"path is not in fdir: fdir = {str(fdir)}, path = {str(path)}"
+            )
+        return False
+    else:
+        return True
+
+
+def path_minus_fdir(path, fdir):
+    if is_parent(fdir, path, error_if_false=True):
+        return pathlib.Path(*path.parts[len(fdir.parts) :])
+
+
+def get_path(path, fdir=None):
+    """
+    returns a full file path based on path, fdir. Appends path to fdir,
+    but ignores appending if fdir already in path (thus supporting round-trips).
+
+    Args:
+        path (pathlib.Path): path
+        fdir (pathlib.Path): fdir
+
+    Returns:
+        path (pathlib.Path): path
+
+    Examples:
+        >>> import pathlib
+        >>> mk_str = lambda tu: tuple(str(t) for t in tu)
+
+        # 1. if absolute path given return absolute path
+        >>> path = pathlib.Path("/a/b/c.ext")
+        >>> fdir = None
+        >>> mk_str(get_path(path, fdir=fdir))
+        ('/a/b/c.ext', 'None')
+
+        # 2. if absolute path given return absolute path
+        # as above but a logger.warning raised
+        >>> path = pathlib.Path("/a/b/c.ext")
+        >>> fdir = pathlib.Path("/d")
+        >>> mk_str(get_path(path, fdir=fdir))
+        ('/a/b/c.ext', 'None')
+
+        # 3. if relative path and fdir is none
+        >>> path = pathlib.Path("a/b/c.ext")
+        >>> fdir = None
+        >>> mk_str(get_path(path, fdir=fdir))
+        ('a/b/c.ext', 'None')
+
+        # 4. if relative path not in given fdir
+        >>> path = pathlib.Path("a/b/c.ext")
+        >>> fdir = pathlib.Path("d/e")
+        >>> mk_str(get_path(path, fdir=fdir))
+        ('a/b/c.ext', 'd/e')
+
+        # 5. if path in given fdir
+        >>> path = pathlib.Path("/a/b/c.ext")
+        >>> fdir = pathlib.Path("/a/b")
+        >>> mk_str(get_path(path, fdir=fdir))
+        ('c.ext', '/a/b')
+    """
+    if fdir is None:
+        # 1
+        return path, fdir
+    elif (
+        fdir is not None
+        and path.is_absolute()
+        and not is_parent(fdir, path, error_if_false=False)
+    ):
+        # 2
+        logger.warning(
+            f"fdir set to None as not in absolute path. fdir={fdir}, path={path}"
+        )
+        fdir = None
+        return path, fdir
+    elif is_parent(fdir, path, error_if_false=False):
+        return path_minus_fdir(path, fdir), fdir
+    elif not is_parent(fdir, path, error_if_false=False) and not path.is_absolute():
+        return path, fdir
+    elif is_parent(fdir, path, error_if_false=True):
+        # the above should raise an error as path not in fdir
+        pass
+    else:
+        raise ValueError("unknown case for get_path")
+
+
+# +
+class FileUi(w.HBox):
+    """
+    UI for a file link. Can be use with the FileUpload button to load files
+    into a location. `self.preview` is a `ipyautoui.autodisplay.DisplayObject`
+    and its traits can be accessed.
+    uses get_path function to evaluate value of path relative to fdir. `path`
+    is built dynamically.
+    `_value` trait is automatically collected by ipyautoui. This makes it
+    easy to fix directory while keeping the relative path constant (e.g. if
+    you want to have a consistent folder struct relative to a file, with
+    multiple instances).
+
+    Attributes:
+        value (str): the path of a file as a string. Relative or absolute.
+        fdir (pathlib.PurePath): the directory the file is in
+            this is observed and updates on change, thus change `value`.
+
+    Properties:
+        path (pathlib.Path): the full filepath (ie. fdir / value).
+            NOTE: if fdir already in path will return pathlib.Path(value),
+            thus facilitating round-trip load / reload
+
+    Examples:
+        f = FileUi(fdir=pathlib.Path("/d/"), value="a/b.ext")
+        >>> assert f.path == pathlib.PosixPath("/d/a/b.ext")
+        f.value = "/d/a/b/c.ext"
+        >>> assert f.value == "a/b/c.ext"
+    """
+
+    _value = tr.Unicode(allow_none=True)
+    fdir = tr.Instance(default_value=None, allow_none=True, klass=pathlib.PurePath)
+
+    def __init__(self, value: str = None, fdir: pathlib.Path = None, **kwargs):
+        super().__init__(**kwargs)
+        self._init_FileTraits(value=value, fdir=fdir)
+        # super(w.HBox, self).self._init_form()
+
+    @tr.validate("value")
+    def validate_value(self, proposal):
+        return self._update_value(proposal["value"])
+
+    def __init__(self, value=None, fdir=None):
+        super().__init__(fdir=fdir)
+        self.value = value
+        self._init_controls()
+        self._on_value_change("change")
+
+    def _init_controls(self):
+        self.observe(self._observe_fdir, names="fdir")
+
+    @property
+    def path(self):
+        if self.fdir is not None:
+            return self.fdir / pathlib.Path(self.value)
+        else:
+            return pathlib.Path(self.value)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = self._update_value(value)
+
+    def _observe_fdir(self, proposal):
+        self._value = str(get_path(pathlib.Path(self.value), fdir=self.fdir)[0])
+
+    def _update_value(self, value):
+        return str(get_path(pathlib.Path(value), fdir=self.fdir)[0])
+
+    def _init_controls(self):
+        self.observe(self._on_value_change, "_value")
+
+    def _on_value_change(self, on_change):
+        self.preview = DisplayObject.from_path(
+            self.path, order=("exists", "openpreview", "name")
+        )  # TODO: update not recreate
+        self.children = [self.preview]
+
+
+if __name__ == "__main__":
+    fui = FileUi(value="__init__.py")
+    display(fui)
+
+
 # -
 
 
