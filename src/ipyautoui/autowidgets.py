@@ -27,7 +27,7 @@ from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET
 import ipywidgets as w
 import traitlets as tr
 from copy import deepcopy
-from ipyautoui.custom import modelrun, markdown_widget, filechooser
+from ipyautoui.custom import modelrun, markdown_widget, filechooser   #, fileupload #<- `fileupload` causes circular import
 from ipyautoui._utils import remove_non_present_kwargs
 from datetime import datetime
 import functools
@@ -457,6 +457,16 @@ class AutoMarkdown(markdown_widget.MarkdownWidget):
             schema, calling=markdown_widget.MarkdownWidget
         )
         super().__init__(**self.caller)
+        
+        
+# class AutoUploadPaths(fileupload.FilesUploadToDir):
+#     def __init__(self, schema):
+#         from ipyautoui.custom import modelrun, markdown_widget, filechooser, fileupload
+#         self.schema = schema
+#         self.caller = create_widget_caller(
+#             schema, calling=markdown_widget.MarkdownWidget
+#         )
+#         super().__init__(**self.caller)
 
 
 if __name__ == "__main__":
