@@ -19,7 +19,7 @@ import logging
 from ipyautoui.constants import DELETE_BUTTON_KWARGS
 from ipyautoui._utils import getuser
 from ipyautoui.autodisplay import DisplayObject, DisplayPath
-from ipyautoui.custom.iterable import Dictionary, Array
+from ipyautoui.custom.iterable import Array
 from ipyautoui.autodisplay_renderers import render_file
 from ipyautoui.env import Env
 
@@ -81,9 +81,8 @@ class FilesUploadToDir(Array):
             add_remove_controls="remove_only",
             show_hash=None,
         )
-        if kwargs_display_path is None:
-            kwargs_display_path = {}
-        self.kwargs_display_path = kwargs_display_path
+        coerce_none = lambda v: {} if v is None else v
+        self.kwargs_display_path = coerce_none(kwargs_display_path)
         self.rows_box.layout = {"border": "solid LightCyan 2px"}
         self.fdir = fdir
         self.upld = w.FileUpload(**kwargs)
@@ -109,10 +108,33 @@ class FilesUploadToDir(Array):
         p = pathlib.Path(self.map_key_value[key])
         p.unlink(missing_ok=True)
 
+
+class AutoUploadPaths(FilesUploadToDir):
+    def __init__(
+        self,
+        schema=None,
+        value=None,
+        fdir=pathlib.Path("."),
+        kwargs_display_path: ty.Optional[dict] = None,
+        **kwargs,
+    ):
+        super().__init__(
+            value=value, fdir=fdir, kwargs_display_path=kwargs_display_path, **kwargs
+        )
+
 if __name__ == "__main__":
     upld = FilesUploadToDir(
         ["/mnt/c/engDev/git_mf/test.PNG"], fdir=pathlib.Path("/mnt/c/engDev/git_mf")
     )
     display(upld)
 
+if __name__ == "__main__":
+    from pydantic import BaseModel, Field
+    from ipyautoui.custom.fileupload import AutoUploadPaths
+    from ipyautoui import AutoUi
 
+    class Test(BaseModel):
+        paths: list[pathlib.Path] = Field(autoui="__main__.AutoUploadPaths")
+
+    aui = AutoUi(Test)
+    display(aui)
