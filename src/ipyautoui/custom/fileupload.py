@@ -1,8 +1,8 @@
 """file upload wrapper"""
-%load_ext lab_black
-%run _dev_sys_path_append.py
-%run __init__.py
-%run ../__init__.py
+# %load_ext lab_black
+# %run _dev_sys_path_append.py
+# %run __init__.py
+# %run ../__init__.py
 
 import ipywidgets as w
 from markdown import markdown
@@ -70,11 +70,20 @@ def add_files(upld_value, fdir=pathlib.Path(".")):
 
 
 class FilesUploadToDir(Array):
-    def __init__(self, value=None, fdir=pathlib.Path("."), **kwargs):
+    def __init__(
+        self,
+        value=None,
+        fdir=pathlib.Path("."),
+        kwargs_display_path: ty.Optional[dict] = None,
+        **kwargs
+    ):
         super().__init__(
             add_remove_controls="remove_only",
             show_hash=None,
         )
+        if kwargs_display_path is None:
+            kwargs_display_path = {}
+        self.kwargs_display_path = kwargs_display_path
         self.rows_box.layout = {"border": "solid LightCyan 2px"}
         self.fdir = fdir
         self.upld = w.FileUpload(**kwargs)
@@ -94,7 +103,7 @@ class FilesUploadToDir(Array):
 
     def add_files(self, paths: list[str]):
         for p in paths:
-            self.add_row(item=DisplayPath(str(p)))
+            self.add_row(item=DisplayPath(str(p), **self.kwargs_display_path))
 
     def fn_remove_file(self, key=None):
         p = pathlib.Path(self.map_key_value[key])
@@ -105,3 +114,5 @@ if __name__ == "__main__":
         ["/mnt/c/engDev/git_mf/test.PNG"], fdir=pathlib.Path("/mnt/c/engDev/git_mf")
     )
     display(upld)
+
+
