@@ -36,7 +36,6 @@ Example:
 """
 # %run _dev_sys_path_append.py
 # %run __init__.py
-#
 # %load_ext lab_black
 
 # +
@@ -274,6 +273,12 @@ class DisplayFromCallable(DisplayObjectActions):
             return values["path"].__name__
 
 
+# -
+
+if __name__ == "__main__":
+    d = DisplayFromPath(path="__init__.py")
+    display(d.renderer())
+
 # +
 # TODO: separate out the bit that is display data and display from path...
 # TODO: probs useful to have a `value` trait (allowing the object to be updated instead of remade)
@@ -293,8 +298,10 @@ class DisplayObject(w.VBox):
             allowed values are: ("exists", "openpreview", "openfile", "openfolder", "name")
     """
 
+    _value = tr.Unicode()
     auto_open = tr.Bool(default_value=False)
-    order = tr.Tuple()
+    order = tr.Tuple(default_value=ORDER_NOTPATH, allow_none=False)
+    display_actions = tr.Instance(klass=DisplayObjectActions)
 
     @tr.validate("order")
     def _validate_order(self, proposal):
@@ -305,17 +312,30 @@ class DisplayObject(w.VBox):
                     order must include the following: ("exists", "openpreview", "openfile", "openfolder", "name")
                 """
                 )
-        return proposal["value"]
+        order = self._check_order(proposal["value"])
+        return order
+
+    def _check_order(self, order):
+        if order is None and isinstance(self.display_actions.path, pathlib.Path):
+            return ORDER_DEFAULT
+        elif order is None and not isinstance(self.display_actions.path, pathlib.Path):
+            return ORDER_NOTPATH
+        else:
+            return order
 
     @tr.observe("order")
     def _observe_order(self, change):
-        self.bx_bar.children = [getattr(self, l) for l in change["new"]]
+        self._update_bx_bar(change["new"])
+
+    @tr.observe("display_actions")
+    def _display_actions(self, change):
+        self._update_form()
+        self._value = str(self.display_actions.path)
 
     def __init__(
         self,
-        display_actions: ty.Type[DisplayObjectActions],
-        auto_open=False,
-        order=None,
+        *args,
+        **kwargs,
     ):
         """display object
 
@@ -327,20 +347,15 @@ class DisplayObject(w.VBox):
                 default is: ("exists", "openpreview", "openfile", "openfolder", "name")
                 reduce tuple to hide components
         """
-        self.display_actions = display_actions
-        self._init()
-        self.auto_open = auto_open
-        if order is None and isinstance(display_actions.path, pathlib.Path):
-            self.order = ORDER_DEFAULT
-        elif order is None and not isinstance(display_actions.path, pathlib.Path):
-            self.order = ORDER_NOTPATH
-        else:
-            self.order = order
 
-    def _init(self):
-        super().__init__()
-        self._init_form()
+        self._init_form()  # generic form only
         self._init_controls()
+        super().__init__(*args, **kwargs)
+        self._update_bx_bar(self.order)
+        self.children = [self.bx_bar, self.bx_out]
+
+    def _update_bx_bar(self, order):
+        self.bx_bar.children = [getattr(self, l) for l in order]
 
     @classmethod
     def from_path(
@@ -350,7 +365,6 @@ class DisplayObject(w.VBox):
         renderers=None,
         extend_default_renderers=True,
         auto_open=False,
-        order=None,
     ):
         renderers = get_renderers(
             renderers=renderers, extend_default_renderers=extend_default_renderers
@@ -358,7 +372,7 @@ class DisplayObject(w.VBox):
         display_actions = DisplayFromPath(
             path=path, newroot=newroot, renderers=renderers
         )
-        return cls(display_actions, auto_open=auto_open, order=order)
+        return cls(display_actions=display_actions, auto_open=auto_open)
 
     @classmethod
     def from_request(
@@ -368,14 +382,12 @@ class DisplayObject(w.VBox):
         renderers=None,
         extend_default_renderers=True,
         auto_open=False,
-        order=None,
     ):
         renderers = get_renderers(
             renderers=renderers, extend_default_renderers=extend_default_renderers
         )
-        order = ORDER_NOTPATH
         display_actions = DisplayFromRequest(path=path, ext=ext, renderers=renderers)
-        return cls(display_actions, auto_open=auto_open, order=order)
+        return cls(display_actions=display_actions, auto_open=auto_open)
 
     @classmethod
     def from_callable(
@@ -385,14 +397,12 @@ class DisplayObject(w.VBox):
         renderers=None,
         extend_default_renderers=True,
         auto_open=False,
-        order=None,
     ):
         renderers = get_renderers(
             renderers=renderers, extend_default_renderers=extend_default_renderers
         )
-        order = ORDER_NOTPATH
         display_actions = DisplayFromCallable(path=path, ext=ext, renderers=renderers)
-        return cls(display_actions, auto_open=auto_open, order=order)
+        return cls(display_actions=display_actions, auto_open=auto_open)
 
     def tooltip_openpath(self, path):
         return str(make_new_path(path, newroot=self.display_actions.newroot))
@@ -409,7 +419,6 @@ class DisplayObject(w.VBox):
         self.openfile = w.Button(**KWARGS_OPENFILE)
         self.openfolder = w.Button(**KWARGS_OPENFOLDER)
         self.name = w.HTML(
-            "<b>{0}</b>".format(self.display_actions.name),
             layout=w.Layout(justify_items="center"),
         )
         self.out_caller = w.Output()
@@ -417,6 +426,11 @@ class DisplayObject(w.VBox):
         self.out_caller.layout.display = "none"
         self.out.layout.display = "none"
         self.bx_bar = w.HBox()
+
+        self.bx_out = w.VBox()
+        self.bx_out.children = [self.out_caller, self.out]
+
+    def _update_form(self):
         if isinstance(self.display_actions.path, pathlib.PurePath):
             self.openfile.tooltip = f"""
 open file:
@@ -426,9 +440,7 @@ open file:
 open folder:
 {self.tooltip_openpath(self.display_actions.path.parent)}
 """
-        self.bx_out = w.VBox()
-        self.bx_out.children = [self.out_caller, self.out]
-        self.children = [self.bx_bar, self.bx_out]
+        self.name.value = "<b>{0}</b>".format(self.display_actions.name)
         self.check_exists()
 
     def _init_controls(self):
@@ -484,6 +496,38 @@ open folder:
         self.out_caller.layout.display = "none"
 
 
+class DisplayPath(DisplayObject):
+    _value = tr.Unicode(default_value="")
+
+    def __init__(
+        self,
+        value,
+        newroot=pathlib.PureWindowsPath("J:/"),
+        renderers=None,
+        extend_default_renderers=True,
+        **kwargs,
+    ):
+        self.newroot = newroot
+        self.renderers = get_renderers(
+            renderers=renderers, extend_default_renderers=extend_default_renderers
+        )
+        display_actions = DisplayFromPath(
+            path=value, newroot=self.newroot, renderers=self.renderers
+        )
+        super().__init__(display_actions=display_actions, **kwargs)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = ""
+        self.display_actions = DisplayFromPath(
+            path=value, newroot=self.newroot, renderers=self.renderers
+        )
+
+
 # -
 if __name__ == "__main__":
     path = "https://catfact.ninja/fact"
@@ -531,11 +575,10 @@ if __name__ == "__main__":
 
     path = "https://catfact.ninja/fact"
     ext = ".catfact"
-    display(
-        DisplayObject.from_request(
-            path=path, ext=ext, renderers={".catfact": display_catfact}
-        )
+    d = DisplayObject.from_request(
+        path=path, ext=ext, renderers={".catfact": display_catfact}
     )
+    display(d)
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
@@ -548,11 +591,12 @@ if __name__ == "__main__":
     path = paths[6]
     d = DisplayObject.from_path(path)
     display(d)
+    # ------------------
 
 
-# +
-# DisplayFromPath(path=path)
-# -
+if __name__ == "__main__":
+    d1 = DisplayPath(path)
+    display(d1)
 
 if __name__ == "__main__":
     d.order = (
