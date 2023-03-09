@@ -301,7 +301,7 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
     def get_fdir(self, path=None, fdir=None):
 
         if path is not None and fdir is None:
-            return str(pathlib.Path(path).parent)  # TODO: use traitlets_paths
+            return pathlib.Path(path).parent
         elif path is None and fdir is not None:
             return fdir
         elif path is not None and fdir is not None:
@@ -317,7 +317,7 @@ if __name__ == "__main__":
         TestAutoLogicSimple,
         path="test.json",
         show_description=False,
-        show_raw=True,
+        show_raw=True,  
         show_savebuttonbar=False,
     )
     # aui.show_savebuttonbar = False

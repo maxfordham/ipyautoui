@@ -97,7 +97,9 @@ from ipyautoui.constants import (
 )
 from ipyautoui._utils import frozenmap
 from ipyautoui.autowidgets import create_widget_caller
+import logging
 
+logger = logging.getLogger(__name__)
 BOX = frozenmap({True: w.HBox, False: w.VBox})
 TOGGLE_BUTTON_KWARGS = frozenmap(
     icon="",
@@ -170,7 +172,7 @@ class IterableItem(BaseModel):
 
 
 # # +
-class Array(w.VBox, tr.HasTraits):
+class Array(w.VBox):
     """generic iterable. pass a list of items"""
 
     # -----------------------------------------------------------------------------------
@@ -311,6 +313,10 @@ class Array(w.VBox, tr.HasTraits):
     @property
     def iterable_keys(self):
         return [i.key for i in self.iterable]
+
+    @property
+    def map_key_value(self):
+        return {l.key: l.item.value for l in self.iterable}
 
     def _add_from_zero_display(self):
         if (
@@ -544,7 +550,7 @@ class Array(w.VBox, tr.HasTraits):
             elif "_value" in obj.traits():
                 obj.observe(self._update_value, names="_value")
             else:
-                raise ValueError(
+                logging.warning(
                     'array item must have either "value" or "_value" trait to be observed'
                 )
 
@@ -628,6 +634,12 @@ class Array(w.VBox, tr.HasTraits):
         if key is None:
             print("key is None")
             key = self.iterable[-1].key
+        if remove_kwargs is None:
+            remove_kwargs = {}
+        try:
+            self.fn_remove(key=key, **remove_kwargs)
+        except:
+            self.fn_remove(**remove_kwargs)
         n = self._get_attribute(key, "index")
         if self.add_remove_controls == "append_only" and n == 0:
             pass
@@ -641,13 +653,6 @@ class Array(w.VBox, tr.HasTraits):
             self._update_rows_box()
             self._update_labels()
 
-        if remove_kwargs is None:
-            remove_kwargs = {}
-
-        try:
-            self.fn_remove(**remove_kwargs, key=key)
-        except:
-            self.fn_remove(**remove_kwargs)
         self._add_from_zero_display()
 
 

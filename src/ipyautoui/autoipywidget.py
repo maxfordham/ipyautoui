@@ -32,6 +32,7 @@ Example:
 #
 # %load_ext lab_black
 import logging
+import pathlib
 import functools
 import ipywidgets as w
 from IPython.display import display
@@ -106,7 +107,9 @@ def get_from_schema_root(schema: ty.Dict, key: ty.AnyStr) -> ty.AnyStr:
     return schema[key] if key in schema.keys() else ""
 
 
-def add_fdir_to_widgetcaller(caller, fdir: str):  #: aumap.WidgetCaller
+def add_fdir_to_widgetcaller(
+    caller, fdir: str
+): # TODO: deprecate this by making fdir a trait and passing as **kwargs
     """_summary_
 
     Args:
@@ -424,7 +427,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
     """
 
     _value = tr.Dict(allow_none=True)
-    fdir = tr.Unicode(default_value=None, allow_none=True)
+    fdir = tr.Instance(klass=pathlib.PurePath, default_value=None, allow_none=True)
     align_horizontal = tr.Bool(default_value=True)
     auto_open = tr.Bool(default_value=True)
     nested_widgets = tr.List()
