@@ -108,6 +108,15 @@ class FilesUploadToDir(Array):
         p = pathlib.Path(self.map_key_value[key])
         p.unlink(missing_ok=True)
 
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self.items = []
+        self.add_files(value)
+
 
 class AutoUploadPaths(FilesUploadToDir):
     def __init__(
@@ -129,6 +138,9 @@ if __name__ == "__main__":
     display(upld)
 
 if __name__ == "__main__":
+    upld.value = ["EquipmentReferences-MaxFordhamStandard.pdf", "GenesisCroixDeFer.jpg"]
+
+if __name__ == "__main__":
     from pydantic import BaseModel, Field
     from ipyautoui.custom.fileupload import AutoUploadPaths
     from ipyautoui import AutoUi
@@ -138,3 +150,75 @@ if __name__ == "__main__":
 
     aui = AutoUi(Test)
     display(aui)
+
+
+# +
+class AutoUploadPathsValueString(w.VBox):
+    _value = tr.Unicode()
+
+    def __init__(
+        self,
+        schema=None,
+        value=None,
+        fdir=pathlib.Path("."),
+        kwargs_display_path: ty.Optional[dict] = None,
+        **kwargs,
+    ):
+        super().__init__()
+        self.upld = AutoUploadPaths(
+            schema=None,
+            value=None,
+            fdir=fdir,
+            kwargs_display_path=kwargs_display_path,
+            **kwargs,
+        )
+        self.children = [self.upld]
+        self._init_controls()
+        self.value = value
+
+    def _init_controls(self):
+        self.upld.observe(self._update_value, "_value")
+
+    def _update_value(self, on_change):
+        self._value = json.dumps(self.upld.value)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if value is not None:
+            self.upld.value = json.loads(value)
+
+
+if __name__ == "__main__":
+    from pydantic import BaseModel, Field
+    from ipyautoui.custom.fileupload import AutoUploadPaths
+    from ipyautoui import AutoUi
+
+    class Test(BaseModel):
+        paths: list[pathlib.Path] = Field(autoui="__main__.AutoUploadPathsValueString")
+
+    aui = AutoUi(Test)
+    display(aui)
+# -
+
+if __name__ == "__main__":
+    upld = AutoUploadPathsValueString(
+        fdir=pathlib.Path("/mnt/c/engDev/git_mf"),
+    )
+    display(upld)
+
+if __name__ == "__main__":
+    upld.value = (
+        '["EquipmentReferences-MaxFordhamStandard.pdf", "GenesisCroixDeFer.jpg"]'
+    )
+
+if __name__ == "__main__":
+    aui = AutoUploadPathsValueString(
+        value='["EquipmentReferences-MaxFordhamStandard.pdf", "GenesisCroixDeFer.jpg"]'
+    )
+    display(aui)
+
+
