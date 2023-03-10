@@ -334,7 +334,7 @@ class DisplayObject(w.VBox):
 
     def __init__(
         self,
-        *args,
+        display_actions,
         **kwargs,
     ):
         """display object
@@ -350,7 +350,7 @@ class DisplayObject(w.VBox):
 
         self._init_form()  # generic form only
         self._init_controls()
-        super().__init__(*args, **kwargs)
+        super().__init__(display_actions=display_actions, **kwargs)
         self._update_bx_bar(self.order)
         self.children = [self.bx_bar, self.bx_out]
 
@@ -529,6 +529,11 @@ class DisplayPath(DisplayObject):
 
 
 # -
+if __name__ == "__main__":
+    d = DisplayFromPath(path="__init__.py")
+    do = DisplayObject(d)
+    display(do)
+
 if __name__ == "__main__":
     path = "https://catfact.ninja/fact"
     ext = ".json"
@@ -1072,3 +1077,5 @@ if __name__ == "__main__":
     test_display = AutoDisplay([d1, d2])
     display(Markdown("### From requests: "))
     display(test_display)
+
+
