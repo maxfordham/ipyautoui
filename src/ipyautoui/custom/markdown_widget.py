@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.5
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -109,13 +109,13 @@ MAP_MARKDOWN = frozenmap(
 
 def markdown_buttons():
     """generate markdown widget button bar"""
-    bn_header = w.Button(icon="fa-heading", layout=dict(BUTTON_MIN_SIZE))
-    bn_bold = w.Button(icon="fa-bold", layout=dict(BUTTON_MIN_SIZE))
-    bn_italic = w.Button(icon="fa-italic", layout=dict(BUTTON_MIN_SIZE))
-    bn_list = w.Button(icon="fa-list", layout=dict(BUTTON_MIN_SIZE))
-    bn_numbered = w.Button(icon="fa-list-ol", layout=dict(BUTTON_MIN_SIZE))
-    bn_image = w.Button(icon="fa-image", layout=dict(BUTTON_MIN_SIZE))
-    bn_link = w.Button(icon="fa-link", layout=dict(BUTTON_MIN_SIZE))
+    bn_header = w.Button(icon="heading", layout=dict(BUTTON_MIN_SIZE))
+    bn_bold = w.Button(icon="bold", layout=dict(BUTTON_MIN_SIZE))
+    bn_italic = w.Button(icon="italic", layout=dict(BUTTON_MIN_SIZE))
+    bn_list = w.Button(icon="list", layout=dict(BUTTON_MIN_SIZE))
+    bn_numbered = w.Button(icon="list-ol", layout=dict(BUTTON_MIN_SIZE))
+    bn_image = w.Button(icon="image", layout=dict(BUTTON_MIN_SIZE))
+    bn_link = w.Button(icon="link", layout=dict(BUTTON_MIN_SIZE))
     bn_blank = w.Button(
         display=True, style={"button_color": "white"}, layout=dict(BUTTON_MIN_SIZE)
     )
@@ -222,3 +222,16 @@ class MarkdownWidget(w.VBox):
 if __name__ == "__main__":
     ui = MarkdownWidget()
     display(ui)
+
+if __name__ == "__main__":
+    from pydantic import BaseModel, Field
+    from ipyautoui import AutoUi
+
+    class Test(BaseModel):
+        num: int
+        label: str
+        md: str = Field("adsf", format="markdown")
+
+    display(AutoUi(Test))
+
+

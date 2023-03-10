@@ -146,9 +146,15 @@ if __name__ == "__main__":
     from ipyautoui import AutoUi
 
     class Test(BaseModel):
-        paths: list[pathlib.Path] = Field(autoui="__main__.AutoUploadPaths")
+        string: str
+        paths: list[pathlib.Path] = Field(
+            autoui="__main__.AutoUploadPaths",
+            title="A longish title about something",
+            description="with a rambling description as well...",
+        )
 
-    aui = AutoUi(Test)
+    value = {"string": "string", "paths": ["bdns.csv"]}
+    aui = AutoUi(Test, value=value, nested_widgets=[AutoUploadPaths])
     display(aui)
 
 
