@@ -586,7 +586,13 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
     """
     try:
         if "nullable" in caller.schema_.keys() and caller.schema_["nullable"]:
-            fn = auiwidgets.nullable(caller.autoui)
+            if (
+                "override_nullable_ui" in caller.schema_.keys()
+                and caller.schema_["override_nullable_ui"]
+            ):
+                fn = caller.autoui
+            else:
+                fn = auiwidgets.nullable(caller.autoui)
         else:
             fn = caller.autoui
         wi = fn(caller.schema_, *caller.args, **caller.kwargs)

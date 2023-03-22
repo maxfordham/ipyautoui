@@ -79,6 +79,18 @@ class TestAutoObject:
         assert ui.value == {"text": "Test"}
         print("done")
 
+    def test_simple_override_nullable_ui(self):
+        class ExampleSchema(BaseModel):
+            text: str = Field(
+                default=None,
+                description="This test is important",
+                override_nullable_ui=True,
+            )
+
+        auto_ui_eg = ExampleSchema()
+        ui = AutoObject(auto_ui_eg)
+        assert "Nullable" not in str(ui.di_widgets.get("text"))
+
     def test_dict_raises_error(self):
         class ExampleSchema(BaseModel):
             text: dict = Field(
@@ -87,8 +99,10 @@ class TestAutoObject:
 
         with pytest.raises(
             ValueError,
-            match="AutoUi does not support rendering generic dictionaries."
-            " This can be overridden by specifying a `autoui` pyobject renderer.",
+            match=(
+                "AutoUi does not support rendering generic dictionaries."
+                " This can be overridden by specifying a `autoui` pyobject renderer."
+            ),
         ):
             auto_ui_eg = ExampleSchema()
             ui = AutoObject(auto_ui_eg)
