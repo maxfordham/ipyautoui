@@ -40,6 +40,18 @@ class NullableCoreIpywidgets(BaseModel):
     dropdown_simple: str = Field(default=None, enum=["asd", "asdf"])
     text: str = Field(default=None, description="a description about my string")
     text_short: constr(min_length=0, max_length=20) = None
-    text_area: constr(min_length=0, max_length=800) = Field(None, description="long text field")
+    text_area: constr(min_length=0, max_length=800) = Field(
+        None, description="long text field"
+    )
 
 
+class OverrideNullableIpywidgets(BaseModel):
+    """If you want to override the default behavior of nullable fields, you can 
+    do so by setting the override_nullable_ui to True to prevent the Nullable UI
+    element from being generated.
+    """
+    text: str = Field(
+        default=None,
+        description="a description about my string",
+        override_nullable_ui=True,
+    )
