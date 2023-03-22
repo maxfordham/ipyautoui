@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.14.5
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -27,7 +27,11 @@ from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET
 import ipywidgets as w
 import traitlets as tr
 from copy import deepcopy
-from ipyautoui.custom import modelrun, markdown_widget, filechooser   #, fileupload #<- `fileupload` causes circular import
+from ipyautoui.custom import (
+    modelrun,
+    markdown_widget,
+    filechooser,
+)  # , fileupload #<- `fileupload` causes circular import
 from ipyautoui._utils import remove_non_present_kwargs
 from datetime import datetime
 import functools
@@ -73,6 +77,22 @@ class Nullable(w.HBox):
     """class to allow widgets to be nullable. The widget that is extended is accessed
     using `self.widget`"""
 
+    disabled = tr.Bool(default_value=False)
+    
+    @tr.observe("disabled")
+    def observe_disabled(self, on_change):
+        """If disabled, ensure that the widget is disabled and the button is also."""
+        if self.disabled:
+            if self.widget.value is not None:
+                self.bn.value = False
+            else:
+                self.bn.value = True
+            self.bn.disabled = True
+            self.widget.disabled = True
+        else:
+            self.bn.disabled = False
+            self.widget.disabled = False
+    
     def __init__(self, widget_type, schema, *args, **kwargs):
         self.schema = schema
         self.caller = create_widget_caller(schema)
@@ -457,8 +477,8 @@ class AutoMarkdown(markdown_widget.MarkdownWidget):
             schema, calling=markdown_widget.MarkdownWidget
         )
         super().__init__(**self.caller)
-        
-        
+
+
 # class AutoUploadPaths(fileupload.FilesUploadToDir):
 #     def __init__(self, schema):
 #         from ipyautoui.custom import modelrun, markdown_widget, filechooser, fileupload
@@ -473,3 +493,6 @@ if __name__ == "__main__":
     import doctest
 
     doctest.testmod()
+# -
+
+
