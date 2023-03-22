@@ -115,6 +115,7 @@ class Nullable(w.HBox):
         super().__init__([self.bn, self.widget, self.show_none])
         self._init_controls()
         self.value = value
+        self._set_disabled()
 
     def _init_trait(self):
         # NOTE: see test for add_traits that demos usage  -@jovyan at 7/18/2022, 12:11:39 PM
@@ -164,6 +165,11 @@ class Nullable(w.HBox):
             self.widget.layout.display = ""
             self.show_none.layout.display = "None"
             self.value = self.widget.value
+
+    def _set_disabled(self):
+        """If disabled in schema, set to value defined."""
+        if "disabled" in self.schema:
+            self.disabled = self.schema["disabled"]
 
 
 def nullable(fn, **kwargs):
