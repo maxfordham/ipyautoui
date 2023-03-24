@@ -69,6 +69,14 @@ REMOVE_BUTTON_KWARGS = frozenmap(
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     disabled=False,
 )
+RELOAD_BUTTON_KWARGS = frozenmap(
+    icon="sync",
+    style={},
+    button_style="info",
+    tooltip="reload",
+    layout={"width": BUTTON_WIDTH_MIN}, #, "height": BUTTON_HEIGHT_MIN
+    disabled=False,
+)
 BLANK_BUTTON_KWARGS = frozenmap(
     icon="",
     style={"button_color": "white"},
