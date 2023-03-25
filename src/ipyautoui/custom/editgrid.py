@@ -410,12 +410,13 @@ class EditGrid(w.VBox):
 
     def _init_form(self):
         super().__init__()
+        get_reload = lambda: None if self.datahandler is None else self._reload_datahandler
         self.buttonbar_grid = CrudButtonBar(
             fn_add=self._add,
             fn_edit=self._edit,
             fn_copy=self._copy,
             fn_delete=self._delete,
-            fn_reload=self._reload,
+            fn_reload= get_reload(),
             # backward=self.setview_default,
             show_message=False,
         )
@@ -586,7 +587,7 @@ class EditGrid(w.VBox):
 
     # delete
     # --------------------------------------------------------------------------
-    def _reload(self, on_click):
+    def _reload_datahandler(self):
         self._reload_all_data()
         self.buttonbar_grid.message.value = markdown("  🔄 _Reloaded Data_ ")
 
@@ -683,6 +684,27 @@ if __name__ == "__main__":
     editgrid.grid.order = ("floater", "string")
     # ^ NOTE: this will result in a value change in the grid
 
+
+if __name__ == "__main__":
+    datahandler = DataHandler(
+        fn_get_all_data=lambda: pd.DataFrame(AUTO_GRID_DEFAULT_VALUE),
+        fn_post=lambda v: print("fn_post"),
+        fn_patch=lambda v: print("fn_patch"),
+        fn_delete=lambda v: print("fn_patch"),
+        fn_copy=lambda v: print("fn_copy"))
+    title = "The Wonderful Edit Grid Application"
+    description = markdown("Useful for all editing purposes" " whatever they may be 👍")
+    editgrid = EditGrid(
+        schema=TestDataFrame,
+        title=title,
+        description=description,
+        datahandler=datahandler
+    )
+    display(editgrid)
+
+# +
+# datahandler.fn_get_all_data()
+# -
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
