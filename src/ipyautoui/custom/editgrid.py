@@ -170,7 +170,8 @@ if __name__ == "__main__":
 
 
 # +
-# NOTE: UiCopy not in use 
+# NOTE: UiCopy not in use
+
 
 class UiCopy(w.HBox):
     index = tr.Integer()  # row index copying from... improve user reporting
@@ -232,8 +233,9 @@ if __name__ == "__main__":
 
 
 # +
-# TODO: refactor how the datahandler works... 
+# TODO: refactor how the datahandler works...
 # TODO: add a test for the datahandler...
+
 
 class EditGrid(w.VBox):
     _value = tr.Tuple()  # using a tuple to guarantee no accidental mutation
@@ -247,11 +249,11 @@ class EditGrid(w.VBox):
     @tr.observe("title")
     def observe_title(self, on_change):
         self._update_title_description()
-        
+
     @tr.observe("description")
     def observe_description(self, on_change):
         self._update_title_description()
-        
+
     @tr.observe("show_title")
     def observe_show_title(self, on_change):
         self._update_title_description()
@@ -296,7 +298,7 @@ class EditGrid(w.VBox):
 
     def _update_value_from_grid(self):
         self._value = self.grid.records()
-        
+
     def _update_title_description(self):
         if not self.show_title:
             self.html_title.layout.display = "None"
@@ -306,9 +308,9 @@ class EditGrid(w.VBox):
             else:
                 self.html_title.layout.display = ""
                 get = lambda v: "" if v is None else v
-                self.html_title.value = f"<b>{get(self.title)}</b>, <i>{get(self.description)}</i>"
-            
-
+                self.html_title.value = (
+                    f"<b>{get(self.title)}</b>, <i>{get(self.description)}</i>"
+                )
 
     def __init__(
         self,
@@ -333,7 +335,7 @@ class EditGrid(w.VBox):
         self.description = description
         self.title = title
         self.show_title = show_title
-        
+
         self.by_title = by_title
         self.by_alias = by_alias
         self.datahandler = datahandler
@@ -384,7 +386,7 @@ class EditGrid(w.VBox):
         ]
         self._init_controls()
         if self.datahandler is not None:
-            self.buttonbar_grid.fn_reload =  self.datahandler.fn_get_all_data
+            self.buttonbar_grid.fn_reload = self.datahandler.fn_get_all_data
 
     def _init_row_controls(self):
         self.ui_edit.show_savebuttonbar = True
@@ -413,6 +415,7 @@ class EditGrid(w.VBox):
             fn_edit=self._edit,
             fn_copy=self._copy,
             fn_delete=self._delete,
+            fn_reload=self._reload_all_data,
             # backward=self.setview_default,
             show_message=False,
         )
@@ -625,6 +628,8 @@ class EditGrid(w.VBox):
         except Exception as e:
             print("delete error")
             traceback.print_exc()
+
+
 # -
 
 if __name__ == "__main__":
@@ -653,12 +658,9 @@ if __name__ == "__main__":
             format="dataframe",
             datagrid_index_name=("section", "title"),
         )
-    
+
     title = "The Wonderful Edit Grid Application"
-    description = markdown(
-        "Useful for all editing purposes"
-        " whatever they may be 👍"
-    )
+    description = markdown("Useful for all editing purposes" " whatever they may be 👍")
     editgrid = EditGrid(
         schema=TestDataFrame,
         title=title,
@@ -739,7 +741,3 @@ if __name__ == "__main__":
     ui.observe(lambda c: print("_value change"), "_value")
     ui.di_widgets["__root__"].observe(lambda c: print("grid _value change"), "_value")
     display(ui)
-
-
-
-
