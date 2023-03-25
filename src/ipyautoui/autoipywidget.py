@@ -29,8 +29,8 @@ Example:
 """
 # %run _dev_sys_path_append.py
 # %run __init__.py
-#
 # %load_ext lab_black
+
 import logging
 import pathlib
 import functools
@@ -109,7 +109,7 @@ def get_from_schema_root(schema: ty.Dict, key: ty.AnyStr) -> ty.AnyStr:
 
 def add_fdir_to_widgetcaller(
     caller, fdir: str
-): # TODO: deprecate this by making fdir a trait and passing as **kwargs
+):  # TODO: deprecate this by making fdir a trait and passing as **kwargs
     """_summary_
 
     Args:
@@ -731,6 +731,19 @@ if __name__ == "__main__":
     ui = AutoObject(
         CoreIpywidgets,
         order=["text", "int_text", "int_slider", "int_slider_nullable"],
+        show_description=False,
+        show_title=False,
+        show_savebuttonbar=False,
+        show_raw=False,
+    )
+    display(ui)
+# -
+
+if __name__ == "__main__":
+    from ipyautoui.demo_schemas import EditableGrid
+
+    ui = AutoObject(
+        EditableGrid,
         show_description=False,
         show_title=False,
         show_savebuttonbar=False,
