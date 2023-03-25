@@ -31,6 +31,7 @@ from datetime import datetime
 from markdown import markdown
 import logging
 from enum import Enum
+logger = logging.getLogger(__name__)
 
 # +
 def merge_callables(callables: ty.Union[ty.Callable, ty.List[ty.Callable]]):
@@ -387,6 +388,7 @@ class CrudButtonBar(w.HBox):
             setattr(getattr(self, n), "value", False)
 
     def _reload(self, on_click):
+        logger.info("Reloading all data")
         self.fn_reload()
 
 
