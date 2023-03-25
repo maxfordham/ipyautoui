@@ -415,7 +415,7 @@ class EditGrid(w.VBox):
             fn_edit=self._edit,
             fn_copy=self._copy,
             fn_delete=self._delete,
-            fn_reload=self._reload_all_data,
+            fn_reload=self._reload,
             # backward=self.setview_default,
             show_message=False,
         )
@@ -586,6 +586,10 @@ class EditGrid(w.VBox):
 
     # delete
     # --------------------------------------------------------------------------
+    def _reload(self, on_click):
+        self._reload_all_data()
+        self.buttonbar_grid.message.value = markdown("  🔄 _Reloaded Data_ ")
+
     def _reload_all_data(self):
         if self.datahandler is not None:
             self.value = self.datahandler.fn_get_all_data()
