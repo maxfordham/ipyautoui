@@ -386,7 +386,7 @@ class EditGrid(w.VBox):
         ]
         self._init_controls()
         if self.datahandler is not None:
-            self.buttonbar_grid.fn_reload = self.datahandler.fn_get_all_data
+            self.buttonbar_grid.fn_reload = self._reload_datahandler
 
     def _init_row_controls(self):
         self.ui_edit.show_savebuttonbar = True
@@ -410,13 +410,15 @@ class EditGrid(w.VBox):
 
     def _init_form(self):
         super().__init__()
-        get_reload = lambda: None if self.datahandler is None else self._reload_datahandler
+        get_reload = (
+            lambda: None if self.datahandler is None else self._reload_datahandler
+        )
         self.buttonbar_grid = CrudButtonBar(
             fn_add=self._add,
             fn_edit=self._edit,
             fn_copy=self._copy,
             fn_delete=self._delete,
-            fn_reload= get_reload(),
+            fn_reload=get_reload(),
             # backward=self.setview_default,
             show_message=False,
         )
@@ -686,24 +688,26 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
+
     datahandler = DataHandler(
-        fn_get_all_data=lambda: pd.DataFrame(AUTO_GRID_DEFAULT_VALUE),
-        fn_post=lambda v: print("fn_post"),
-        fn_patch=lambda v: print("fn_patch"),
-        fn_delete=lambda v: print("fn_patch"),
-        fn_copy=lambda v: print("fn_copy"))
+        fn_get_all_data=lambda: AUTO_GRID_DEFAULT_VALUE * random.randint(1, 10),
+        fn_post=lambda v: print(v),
+        fn_patch=lambda v: print(v),
+        fn_delete=lambda v: print(v),
+        fn_copy=lambda v: print(v),
+    )
     title = "The Wonderful Edit Grid Application"
     description = markdown("Useful for all editing purposes" " whatever they may be 👍")
     editgrid = EditGrid(
         schema=TestDataFrame,
         title=title,
         description=description,
-        datahandler=datahandler
+        datahandler=datahandler,
     )
     display(editgrid)
 
 # +
-# datahandler.fn_get_all_data()
+# editgrid._reload_datahandler()
 # -
 
 if __name__ == "__main__":
