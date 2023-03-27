@@ -45,11 +45,11 @@ class TestButtonBar:
             return "BACK"
 
         button_bar = CrudButtonBar(
-            add=add,
-            edit=edit,
-            copy=copy,
-            delete=delete,
-            backward=backward,
+            fn_add=add,
+            fn_edit=edit,
+            fn_copy=copy,
+            fn_delete=delete,
+            fn_backward=backward,
         )
         assert button_bar.fn_add() == "ADD"
 
