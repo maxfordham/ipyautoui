@@ -58,7 +58,15 @@ ADD_BUTTON_KWARGS = frozenmap(
     style={},
     button_style="success",
     tooltip="add item",
-    layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+    layout={"width": BUTTON_WIDTH_MIN}, #, "height": BUTTON_HEIGHT_MIN
+    disabled=False,
+)
+EDIT_BUTTON_KWARGS = frozenmap(
+    icon="edit",
+    style={},
+    button_style="warning",
+    tooltip="add item",
+    layout={"width": BUTTON_WIDTH_MIN}, #, "height": BUTTON_HEIGHT_MIN
     disabled=False,
 )
 REMOVE_BUTTON_KWARGS = frozenmap(
@@ -66,8 +74,15 @@ REMOVE_BUTTON_KWARGS = frozenmap(
     style={},
     button_style="danger",
     tooltip="remove item",
-    layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+    layout={"width": BUTTON_WIDTH_MIN}, #, "height": BUTTON_HEIGHT_MIN
     disabled=False,
+)
+COPY_BUTTON_KWARGS = frozenmap(
+    icon="copy",
+    style={},
+    button_style="primary",
+    tooltip="copy item",
+    layout={"width": BUTTON_WIDTH_MIN}, #, "height": BUTTON_HEIGHT_MIN
 )
 RELOAD_BUTTON_KWARGS = frozenmap(
     icon="sync",
@@ -91,7 +106,7 @@ DOWNARROW_BUTTON_KWARGS = frozenmap(
     style={"button_color": "white"},
 )
 DELETE_BUTTON_KWARGS = frozenmap(
-    icon="trash",
+    icon="trash-alt",
     button_style="danger",
     tooltip="delete",
     layout={"width": BUTTON_WIDTH_MIN},

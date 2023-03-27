@@ -19,10 +19,10 @@
 """General widget for editing data"""
 # %run _dev_sys_path_append.py
 # %run __init__.py
-#
 # %run ../__init__.py
 # %load_ext lab_black
-# TODO: move editgrid.py to root
+# TODO: move editgrid.py to root ?
+
 import traitlets as tr
 import typing as ty
 import logging
@@ -170,6 +170,9 @@ if __name__ == "__main__":
 
 
 # +
+# NOTE: UiCopy not in use
+
+
 class UiCopy(w.HBox):
     index = tr.Integer()  # row index copying from... improve user reporting
 
@@ -229,7 +232,9 @@ if __name__ == "__main__":
     display(UiCopy())
 
 
-# -
+# +
+# TODO: refactor how the datahandler works...
+# TODO: add a test for the datahandler...
 
 
 class EditGrid(w.VBox):
@@ -237,6 +242,21 @@ class EditGrid(w.VBox):
     warn_on_delete = tr.Bool()
     show_copy_dialogue = tr.Bool()
     close_crud_dialogue_on_action = tr.Bool()
+    title = tr.Unicode(default_value=None, allow_none=True)
+    description = tr.Unicode(default_value=None, allow_none=True)
+    show_title = tr.Bool(default_value=True)
+
+    @tr.observe("title")
+    def observe_title(self, on_change):
+        self._update_title_description()
+
+    @tr.observe("description")
+    def observe_description(self, on_change):
+        self._update_title_description()
+
+    @tr.observe("show_title")
+    def observe_show_title(self, on_change):
+        self._update_title_description()
 
     @tr.observe("warn_on_delete")
     def observe_warn_on_delete(self, on_change):
@@ -256,17 +276,6 @@ class EditGrid(w.VBox):
     def value(self):
         return self._value
 
-    @property
-    def transposed(self):
-        return self.grid.transposed
-
-    @transposed.setter
-    def transposed(self, value: bool):
-        self.grid.transposed = value
-
-    def _update_value_from_grid(self):
-        self._value = self.grid.records()
-
     @value.setter
     def value(self, value):
         if value == [] or value is None:
@@ -278,6 +287,30 @@ class EditGrid(w.VBox):
         _transforms = self.grid._transforms
         self.grid.transform([])  # Set to no transforms
         self.grid.transform(_transforms)  # Set to previous transforms
+
+    @property
+    def transposed(self):
+        return self.grid.transposed
+
+    @transposed.setter
+    def transposed(self, value: bool):
+        self.grid.transposed = value
+
+    def _update_value_from_grid(self):
+        self._value = self.grid.records()
+
+    def _update_title_description(self):
+        if not self.show_title:
+            self.html_title.layout.display = "None"
+        else:
+            if self.title is None and self.description is None:
+                self.html_title.layout.display = "None"
+            else:
+                self.html_title.layout.display = ""
+                get = lambda v: "" if v is None else v
+                self.html_title.value = (
+                    f"<b>{get(self.title)}</b>, <i>{get(self.description)}</i>"
+                )
 
     def __init__(
         self,
@@ -293,10 +326,16 @@ class EditGrid(w.VBox):
         warn_on_delete: bool = False,
         show_copy_dialogue: bool = False,
         close_crud_dialogue_on_action: bool = False,
-        description: str = "",
+        title: str = None,
+        description: str = None,
+        show_title: bool = True,
         **kwargs,
     ):
-        self.description = w.HTML(description)
+        self.html_title = w.HTML("")
+        self.description = description
+        self.title = title
+        self.show_title = show_title
+
         self.by_title = by_title
         self.by_alias = by_alias
         self.datahandler = datahandler
@@ -340,12 +379,14 @@ class EditGrid(w.VBox):
             children=[self.ui_add, self.ui_edit, self.ui_copy, self.ui_delete]
         )
         self.children = [
-            self.description,
+            self.html_title,
             self.buttonbar_grid,
             self.stk_crud,
             self.grid,
         ]
         self._init_controls()
+        if self.datahandler is not None:
+            self.buttonbar_grid.fn_reload = self._reload_datahandler
 
     def _init_row_controls(self):
         self.ui_edit.show_savebuttonbar = True
@@ -369,11 +410,15 @@ class EditGrid(w.VBox):
 
     def _init_form(self):
         super().__init__()
+        get_reload = (
+            lambda: None if self.datahandler is None else self._reload_datahandler
+        )
         self.buttonbar_grid = CrudButtonBar(
-            add=self._add,
-            edit=self._edit,
-            copy=self._copy,
-            delete=self._delete,
+            fn_add=self._add,
+            fn_edit=self._edit,
+            fn_copy=self._copy,
+            fn_delete=self._delete,
+            fn_reload=get_reload(),
             # backward=self.setview_default,
             show_message=False,
         )
@@ -544,6 +589,10 @@ class EditGrid(w.VBox):
 
     # delete
     # --------------------------------------------------------------------------
+    def _reload_datahandler(self):
+        self._reload_all_data()
+        self.buttonbar_grid.message.value = markdown("  🔄 _Reloaded Data_ ")
+
     def _reload_all_data(self):
         if self.datahandler is not None:
             self.value = self.datahandler.fn_get_all_data()
@@ -588,6 +637,8 @@ class EditGrid(w.VBox):
             traceback.print_exc()
 
 
+# -
+
 if __name__ == "__main__":
     # Test: EditGrid instance with multi-indexing.
     AUTO_GRID_DEFAULT_VALUE = [
@@ -615,12 +666,11 @@ if __name__ == "__main__":
             datagrid_index_name=("section", "title"),
         )
 
-    description = markdown(
-        "<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes"
-        " whatever they may be 👍"
-    )
+    title = "The Wonderful Edit Grid Application"
+    description = markdown("Useful for all editing purposes" " whatever they may be 👍")
     editgrid = EditGrid(
         schema=TestDataFrame,
+        title=title,
         description=description,
         ui_add=None,
         ui_edit=None,
@@ -636,6 +686,29 @@ if __name__ == "__main__":
     editgrid.grid.order = ("floater", "string")
     # ^ NOTE: this will result in a value change in the grid
 
+
+if __name__ == "__main__":
+
+    datahandler = DataHandler(
+        fn_get_all_data=lambda: AUTO_GRID_DEFAULT_VALUE * random.randint(1, 10),
+        fn_post=lambda v: print(v),
+        fn_patch=lambda v: print(v),
+        fn_delete=lambda v: print(v),
+        fn_copy=lambda v: print(v),
+    )
+    title = "The Wonderful Edit Grid Application"
+    description = markdown("Useful for all editing purposes" " whatever they may be 👍")
+    editgrid = EditGrid(
+        schema=TestDataFrame,
+        title=title,
+        description=description,
+        datahandler=datahandler,
+    )
+    display(editgrid)
+
+# +
+# editgrid._reload_datahandler()
+# -
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets

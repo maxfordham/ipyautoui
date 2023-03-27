@@ -16,7 +16,6 @@
 # +
 # %run _dev_sys_path_append.py
 # %run __init__.py
-#
 # %load_ext lab_black
 
 import ipywidgets as w
@@ -32,6 +31,7 @@ from datetime import datetime
 from markdown import markdown
 import logging
 from enum import Enum
+logger = logging.getLogger(__name__)
 
 # +
 def merge_callables(callables: ty.Union[ty.Callable, ty.List[ty.Callable]]):
@@ -291,11 +291,25 @@ CrudView = StrEnum(
 )
 
 
-# -
+# +
+from ipyautoui import constants
 
 
 class CrudButtonBar(w.HBox):
     active = tr.UseEnum(CrudView, allow_none=True, default_value=None)
+    fn_add = tr.Callable(default_value=lambda: print("add"))
+    fn_edit = tr.Callable(default_value=lambda: print("edit"))
+    fn_copy = tr.Callable(default_value=lambda: print("copy"))
+    fn_delete = tr.Callable(default_value=lambda: print("delete"))
+    fn_backward = tr.Callable(default_value=lambda: print("backward"))  # TODO
+    fn_reload = tr.Callable(default_value=None, allow_none=True)
+
+    @tr.observe("fn_reload")
+    def _observe_fn_reload(self, change):
+        if change["new"] is None:
+            self.reload.layout.display = "None"
+        else:
+            self.reload.layout.display = ""
 
     @tr.observe("active")
     def _observe_active(self, change):
@@ -305,57 +319,37 @@ class CrudButtonBar(w.HBox):
 
     def __init__(
         self,
-        # transpose: # TODO: add transpose datagrid button
-        add: ty.Callable = lambda: print("add"),
-        edit: ty.Callable = lambda: print("edit"),
-        copy: ty.Callable = lambda: print("copy"),
-        delete: ty.Callable = lambda: print("delete"),
-        backward: ty.Callable = lambda: print("backward"),
-        show_message: bool = True,
         **kwargs,
     ):
-        super().__init__(**kwargs)  # main container
-        self.show_message = show_message
-        self.fn_add = add
-        self.fn_edit = edit
-        self.fn_copy = copy
-        self.fn_delete = delete
-        self.fn_backward = backward
-        self.out = w.Output()
         self._init_form()
+        super().__init__(**kwargs)  # main container
+        self.out = w.Output()
+        self.children = [
+            self.add,
+            self.edit,
+            self.copy,
+            self.delete,
+            self.reload,
+            self.message,
+        ]
         self._init_controls()
 
     def _init_form(self):
         # self.transpose w.ToggleButton(icon="arrow-right")
-        self.add = w.ToggleButton(
-            icon="plus",
-            button_style="success",
-            style={"font_weight": "bold"},
-            layout=w.Layout(width=BUTTON_WIDTH_MIN),
-        )
-        self.edit = w.ToggleButton(
-            icon="edit",
-            button_style="warning",
-            layout=w.Layout(width=BUTTON_WIDTH_MIN),
-        )
-        self.copy = w.ToggleButton(
-            icon="copy",
-            button_style="primary",
-            layout=w.Layout(width=BUTTON_WIDTH_MIN),
-        )
-        self.delete = w.ToggleButton(
-            icon="trash-alt",
-            button_style="danger",
-            layout=w.Layout(width=BUTTON_WIDTH_MIN),
-        )
+        self.add = w.ToggleButton(**constants.ADD_BUTTON_KWARGS)
+        self.edit = w.ToggleButton(**constants.EDIT_BUTTON_KWARGS)
+        self.copy = w.ToggleButton(**constants.COPY_BUTTON_KWARGS)
+        self.delete = w.ToggleButton(**constants.DELETE_BUTTON_KWARGS)
+        self.reload = w.Button(**constants.RELOAD_BUTTON_KWARGS)
+        self.reload.layout.display = "None"
         self.message = w.HTML()
-        self.children = [self.add, self.edit, self.copy, self.delete, self.message]
 
     def _init_controls(self):
         self.add.observe(self._add, "value")
         self.edit.observe(self._edit, "value")
         self.copy.observe(self._copy, "value")
         self.delete.observe(self._delete, "value")
+        self.reload.on_click(self._reload)
 
     def _onclick(self, button_name):
         w = getattr(self, button_name)
@@ -369,7 +363,6 @@ class CrudButtonBar(w.HBox):
             fn()
         else:
             self.active = None
-            # self.message.value = ""
             w.tooltip = BUTTONBAR_CONFIG[button_name]["tooltip"]
             w.layout.border = None
             self.fn_backward()
@@ -394,6 +387,12 @@ class CrudButtonBar(w.HBox):
         for n in names:
             setattr(getattr(self, n), "value", False)
 
+    def _reload(self, on_click):
+        logger.info("Reloading all data")
+        self.fn_reload()
+
+
+# -
 
 if __name__ == "__main__":
 
@@ -413,11 +412,14 @@ if __name__ == "__main__":
         print("BACK")
 
     buttonbar = CrudButtonBar(
-        add=add,
-        edit=edit,
-        copy=copy,
-        delete=delete,
-        backward=backward,
+        fn_add=add,
+        fn_edit=edit,
+        fn_copy=copy,
+        fn_delete=delete,
+        fn_backward=backward,
+        fn_reload=lambda: print("fn_reload"),
     )
 
     display(buttonbar)
+
+
