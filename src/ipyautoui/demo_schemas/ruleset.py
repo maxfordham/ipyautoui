@@ -1,7 +1,17 @@
 from enum import Enum
 from pydantic import BaseModel, Field
+from ipyautoui import AutoUi
+
+URL_REVIT_FILTERS = "https://help.autodesk.com/view/RVT/2023/ENU/?guid=GUID-400FD74B-00E0-4573-B3AC-3965E65CBBDB"
+
+
+def html_link(url, description):
+    return f'<a href="{url}" target="blank" >{description}</a>'
+
 
 class RuleSetType(str, Enum):
+    """how the rules logically multiply. Must be `AND` for schedules"""
+
     AND: str = "AND"
     OR: str = "OR"
 
@@ -67,14 +77,25 @@ class Rule(BaseModel):
 
 
 class ScheduleRuleSet(BaseModel):
-    set_type: RuleSetType = Field(default=RuleSetType.AND, const=True)
-    rules: list[Rule]
 
+    set_type: RuleSetType = Field(default=RuleSetType.AND, const=True, disabled=True)
+    rules: list[Rule] = Field(
+        description="""
+rules return a boolean for the logical evaluation defined below for every item within the categories defined
+"""
+    )
+
+
+ScheduleRuleSet.__doc__ = """A set of rules that defines what equipment specifications will appear in a given schedule.
+    Rules must evaluate to True for the item to be included in a schedule
+    Analogous to filter rules in 
+    """ + html_link(
+    URL_REVIT_FILTERS, "Revit."
+)
 
 # class RuleSet(BaseModel):
 #     set_type: RuleSetType
 #     rules: list[ty.Union[Rule, ty.ForwardRef("RuleSet")]]
 
 # RuleSet.update_forward_refs()
-
 # ^ TODO: add support for nested rulesets with ty.Union[Rule, RuleSet]...
