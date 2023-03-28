@@ -38,6 +38,7 @@ from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui._utils import frozenmap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 from ipyautoui.custom.autogrid import AutoGrid
+from ipyautoui.custom.title_description import TitleDescription
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 # TODO: rename "add" to "fn_add" so not ambiguous...
@@ -237,26 +238,11 @@ if __name__ == "__main__":
 # TODO: add a test for the datahandler...
 
 
-class EditGrid(w.VBox):
+class EditGrid(w.VBox, TitleDescription):
     _value = tr.Tuple()  # using a tuple to guarantee no accidental mutation
     warn_on_delete = tr.Bool()
     show_copy_dialogue = tr.Bool()
     close_crud_dialogue_on_action = tr.Bool()
-    title = tr.Unicode(default_value=None, allow_none=True)
-    description = tr.Unicode(default_value=None, allow_none=True)
-    show_title = tr.Bool(default_value=True)
-
-    @tr.observe("title")
-    def observe_title(self, on_change):
-        self._update_title_description()
-
-    @tr.observe("description")
-    def observe_description(self, on_change):
-        self._update_title_description()
-
-    @tr.observe("show_title")
-    def observe_show_title(self, on_change):
-        self._update_title_description()
 
     @tr.observe("warn_on_delete")
     def observe_warn_on_delete(self, on_change):
@@ -299,18 +285,6 @@ class EditGrid(w.VBox):
     def _update_value_from_grid(self):
         self._value = self.grid.records()
 
-    def _update_title_description(self):
-        if not self.show_title:
-            self.html_title.layout.display = "None"
-        else:
-            if self.title is None and self.description is None:
-                self.html_title.layout.display = "None"
-            else:
-                self.html_title.layout.display = ""
-                get = lambda v: "" if v is None else v
-                self.html_title.value = (
-                    f"<b>{get(self.title)}</b>, <i>{get(self.description)}</i>"
-                )
 
     def __init__(
         self,
@@ -331,7 +305,7 @@ class EditGrid(w.VBox):
         show_title: bool = True,
         **kwargs,
     ):
-        self.html_title = w.HTML("")
+
         self.description = description
         self.title = title
         self.show_title = show_title
@@ -771,3 +745,5 @@ if __name__ == "__main__":
     ui.observe(lambda c: print("_value change"), "_value")
     ui.di_widgets["__root__"].observe(lambda c: print("grid _value change"), "_value")
     display(ui)
+
+
