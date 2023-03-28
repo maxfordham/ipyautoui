@@ -18,7 +18,7 @@ UniclassProducts.__doc__ = "A list of valid Uniclass Product codes"
 
 class UniclassProductsUi(BaseModel):
     __root__: UniclassProducts = Field(
-        None, autoui="ipyautoui.autowidgets.Combobox", layout={"width": "400px"}
+        autoui="ipyautoui.autowidgets.Combobox", layout={"width": "400px"}
     )
 
     class Config:
@@ -26,8 +26,8 @@ class UniclassProductsUi(BaseModel):
 
 
 class RootArrayEnum(BaseModel):
-    """FIXME: **This is currently not working**. Due to nested definition in JSON-schema"""
+    """select products"""
 
     products: list[UniclassProductsUi] = Field(
-        None, title=UniclassProducts.__name__, description=UniclassProducts.__doc__
+        title=UniclassProducts.__name__, description=UniclassProducts.__doc__
     )
