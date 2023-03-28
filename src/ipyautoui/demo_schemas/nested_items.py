@@ -16,11 +16,13 @@ class RecursiveNest(BaseModel):
     string1: str = Field(default="adsf", description="a description about my string")
     int_slider1: conint(ge=1, le=3) = 2
     int_text1: int = 1
-    nested: NestedObject = Field(default=None)
+    nested: NestedObject
 
 
 class Nested(BaseModel):
-    nested: NestedObject = Field(default=None)
-    # recursive_nest: RecursiveNest # TODO: fix this!
+    """demonstrates nested objects"""
+
+    nested: NestedObject
+    recursive_nest: RecursiveNest
     array_simple: list[str]
     arrar_objects: list[NestedObject]
