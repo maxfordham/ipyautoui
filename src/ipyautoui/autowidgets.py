@@ -55,7 +55,12 @@ def _get_value_trait(obj_with_traits):
     try:
         return obj_with_traits.traits()["value"]
     except:
-        raise ValueError(f"{str(type(obj_with_traits))}: has no 'value' trait")
+        try:
+            return obj_with_traits.traits()["_value"]
+        except:
+            raise ValueError(
+                f"{str(type(obj_with_traits))}: has no 'value' or '_value' trait"
+            )
 
 
 def is_null(value):
@@ -78,7 +83,7 @@ class Nullable(w.HBox):
     using `self.widget`"""
 
     disabled = tr.Bool(default_value=False)
-    
+
     @tr.observe("disabled")
     def observe_disabled(self, on_change):
         """If disabled, ensure that the widget is disabled and the button is also."""
@@ -92,7 +97,7 @@ class Nullable(w.HBox):
         else:
             self.bn.disabled = False
             self.widget.disabled = False
-    
+
     def __init__(self, widget_type, schema, *args, **kwargs):
         self.schema = schema
         self.caller = create_widget_caller(schema)
@@ -500,5 +505,3 @@ if __name__ == "__main__":
 
     doctest.testmod()
 # -
-
-
