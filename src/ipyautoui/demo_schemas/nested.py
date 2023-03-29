@@ -25,4 +25,4 @@ class Nested(BaseModel):
     nested: NestedObject
     recursive_nest: RecursiveNest
     array_simple: list[str]
-    arrar_objects: list[NestedObject]
+    array_objects: list[NestedObject]

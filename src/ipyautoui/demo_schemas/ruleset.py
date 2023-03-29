@@ -66,7 +66,8 @@ RevitOperatorsEnum = StrEnum(
 
 class Rule(BaseModel):
     categories: list[RevitCategoriesEnum] = Field(
-        description="Revit MEP categories to filter by. If empty, all categories are included."
+        title="Categories",  # TODO: this is pydantic bug (should generate title from field name)
+        description="Revit MEP categories to filter by (i.e. revit object must belong to categories defined here). If empty, all categories are included.",
     )
     parameter: str
     operator: RevitOperatorsEnum

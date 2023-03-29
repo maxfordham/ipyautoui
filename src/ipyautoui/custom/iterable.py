@@ -71,10 +71,9 @@ Example:
 
 """
 # TODO: move iterable.py to root
-# TODO: review: https://github.com/widgetti/react-ipywidgets - it could simplify the code required below.
+# TODO: review: https://github.com/widgetti/reacton - it could simplify the code required below.
 # %run _dev_sys_path_append.py
 # %run __init__.py
-#
 # %load_ext lab_black
 import ipywidgets as w
 import traitlets as tr
@@ -98,6 +97,7 @@ from ipyautoui.constants import (
 from ipyautoui._utils import frozenmap
 from ipyautoui.autowidgets import create_widget_caller
 import logging
+from ipyautoui.custom.title_description import TitleDescription
 
 logger = logging.getLogger(__name__)
 BOX = frozenmap({True: w.HBox, False: w.VBox})
@@ -105,7 +105,6 @@ TOGGLE_BUTTON_KWARGS = frozenmap(
     icon="",
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
 )
-# -
 
 # +
 class IterableItem(BaseModel):
@@ -172,11 +171,11 @@ class IterableItem(BaseModel):
 
 
 # # +
-class Array(w.VBox):
+class Array(w.VBox, TitleDescription):
     """generic iterable. pass a list of items"""
 
     # -----------------------------------------------------------------------------------
-    _value = tr.List()
+    _value = tr.List(allow_none=True)
     _show_hash = tr.Unicode(allow_none=True)
     _add_remove_controls = tr.Unicode(allow_none=True)
     _sort_on = tr.Unicode(allow_none=True)
@@ -221,6 +220,8 @@ class Array(w.VBox):
         items: ty.List = None,
         toggle=False,
         title=None,
+        description=None,
+        show_title=True,
         fn_add: ty.Callable = lambda: display("add item"),
         fn_add_dialogue: ty.Callable = None,
         fn_remove: ty.Callable = lambda: display("remove item"),
@@ -250,6 +251,8 @@ class Array(w.VBox):
         self._init_form()
         self._toggle = toggle
         self.title = title
+        self.description = description
+        self.show_title = show_title
         self.add_remove_controls = add_remove_controls
         self.show_hash = show_hash
         self.sort_on = sort_on
@@ -500,19 +503,6 @@ class Array(w.VBox):
     def toggle(self, value: bool):
         self._toggle = value
         self.toggle_button.value = True
-        self._update_header()
-
-    @property
-    def title(self):
-        return self._title
-
-    @title.setter
-    def title(self, value: ty.Union[str, None]):
-        self._title = value
-        if self.title is None:
-            self.html_title = w.HTML(self.title)
-        else:
-            self.html_title = w.HTML(markdown(self.title))
         self._update_header()
 
     def _update_header(self):
@@ -885,6 +875,7 @@ if __name__ == "__main__":
         "show_hash": "index",
         "toggle": True,
         "title": "Array",
+        "description": "asdf",
         "add_remove_controls": "append_only",
         "orient_rows": False,
     }
