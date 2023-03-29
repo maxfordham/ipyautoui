@@ -12,7 +12,12 @@ import pathlib
 from .constants import DIR_TESTS, DIR_FILETYPES
 from ipyautoui.automapschema import _init_model_schema  # AutoUiSchema,
 from ipyautoui.autoipywidget import AutoObject
-from ipyautoui.demo_schemas import CoreIpywidgets, RootArrayEnum, Nested, ScheduleRuleSet
+from ipyautoui.demo_schemas import (
+    CoreIpywidgets,
+    RootArrayEnum,
+    Nested,
+    ScheduleRuleSet,
+)
 import json
 import pytest
 
@@ -44,8 +49,9 @@ class TestAutoUiSchema:
         aui = AutoObject(schema=Nested)
         assert list(aui.di_widgets.keys()) == [
             "nested",
+            "recursive_nest",
             "array_simple",
-            "arrar_objects",
+            "array_objects",
         ]
         print("done")
 
