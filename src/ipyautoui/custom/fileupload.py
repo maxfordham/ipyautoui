@@ -1,9 +1,27 @@
+# -*- coding: utf-8 -*-
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: py:light
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.14.0
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
+# ---
+
 """file upload wrapper"""
 # %load_ext lab_black
 # %run _dev_sys_path_append.py
 # %run __init__.py
 # %run ../__init__.py
 
+# +
 import ipywidgets as w
 from markdown import markdown
 from IPython.display import display, clear_output
@@ -15,7 +33,6 @@ from datetime import datetime
 import traitlets as tr
 import json
 import logging
-
 from ipyautoui.constants import DELETE_BUTTON_KWARGS
 from ipyautoui._utils import getuser
 from ipyautoui.autodisplay import DisplayObject, DisplayPath
@@ -27,6 +44,8 @@ IPYAUTOUI_ROOTDIR = Env().IPYAUTOUI_ROOTDIR
 IS_IPYWIDGETS8 = (lambda: True if "8" in w.__version__ else False)()
 logger = logging.getLogger(__name__)
 
+
+# +
 class File(BaseModel):
     name: str
     fdir: pathlib.Path = pathlib.Path(".")
@@ -35,8 +54,7 @@ class File(BaseModel):
     @validator("path", always=True, pre=True)
     def _path(cls, v, values):
         return values["fdir"] / values["name"]
-
-
+    
 def read_file_upload_item(di: dict, fdir=pathlib.Path("."), added_by=None):
     if added_by is None:
         added_by = getuser()
@@ -47,7 +65,6 @@ def read_file_upload_item(di: dict, fdir=pathlib.Path("."), added_by=None):
     _["fdir"] = fdir
     _["added_by"] = added_by
     return File(**_)
-
 
 def add_file(upld_item, fdir=pathlib.Path(".")):
     f = read_file_upload_item(upld_item, fdir=fdir)
@@ -62,12 +79,10 @@ def add_files_ipywidgets8(upld_value, fdir=pathlib.Path(".")):
         di[l["name"]] = f
     return [v.path for v in di.values()]
 
-
 def add_files(upld_value, fdir=pathlib.Path(".")):
     if not pathlib.Path(fdir).exists():
         pathlib.Path(fdir).mkdir(exist_ok=True)
     return add_files_ipywidgets8(upld_value, fdir=fdir)
-
 
 class FilesUploadToDir(Array):
     def __init__(
@@ -75,7 +90,7 @@ class FilesUploadToDir(Array):
         value=None,
         fdir=pathlib.Path("."),
         kwargs_display_path: ty.Optional[dict] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             add_remove_controls="remove_only",
@@ -131,11 +146,15 @@ class AutoUploadPaths(FilesUploadToDir):
             value=value, fdir=fdir, kwargs_display_path=kwargs_display_path, **kwargs
         )
 
+
+# -
+
 if __name__ == "__main__":
     upld = FilesUploadToDir(
         ["/mnt/c/engDev/git_mf/test.PNG"], fdir=pathlib.Path("/mnt/c/engDev/git_mf")
     )
     display(upld)
+    # test
 
 if __name__ == "__main__":
     upld.value = ["EquipmentReferences-MaxFordhamStandard.pdf", "GenesisCroixDeFer.jpg"]
@@ -158,7 +177,6 @@ if __name__ == "__main__":
     display(aui)
 
 
-# +
 class AutoUploadPathsValueString(w.VBox):
     _value = tr.Unicode()
 
@@ -208,7 +226,6 @@ if __name__ == "__main__":
 
     aui = AutoUi(Test)
     display(aui)
-# -
 
 if __name__ == "__main__":
     upld = AutoUploadPathsValueString(
@@ -226,5 +243,3 @@ if __name__ == "__main__":
         value='["EquipmentReferences-MaxFordhamStandard.pdf", "GenesisCroixDeFer.jpg"]'
     )
     display(aui)
-
-
