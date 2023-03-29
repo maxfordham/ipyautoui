@@ -200,10 +200,10 @@ class Array(w.VBox, TitleDescription):
             raise ValueError(
                 f'{proposal} given. allowed values of _add_remove_controls are "add_remove", "append_only", "remove_only", None only'
             )
-        return proposal
+        return proposal.value
 
     @validate("_sort_on")
-    def _validate_add_remove_controls(self, proposal):
+    def _validate_sort_on(self, proposal):
         if proposal.value not in ["index", "key", None]:
             raise ValueError(
                 f'{proposal} given. allowed values of sort_on are "index", "key" and None only'

@@ -615,6 +615,12 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
             if "nullable" in v.schema_:
                 self.contains_nullable = True
                 break
+        traits = self.traits()
+        for k, v in self.schema.items():
+            if k in traits:
+                setattr(self, k, v)
+            else:
+                pass
 
         if self.fdir is not None:
             for v in self.pr.values():
