@@ -285,7 +285,6 @@ class EditGrid(w.VBox, TitleDescription):
     def _update_value_from_grid(self):
         self._value = self.grid.records()
 
-
     def __init__(
         self,
         schema: ty.Union[dict, ty.Type[BaseModel]],
@@ -305,7 +304,7 @@ class EditGrid(w.VBox, TitleDescription):
         show_title: bool = True,
         **kwargs,
     ):
-
+        self.html_title = w.HTML()
         self.description = description
         self.title = title
         self.show_title = show_title
@@ -745,5 +744,3 @@ if __name__ == "__main__":
     ui.observe(lambda c: print("_value change"), "_value")
     ui.di_widgets["__root__"].observe(lambda c: print("grid _value change"), "_value")
     display(ui)
-
-
