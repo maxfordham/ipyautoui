@@ -1,6 +1,5 @@
 from ipyautoui.demo import Demo
-from ipyautoui.demo_schemas import CoreIpywidgets, Rule
-from ipyautoui.autoipywidget import AutoObject
+from ipyautoui.demo_schemas import CoreIpywidgets
 import inspect
 
 
@@ -11,8 +10,3 @@ class TestAutoObjectFormLayout:
         assert d.pydantic_model == CoreIpywidgets
         assert d.python_file == inspect.getfile(CoreIpywidgets)
 
-
-class TestFilters:
-    def test_Rule(self):
-        aui = AutoObject(schema=Rule)
-        print("done")
