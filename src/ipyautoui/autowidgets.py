@@ -153,6 +153,7 @@ class Nullable(w.HBox):
     def _init_controls(self):
         self.bn.observe(self._toggle_none, "value")
         self.widget.observe(self._update, "value")
+        self.widget.observe(self._update, "_value")
         self.observe(self._observe_nullable, "nullable")
 
     def _observe_nullable(self, onchange):

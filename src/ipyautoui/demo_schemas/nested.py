@@ -26,3 +26,5 @@ class Nested(BaseModel):
     recursive_nest: RecursiveNest
     array_simple: list[str]
     array_objects: list[NestedObject]
+    nullable_list: list[str] = None
+    nullable_object: NestedObject = None
