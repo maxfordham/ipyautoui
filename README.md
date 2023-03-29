@@ -142,6 +142,13 @@ $ mamba env create -f environment-dev.yml
 $ pytest
 ```
 
+```{note}
+[Jupytext](https://github.com/mwouts/jupytext) is used throughout to allow the `.py` files
+to be ran as notebooks to facillitate easy testing. You can use JupyterLab, or if you are 
+using VS Code then install the Jupytext extension. In the `.vscode/settings.json` file
+`"jupyter.notebookFileRoot": "${fileDirname}"` matching with the jupyterlab default. 
+```
+
 ## Packaging (restricted to core-maintainers)
 
 ```sh
