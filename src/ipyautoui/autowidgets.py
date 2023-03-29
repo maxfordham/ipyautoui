@@ -132,18 +132,23 @@ class Nullable(w.HBox):
     def value(self):
         return self._value
 
+    def update_value(self, value):
+        self.bn.value = False
+        self.widget.value = value
+        # note. as the self.widget.value still exists in the background,
+        #       this may not trigger a change event...
+        #       so we'll manually do it too (below)
+        self._update("")
+
     @value.setter
     def value(self, value):
-        if pd.isnull(value):
+        if isinstance(value, dict) or isinstance(value, list):
+            self.update_value(value)
+        elif pd.isnull(value):
             self.bn.value = True
             self._value = None
         else:
-            self.bn.value = False
-            self.widget.value = value
-            # note. as the self.widget.value still exists in the background,
-            #       this may not trigger a change event...
-            #       so we'll manually do it too (below)
-            self._update("")
+            self.update_value(value)
 
     def _init_controls(self):
         self.bn.observe(self._toggle_none, "value")
