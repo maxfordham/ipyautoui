@@ -255,12 +255,26 @@ def xlsxtemplated_display(li):
         display(l["grid"])
 
 
-def preview_json(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
-    js = json.loads(getbytes(path).decode())
-    return Markdown(
+def preview_json_string(json_str):
+    Markdown(
         f"""
 ```json
-{json.dumps(js, indent=4)}
+{json.dumps(json_str, indent=4)}
+```
+"""
+    )
+
+
+def preview_json(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
+    js = json.loads(getbytes(path).decode())
+    return preview_json_string(js)
+
+
+def preview_yaml_string(yaml_str):
+    Markdown(
+        f"""
+```yaml
+{yaml_str}
 ```
 """
     )
@@ -268,22 +282,20 @@ def preview_json(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
 
 def preview_yaml(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
     byts = getbytes(path)
-    return Markdown(
-        f"""
-```yaml
-{byts.decode()}
-```
-"""
-    )
+    return preview_yaml_string(byts.decode())
+
+
+def preview_plotly_json(plotly_str):
+    package_name = "plotly"
+    if check_installed(package_name):
+        return pio.from_json(plotly_str)
+    else:
+        return w.HTML(package_name + " is not installed")
 
 
 def preview_plotly(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
-    package_name = "plotly"
-    if check_installed(package_name):
-        byts = getbytes(path)
-        return pio.from_json(byts.decode())
-    else:
-        return w.HTML(package_name + " is not installed")
+    byts = getbytes(path)
+    return preview_plotly_json(byts.decode())
 
 
 def Vega(spec):
@@ -344,9 +356,17 @@ def get_vega_data(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
     return data
 
 
+def preview_vega_json(vega_json):
+    return Vega(vega_json)
+
+
 def preview_vega(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
     data = get_vega_data(path)
-    return Vega(data)
+    return preview_vega_json(data)
+
+
+def preview_vegalite_json(vegalite_json):
+    return VegaLite(vegalite_json)
 
 
 def preview_vegalite(path):
@@ -375,15 +395,21 @@ def preview_audio(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable], *args, **k
 
 
 ##############TODO: from here:###############################
-def preview_text(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
-    byts = getbytes(path)
+
+
+def preview_text_string(text_str):
     return Markdown(
         f"""
 ```
-{byts.decode()}
+{text_str}
 ```
 """
     )
+
+
+def preview_text(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
+    byts = getbytes(path)
+    return preview_text_string(byts.decode())
 
 
 def preview_dir(path: pathlib.Path):
@@ -403,6 +429,7 @@ def preview_text_or_dir(path):
         return preview_dir(path)
 
 
+# TODO: how to preview markdown not as a file, but as a string?
 def preview_markdown(path: pathlib.Path):
     import subprocess
 

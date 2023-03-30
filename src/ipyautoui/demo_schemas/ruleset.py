@@ -23,8 +23,7 @@ from enum import Enum
 from pydantic import BaseModel, Field
 from ipyautoui import AutoUi
 from ipyautoui.autoipywidget import AutoObject
-from random import choice, shuffle, randint
-from string import digits, ascii_lowercase
+from ipyautoui._utils import html_link
 
 URL_REVIT_FILTERS = "https://help.autodesk.com/view/RVT/2023/ENU/?guid=GUID-400FD74B-00E0-4573-B3AC-3965E65CBBDB"
 
@@ -34,14 +33,6 @@ URL_REVIT_FILTERS = "https://help.autodesk.com/view/RVT/2023/ENU/?guid=GUID-400F
 
 class StrEnum(str, Enum):
     pass
-
-
-def gen_word(N, min_N_digits, min_N_lower):
-    choose_from = [digits] * min_N_digits + [ascii_lowercase] * min_N_lower
-    choose_from.extend([digits + ascii_lowercase] * (N - min_N_lower - min_N_digits))
-    chars = [choice(bet) for bet in choose_from]
-    shuffle(chars)
-    return "".join(chars)
 
 
 def get_property_names():  # TODO: overwrite this
@@ -99,8 +90,6 @@ class RuleUi(AutoObject):  # RuleUi extends AutoObject allowing customisation
 
 
 # +
-def html_link(url, description, color="blue"):
-    return f'<font color="{color}"><a href="{url}" target="blank" >{description}</a></font>'
 
 
 class RuleSetType(str, Enum):
@@ -210,5 +199,3 @@ if __name__ == "__main__":
 
     aui = AutoUi(ScheduleRuleSet, show_raw=True, align_horizontal=False)
     display(aui)
-
-
