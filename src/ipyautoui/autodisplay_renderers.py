@@ -256,7 +256,7 @@ def xlsxtemplated_display(li):
 
 
 def preview_json_string(json_str):
-    Markdown(
+    return Markdown(
         f"""
 ```json
 {json.dumps(json_str, indent=4)}
@@ -271,7 +271,7 @@ def preview_json(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
 
 
 def preview_yaml_string(yaml_str):
-    Markdown(
+    return Markdown(
         f"""
 ```yaml
 {yaml_str}
