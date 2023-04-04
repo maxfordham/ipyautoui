@@ -589,8 +589,11 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
         else:
             fn = caller.autoui
         wi = fn(caller.schema_, *caller.args, **caller.kwargs)
-    except:
+    except Exception as e:
+
         if show_errors:
+            from ipyautoui.custom.widgetcaller_error import WidgetCallerError
+
             txt = f"""
 ERROR: widgetcaller
 -----
@@ -599,9 +602,14 @@ widget:
 
 schema: 
 {str(caller.schema_)}
+
+error:
+{str(e)}
 """
             # TODO: add logging
-            wi = w.Textarea(txt)
+            wi = WidgetCallerError(
+                widget=str(caller.autoui), schema=caller.schema_, error=str(e)
+            )
         else:
             return  # TODO: check this works
     return wi
