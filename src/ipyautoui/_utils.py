@@ -443,12 +443,13 @@ def check_installed(package_name):
     else:
         return True
 
-def html_link(url: str, description: str, color: str="blue"):
+
+def html_link(url: str, description: str, color: str = "blue"):
     """returns an html link string to open in new tab
 
     Args:
-        url (url): 
-        description (str): the text to display for the link         
+        url (url):
+        description (str): the text to display for the link
         color (str, optional): color of description text. Defaults to "blue".
 
     Returns:
