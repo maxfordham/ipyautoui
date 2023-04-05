@@ -16,8 +16,9 @@ from ipyautoui.demo_schemas import (
     CoreIpywidgets,
     RootArrayEnum,
     Nested,
-    ScheduleRuleSet,
+    Filter,
 )
+from ipyautoui.demo_schemas.ruleset import ScheduleRuleSet
 import json
 import pytest
 
@@ -52,11 +53,18 @@ class TestAutoUiSchema:
             "recursive_nest",
             "array_simple",
             "array_objects",
+            "nullable_list",
+            "nullable_object",
         ]
+
         print("done")
 
     def test_Rule(self):
         model, schema = _init_model_schema(ScheduleRuleSet)
         aui = AutoObject(schema=ScheduleRuleSet)
         assert list(aui.di_widgets.keys()) == ["set_type", "rules"]
+        print("done")
+
+    def test_Filter(self):
+        aui = AutoObject(schema=Filter)
         print("done")

@@ -1,19 +1,20 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: py:light
+#     custom_cell_magics: kql
+#     formats: py:percent
 #     text_representation:
 #       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.11.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
 
-# +
+# %%
 # %run _dev_sys_path_append.py
 # %run __init__.py
 # %run ../__init__.py
@@ -27,7 +28,7 @@ from ipyautoui._utils import html_link
 
 URL_REVIT_FILTERS = "https://help.autodesk.com/view/RVT/2023/ENU/?guid=GUID-400FD74B-00E0-4573-B3AC-3965E65CBBDB"
 
-# +
+# %%
 # customised RuleUi example
 
 
@@ -89,9 +90,7 @@ class RuleUi(AutoObject):  # RuleUi extends AutoObject allowing customisation
             setattr(self.di_widgets["value"], k, v)
 
 
-# +
-
-
+# %%
 class RuleSetType(str, Enum):
     """how the rules logically multiply. Must be `AND` for schedules"""
 
@@ -175,11 +174,12 @@ class ScheduleRuleSet(BaseModel):
     rules: list[Rule] = Field(
         description="""
 rules return a boolean for the logical evaluation defined below for every item within the categories defined
-"""
+""",
     )
 
     class Config:
         allow_extra = True
+        schema_extra = {"align_horizontal": False}
 
 
 ScheduleRuleSet.__doc__ = (
@@ -191,11 +191,27 @@ Analogous to filter rules in
     + "<br><b>This is the basis of a customised example from the wild!</b>"
     + "<br>---"
 )
-# -
 
+
+# %%
+class Filter(BaseModel):
+    name: str = Field()
+    is_schedule: bool = Field(True, disabled=True, const=True)
+    rule_set: ScheduleRuleSet = Field(show_title=False, show_description=False)  #
+
+    class Config:
+        allow_extra = True
+        schema_extra = {
+            "align_horizontal": False,
+        }
+
+
+# %%
 if __name__ == "__main__":
     # for testing only
     from ipyautoui import AutoUi
 
-    aui = AutoUi(ScheduleRuleSet, show_raw=True, align_horizontal=False)
+    aui = AutoUi(Filter, show_raw=True, align_horizontal=False)
     display(aui)
+
+# %%

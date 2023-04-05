@@ -11,4 +11,4 @@ from ipyautoui.demo_schemas.root_array import RootArray
 from ipyautoui.demo_schemas.root_simple import RootSimple
 from ipyautoui.demo_schemas.root_enum import RootEnum
 from ipyautoui.demo_schemas.root_array_enum import RootArrayEnum
-from ipyautoui.demo_schemas.ruleset import ScheduleRuleSet
+from ipyautoui.demo_schemas.ruleset import Filter

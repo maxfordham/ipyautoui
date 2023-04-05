@@ -85,7 +85,11 @@ def attach_schema_refs(schema, schema_base=None):
             schema_base["definitions"] = attach_schema_refs(
                 schema_base["definitions"], schema_base=schema_base
             )
-        # ^ TODO: how can i $refs be attached to definitions
+            schema_base["definitions"] = attach_schema_refs(
+                schema_base["definitions"], schema_base=schema_base
+            )
+            # ^ TODO: run twice to ensure nested refs in definitions are attached
+            #         come up with a more elegant implementation.
 
     try:
         schema = schema.copy()
@@ -589,8 +593,11 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
         else:
             fn = caller.autoui
         wi = fn(caller.schema_, *caller.args, **caller.kwargs)
-    except:
+    except Exception as e:
+
         if show_errors:
+            from ipyautoui.custom.widgetcaller_error import WidgetCallerError
+
             txt = f"""
 ERROR: widgetcaller
 -----
@@ -599,9 +606,14 @@ widget:
 
 schema: 
 {str(caller.schema_)}
+
+error:
+{str(e)}
 """
             # TODO: add logging
-            wi = w.Textarea(txt)
+            wi = WidgetCallerError(
+                widget=str(caller.autoui), schema=caller.schema_, error=str(e)
+            )
         else:
             return  # TODO: check this works
     return wi

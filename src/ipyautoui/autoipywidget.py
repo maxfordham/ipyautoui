@@ -461,9 +461,10 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         """
 
         self.update_map_widgets = update_map_widgets
+        super().__init__(fns_onsave=fns_onsave, fns_onrevert=fns_onrevert, **kwargs)
         self._init_schema(schema, by_alias=by_alias)  # TODO: make schema a trait
         self._init_ui()
-        super().__init__(fns_onsave=fns_onsave, fns_onrevert=fns_onrevert, **kwargs)
+        
         self.title.value = make_bold(self.get_title())
         self.description.value = self.get_description()
         self._format_rows()
