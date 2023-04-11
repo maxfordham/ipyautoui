@@ -220,6 +220,21 @@ def make_bold(s: str) -> str:
 
 
 class AutoObjectFormLayout(w.VBox):
+    """UI container for autoui form
+
+    Attributes:
+        title (str): form title
+        description (str): form description
+        show_description (bool, optional): show the description. Defaults to True.
+        show_title (bool, optional): show the title. Defaults to True.
+        show_savebuttonbar (bool, optional): show the savebuttonbar. Defaults to True.
+        show_raw (bool, optional): show the raw json. Defaults to False.
+        fn_onshowraw (callable): do not edit
+        fn_onhideraw (callable): do not edit
+        fns_onsave (callable): additional functions to be called on save
+        fns_onrevert (callable): additional functions to be called on revert
+    """
+
     title = tr.Unicode(default_value="")
     description = tr.Unicode(default_value="")
     show_description = tr.Bool(default_value=True)
@@ -291,12 +306,19 @@ class AutoObjectFormLayout(w.VBox):
             raise ValueError("fns_onsave must be a callable or list of callables")
         return self.savebuttonbar.fns_onrevert
 
+    @tr.default("fn_onshowraw")
+    def _default_fn_onshowraw(self):
+        return self.display_showraw
+
+    @tr.default("fn_onhideraw")
+    def _default_fn_onhideraw(self):
+        return self.display_ui
+
     def __init__(self, fns_onsave=None, fns_onrevert=None, **kwargs):
 
         self._init_form()
         self._init_bn_showraw_controls()
-        self.fn_onshowraw = self.display_showraw
-        self.fn_onhideraw = self.display_ui
+
         super().__init__(
             layout=w.Layout(
                 width="100%",
@@ -425,6 +447,22 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
     datatype must be "object"
 
     Attributes:
+
+        # AutoObjectFormLayout
+        # -------------------------
+        title (str): form title
+        description (str): form description
+        show_description (bool, optional): show the description. Defaults to True.
+        show_title (bool, optional): show the title. Defaults to True.
+        show_savebuttonbar (bool, optional): show the savebuttonbar. Defaults to True.
+        show_raw (bool, optional): show the raw json. Defaults to False.
+        fn_onshowraw (callable): do not edit
+        fn_onhideraw (callable): do not edit
+        fns_onsave (callable): additional functions to be called on save
+        fns_onrevert (callable): additional functions to be called on revert
+
+        # AutoObject
+        # -------------------------
         _value (dict): use `value` to set and get. the value of the form. this is a dict of the form {key: value}
         fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
         align_horizontal (bool, optional): aligns widgets horizontally. Defaults to True.
@@ -436,13 +474,6 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
             is ignored by the widget otherwise.
         disabled (bool, optional): disables all widgets. If widgets are disabled
             using schema kwargs this is remembered when re-enabled. Defaults to False.
-
-        # inherited from AutoObjectFormLayout
-
-        show_raw (bool, optional): show the raw json. Defaults to False.
-        show_description (bool, optional): show the description. Defaults to True.
-        show_title (bool, optional): show the title. Defaults to True.
-        show_savebuttonbar (bool, optional): show the savebuttonbar. Defaults to True.
 
     """
 
@@ -570,11 +601,9 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         self.update_map_widgets = update_map_widgets
         self._init_schema(schema, by_alias=by_alias)  # TODO: make schema a trait
         self._init_ui()
-        super().__init__(**kwargs)  # fns_onsave=fns_onsave, fns_onrevert=fns_onrevert,
+        super().__init__(**kwargs)
         self._update_traits_from_schema()
         self._update_fdir()
-        # self.title = self.get_title()
-        # self.description = self.get_description()
         self._format_rows()
         if value is not None:
             self.value = value
