@@ -29,7 +29,6 @@ Example:
 """
 # %run _dev_sys_path_append.py
 # %run __init__.py
-#
 # %load_ext lab_black
 
 import pathlib
@@ -37,7 +36,6 @@ from IPython.display import display
 from pydantic import BaseModel
 import json
 import traitlets as tr
-import traitlets_paths
 import typing as ty
 
 from ipyautoui.custom import SaveButtonBar  # removing makes circular import error
@@ -101,15 +99,10 @@ class AutoUiFileMethods(tr.HasTraits):
     """AutoUiFileMethods is a mixin class that adds file methods to a AutoUi class
 
     Attributes:
-        path (traitlets_paths.Path): path to file
+        path (tr.Instance(klass=pathlib.PurePath)...): path to file
     """
 
-    path = traitlets_paths.Path(allow_none=True)
-
-    @tr.validate("path")
-    def _path(self, proposal):
-        if proposal["value"] is not None:
-            return pathlib.Path(proposal["value"])
+    path = tr.Instance(klass=pathlib.PurePath, default_value=None, allow_none=True)
 
     @tr.observe("path")
     def _observe_path(self, proposal):
@@ -181,12 +174,7 @@ class AutoUiFileMethods(tr.HasTraits):
 class AutoRenderMethods:
     @classmethod
     def create_autoui_renderer(
-        cls,
-        schema: ty.Union[ty.Type[BaseModel], dict],
-        show_raw: bool = True,
-        path=None,
-        fns_onsave=None,
-        fns_onrevert=None,
+        cls, schema: ty.Union[ty.Type[BaseModel], dict], path=None, **kwargs
     ):
         if isinstance(schema, dict):
             docstring = f"AutoRenderer for {get_from_schema_root(schema, 'title')}"
@@ -200,29 +188,15 @@ class AutoRenderMethods:
                 f"""{docstring}"""
                 if path is None:
                     raise ValueError("must give path")
-                super().__init__(
-                    schema,
-                    path=path,
-                    value=None,
-                    show_raw=show_raw,
-                    fns_onsave=fns_onsave,
-                    fns_onrevert=fns_onrevert,
-                )
+                super().__init__(schema, path=path, value=None, **kwargs)
 
         return AutoRenderer
 
     @classmethod
     def create_autodisplay_map(
-        cls,
-        schema: ty.Union[ty.Type[BaseModel], dict],
-        ext=".json",
-        show_raw: bool = True,
-        fns_onsave=None,
-        fns_onrevert=None,
+        cls, schema: ty.Union[ty.Type[BaseModel], dict], ext=".json", **kwargs
     ):
-        AutoRenderer = cls.create_autoui_renderer(
-            schema, show_raw=show_raw, fns_onsave=fns_onsave, fns_onrevert=fns_onrevert
-        )
+        AutoRenderer = cls.create_autoui_renderer(schema, **kwargs)
         return {ext: AutoRenderer}
 
 
@@ -233,11 +207,25 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
     file `path` and loaded from a json file.
 
     Attributes:
-        # inherited from AutoFileMethods
-        # ------------------------------
-        path (traitlets_paths.Path): path to file
 
-        # inherited from AutoObject
+        # AutoFileMethods
+        # ------------------------------
+        path (tr.Instance(klass=pathlib.PurePath, ... ): path to file
+
+        # AutoObjectFormLayout
+        # -------------------------
+        title (str): form title
+        description (str): form description
+        show_description (bool, optional): show the description. Defaults to True.
+        show_title (bool, optional): show the title. Defaults to True.
+        show_savebuttonbar (bool, optional): show the savebuttonbar. Defaults to True.
+        show_raw (bool, optional): show the raw json. Defaults to False.
+        fn_onshowraw (callable): do not edit
+        fn_onhideraw (callable): do not edit
+        fns_onsave (callable): additional functions to be called on save
+        fns_onrevert (callable): additional functions to be called on revert
+
+        # AutoObject
         # -------------------------
         _value (dict): use `value` to set and get. the value of the form. this is a dict of the form {key: value}
         fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
@@ -251,13 +239,6 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
         disabled (bool, optional): disables all widgets. If widgets are disabled
             using schema kwargs this is remembered when re-enabled. Defaults to False.
 
-        # inherited from AutoObjectFormLayout
-        # ----------------------------------
-        show_raw (bool, optional): show the raw json. Defaults to False.
-        show_description (bool, optional): show the description. Defaults to True.
-        show_title (bool, optional): show the title. Defaults to True.
-        show_savebuttonbar (bool, optional): show the savebuttonbar. Defaults to True.
-
     """
 
     def __init__(
@@ -266,8 +247,6 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
         value: dict = None,
         path: pathlib.Path = None,  # TODO: generalise data retrieval?
         update_map_widgets=None,
-        fns_onsave=None,
-        fns_onrevert=None,
         # validate_onchange=True,  # TODO: sort out how the validation works
         **kwargs,
     ):
@@ -285,18 +264,23 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
         """
 
         fdir = self.get_fdir(path=path, fdir=kwargs.get("fdir", None))
+        if fdir is not None:
+            kwargs = kwargs | {"fdir": fdir}
         # init app
         super().__init__(
             schema,
             value=None,
             update_map_widgets=update_map_widgets,
-            fdir=fdir,
-            fns_onsave=fns_onsave,
-            fns_onrevert=fns_onrevert,
             **kwargs,
         )
         self.path = path
         self.value = self._get_value(value, self.path)
+        self.savebuttonbar.unsaved_changes = False
+
+        schema,
+        by_alias = (False,)
+        value = (None,)
+        update_map_widgets = (None,)
 
     def get_fdir(self, path=None, fdir=None):
 
@@ -315,10 +299,10 @@ if __name__ == "__main__":
 
     aui = AutoUi(
         TestAutoLogicSimple,
-        path="test.json",
+        path=pathlib.Path("test.json"),
         show_description=False,
-        show_raw=True,  
-        show_savebuttonbar=False,
+        show_raw=True,
+        show_savebuttonbar=True,
     )
     # aui.show_savebuttonbar = False
     display(aui)
