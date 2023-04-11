@@ -225,9 +225,11 @@ class AutoObjectFormLayout(w.VBox):
     show_description = tr.Bool(default_value=True)
     show_title = tr.Bool(default_value=True)
     show_savebuttonbar = tr.Bool(default_value=False)
+    show_raw = tr.Bool(default_value=False)
     fn_onshowraw = tr.Callable(default_value=lambda: "{'test':'json'}")
     fn_onhideraw = tr.Callable(default_value=lambda: None)
-    show_raw = tr.Bool(default_value=False)
+    fns_onsave = tr.List(trait=tr.Callable())
+    fns_onrevert = tr.List(trait=tr.Callable())
 
     @tr.observe("title")
     def _observe_title(self, change):
@@ -257,16 +259,44 @@ class AutoObjectFormLayout(w.VBox):
     def _observe_show_savebuttonbar(self, change):
         show_hide_widget(self.savebuttonbar, self.show_savebuttonbar)
 
+    @tr.observe("fns_onsave")
+    def _observe_fns_onsave(self, change):
+        """NOTE: this observer will alway append actions.
+        to delete actions use
+            `self.savebuttonbar.fns_onsave = []`
+        then set with
+            `self.fns_onsave = [lambda: print('save-funcy')]`"""
+        value = change["new"]
+        if isinstance(value, list):
+            [self.savebuttonbar.fns_onsave_add_action(v) for v in value]
+        elif isinstance(value, ty.Callable):
+            self.savebuttonbar.fns_onsave_add_action(value)
+        else:
+            raise ValueError("fns_onsave must be a callable or list of callables")
+        return self.savebuttonbar.fns_onsave
+
+    @tr.observe("fns_onrevert")
+    def _observe_fns_onrevert(self, change):
+        """NOTE: this observer will alway append actions.
+        to delete actions use
+            `self.savebuttonbar.fns_onsave = []`
+        then set with
+            `self.fns_onrevert = [lambda: print('revert-funcy')]`"""
+        value = change["new"]
+        if isinstance(value, list):
+            [self.savebuttonbar.fns_onrevert_add_action(v) for v in value]
+        elif isinstance(value, ty.Callable):
+            self.savebuttonbar.fns_onrevert_add_action(value)
+        else:
+            raise ValueError("fns_onsave must be a callable or list of callables")
+        return self.savebuttonbar.fns_onrevert
+
     def __init__(self, fns_onsave=None, fns_onrevert=None, **kwargs):
 
         self._init_form()
         self._init_bn_showraw_controls()
         self.fn_onshowraw = self.display_showraw
         self.fn_onhideraw = self.display_ui
-        if fns_onsave is not None:
-            self.fns_onsave = fns_onsave
-        if fns_onrevert is not None:
-            self.fns_onrevert = fns_onrevert
         super().__init__(
             layout=w.Layout(
                 width="100%",
@@ -329,32 +359,6 @@ class AutoObjectFormLayout(w.VBox):
     def display_showraw(self):  # NOTE: this overwritten this in AutoObject
         self.autowidget.layout.display = "None"
         return '{"test": "json"}'
-
-    @property
-    def fns_onsave(self):
-        return self.savebuttonbar.fns_onsave
-
-    @fns_onsave.setter
-    def fns_onsave(self, value):
-        if isinstance(value, list):
-            [self.savebuttonbar.fns_onsave_add_action(v) for v in value]
-        elif isinstance(value, ty.Callable):
-            self.savebuttonbar.fns_onrevert_add_action(value)
-        else:
-            raise ValueError("fns_onsave must be a callable or list of callables")
-
-    @property
-    def fns_onrevert(self):
-        return self.savebuttonbar.fns_onrevert
-
-    @fns_onrevert.setter
-    def fns_onrevert(self, value):
-        if isinstance(value, list):
-            [self.savebuttonbar.fns_onrevert_add_action(v) for v in value]
-        elif isinstance(value, ty.Callable):
-            self.savebuttonbar.fns_onrevert_add_action(value)
-        else:
-            raise ValueError("fns_onrevert must be a callable or list of callables")
 
 
 if __name__ == "__main__":
@@ -547,8 +551,6 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         by_alias=False,
         value=None,
         update_map_widgets=None,
-        fns_onsave=None,
-        fns_onrevert=None,
         **kwargs,
     ):
         """creates a widget input form from schema. datatype must be "object"
@@ -568,7 +570,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         self.update_map_widgets = update_map_widgets
         self._init_schema(schema, by_alias=by_alias)  # TODO: make schema a trait
         self._init_ui()
-        super().__init__(fns_onsave=fns_onsave, fns_onrevert=fns_onrevert, **kwargs)
+        super().__init__(**kwargs)  # fns_onsave=fns_onsave, fns_onrevert=fns_onrevert,
         self._update_traits_from_schema()
         self._update_fdir()
         # self.title = self.get_title()
@@ -578,6 +580,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
             self.value = value
         else:
             self._value = self.di_widgets_value
+        self.savebuttonbar.unsaved_changes = False
 
     @property
     def default_order(self):
@@ -765,13 +768,14 @@ if __name__ == "__main__":
         order=["text", "int_text", "int_slider", "int_slider_nullable"],
         show_description=True,
         show_title=True,
-        show_savebuttonbar=False,
+        show_savebuttonbar=True,
         show_raw=False,
     )
     display(ui)
 # -
 
 if __name__ == "__main__":
+    ui.show_savebuttonbar = False
     ui.show_title = True
 
 if __name__ == "__main__":
@@ -842,5 +846,3 @@ if __name__ == "__main__":
     ui.show_title = True
     ui.show_raw = True
 # -
-
-
