@@ -314,7 +314,15 @@ class AutoObjectFormLayout(w.VBox):
     def _default_fn_onhideraw(self):
         return self.display_ui
 
-    def __init__(self, fns_onsave=None, fns_onrevert=None, **kwargs):
+    @tr.default("fns_onsave")
+    def _default_fns_onsave(self):
+        return self.savebuttonbar.fns_onsave
+
+    @tr.default("fns_onrevert")
+    def _default_fns_onrevert(self):
+        return self.savebuttonbar.fns_onsave
+
+    def __init__(self, **kwargs):
 
         self._init_form()
         self._init_bn_showraw_controls()
