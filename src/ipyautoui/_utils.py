@@ -1,3 +1,4 @@
+import os
 import pathlib
 import json
 import yaml
@@ -269,37 +270,6 @@ def load_PyObj(obj: PyObj):
     return getattr(foo, obj.obj_name)
 
 
-def create_pydantic_json_file(pyobj: PyObj, path: pathlib.Path, **kwargs):
-    """
-    loads a pyobj (which must be a pydantic model) and then saves the default Json to file.
-    this requires defaults for all pydantic attributes.
-
-    Todo:
-        could extend the functionality to cover models that don't have defaults
-        using [pydantic-factories](https://github.com/Goldziher/pydantic-factories)
-
-    Args:
-        pyobj (PyObj): definition of where to get a pydantic model
-        path (pathlib.Path): where to save the pydantic json
-        **kwargs : passed to the pydantic model upon initiation
-
-    Returns:
-        path
-    """
-    obj = load_PyObj(pyobj)
-    assert (
-        str(type(obj)) == "<class 'pydantic.main.ModelMetaclass'>"
-    ), "the python object must be a pydantic model"
-    if not hasattr(obj, "file"):
-        setattr(obj, "file", file)
-    assert hasattr(
-        obj, "file"
-    ), "the pydantic BaseModel must be extended to have method 'file' for writing model to json"
-    myobj = obj(**kwargs)
-    myobj.file(path)
-    return path
-
-
 # TODO: use obj_to_importstr and obj_from_importstr rather than load_PyObj
 def obj_to_importstr(obj: ty.Callable):  # NOT IN USE
     """
@@ -456,3 +426,14 @@ def html_link(url: str, description: str, color: str = "blue"):
         str: html text
     """
     return f'<font color="{color}"><a href="{url}" target="blank" >{description}</a></font>'
+
+
+def get_user():
+    """get user. gets JUPYTERHUB_USER if present (i.e. if notebook served via a JupyterHub)"""
+    nm = "JUPYTERHUB_USER"
+    if nm in list(os.environ.keys()):
+        return os.environ[nm]
+    else:
+        from getpass import getuser
+
+        return getuser()

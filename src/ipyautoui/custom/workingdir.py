@@ -27,12 +27,10 @@ a UI element that loads a folder for data caching, whilst storing a record of fo
 from pydantic import BaseModel, validator, Field
 from ipyautoui.constants import LOAD_BUTTON_KWARGS, BUTTON_WIDTH_MIN
 from IPython.display import clear_output, Markdown
-from ipyautoui._utils import file
+from ipyautoui._utils import file, get_user
 import ipywidgets as w
 import traitlets as tr
 
-from getpass import getuser
-import os
 from halo import HaloNotebook
 from enum import Enum
 import pathlib
@@ -138,14 +136,6 @@ class WorkingDirs(BaseModel):
 
 
 # + tags=[]
-def get_user():
-    """get user. gets JUPYTERHUB_USER if present (i.e. if notebook served via a JupyterHub)"""
-    nm = "JUPYTERHUB_USER"
-    if nm in list(os.environ.keys()):
-        return os.environ[nm]
-    else:
-        return getuser()
-
 
 def get_working_dirs(path=FPTH_WORKING_DIRS):
     """loads working dir from folder"""
