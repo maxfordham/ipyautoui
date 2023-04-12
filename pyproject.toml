@@ -31,7 +31,6 @@ dependencies = [
     "PyYAML",
     "stringcase",
     "traitlets",
-    "traitlets_paths",
     "wcmatch",
 ]
 

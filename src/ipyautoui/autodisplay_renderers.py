@@ -33,7 +33,6 @@ import ipydatagrid as ipg
 import ipywidgets as w
 import traitlets as tr
 import typing as ty
-import traitlets_paths
 from io import StringIO, BytesIO
 from pydantic import HttpUrl, parse_obj_as
 
@@ -187,7 +186,7 @@ def preview_csv(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):
 
 
 class PreviewExcel(w.VBox):
-    path = traitlets_paths.Path()
+    path = tr.Instance(klass=pathlib.PurePath)
     xl = tr.Instance(klass="pandas.ExcelFile")
 
     def __init__(self, path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]):

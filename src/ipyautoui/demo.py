@@ -1,5 +1,4 @@
 import traitlets as tr
-from traitlets_paths import PurePath
 import typing as ty
 import ipywidgets as w
 import inspect
@@ -31,12 +30,12 @@ def get_order():
 
 class Demo(w.Tab, tr.HasTraits):
     pydantic_model = tr.Type(klass=BaseModel)
-    python_file: PurePath()
+    python_file = tr.Instance(klass=pathlib.PurePath)
 
     @tr.observe("pydantic_model")
     def _observe_pydantic_model(self, change):
         try:
-            self.python_file = inspect.getfile(self.pydantic_model)
+            self.python_file = pathlib.Path(inspect.getfile(self.pydantic_model))
         except:
             raise ValueError(
                 "for the Demo to work, the `pydantic_model` must"

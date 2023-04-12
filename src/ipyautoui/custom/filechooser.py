@@ -16,12 +16,11 @@
 """wrapper for ipyfilechooster.FileChooser"""
 # %run _dev_sys_path_append.py
 # %run __init__.py
-#
 # %load_ext lab_black
 
 import pathlib
 import traitlets as tr
-from traitlets_paths import PurePath  # TODO: create conda recipe for this package
+import typing as ty
 from ipyfilechooser import FileChooser
 
 
@@ -42,7 +41,6 @@ class FileChooser(FileChooser):
         https://github.com/crahan/ipyfilechooser
     """
 
-    # _value = PurePath()
     _value = tr.Unicode()
 
     @tr.default("_value")
@@ -54,7 +52,7 @@ class FileChooser(FileChooser):
         return self._value
 
     @value.setter
-    def value(self, value: PurePath):
+    def value(self, value: ty.Union[str, pathlib.Path]):
         """having the setter allows users to pass a new value field to the class which also updates the
         `selected` argument used by FileChooser"""
         self._value = str(value)
