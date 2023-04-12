@@ -326,7 +326,6 @@ class AutoObjectFormLayout(w.VBox):
 
         self._init_form()
         self._init_bn_showraw_controls()
-
         super().__init__(
             layout=w.Layout(
                 width="100%",
@@ -546,7 +545,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
                     raise ValueError(
                         "set(v) != set(self.default_order)"
                         "if you want to use order to hide rows then set:"
-                        "`order_hides_rows = True`"
+                        "`order_can_hide_rows = True`"
                     )
         return v
 
@@ -800,6 +799,8 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
 
+    fn = lambda: print("it works!")
+    fn.__name__ = "test-func"
     ui = AutoObject(
         CoreIpywidgets,
         order=["text", "int_text", "int_slider", "int_slider_nullable"],
@@ -807,6 +808,7 @@ if __name__ == "__main__":
         show_title=True,
         show_savebuttonbar=True,
         show_raw=False,
+        fns_onsave=[fn],
     )
     display(ui)
 # -
@@ -882,4 +884,3 @@ if __name__ == "__main__":
     ui.show_description = True
     ui.show_title = True
     ui.show_raw = True
-# -
