@@ -277,11 +277,6 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
         self.value = self._get_value(value, self.path)
         self.savebuttonbar.unsaved_changes = False
 
-        schema,
-        by_alias = (False,)
-        value = (None,)
-        update_map_widgets = (None,)
-
     def get_fdir(self, path=None, fdir=None):
 
         if path is not None and fdir is None:
@@ -300,9 +295,10 @@ if __name__ == "__main__":
     aui = AutoUi(
         TestAutoLogicSimple,
         path=pathlib.Path("test.json"),
-        show_description=False,
-        show_raw=True,
+        show_description=True,
+        show_raw=False,
         show_savebuttonbar=True,
+        fns_onsave=[lambda: print("asdf")],
     )
     # aui.show_savebuttonbar = False
     display(aui)
@@ -334,26 +330,28 @@ if __name__ == "__main__":
 #  'text_area': 'long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ',
 #  'markdown': '\nSee details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. \n'}
 
-# +
-
 if __name__ == "__main__":
-    TestRenderer = AutoUi.create_autoui_renderer(TestAutoLogicSimple, path="test.json")
+    fn = lambda: print("it works!")
+    fn.__name__ = "test-func"
+    TestRenderer = AutoUi.create_autoui_renderer(
+        TestAutoLogicSimple,
+        path=pathlib.Path("test.json"),
+        fns_onsave=[fn],
+    )
     r = TestRenderer()
     r.show_savebuttonbar = True
     display(r)
-
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
 
     aui = AutoUi(
         TestAutoLogicSimple,
-        path="test.json",
+        path=pathlib.Path("test.json"),
         show_raw=True,
         fn_onsave=lambda: print("test onsave"),
     )
     display(aui)
-# -
 
 if __name__ == "__main__":
     aui.show_description = False
