@@ -264,7 +264,14 @@ class PyObj(BaseModel):
 
 
 def load_PyObj(obj: PyObj):
-    spec = importlib.util.spec_from_file_location(obj.module_name, obj.path)
+    submodule_search_locations = None
+    p = obj.path
+    if obj.path.is_dir():
+        p = p / "__main__.py"
+        submodule_search_locations = []
+    spec = importlib.util.spec_from_file_location(
+        obj.module_name, p, submodule_search_locations=submodule_search_locations
+    )
     foo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(foo)
     return getattr(foo, obj.obj_name)
