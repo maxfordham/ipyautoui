@@ -24,12 +24,13 @@ def make_new_path(path, *args, **kwargs):
 
 
 try:
-    # TODO: remove these.
-    from mf_file_utilities import go as open_file
+    # TODO: remove these.open_pathopen_path
+
+    from mf_file_utilities import go as open_path
     from mf_file_utilities.applauncher_wrapper import make_new_path
 except:
 
-    def open_file(path):
+    def open_path(path):
         import subprocess
 
         subprocess.call(["open", path])

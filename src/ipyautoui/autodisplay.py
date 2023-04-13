@@ -59,7 +59,7 @@ from ipyautoui.autodisplay_renderers import (
     handle_compound_ext,
 )
 from ipyautoui._utils import (
-    open_file,
+    open_path,
     make_new_path,
     frozenmap,
     get_ext,
@@ -189,7 +189,7 @@ class DisplayFromPath(DisplayObjectActions):
     def _open_file(cls, v, values):
         p = values["path"]
         if p is not None:
-            fn = functools.partial(open_file, p, newroot=values["newroot"])
+            fn = functools.partial(open_path, p, newroot=values["newroot"])
             return fn
         else:
             return lambda: "Error: path given is None"
@@ -200,7 +200,7 @@ class DisplayFromPath(DisplayObjectActions):
         if not p.is_dir():
             p = p.parent
         if p is not None:
-            fn = functools.partial(open_file, p, newroot=values["newroot"])
+            fn = functools.partial(open_path, p, newroot=values["newroot"])
             return fn
         else:
             return lambda: "Error: path given is None"
@@ -1077,5 +1077,3 @@ if __name__ == "__main__":
     test_display = AutoDisplay([d1, d2])
     display(Markdown("### From requests: "))
     display(test_display)
-
-
