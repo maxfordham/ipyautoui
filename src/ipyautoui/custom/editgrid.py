@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.14.5
 #   kernelspec:
 #     display_name: Python 3.9 (XPython)
 #     language: python
@@ -312,10 +312,8 @@ class EditGrid(w.VBox, TitleDescription):
         self.by_title = by_title
         self.by_alias = by_alias
         self.datahandler = datahandler
-        getvalue = (
-            lambda value: None
-            if value is None or value == [{}]
-            else pd.DataFrame(value)
+        getvalue = lambda value: (
+            None if value is None or value == [{}] else pd.DataFrame(value)
         )
         self.grid = AutoGrid(
             schema, data=getvalue(value), by_alias=self.by_alias, **kwargs
@@ -383,8 +381,8 @@ class EditGrid(w.VBox, TitleDescription):
 
     def _init_form(self):
         super().__init__()
-        get_reload = (
-            lambda: None if self.datahandler is None else self._reload_datahandler
+        get_reload = lambda: (
+            None if self.datahandler is None else self._reload_datahandler
         )
         self.buttonbar_grid = CrudButtonBar(
             fn_add=self._add,
@@ -412,10 +410,11 @@ class EditGrid(w.VBox, TitleDescription):
             self.ui_edit.order = self.grid.order
 
     def _observe_selections(self, onchange):
-        if self.buttonbar_grid.edit.value:
-            self._set_ui_edit_to_selected_row()
-        if self.buttonbar_grid.delete.value:
-            self._set_ui_delete_to_selected_row()
+        if self.grid.selections != []:
+            if self.buttonbar_grid.edit.value:
+                self._set_ui_edit_to_selected_row()
+            if self.buttonbar_grid.delete.value:
+                self._set_ui_delete_to_selected_row()
 
     # @debounce(0.1)  # TODO: make debounce work if too slow...
     def _grid_changed(self, onchange):
@@ -640,7 +639,7 @@ if __name__ == "__main__":
         )
 
     title = "The Wonderful Edit Grid Application"
-    description = markdown("Useful for all editing purposes" " whatever they may be 👍")
+    description = markdown("Useful for all editing purposes whatever they may be 👍")
     editgrid = EditGrid(
         schema=TestDataFrame,
         title=title,
@@ -661,7 +660,6 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
-
     datahandler = DataHandler(
         fn_get_all_data=lambda: AUTO_GRID_DEFAULT_VALUE * random.randint(1, 10),
         fn_post=lambda v: print(v),
@@ -670,7 +668,7 @@ if __name__ == "__main__":
         fn_copy=lambda v: print(v),
     )
     title = "The Wonderful Edit Grid Application"
-    description = markdown("Useful for all editing purposes" " whatever they may be 👍")
+    description = markdown("Useful for all editing purposes whatever they may be 👍")
     editgrid = EditGrid(
         schema=TestDataFrame,
         title=title,
