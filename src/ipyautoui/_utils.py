@@ -219,9 +219,10 @@ def read_yaml(fpth, encoding="utf8"):
     with open(fpth, encoding=encoding) as stream:
         try:
             data = yaml.safe_load(stream)
+            return data
         except yaml.YAMLError as exc:
             print(exc)
-    return data
+    
 
 
 def file(self: Type[BaseModel], path: pathlib.Path, **json_kwargs):
