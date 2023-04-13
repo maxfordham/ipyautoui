@@ -152,6 +152,7 @@ using VS Code then install the Jupytext extension. In the `.vscode/settings.json
 ## Packaging (restricted to core-maintainers)
 
 ```sh
+mamba activate hatcher # or conda env with hatch installed
 hatch build  # builds to local folder
 hatch publish  # publishes to pypi
 ```
