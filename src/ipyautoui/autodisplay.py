@@ -367,9 +367,7 @@ class DisplayObject(w.VBox):
         renderers = get_renderers(
             renderers=renderers, extend_default_renderers=extend_default_renderers
         )
-        display_actions = DisplayFromPath(
-            path=path, renderers=renderers
-        )
+        display_actions = DisplayFromPath(path=path, renderers=renderers)
         return cls(display_actions=display_actions, auto_open=auto_open)
 
     @classmethod
@@ -403,7 +401,7 @@ class DisplayObject(w.VBox):
         return cls(display_actions=display_actions, auto_open=auto_open)
 
     def tooltip_openpath(self, path):
-        return str(make_new_path(path)
+        return str(make_new_path(path))
 
     def _init_form(self):
         self.exists = w.Valid(
@@ -507,9 +505,7 @@ class DisplayPath(DisplayObject):
         self.renderers = get_renderers(
             renderers=renderers, extend_default_renderers=extend_default_renderers
         )
-        display_actions = DisplayFromPath(
-            path=value, renderers=self.renderers
-        )
+        display_actions = DisplayFromPath(path=value, renderers=self.renderers)
         super().__init__(display_actions=display_actions, **kwargs)
 
     @property
@@ -519,9 +515,7 @@ class DisplayPath(DisplayObject):
     @value.setter
     def value(self, value):
         self._value = ""
-        self.display_actions = DisplayFromPath(
-            path=value, renderers=self.renderers
-        )
+        self.display_actions = DisplayFromPath(path=value, renderers=self.renderers)
 
 
 # -
@@ -826,10 +820,7 @@ class AutoDisplay(tr.HasTraits):
         paths: ty.List[pathlib.Path],
         renderers=None,
     ):
-        return [
-            DisplayFromPath(path=path, renderers=renderers)
-            for path in paths
-        ]
+        return [DisplayFromPath(path=path, renderers=renderers) for path in paths]
 
     @staticmethod
     def actions_from_requests(map_requests: ty.Dict[str, HttpUrl], renderers=None):
@@ -857,9 +848,7 @@ class AutoDisplay(tr.HasTraits):
         else:
             renderers = DEFAULT_FILE_RENDERERS
         paths = [p for p in paths if p not in self.paths]
-        _new_actions = self.actions_from_paths(
-            paths=paths, renderers=renderers
-        )
+        _new_actions = self.actions_from_paths(paths=paths, renderers=renderers)
         actions = self.display_objects_actions + _new_actions
         self.display_objects_actions = actions
 
@@ -1000,9 +989,7 @@ if __name__ == "__main__":
     tests_constants = load_test_constants()
     DIR_FILETYPES = load_test_constants().DIR_FILETYPES
     paths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
-    ad = AutoDisplay.from_paths(
-        paths, patterns="*.csv"
-    )
+    ad = AutoDisplay.from_paths(paths, patterns="*.csv")
     display(ad)
 # -
 if __name__ == "__main__":
