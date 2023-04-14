@@ -15,22 +15,42 @@ import importlib.util
 import inspect
 import immutables
 import getpass
-import maplocal
+
 
 frozenmap = immutables.Map
+try:
+    import maplocal
 
-if maplocal.maplocal_openlocal_exists():
-    from maplocal import openlocal as open_path
-    from maplocal import maplocal as make_new_path
-else:
+    if maplocal.maplocal_openlocal_exists():
+        from maplocal import openlocal as open_path
+        from maplocal import maplocal as make_new_path
+    else:
+
+        def make_new_path(path, *args, **kwargs):
+            return path
+
+        def open_path(path):
+            import subprocess
+            import sys
+
+            if sys.platform == "linux":
+                subprocess.call(["xdg-open", path])
+            else:
+                subprocess.call(["explorer.exe", path])
+
+except:
 
     def make_new_path(path, *args, **kwargs):
         return path
 
-    def open_path(path):
-        import subprocess
+        def open_path(path):
+            import subprocess
+            import sys
 
-        subprocess.call(["open", path])
+            if sys.platform == "linux":
+                subprocess.call(["xdg-open", path])
+            else:
+                subprocess.call(["explorer.exe", path])
 
 
 def getuser():
