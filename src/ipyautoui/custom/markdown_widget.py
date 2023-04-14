@@ -14,7 +14,7 @@
 # ---
 
 """simple markdown widget"""
-# %run _dev_sys_path_append.py
+# %run ../_dev_sys_path_append.py
 # %run __init__.py
 #
 # %load_ext lab_black
@@ -233,5 +233,3 @@ if __name__ == "__main__":
         md: str = Field("adsf", format="markdown")
 
     display(AutoUi(Test))
-
-

@@ -72,7 +72,7 @@ Example:
 """
 # TODO: move iterable.py to root
 # TODO: review: https://github.com/widgetti/reacton - it could simplify the code required below.
-# %run _dev_sys_path_append.py
+# %run ../_dev_sys_path_append.py
 # %run __init__.py
 # %load_ext lab_black
 import ipywidgets as w

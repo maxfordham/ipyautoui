@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.5
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -20,7 +20,7 @@
 contains methods for validation, coercion, and default values. 
 
 defines AutoGrid, a datagrid generated from a jsonschema."""
-# %run _dev_sys_path_append.py
+# %run ../_dev_sys_path_append.py
 # %run __init__.py
 # %run ../__init__.py
 # %load_ext lab_black
@@ -1217,3 +1217,5 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
 # -
+
+
