@@ -144,7 +144,6 @@ def check_exists(path):
 
 
 class DisplayFromPath(DisplayObjectActions):
-    newroot: pathlib.PureWindowsPath = pathlib.PureWindowsPath("J:/")
     path_new: pathlib.Path = None
     open_file: ty.Callable = None
     open_folder: ty.Callable = None
@@ -155,7 +154,7 @@ class DisplayFromPath(DisplayObjectActions):
 
     @validator("path_new", always=True)
     def _path_new(cls, v, values):
-        return make_new_path(values["path"], newroot=values["newroot"])
+        return make_new_path(values["path"].absolute())
 
     @validator("name", always=True)
     def _name(cls, v, values):
@@ -189,7 +188,7 @@ class DisplayFromPath(DisplayObjectActions):
     def _open_file(cls, v, values):
         p = values["path"]
         if p is not None:
-            fn = functools.partial(open_path, p, newroot=values["newroot"])
+            fn = functools.partial(open_path, p)
             return fn
         else:
             return lambda: "Error: path given is None"
@@ -200,7 +199,7 @@ class DisplayFromPath(DisplayObjectActions):
         if not p.is_dir():
             p = p.parent
         if p is not None:
-            fn = functools.partial(open_path, p, newroot=values["newroot"])
+            fn = functools.partial(open_path, p)
             return fn
         else:
             return lambda: "Error: path given is None"
@@ -361,7 +360,6 @@ class DisplayObject(w.VBox):
     def from_path(
         cls,
         path,
-        newroot=pathlib.PureWindowsPath("J:/"),
         renderers=None,
         extend_default_renderers=True,
         auto_open=False,
@@ -370,7 +368,7 @@ class DisplayObject(w.VBox):
             renderers=renderers, extend_default_renderers=extend_default_renderers
         )
         display_actions = DisplayFromPath(
-            path=path, newroot=newroot, renderers=renderers
+            path=path, renderers=renderers
         )
         return cls(display_actions=display_actions, auto_open=auto_open)
 
@@ -405,7 +403,7 @@ class DisplayObject(w.VBox):
         return cls(display_actions=display_actions, auto_open=auto_open)
 
     def tooltip_openpath(self, path):
-        return str(make_new_path(path, newroot=self.display_actions.newroot))
+        return str(make_new_path(path)
 
     def _init_form(self):
         self.exists = w.Valid(
@@ -502,17 +500,15 @@ class DisplayPath(DisplayObject):
     def __init__(
         self,
         value,
-        newroot=pathlib.PureWindowsPath("J:/"),
         renderers=None,
         extend_default_renderers=True,
         **kwargs,
     ):
-        self.newroot = newroot
         self.renderers = get_renderers(
             renderers=renderers, extend_default_renderers=extend_default_renderers
         )
         display_actions = DisplayFromPath(
-            path=value, newroot=self.newroot, renderers=self.renderers
+            path=value, renderers=self.renderers
         )
         super().__init__(display_actions=display_actions, **kwargs)
 
@@ -524,7 +520,7 @@ class DisplayPath(DisplayObject):
     def value(self, value):
         self._value = ""
         self.display_actions = DisplayFromPath(
-            path=value, newroot=self.newroot, renderers=self.renderers
+            path=value, renderers=self.renderers
         )
 
 
@@ -533,6 +529,12 @@ if __name__ == "__main__":
     d = DisplayFromPath(path="__init__.py")
     do = DisplayObject(d)
     display(do)
+
+# +
+# from maplocal import maplocal
+
+# maplocal(pathlib.Path("__init__.py"))
+# -
 
 if __name__ == "__main__":
     path = "https://catfact.ninja/fact"
@@ -619,6 +621,7 @@ if __name__ == "__main__":
     path1 = tests_constants.PATH_TEST_AUI
 
     d = DisplayObject.from_path(path1, renderers=user_file_renderers)
+    d.order = ORDER_DEFAULT
     display(d)
 
 # +
@@ -692,7 +695,6 @@ class AutoDisplay(tr.HasTraits):
     def from_paths(
         cls,
         paths: ty.List[pathlib.Path],
-        newroot=pathlib.PureWindowsPath("J:/"),  # TODO: maproots
         renderers=None,
         patterns: ty.Union[str, ty.List] = None,
         title: ty.Union[str, None] = None,
@@ -707,7 +709,6 @@ class AutoDisplay(tr.HasTraits):
 
         display_objects_actions = cls.actions_from_paths(
             paths=paths,
-            newroot=newroot,
             renderers=renderers,
         )
         return cls(
@@ -823,11 +824,10 @@ class AutoDisplay(tr.HasTraits):
     @staticmethod
     def actions_from_paths(
         paths: ty.List[pathlib.Path],
-        newroot=pathlib.PureWindowsPath("J:/"),  # maproots
         renderers=None,
     ):
         return [
-            DisplayFromPath(path=path, newroot=newroot, renderers=renderers)
+            DisplayFromPath(path=path, renderers=renderers)
             for path in paths
         ]
 
@@ -850,7 +850,6 @@ class AutoDisplay(tr.HasTraits):
     def add_from_paths(
         self,
         paths,
-        newroot=pathlib.PureWindowsPath("J:/"),
         renderers=None,
     ):
         if renderers is not None:
@@ -859,7 +858,7 @@ class AutoDisplay(tr.HasTraits):
             renderers = DEFAULT_FILE_RENDERERS
         paths = [p for p in paths if p not in self.paths]
         _new_actions = self.actions_from_paths(
-            paths=paths, newroot=newroot, renderers=renderers
+            paths=paths, renderers=renderers
         )
         actions = self.display_objects_actions + _new_actions
         self.display_objects_actions = actions
@@ -1002,10 +1001,13 @@ if __name__ == "__main__":
     DIR_FILETYPES = load_test_constants().DIR_FILETYPES
     paths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
     ad = AutoDisplay.from_paths(
-        paths, newroot=pathlib.PureWindowsPath("C:/"), patterns="*.csv"
+        paths, patterns="*.csv"
     )
     display(ad)
 # -
+if __name__ == "__main__":
+    ad.order = ORDER_DEFAULT
+
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
 
