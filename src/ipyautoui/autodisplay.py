@@ -41,7 +41,6 @@ Example:
 # +
 import pathlib
 import functools
-from wcmatch.pathlib import Path as wcPath
 from IPython.display import (
     display,
     clear_output,
@@ -619,8 +618,6 @@ if __name__ == "__main__":
     display(d)
 
 # +
-from wcmatch import fnmatch
-
 
 class AutoDisplay(tr.HasTraits):
     """
@@ -650,14 +647,6 @@ class AutoDisplay(tr.HasTraits):
     notice that the class allows for "compound" filetypes, especially useful for .json files
     if you want to display the data in a specific way.
     """
-
-    #     _paths = tr.List()
-
-    #     @validate("_paths")
-    #     def _valid_value(self, proposal):
-    #         """makes path a wcmatch.Path (for enhanced pattern matching) and filters out directories"""
-    #         return [wcPath(p) for p in proposal["value"] if not pathlib.Path(p).is_dir()]
-
     def __init__(
         self,
         display_objects_actions: ty.List[DisplayObjectActions],
