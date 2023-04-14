@@ -10,9 +10,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.14.5
 #   kernelspec:
-#     display_name: Python 3.9 (XPython)
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: xpython
+#     name: python3
 # ---
 
 # +
@@ -445,15 +445,20 @@ class EditGrid(w.VBox, TitleDescription):
         self._check_one_row_selected()
 
     def _save_edit_to_grid(self):
+        selections = self.grid.selections  # Store current selection
+        self.grid.selections = []
+        # ^ HOTFIX: Have to set empty to reselect later on
+
         if self.datahandler is not None:
             self._reload_all_data()
         else:
-            changes = self.grid.set_item_value(
-                self.grid.selected_index, self.ui_edit.value
-            )
+            self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
 
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.edit.value = False
+        else:
+            # Reselect previous selection after reload.
+            self.grid.selections = selections
 
     def _set_ui_edit_to_selected_row(self):
         self.ui_edit.value = self.grid.selected
@@ -660,10 +665,12 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
+    import random
+
     datahandler = DataHandler(
-        fn_get_all_data=lambda: AUTO_GRID_DEFAULT_VALUE * random.randint(1, 10),
+        fn_get_all_data=lambda: AUTO_GRID_DEFAULT_VALUE * random.randint(1, 5),
         fn_post=lambda v: print(v),
-        fn_patch=lambda v: print(v),
+        fn_patch=lambda v: v,
         fn_delete=lambda v: print(v),
         fn_copy=lambda v: print(v),
     )
