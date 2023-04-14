@@ -15,21 +15,19 @@ import importlib.util
 import inspect
 import immutables
 import getpass
+import maplocal
 
 frozenmap = immutables.Map
 
+if maplocal.maplocal_openlocal_exists():
+    from maplocal import openlocal as open_path
+    from maplocal import maplocal as make_new_path
+else:
 
-def make_new_path(path, *args, **kwargs):
-    return path
+    def make_new_path(path, *args, **kwargs):
+        return path
 
-
-try:
-    # TODO: remove these.
-    from mf_file_utilities import go as open_file
-    from mf_file_utilities.applauncher_wrapper import make_new_path
-except:
-
-    def open_file(path):
+    def open_path(path):
         import subprocess
 
         subprocess.call(["open", path])
@@ -219,9 +217,9 @@ def read_yaml(fpth, encoding="utf8"):
     with open(fpth, encoding=encoding) as stream:
         try:
             data = yaml.safe_load(stream)
+            return data
         except yaml.YAMLError as exc:
             print(exc)
-    return data
 
 
 def file(self: Type[BaseModel], path: pathlib.Path, **json_kwargs):
