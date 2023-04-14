@@ -4,7 +4,7 @@ name: ipyautoui-docs
 # conda-forge has highest prioriy
 # -
 # jg notes
-# - 
+# -
 # - needs everything that ipyautoui needs + everything for docs
 # - in future when packaged could make ipyautoui a dependency
 channels:
@@ -33,7 +33,7 @@ dependencies:
   - dacite
   - pyyaml
   - pillow
-#  - click
+  #  - click
   - openpyxl
   - black
   - nb_black
@@ -50,8 +50,8 @@ dependencies:
   - pytest
   - pip
   - pip:
-    - traitlets-paths
-#  - xlsxwriter 
-#  - xlsxtemplater 
-#  - mf_file_utilities 
+      - maplocal==0.1.1
+#  - xlsxwriter
+#  - xlsxtemplater
+#  - mf_file_utilities
 #  - mfom

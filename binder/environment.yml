@@ -35,4 +35,4 @@ dependencies:
   - pytest
   - pip
   - pip:
-    - traitlets-paths
+      - maplocal==0.1.1

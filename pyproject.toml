@@ -32,6 +32,7 @@ dependencies = [
     "stringcase",
     "traitlets",
     "wcmatch",
+    "maplocal==0.1.1",
 ]
 
 [project.urls]
