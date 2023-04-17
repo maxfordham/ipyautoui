@@ -74,7 +74,7 @@ from ipyautoui.constants import (
     KWARGS_COLLAPSE_ALL_FILES,
     KWARGS_HOME_DISPLAY_FILES,
 )
-
+from wcmatch import fnmatch
 import requests
 
 # from mf library
@@ -619,6 +619,7 @@ if __name__ == "__main__":
 
 # +
 
+
 class AutoDisplay(tr.HasTraits):
     """
     displays the contents of a file in the notebook.
@@ -647,6 +648,7 @@ class AutoDisplay(tr.HasTraits):
     notice that the class allows for "compound" filetypes, especially useful for .json files
     if you want to display the data in a specific way.
     """
+
     def __init__(
         self,
         display_objects_actions: ty.List[DisplayObjectActions],
