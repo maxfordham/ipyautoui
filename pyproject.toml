@@ -30,7 +30,6 @@ dependencies = [
     "pytest",
     "PyYAML",
     "stringcase",
-    "traitlets",
     "wcmatch",
     "maplocal==0.1.1",
 ]
