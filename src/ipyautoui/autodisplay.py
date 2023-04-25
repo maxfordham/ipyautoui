@@ -2,11 +2,12 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: py:light
+#     custom_cell_magics: kql
+#     formats: py:percent
 #     text_representation:
 #       extension: .py
-#       format_name: light
-#       format_version: '1.5'
+#       format_name: percent
+#       format_version: '1.3'
 #       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
@@ -14,6 +15,7 @@
 #     name: python3
 # ---
 
+# %%
 """
 displayfile is used to display certain types of files.
 The module lets us preview a file, open a file, and open its directory.
@@ -38,7 +40,7 @@ Example:
 # %run __init__.py
 # %load_ext lab_black
 
-# +
+# %%
 import pathlib
 import functools
 from IPython.display import (
@@ -84,9 +86,7 @@ import requests
 #     pass
 
 
-# -
-
-
+# %%
 def merge_default_renderers(
     renderers: dict[str, ty.Callable],
     default_renderers: frozenmap[str, ty.Callable] = DEFAULT_FILE_RENDERERS,
@@ -94,6 +94,7 @@ def merge_default_renderers(
     return {**dict(default_renderers), **renderers}
 
 
+# %%
 def get_renderers(
     renderers: ty.Optional[dict[str, ty.Callable]],
     extend_default_renderers: bool = True,
@@ -106,7 +107,7 @@ def get_renderers(
         return dict(DEFAULT_FILE_RENDERERS)
 
 
-# +
+# %%
 class DisplayObjectActions(BaseModel):
     """base object with callables for creating a display object"""
 
@@ -271,13 +272,12 @@ class DisplayFromCallable(DisplayObjectActions):
             return values["path"].__name__
 
 
-# -
-
+# %%
 if __name__ == "__main__":
     d = DisplayFromPath(path="__init__.py")
     display(d.renderer())
 
-# +
+# %%
 # TODO: separate out the bit that is display data and display from path...
 # TODO: probs useful to have a `value` trait (allowing the object to be updated instead of remade)
 #       this probably means having DisplayObject as a base class and extending it for display file...
@@ -345,7 +345,6 @@ class DisplayObject(w.VBox):
                 default is: ("exists", "openpreview", "openfile", "openfolder", "name")
                 reduce tuple to hide components
         """
-
         self._init_form()  # generic form only
         self._init_controls()
         super().__init__(display_actions=display_actions, **kwargs)
@@ -353,54 +352,13 @@ class DisplayObject(w.VBox):
         self.children = [self.bx_bar, self.bx_out]
 
     def _update_bx_bar(self, order):
-        self.bx_bar.children = [getattr(self, l) for l in order]
-
-    @classmethod
-    def from_path(
-        cls,
-        path,
-        renderers=None,
-        extend_default_renderers=True,
-        auto_open=False,
-    ):
-        renderers = get_renderers(
-            renderers=renderers, extend_default_renderers=extend_default_renderers
-        )
-        display_actions = DisplayFromPath(path=path, renderers=renderers)
-        return cls(display_actions=display_actions, auto_open=auto_open)
-
-    @classmethod
-    def from_request(
-        cls,
-        path,
-        ext,
-        renderers=None,
-        extend_default_renderers=True,
-        auto_open=False,
-    ):
-        renderers = get_renderers(
-            renderers=renderers, extend_default_renderers=extend_default_renderers
-        )
-        display_actions = DisplayFromRequest(path=path, ext=ext, renderers=renderers)
-        return cls(display_actions=display_actions, auto_open=auto_open)
-
-    @classmethod
-    def from_callable(
-        cls,
-        path,
-        ext,
-        renderers=None,
-        extend_default_renderers=True,
-        auto_open=False,
-    ):
-        renderers = get_renderers(
-            renderers=renderers, extend_default_renderers=extend_default_renderers
-        )
-        display_actions = DisplayFromCallable(path=path, ext=ext, renderers=renderers)
-        return cls(display_actions=display_actions, auto_open=auto_open)
-
-    def tooltip_openpath(self, path):
-        return str(make_new_path(path))
+        li = []
+        for l in order:
+            try:
+                li.append(getattr(self, l))
+            except:
+                pass
+        self.bx_bar.children = li
 
     def _init_form(self):
         self.exists = w.Valid(
@@ -411,8 +369,6 @@ class DisplayObject(w.VBox):
             layout=w.Layout(width="20px", height=BUTTON_HEIGHT_MIN),
         )
         self.openpreview = w.ToggleButton(**KWARGS_OPENPREVIEW)
-        self.openfile = w.Button(**KWARGS_OPENFILE)
-        self.openfolder = w.Button(**KWARGS_OPENFOLDER)
         self.name = w.HTML(
             layout=w.Layout(justify_items="center"),
         )
@@ -421,26 +377,14 @@ class DisplayObject(w.VBox):
         self.out_caller.layout.display = "none"
         self.out.layout.display = "none"
         self.bx_bar = w.HBox()
-
         self.bx_out = w.VBox()
         self.bx_out.children = [self.out_caller, self.out]
 
     def _update_form(self):
-        if isinstance(self.display_actions.path, pathlib.PurePath):
-            self.openfile.tooltip = f"""
-open file:
-{self.tooltip_openpath(self.display_actions.path)}
-"""
-            self.openfolder.tooltip = f"""
-open folder:
-{self.tooltip_openpath(self.display_actions.path.parent)}
-"""
         self.name.value = "<b>{0}</b>".format(self.display_actions.name)
         self.check_exists()
 
     def _init_controls(self):
-        self.openfile.on_click(self._openfile)
-        self.openfolder.on_click(self._openfolder)
         self.openpreview.observe(self._openpreview, names="value")
 
     def check_exists(self):
@@ -472,6 +416,100 @@ open folder:
             with self.out:
                 clear_output()
 
+
+class DisplayCallable(DisplayObject):
+    def __init__(
+        self,
+        value,
+        ext,
+        renderers=None,
+        extend_default_renderers=True,
+        **kwargs,
+    ):
+
+        renderers = get_renderers(
+            renderers=renderers, extend_default_renderers=extend_default_renderers
+        )
+        display_actions = DisplayFromCallable(path=value, ext=ext, renderers=renderers)
+        super().__init__(display_actions=display_actions, **kwargs)
+
+
+class DisplayRequest(DisplayObject):
+    def __init__(
+        self,
+        value,
+        ext,
+        renderers=None,
+        extend_default_renderers=True,
+        **kwargs,
+    ):
+
+        renderers = get_renderers(
+            renderers=renderers, extend_default_renderers=extend_default_renderers
+        )
+        display_actions = DisplayFromRequest(path=path, ext=ext, renderers=renderers)
+        super().__init__(display_actions=display_actions, **kwargs)
+
+
+class DisplayPath(DisplayObject):
+    _value = tr.Unicode(default_value="")
+
+    @tr.default("order")
+    def _default_order(self):
+        return ORDER_DEFAULT
+
+    def __init__(
+        self,
+        value,
+        renderers=None,
+        extend_default_renderers=True,
+        **kwargs,
+    ):
+        self.renderers = get_renderers(
+            renderers=renderers, extend_default_renderers=extend_default_renderers
+        )
+        display_actions = DisplayFromPath(path=value, renderers=self.renderers)
+        self._update_form_DisplayPath()
+        super().__init__(display_actions=display_actions, **kwargs)
+        self._init_controls_DisplayPath()
+        self._update_path_tooltips()
+
+    def _update_form_DisplayPath(self):
+        self.openfile = w.Button(**KWARGS_OPENFILE)
+        self.openfolder = w.Button(**KWARGS_OPENFOLDER)
+
+    def _update_path_tooltips(self):
+        new_path = lambda path: str(make_new_path(path))
+        if isinstance(self.display_actions.path, pathlib.PurePath):
+            self.openfile.tooltip = f"""
+open file:
+{new_path(self.display_actions.path)}
+"""
+            self.openfolder.tooltip = f"""
+open folder:
+{new_path(self.display_actions.path.parent)}
+"""
+
+    def _init_controls_DisplayPath(self):
+        self.openfile.on_click(self._openfile)
+        self.openfolder.on_click(self._openfolder)
+
+    @property
+    def path(self):
+        return pathlib.Path(self.value)
+
+    @path.setter
+    def path(self, value):
+        self.value = str(value)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self.display_actions = DisplayFromPath(path=value, renderers=self.renderers)
+
     def _openfile(self, sender):
         self.out_caller.layout.display = ""
         with self.out_caller:
@@ -489,52 +527,24 @@ open folder:
             time.sleep(5)
             clear_output()
         self.out_caller.layout.display = "none"
-
-
-class DisplayPath(DisplayObject):
-    _value = tr.Unicode(default_value="")
-
-    def __init__(
-        self,
-        value,
-        renderers=None,
-        extend_default_renderers=True,
-        **kwargs,
-    ):
-        self.renderers = get_renderers(
-            renderers=renderers, extend_default_renderers=extend_default_renderers
-        )
-        display_actions = DisplayFromPath(path=value, renderers=self.renderers)
-        super().__init__(display_actions=display_actions, **kwargs)
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        self._value = ""
-        self.display_actions = DisplayFromPath(path=value, renderers=self.renderers)
-
-
-# -
+# %%
 if __name__ == "__main__":
     d = DisplayFromPath(path="__init__.py")
     do = DisplayObject(d)
     display(do)
 
-# +
-# from maplocal import maplocal
+# %%
+if __name__ == "__main__":
+    DisplayPath(value="__init__.py")
 
-# maplocal(pathlib.Path("__init__.py"))
-# -
-
+# %%
 if __name__ == "__main__":
     path = "https://catfact.ninja/fact"
     ext = ".json"
     display(DisplayFromRequest(path=path, ext=ext).renderer())
 
 
+# %%
 if __name__ == "__main__":
     path = "https://catfact.ninja/fact"
     ext = ".json"
@@ -544,18 +554,21 @@ if __name__ == "__main__":
 
     display(DisplayFromCallable(path=get_catfact, ext=ext).renderer())
 
+# %%
 if __name__ == "__main__":
 
     path = "https://catfact.ninja/fact"
     ext = ".json"
-    display(DisplayObject.from_request(path=path, ext=ext))
+    display(DisplayRequest(value=path, ext=ext, order=ORDER_DEFAULT))
 
+# %%
 if __name__ == "__main__":
 
     ext = ".json"
-    dobj = DisplayObject.from_callable(path=get_catfact, ext=ext)
+    dobj = DisplayCallable(value=get_catfact, ext=ext)
     display(dobj)
 
+# %%
 if __name__ == "__main__":
     import json
     from datetime import datetime
@@ -575,11 +588,10 @@ if __name__ == "__main__":
 
     path = "https://catfact.ninja/fact"
     ext = ".catfact"
-    d = DisplayObject.from_request(
-        path=path, ext=ext, renderers={".catfact": display_catfact}
-    )
+    d = DisplayRequest(value=path, ext=ext, renderers={".catfact": display_catfact})
     display(d)
 
+# %%
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
     from ipyautoui.autoui import AutoUi
@@ -589,15 +601,12 @@ if __name__ == "__main__":
     DIR_FILETYPES = load_test_constants().DIR_FILETYPES
     paths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
     path = paths[6]
-    d = DisplayObject.from_path(path)
+    d = DisplayPath(path)
     display(d)
     # ------------------
 
 
-if __name__ == "__main__":
-    d1 = DisplayPath(path)
-    display(d1)
-
+# %%
 if __name__ == "__main__":
     d.order = (
         "openpreview",
@@ -605,6 +614,7 @@ if __name__ == "__main__":
     )
     d.auto_open = True
 
+# %%
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
 
@@ -613,14 +623,18 @@ if __name__ == "__main__":
     )
     path1 = tests_constants.PATH_TEST_AUI
 
-    d = DisplayObject.from_path(path1, renderers=user_file_renderers)
+    d = DisplayPath(path1, renderers=user_file_renderers)
     d.order = ORDER_DEFAULT
     display(d)
 
-# +
 
-
+# %%
 class AutoDisplay(tr.HasTraits):
+    order = tr.Tuple(default_value=ORDER_NOTPATH, allow_none=False)
+    
+    @tr.observe("order")
+    def _observe_order(self, change):
+        self._update_bx_bar(change["new"])
     """
     displays the contents of a file in the notebook.
     comes with the following default renderers:
@@ -671,7 +685,6 @@ class AutoDisplay(tr.HasTraits):
         self._init_controls()
         self.title = title
         self._display_objects_actions = display_objects_actions
-
         self.display_objects_actions = display_objects_actions
         self.display_showhide = display_showhide
         self.patterns = patterns
@@ -969,7 +982,7 @@ class AutoDisplay(tr.HasTraits):
         [d._update_file() for d in self.display_objects]
 
 
-# +
+# %%
 # TODO: render pdf update the relative path
 
 if __name__ == "__main__":
@@ -982,10 +995,11 @@ if __name__ == "__main__":
     paths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
     ad = AutoDisplay.from_paths(paths, patterns="*.csv")
     display(ad)
-# -
+# %%
 if __name__ == "__main__":
     ad.order = ORDER_DEFAULT
 
+# %%
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
 
@@ -1001,6 +1015,7 @@ if __name__ == "__main__":
 
     display(test_ui)
 
+# %%
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
 
@@ -1015,6 +1030,7 @@ if __name__ == "__main__":
 
     display(test_ui)
 
+# %%
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestAutoLogic
     from pydantic import parse_obj_as
@@ -1032,6 +1048,7 @@ if __name__ == "__main__":
 
     display(test_ui)
 
+# %%
 if __name__ == "__main__":
     import json
     from datetime import datetime
@@ -1057,3 +1074,5 @@ if __name__ == "__main__":
     test_display = AutoDisplay([d1, d2])
     display(Markdown("### From requests: "))
     display(test_display)
+
+# %%
