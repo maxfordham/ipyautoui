@@ -145,7 +145,7 @@ KWARGS_OPENFOLDER = frozenmap(
 KWARGS_DISPLAY = frozenmap(
     icon="plus",
     tooltip="display all files",
-    layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
+    layout={"width": BUTTON_WIDTH_MIN},  # , "height": BUTTON_HEIGHT_MIN
     disabled=False,
 )
 KWARGS_DISPLAY_ALL_FILES = frozenmap(
