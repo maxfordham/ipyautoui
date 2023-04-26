@@ -13,7 +13,6 @@
 #     name: python3
 # ---
 
-# +
 # %run ../_dev_sys_path_append.py
 # %run __init__.py
 # %load_ext lab_black
@@ -107,9 +106,9 @@ class ShowOpenUrl(ShowHide):
 if __name__ == "__main__":
     docs = ShowOpenUrl(
         title="",
-        url_embed="https://wiki.maxfordham.com/aectemplater-docs/_build/html/tut-tutorials.html",
-        url_launch="https://wiki.maxfordham.com/aectemplater-docs/_build/html/intro.html",
-        des_launch="open on the Wiki",
+        url_embed="https://ipywidgets.readthedocs.io/en/latest/index.html",
+        # url_launch="https://wiki.maxfordham.com/aectemplater-docs/_build/html/intro.html",
+        des_launch="open docs",
         des_embed="open standalone docs",
         auto_open=True,
     )
