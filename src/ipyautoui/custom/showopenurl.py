@@ -39,27 +39,25 @@ def window_open(url):
 
 
 class ShowOpenUrl(ShowHide):
-    url_embed = tr.Unicode(default_value="https://readthedocs.org/")
-    url_launch = tr.Unicode(default_value="https://readthedocs.org/")
-    des_launch = tr.Unicode(allow_none=True)
-    des_embed = tr.Unicode(allow_none=True)
+    url = tr.Unicode(default_value="https://readthedocs.org/")
+    description = tr.Unicode(allow_none=True)
+    url_launch = tr.Unicode(default_value=None, allow_none=True)
+    description_launch = tr.Unicode(allow_none=True)
 
-    @tr.observe("url_embed")
-    def _obs_url_embed(self, change):
-        if self.url_launch == change["old"]:
-            self.url_launch = change["new"]
-        return change["new"]
+    @tr.observe("url")
+    def _obs_url_launch(self, change):
+        if change["new"] is None:
+            self.btn_launch.layout.display = "None"
+        else:
+            self.btn_launch.layout.display = ""
 
-    @tr.observe("des_launch")
-    def _obs_des_launch(self, change):
+    @tr.observe("description_launch")
+    def _obs_description_launch(self, change):
         self.btn_launch.description = change["new"]
 
-        return change["new"]
-
-    @tr.observe("des_embed")
-    def _obs_des_embed(self, change):
+    @tr.observe("description")
+    def _obs_description(self, change):
         self.btn_launch_embedded.description = change["new"]
-        return change["new"]
 
     def __init__(self, auto_open=False, **kwargs):
         self.out_launcher = w.Output()
@@ -70,17 +68,20 @@ class ShowOpenUrl(ShowHide):
             icon="link", layout=w.Layout(flex="12 1 0%", width="auto")
         )
         kwargs = kwargs | {"title": ""}
+
         super().__init__()
         {setattr(self, k, v) for k, v in kwargs.items()}
         self.btn_display.layout = w.Layout(flex="0.5 1 0%", width="auto")
         self.hbx_title.children = [
             self.btn_display,
-            self.btn_launch,
             self.btn_launch_embedded,
+            self.btn_launch,
         ]
-        self.fn_display = lambda: IFrame(self.url_embed, width="100%", height="800")
+        self.fn_display = lambda: IFrame(self.url, width="100%", height="800")
         self._update_controls()
         self.children = list(self.children) + [self.out_launcher]
+        if self.url_launch is None:
+            self.btn_launch.layout.display = "None"
         if auto_open:
             self.btn_display.value = True
 
@@ -93,7 +94,7 @@ class ShowOpenUrl(ShowHide):
     def fn_launch_embedded(self, on_click):
         with self.out_launcher:
             clear_output()
-            window_open_appmode(self.url_embed)
+            window_open_appmode(self.url)
             clear_output()
 
     def _update_controls(self):
@@ -106,10 +107,10 @@ class ShowOpenUrl(ShowHide):
 if __name__ == "__main__":
     docs = ShowOpenUrl(
         title="",
-        url_embed="https://ipywidgets.readthedocs.io/en/latest/index.html",
+        url="https://ipywidgets.readthedocs.io/en/latest/index.html",
         # url_launch="https://wiki.maxfordham.com/aectemplater-docs/_build/html/intro.html",
-        des_launch="open docs",
-        des_embed="open standalone docs",
+        description_launch="open readthedocs as standalone window",
+        description="open standalone docs",
         auto_open=True,
     )
     display(docs)
