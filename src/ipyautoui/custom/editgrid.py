@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.5
+#       jupytext_version: 1.14.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -446,13 +446,14 @@ class EditGrid(w.VBox, TitleDescription):
 
     def _save_edit_to_grid(self):
         selections = self.grid.selections  # Store current selection
+        selected_index = self.grid.selected_index
         self.grid.selections = []
         # ^ HOTFIX: Have to set empty to reselect later on
 
         if self.datahandler is not None:
             self._reload_all_data()
         else:
-            self.grid.set_item_value(self.grid.selected_index, self.ui_edit.value)
+            self.grid.set_item_value(selected_index, self.ui_edit.value)
 
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.edit.value = False
