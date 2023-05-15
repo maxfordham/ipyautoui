@@ -20,6 +20,7 @@
     ],
     "checkbox": true,
     "dropdown": null,
+    "combobox": "apple",
     "dropdown_edge_case": "apple",
     "dropdown_simple": "asd",
     "text": "changed",
