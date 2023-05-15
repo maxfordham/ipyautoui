@@ -629,11 +629,9 @@ if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
 
     class DataFrameCols(BaseModel):
-        string: str = Field("string", column_width=100, section="a")
+        string: str = Field("string", column_width=400, section="a")
         integer: int = Field(1, column_width=80, section="a")
-        floater: float = Field(
-            None, column_width=70, global_decimal_places=3, section="b"
-        )
+        floater: float = Field(None, column_width=70, section="b")
 
     class TestDataFrame(BaseModel):
         """a description of TestDataFrame"""
@@ -655,6 +653,8 @@ if __name__ == "__main__":
         warn_on_delete=True,
         show_copy_dialogue=False,
         close_crud_dialogue_on_action=False,
+        global_decimal_places=1,
+        column_width={"String": 400},
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
@@ -693,13 +693,10 @@ if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
     from ipyautoui.autoipywidget import AutoObject
 
-    #     class TestDataFrame(BaseModel):
-    #         """a description of TestDataFrame"""
-
-    #         __root__: ty.List[CoreIpywidgets] = Field(
-    #             [CoreIpywidgets().dict()], format="dataframe"
-    #         )
-    # TODO: ^ fix this
+    class DataFrameCols(BaseModel):
+        string: str = Field("string", column_width=400, section="a")
+        integer: int = Field(1, column_width=80, section="b")
+        floater: float = Field(None, column_width=70, section="b")
 
     class TestDataFrame(BaseModel):
         """a description of TestDataFrame"""
@@ -713,6 +710,7 @@ if __name__ == "__main__":
                 ).dict()
             ],
             format="dataframe",
+            #datagrid_index_name=("section", "title"),
         )
 
     description = markdown(

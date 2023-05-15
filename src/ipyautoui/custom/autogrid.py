@@ -1046,7 +1046,8 @@ class AutoGrid(DataGrid):
     # ----------------
 
 
-# +
+# -
+
 if __name__ == "__main__":
 
     class DataFrameCols(BaseModel):
@@ -1055,7 +1056,7 @@ if __name__ == "__main__":
             title="Important String",
             column_width=120,
         )
-        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        integer: int = Field(40, title="Integer of somesort", column_width=400)
         floater: float = Field(
             1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
         )
@@ -1070,7 +1071,6 @@ if __name__ == "__main__":
 
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
     display(grid)
-
 
 if __name__ == "__main__":
     # ORDER OVERRIDE
@@ -1134,7 +1134,7 @@ if __name__ == "__main__":
             title="Important String",
             column_width=120,
         )
-        integer: int = Field(title="Integer of somesort", column_width=150)
+        integer: int = Field(title="Integer of somesort", column_width=400)
         floater: float = Field(
             title="Floater", column_width=70  # , renderer={"format": ".2f"}
         )
@@ -1152,6 +1152,16 @@ if __name__ == "__main__":
 
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
     display(grid)
+
+# +
+
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)  # .T
