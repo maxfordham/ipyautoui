@@ -36,6 +36,7 @@ class WidgetCallerError(w.VBox):
     widget = tr.Unicode(default_value="")
     error = tr.Unicode(default_value="")
     schema = tr.Dict(default_value={})
+    value = tr.Unicode(default_value="error")
 
     @tr.observe("widget")
     def _observe_widget(self, change):
@@ -46,7 +47,6 @@ class WidgetCallerError(w.VBox):
 
     @tr.observe("error")
     def _observe_error(self, change):
-
         with self.out_error:
             clear_output()
             display_python_string(change["new"])
@@ -61,7 +61,6 @@ class WidgetCallerError(w.VBox):
         return change["new"]
 
     def __init__(self, **kwargs):
-
         self.html_widget_title = w.HTML("<b>Widget Name:</b>")
         self.html_error_title = w.HTML("<b>Error:</b>")
         self.html_schema_title = w.HTML("<b>JsonSchema that generates UI:</b>")
