@@ -58,7 +58,7 @@ ADD_BUTTON_KWARGS = frozenmap(
     style={},
     button_style="success",
     tooltip="add item",
-    layout={"width": BUTTON_WIDTH_MIN}, #, "height": BUTTON_HEIGHT_MIN
+    layout={"width": BUTTON_WIDTH_MIN},  # , "height": BUTTON_HEIGHT_MIN
     disabled=False,
 )
 EDIT_BUTTON_KWARGS = frozenmap(
@@ -66,7 +66,7 @@ EDIT_BUTTON_KWARGS = frozenmap(
     style={},
     button_style="warning",
     tooltip="add item",
-    layout={"width": BUTTON_WIDTH_MIN}, #, "height": BUTTON_HEIGHT_MIN
+    layout={"width": BUTTON_WIDTH_MIN},  # , "height": BUTTON_HEIGHT_MIN
     disabled=False,
 )
 REMOVE_BUTTON_KWARGS = frozenmap(
@@ -74,7 +74,7 @@ REMOVE_BUTTON_KWARGS = frozenmap(
     style={},
     button_style="danger",
     tooltip="remove item",
-    layout={"width": BUTTON_WIDTH_MIN}, #, "height": BUTTON_HEIGHT_MIN
+    layout={"width": BUTTON_WIDTH_MIN},  # , "height": BUTTON_HEIGHT_MIN
     disabled=False,
 )
 COPY_BUTTON_KWARGS = frozenmap(
@@ -82,14 +82,14 @@ COPY_BUTTON_KWARGS = frozenmap(
     style={},
     button_style="primary",
     tooltip="copy item",
-    layout={"width": BUTTON_WIDTH_MIN}, #, "height": BUTTON_HEIGHT_MIN
+    layout={"width": BUTTON_WIDTH_MIN},  # , "height": BUTTON_HEIGHT_MIN
 )
 RELOAD_BUTTON_KWARGS = frozenmap(
     icon="sync",
     style={},
     button_style="info",
     tooltip="reload",
-    layout={"width": BUTTON_WIDTH_MIN}, #, "height": BUTTON_HEIGHT_MIN
+    layout={"width": BUTTON_WIDTH_MIN},  # , "height": BUTTON_HEIGHT_MIN
     disabled=False,
 )
 BLANK_BUTTON_KWARGS = frozenmap(
@@ -186,6 +186,7 @@ MAP_JSONSCHEMA_TO_IPYWIDGET = frozenmap(
         "minimum": "min",
         "maximum": "max",
         "enum": "options",
+        "examples": "options",
         "default": "value",
         "description": "autoui_description",
     }

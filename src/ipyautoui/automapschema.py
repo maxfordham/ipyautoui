@@ -23,6 +23,7 @@ import ipywidgets as w
 import ipyautoui.autowidgets as auiwidgets
 from ipyautoui._utils import frozenmap, obj_from_importstr
 
+
 # +
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
 def recursive_search_schema(schema: ty.Dict, li: ty.List) -> ty.Dict:
@@ -403,6 +404,14 @@ def is_Path(di: dict) -> bool:
         return True
     else:
         return False
+    
+def is_Combobox(di: dict) -> bool:
+    if "autoui" in di.keys():
+        return False
+    if "examples" not in di.keys():
+        return False
+    else:
+        return True
 
 
 def isnot_Text(di: dict) -> bool:
@@ -413,6 +422,8 @@ def isnot_Text(di: dict) -> bool:
     if is_Markdown(di):
         return True
     if is_Path(di):
+        return True
+    if is_Combobox(di):
         return True
     return False
 
@@ -594,7 +605,6 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
             fn = caller.autoui
         wi = fn(caller.schema_, *caller.args, **caller.kwargs)
     except Exception as e:
-
         if show_errors:
             from ipyautoui.custom.widgetcaller_error import WidgetCallerError
 
@@ -666,6 +676,7 @@ def get_widgets_map(di_update=None):
                 fn_filt=is_Markdown, widget=auiwidgets.AutoMarkdown
             ),
             "Dropdown": WidgetMapper(fn_filt=is_Dropdown, widget=auiwidgets.Dropdown),
+            "Combobox": WidgetMapper(fn_filt=is_Combobox, widget=auiwidgets.Combobox),
             "SelectMultiple": WidgetMapper(
                 fn_filt=is_SelectMultiple, widget=auiwidgets.SelectMultiple
             ),
