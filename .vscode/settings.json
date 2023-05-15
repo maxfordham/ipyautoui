@@ -6,5 +6,9 @@
     "python.testing.pytestEnabled": true,
     "python.envFile": "${workspaceFolder}/.env",
     "python.linting.enabled": true,
-    "jupyter.notebookFileRoot": "${fileDirname}"
+    "jupyter.notebookFileRoot": "${fileDirname}",
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none"
 }
