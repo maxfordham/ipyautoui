@@ -88,9 +88,11 @@ import requests
 
 # %%
 def merge_default_renderers(
-    renderers: dict[str, ty.Callable],
+    renderers: ty.Optional[dict[str, ty.Callable]],
     default_renderers: frozenmap[str, ty.Callable] = DEFAULT_FILE_RENDERERS,
 ) -> dict[str, ty.Callable]:
+    if renderers is None:
+        renderers = {}
     return {**dict(default_renderers), **renderers}
 
 
@@ -209,10 +211,8 @@ class DisplayFromPath(DisplayObjectActions):
 
 
 def url_ok(url):
-
     # exception block
     try:
-
         # pass the url into
         # request.head
         # response = requests.head(url)
@@ -426,7 +426,6 @@ class DisplayCallable(DisplayObject):
         extend_default_renderers=True,
         **kwargs,
     ):
-
         renderers = get_renderers(
             renderers=renderers, extend_default_renderers=extend_default_renderers
         )
@@ -443,7 +442,6 @@ class DisplayRequest(DisplayObject):
         extend_default_renderers=True,
         **kwargs,
     ):
-
         renderers = get_renderers(
             renderers=renderers, extend_default_renderers=extend_default_renderers
         )
@@ -527,6 +525,8 @@ open folder:
             time.sleep(5)
             clear_output()
         self.out_caller.layout.display = "none"
+
+
 # %%
 if __name__ == "__main__":
     d = DisplayFromPath(path="__init__.py")
@@ -556,14 +556,12 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
-
     path = "https://catfact.ninja/fact"
     ext = ".json"
     display(DisplayRequest(value=path, ext=ext, order=ORDER_DEFAULT))
 
 # %%
 if __name__ == "__main__":
-
     ext = ".json"
     dobj = DisplayCallable(value=get_catfact, ext=ext)
     display(dobj)
@@ -631,10 +629,11 @@ if __name__ == "__main__":
 # %%
 class AutoDisplay(tr.HasTraits):
     order = tr.Tuple(default_value=ORDER_NOTPATH, allow_none=False)
-    
+
     @tr.observe("order")
     def _observe_order(self, change):
         self._update_bx_bar(change["new"])
+
     """
     displays the contents of a file in the notebook.
     comes with the following default renderers:
