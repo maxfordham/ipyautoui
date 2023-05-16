@@ -26,8 +26,7 @@
 # %%
 import ipywidgets as w
 import traitlets as tr
-from IPython.display import clear_output
-from IPython.display import JSON
+from IPython.display import clear_output, JSON, display
 from ipyautoui._utils import display_python_string
 
 
