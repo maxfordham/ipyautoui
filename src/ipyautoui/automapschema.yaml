@@ -1,0 +1,81 @@
+---
+  IntText: 
+    keyValEquals:
+      - type: integer
+  IntSlider: 
+    keyValEquals:
+      - type: integer
+    inKeys:
+      - minimum
+      - maximum
+  FloatText: 
+    keyValEquals:
+      - type: number
+  FloatSlider: 
+    keyValEquals:
+      - type: number
+    inKeys:
+      - minimum
+      - maximum
+  Text:
+    keyValEquals:
+      - type: string     
+  Textarea:
+    keyValEquals:
+      - type: string   
+    keyValGreaterThan:
+      - maxLength: 200
+  Markdown:
+    keyValEquals:
+      - type: string   
+      - format: markdown
+  Path:
+    keyValEquals:
+      - type: string   
+      - format: path
+  Dropdown: 
+    keyValEquals:
+      - type: [integer, number, string]
+    inKeys:
+      - enum
+  ToggleButtons: 
+    keyValEquals:
+      - type: [integer, number, string]
+      - format: togglebuttons
+    inKeys:
+      - enum
+  Array: 
+    keyValEquals:
+      - type: array
+    inItemsKeyValEquals:
+      - type: number
+    keyValLenEquals:
+      - items: 2
+  Dataframe: 
+    keyValEquals:
+      - type: array
+      - format: dataframe
+  SelectMultiple:
+    keyValEquals:
+      - type: array
+    inKeys:
+      - enum
+  IntRangeSlider: 
+    keyValEquals:
+      - type: array
+      - minItems: 2
+      - maxItems: 2
+    inItemsKeyValEquals:
+      - type: integer
+    keyValLenEquals:
+      - items: 2
+  FloatRangeSlider: 
+    keyValEquals:
+      - type: array
+    inItemsKeyValEquals:
+      - type: number
+    keyValLenEquals:
+      - items: 2
+  Object: 
+    keyValEquals:
+      - type: object
