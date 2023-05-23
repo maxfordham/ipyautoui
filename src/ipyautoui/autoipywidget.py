@@ -136,21 +136,28 @@ def add_fdir_to_widgetcaller(
         raise ValueError(f"ERROR add_fdir_to_widgetcallers self.fdir = {fdir}")
 
 
-def horizontal_row_nested(widget, label, auto_open=False):
+SPACER = w.HBox(layout={"width": "45px"})
+
+
+def horizontal_row_nested(widget, label, auto_open=False, contains_nullable=False):
     # BUG: Reported defects -@jovyan at 8/23/2022, 10:30:52 PM
     # ^ buggy behaviour associated to ShowHide class for nested objects observed in
     # example form linked to `horizontal_row_nested`
-    return ShowHide(
+    wi = ShowHide(
         fn_display=lambda: widget,
         title=label,
         auto_open=auto_open,
         button_width="300px",
     )
+    if contains_nullable:
+        return w.HBox([SPACER, wi])
+    else:
+        return wi
 
 
 def add_spacer_to_form_with_nullables(children, widget, contains_nullable):
     if contains_nullable and not isinstance(widget, Nullable):
-        children = [w.HBox(layout={"width": "45px"})] + children
+        children = [SPACER] + children
     return children
 
 
@@ -161,7 +168,7 @@ def horizontal_row_simple(widget, label, contains_nullable=False):
 
 
 def vertical_row(widget, label, auto_open=None, contains_nullable=False):
-    children = [w.HBox(layout={"width": "40px"}), widget]
+    children = [SPACER, widget]
     children = add_spacer_to_form_with_nullables(children, widget, contains_nullable)
     return w.VBox(
         [
@@ -195,7 +202,7 @@ def create_row(
         nested_widgets = []
     if align_horizontal:
         if True in [isinstance(widget, w) for w in nested_widgets]:
-            return horizontal_row_nested(widget, label, auto_open=auto_open)
+            return horizontal_row_nested(widget, label, auto_open=auto_open, contains_nullable=contains_nullable)
         else:
             return horizontal_row_simple(
                 widget, label, contains_nullable=contains_nullable
@@ -323,7 +330,6 @@ class AutoObjectFormLayout(w.VBox):
         return self.savebuttonbar.fns_onsave
 
     def __init__(self, **kwargs):
-
         self._init_form()
         self._init_bn_showraw_controls()
         super().__init__(
@@ -393,6 +399,7 @@ class AutoObjectFormLayout(w.VBox):
 if __name__ == "__main__":
     ui = AutoObjectFormLayout(description="description", show_savebuttonbar=True)
     display(ui)
+
 
 # +
 def demo_autoobject_form(title="test", description="a description of the title"):
