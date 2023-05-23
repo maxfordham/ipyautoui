@@ -666,6 +666,19 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
+    # list column
+    class TestListCol(BaseModel):
+        li_col: list[str] = ["a"]
+        stringy: str = "as"
+        num: int = 1
+
+    class Test(BaseModel):
+        __root__: list[TestListCol]
+
+    gr = EditGrid(Test, value=[{"li_col": ["a", "b"], "stringy": "string", "num": 23}])
+    display(gr)
+
+if __name__ == "__main__":
     import random
 
     datahandler = DataHandler(
