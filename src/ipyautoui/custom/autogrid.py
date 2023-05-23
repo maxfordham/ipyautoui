@@ -233,6 +233,10 @@ class GridSchema:
         }
         self.default_row = self._get_default_row()
 
+    @property
+    def types(self):
+        return {k: v["type"] for k, v in self.schema["items"]["properties"].items()}
+
     def set_renderers(self, **kwargs):
         {
             setattr(self, k, v)
@@ -1156,13 +1160,6 @@ if __name__ == "__main__":
 # +
 
 
-
-
-
-
-
-
-
 if __name__ == "__main__":
     grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)  # .T
 
@@ -1227,5 +1224,3 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
 # -
-
-

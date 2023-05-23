@@ -232,6 +232,32 @@ class TestGridSchema:
             ].values()
         ]
 
+    def test_grid_types(self):
+        class TestProperties(BaseModel):
+            stringy: str
+            floater: float = 1.5
+            inty: int = 1
+
+        class TestGridSchema(BaseModel):
+            """no default"""
+
+            __root__: ty.List[TestProperties] = Field(
+                [TestProperties(stringy="string").dict()],
+                format="dataframe",
+            )
+
+        model, schema = _init_model_schema(TestGridSchema)
+        gridschema = GridSchema(schema)
+        data = gridschema.coerce_data(
+            pd.DataFrame.from_dict({"stringy": ["asdf"], "floater": [1.0]})
+        )
+
+        assert gridschema.types == {
+            "stringy": "string",
+            "floater": "number",
+            "inty": "integer",
+        }
+
 
 class TestAutoGrid:
     def test_empty_grid(self):
