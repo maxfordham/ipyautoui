@@ -776,7 +776,10 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
             if k in self.di_widgets.keys():
                 if v is None and not isinstance(self.di_widgets[k], Nullable):
                     v = _get_value_trait(self.di_widgets[k]).default()
-                self.di_widgets[k].value = v
+                try:
+                    self.di_widgets[k].value = v
+                except tr.TraitError as err:
+                    logging.warning(err)
             else:
                 logging.critical(
                     f"no widget created for {k}, with value {str(v)}. fix this in the schema!"
