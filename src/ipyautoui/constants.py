@@ -19,6 +19,16 @@ ROW_WIDTH_MIN = "60px"
 BUTTON_MIN_SIZE = frozenmap(width=BUTTON_WIDTH_MIN, height=BUTTON_HEIGHT_MIN)
 # ---------------------------
 
+MAGIC_BUTTON_KWARGS = frozenmap(
+    {
+        "disabled": False,
+        "layout": {"width": "44px"},
+        "button_style": "warning",
+        "icon": "magic",
+        "style": {},
+        "tooltip": "add many",
+    }
+)
 TRUE_BUTTON_KWARGS = frozenmap(
     icon="check",
     style={"button_color": "lightgreen"},
