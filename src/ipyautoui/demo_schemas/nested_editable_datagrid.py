@@ -25,10 +25,10 @@ class DataFrameCols(BaseModel):
 
 class NestedEditableGrid(BaseModel):
     title: str = "My editable Dataframe"
-    reference: str = "some ref data"
+    reference: ty.Optional[str] = None  # TODO: this creates formatting issue
     grid: ty.List[DataFrameCols] = Field(
         default=DATAGRID_TEST_VALUE,
-        # default_factory=lambda: DATAGRID_TEST_VALUE, # TODO: AutoUi isn't getting data when set using default_factory. make this work!
         format="DataFrame",
         global_decimal_places=2,
+        # default_factory=lambda: DATAGRID_TEST_VALUE, # TODO: AutoUi isn't getting data when set using default_factory. make this work!
     )
