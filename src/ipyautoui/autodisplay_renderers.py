@@ -450,12 +450,12 @@ def preview_markdown(path: pathlib.Path):
     )
 
 
-def preview_pdf(path: pathlib.Path):
+def preview_pdf(path: pathlib.Path):  # TODO: facillitate passing kwargs...
     if not isinstance(path, pathlib.PurePath):
         path = pathlib.Path(path)
 
     path = os.path.relpath(path, start=ENV.IPYAUTOUI_ROOTDIR)
-    return IFrame(path, width=1000, height=600)
+    return IFrame(path, width=1000, height=1000)
 
 
 DEFAULT_FILE_RENDERERS = frozenmap(
