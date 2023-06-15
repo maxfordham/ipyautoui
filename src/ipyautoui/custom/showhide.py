@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.8
+#       jupytext_version: 1.14.5
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -14,14 +14,13 @@
 # ---
 
 # %run ../_dev_sys_path_append.py
-# %run __init__.py
-#
-# %run ../__init__.py
+# # %run __init__.py
+# # %run ../__init__.py
 # %load_ext lab_black
 
 # +
 import ipywidgets as w
-import traitlets as t
+import traitlets as tr
 from IPython.display import clear_output, display
 from ipyautoui.constants import KWARGS_COLLAPSE, KWARGS_DISPLAY
 import typing as ty
@@ -30,10 +29,11 @@ import typing as ty
 class ShowHide(w.VBox):
     """simple show/hide widget that displays output of a callable that is pass as the input"""
 
-    fn_display = t.Callable()
-    title = t.Unicode()
+    fn_display = tr.Callable()
+    is_show = tr.Bool()
+    title = tr.Unicode()
 
-    @t.default("fn_display")
+    @tr.default("fn_display")
     def _fn_display(self):
         return lambda: print("display")
 
@@ -71,15 +71,29 @@ class ShowHide(w.VBox):
         self.hbx_title.children = [self.btn_display, self.html_title]
         self.children = [self.hbx_title, self.out]
         self._observe_fn_display("asd")
+        self._init_controls()
 
-    @t.observe("title")
+    def _init_controls(self):
+        self.btn_display.observe(self.check_is_show, "value")
+
+    def check_is_show(self, on_change):
+        self.is_show = on_change["new"]
+
+    def show(self):
+        self.btn_display.value = True
+
+    def hide(self):
+        self.btn_display.value = False
+
+    @tr.observe("title")
     def _observe_title(self, change):
         self.html_title.value = self.title
 
-    @t.observe("fn_display")
+    @tr.observe("fn_display")
     def _observe_fn_display(self, change):
         self.btn_display.unobserve(None)
         self.btn_display.observe(self.display_out, "value")
+        self.btn_display.observe(self.check_is_show, "value")
 
     def display_out(self, click):
         with self.out:
@@ -106,3 +120,5 @@ class ShowHide(w.VBox):
 if __name__ == "__main__":
     d = ShowHide(auto_open=True)
     display(d)
+
+
