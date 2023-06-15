@@ -150,7 +150,7 @@ def horizontal_row_nested(widget, label, auto_open=False, contains_nullable=Fals
         button_width="300px",
     )
     if contains_nullable:
-        return w.HBox([SPACER, wi])
+        return w.HBox([SPACER, wi], layout={"width": "100%"})
     else:
         return wi
 
@@ -202,7 +202,9 @@ def create_row(
         nested_widgets = []
     if align_horizontal:
         if True in [isinstance(widget, w) for w in nested_widgets]:
-            return horizontal_row_nested(widget, label, auto_open=auto_open, contains_nullable=contains_nullable)
+            return horizontal_row_nested(
+                widget, label, auto_open=auto_open, contains_nullable=contains_nullable
+            )
         else:
             return horizontal_row_simple(
                 widget, label, contains_nullable=contains_nullable
@@ -624,6 +626,16 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         else:
             self._value = self.di_widgets_value
         self.savebuttonbar.unsaved_changes = False
+
+    def show_nested(self):
+        for r in self.rows:
+            if isinstance(r, ShowHide):
+                r.show()
+
+    def hide_nested(self):
+        for r in self.rows:
+            if isinstance(r, ShowHide):
+                r.hide()
 
     @property
     def default_order(self):
