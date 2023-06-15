@@ -25,6 +25,7 @@ dependencies:
   - nodejs
   - altair
   - pydantic
+  - python-dotenv
   - pyyaml
   - openpyxl
   - black
@@ -36,3 +37,4 @@ dependencies:
   - pip
   - pip:
       - maplocal==0.1.1
+      
