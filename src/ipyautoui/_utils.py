@@ -425,6 +425,7 @@ def get_ext(fpth):
 def st_mtime_string(path):
     """st_mtime_string for a given path"""
     try:
+        import time
         t = path.stat().st_mtime
         return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
     except:
