@@ -23,7 +23,7 @@
 extends standard ipywidgets to facilitate initialisation from jsonschema
 """
 
-from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET
+from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET, BUTTON_WIDTH_MIN
 import ipywidgets as w
 import traitlets as tr
 from copy import deepcopy
@@ -104,7 +104,7 @@ class Nullable(w.HBox):
         # ^ TODO: should this be in a higher-level func?
         #         ui = nullable(w.IntSlider)(value=30) # this doesn't work bu maybe should...
         self.nullable = tr.Bool(default_value=True)
-        self.bn = w.ToggleButton(icon="toggle-on", layout={"width": "40px"})
+        self.bn = w.ToggleButton(icon="toggle-on", layout={"width": BUTTON_WIDTH_MIN})
         self.show_none = w.Text(**SHOW_NONE_KWARGS)
         if "nullable" in kwargs.keys():
             self.nullable = kwargs["nullable"]

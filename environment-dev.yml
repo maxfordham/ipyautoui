@@ -5,12 +5,11 @@ name: ipyautoui-dev
 channels:
   - defaults
   - conda-forge
-#  - http://10.10.30.125:8000
 dependencies:
-  - python>=3.7
+  - python
   - numpy
   - pandas
-  - jupyterlab>=3.0.14
+  - jupyterlab
   - jupyterlab-lsp
   - jupyter-lsp-python
   - xeus-python
@@ -18,7 +17,7 @@ dependencies:
   - ipyfilechooser
   - ipydatagrid
   - ipyvuetify
-  - voila>=0.2.11
+  - voila
   - plotly
   - halo
   - jupytext
@@ -26,6 +25,7 @@ dependencies:
   - nodejs
   - altair
   - pydantic
+  - python-dotenv
   - pyyaml
   - openpyxl
   - black
@@ -37,3 +37,4 @@ dependencies:
   - pip
   - pip:
       - maplocal==0.1.1
+      
