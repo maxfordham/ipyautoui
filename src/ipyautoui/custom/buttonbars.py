@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.14.5
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -167,7 +167,7 @@ if __name__ == "__main__":
 
 
 # +
-class SaveButtonBar(w.HBox, SaveActions):
+class SaveButtonBar(SaveActions, w.HBox):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._init_form()
