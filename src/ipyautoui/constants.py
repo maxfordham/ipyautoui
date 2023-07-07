@@ -38,6 +38,22 @@ TRUE_BUTTON_KWARGS = frozenmap(
     disabled=True,
 )
 
+FILEUPLD_BUTTON_KWARGS = frozenmap( 
+    icon="upload",
+    description="",
+    button_style="info",
+    layout={"width": "60px"},
+    disabled=False,
+)
+
+IMAGE_BUTTON_KWARGS = frozenmap(
+    icon="image",
+    disabled=False,
+    button_style="info",
+    layout={"width": "44px"},
+    tooltip="images",
+)
+
 FALSE_BUTTON_KWARGS = frozenmap(
     icon="times",
     style={"button_color": "tomato"},
