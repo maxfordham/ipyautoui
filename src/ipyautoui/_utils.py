@@ -43,14 +43,14 @@ except:
     def make_new_path(path, *args, **kwargs):
         return path
 
-        def open_path(path):
-            import subprocess
-            import sys
+    def open_path(path):
+        import subprocess
+        import sys
 
-            if sys.platform == "linux":
-                subprocess.call(["xdg-open", path])
-            else:
-                subprocess.call(["explorer.exe", path])
+        if sys.platform == "linux":
+            subprocess.call(["xdg-open", path])
+        else:
+            subprocess.call(["explorer.exe", path])
 
 
 def getuser():
