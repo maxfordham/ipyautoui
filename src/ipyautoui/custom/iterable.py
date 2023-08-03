@@ -831,12 +831,11 @@ class TextareaArray(AutoArray):
 
 
 if __name__ == "__main__":
-    from pydantic import Field
+    from ipyautoui.test_schema import TestArrays
 
-    class TestArrays(BaseModel):
-        array_strings: ty.List[str] = Field(default=[], max_items=5, min_items=2)
-
-    display(TextareaArray(schema=TestArrays.schema()["properties"]["array_strings"]))
+    schema = TestArrays.schema()["properties"]["array_strings"]
+    ui = TextareaArray(schema=schema)
+    display(ui)
 # -
 
 if __name__ == "__main__":
