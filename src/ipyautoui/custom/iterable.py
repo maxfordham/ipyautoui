@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -754,7 +754,6 @@ class AutoArray(Array):
         orient_rows=True,
         fn_add_dialogue: ty.Callable = None,
     ):
-
         self.fn_add_dialogue = fn_add_dialogue
         self.fn_remove = fn_remove
         self._toggle = toggle
@@ -784,7 +783,6 @@ class AutoArray(Array):
 
     @schema.setter
     def schema(self, value):
-
         self._schema = value
         self.caller = create_widget_caller(value)
         if "title" in self.schema.keys():
@@ -805,6 +803,40 @@ class AutoArray(Array):
         self.fn_add = functools.partial(aumap.widgetcaller, caller)
 
 
+# +
+class TextareaArray(AutoArray):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @property
+    def schema(self):
+        return self._schema["value"]
+
+    @schema.setter
+    def schema(self, value):
+        self._schema = value
+        if "title" in self.schema.keys():
+            self._title = self.schema["title"]
+        else:
+            self._title = None
+        if "minItems" in self.schema.keys():
+            self.minlen = self.schema["minItems"]
+        else:
+            self.minlen = 0
+        if "maxItems" in self.schema.keys():
+            self.maxlen = self.schema["maxItems"]
+        else:
+            self.maxlen = 100
+        self.fn_add = w.Textarea
+
+
+if __name__ == "__main__":
+    from pydantic import Field
+
+    class TestArrays(BaseModel):
+        array_strings: ty.List[str] = Field(default=[], max_items=5, min_items=2)
+
+    display(TextareaArray(schema=TestArrays.schema()["properties"]["array_strings"]))
 # -
 
 if __name__ == "__main__":
