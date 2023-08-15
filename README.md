@@ -105,6 +105,10 @@ The main benefit of AutoUi (and main the reason for continuing to develop it), i
   * TODO: where the datasource is not a file, the extension is a mapping code that maps a renderer to the datastructure of the data.
 * Custom renderer's can be passed to `AutoDisplay` allowing it to display user-defined filetypes (or compound extension filetypes)
 
+### maplocal
+
+`ipyautoui` inherits the `openpath` command from [maplocal](https://github.com/maxfordham/maplocal) when it is in use. Refer to [maplocal](https://github.com/maxfordham/maplocal) for how to use.
+
 ## How it works
 
 * Make a pydantic model (or json schema) that defines the UI
@@ -124,6 +128,7 @@ This package intends to be high-level, and unifies many other ipy- libraries und
 * [ipyvuetify](https://github.com/widgetti/ipyvuetify)
 * [vuetify-jsonschema-form](https://github.com/koumoul-dev/vuetify-jsonschema-form)
 * [Plotly](https://github.com/plotly/plotly.py) (for viewing `.plotly.json` files. note. this needs to be added by the user)
+* [maplocal](https://github.com/maxfordham/maplocal) (for mapping rootdir between remote server and user machine)
 
 It is also obviously wholly dependent on the excellent json-schema specification:
 
