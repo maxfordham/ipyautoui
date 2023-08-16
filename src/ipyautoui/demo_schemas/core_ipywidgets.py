@@ -38,6 +38,7 @@ class CoreIpywidgets(BaseModel):
     checkbox: bool = True
     dropdown: FruitEnum = None
     combobox: str = Field("apple", examples=FruitEnum._member_names_)
+    # combobox1: ty.Union[str, FruitEnum] = Field("apple") # TODO: make this work
     dropdown_edge_case: FruitEnum = Field(
         title="FruitEnum with metadata",
         default=FruitEnum.apple,
