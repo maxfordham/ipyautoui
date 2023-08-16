@@ -26,7 +26,7 @@ dependencies = [
     "numpy",
     "openpyxl",            # for excel fiel viewer
     "pandas",
-    "pydantic",
+    "pydantic<2",
     "pytest",
     "PyYAML",
     "stringcase",
