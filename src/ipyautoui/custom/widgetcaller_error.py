@@ -106,7 +106,7 @@ if __name__ == "__main__":
                             "title": "Categories",
                             "description": "Revit MEP categories to filter by (i.e. revit object must belong to categories defined here). If empty, all categories are included.",
                             "type": "array",
-                            "items": {"$ref": "#/definitions/RevitCategoriesEnum"},
+                            "items": {"$ref": "#/$defs/RevitCategoriesEnum"},
                         },
                         "parameter": {
                             "title": "Parameter",
@@ -116,7 +116,7 @@ if __name__ == "__main__":
                         },
                         "operator": {
                             "description": "logical operator used to evaluate parameter value against value below",
-                            "allOf": [{"$ref": "#/definitions/RevitOperatorsEnum"}],
+                            "allOf": [{"$ref": "#/$defs/RevitOperatorsEnum"}],
                         },
                         "value": {
                             "title": "Value",

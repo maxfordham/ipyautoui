@@ -227,7 +227,7 @@ class TestGridSchema:
 
         assert list(data.columns) == [
             p["title"]
-            for p in TestGridSchema.schema()["definitions"]["TestProperties"][
+            for p in TestGridSchema.schema()["$defs"]["TestProperties"][
                 "properties"
             ].values()
         ]

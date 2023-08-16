@@ -35,7 +35,7 @@ class TestAutoUiSchema:
 
     def test_demo_init_model_schema_RootArrayEnum(self):
         model, schema = _init_model_schema(RootArrayEnum)
-        assert "allOf" not in schema["definitions"]["UniclassProductsUi"].keys()
+        assert "allOf" not in schema["$defs"]["UniclassProductsUi"].keys()
         print("done")
 
     def test_demo_init_model_schema_check_nullable(self):

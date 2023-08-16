@@ -224,7 +224,7 @@ class GridSchema:
             "format",
             "type",
             "items",
-            "definitions",
+            "$defs",
         ]
         {
             setattr(self, k, v)

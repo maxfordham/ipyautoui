@@ -119,7 +119,7 @@ class TestAutoObject:
 
     def test_RootArrayEnum(self):
         ui = AutoObject(RootArrayEnum)
-        assert "allOf" not in ui.schema["definitions"]["UniclassProductsUi"].keys()
+        assert "allOf" not in ui.schema["$defs"]["UniclassProductsUi"].keys()
         print("done")
 
 

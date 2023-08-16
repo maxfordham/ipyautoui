@@ -27,7 +27,7 @@ from ipyautoui._utils import frozenmap, obj_from_importstr
 # +
 #  -- ATTACH DEFINITIONS TO PROPERTIES ----------------------
 def recursive_search_schema(schema: ty.Dict, li: ty.List) -> ty.Dict:
-    """searches down schema tree to retrieve definitions
+    """searches down schema tree to retrieve $defs
 
     Args:
         schema (ty.Dict): json schema made from pydantic
@@ -67,8 +67,8 @@ def flatten_allof(
 
 def attach_schema_refs(schema, schema_base=None):
     """
-    attachs #definitions to $refs within the main schema
-    recursive function. schema_base is constant as is used for retrieving definitions.
+    attachs #$defs to $refs within the main schema
+    recursive function. schema_base is constant as is used for retrieving $defs.
     schema is recursively edited.
 
     Args:
@@ -82,14 +82,14 @@ def attach_schema_refs(schema, schema_base=None):
     """
     if schema_base is None:
         schema_base = schema.copy()
-        if "definitions" in schema_base.keys():
-            schema_base["definitions"] = attach_schema_refs(
-                schema_base["definitions"], schema_base=schema_base
+        if "$defs" in schema_base.keys():
+            schema_base["$defs"] = attach_schema_refs(
+                schema_base["$defs"], schema_base=schema_base
             )
-            schema_base["definitions"] = attach_schema_refs(
-                schema_base["definitions"], schema_base=schema_base
+            schema_base["$defs"] = attach_schema_refs(
+                schema_base["$defs"], schema_base=schema_base
             )
-            # ^ TODO: run twice to ensure nested refs in definitions are attached
+            # ^ TODO: run twice to ensure nested refs in $defs are attached
             #         come up with a more elegant implementation.
 
     try:
@@ -110,7 +110,7 @@ def attach_schema_refs(schema, schema_base=None):
                     schema[k] = flatten_allof(v, schema_base)
                 if "$ref" in v:
                     # FIXME: Needing refactor or cleanup -@jovyan at 8/31/2022, 12:24:09 AM
-                    # refs are only attached to schema values, meaning that root definitions
+                    # refs are only attached to schema values, meaning that root $defs
                     # are ignored.
                     li_filt = v["$ref"].split("/")[1:]
                     schema[k] = recursive_search_schema(schema_base, li_filt)  # v=  ?
@@ -404,7 +404,8 @@ def is_Path(di: dict) -> bool:
         return True
     else:
         return False
-    
+
+
 def is_Combobox(di: dict) -> bool:
     if "autoui" in di.keys():
         return False
