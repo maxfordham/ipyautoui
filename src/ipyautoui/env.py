@@ -1,6 +1,7 @@
-from pydantic import BaseSettings, validator, Field
+from pydantic import field_validator, Field
 import pathlib
 import typing as ty
+from pydantic_settings import BaseSettings
 
 # https://stackoverflow.com/questions/52119454/how-to-obtain-jupyter-notebooks-path
 # ^ impossible to know with clarity the exact filename and directory of a notebook.
@@ -14,7 +15,8 @@ class Env(BaseSettings):
         " Required for AutoDisplay to find relative paths to: pdfs, vega, ...",
     )
 
-    @validator("IPYAUTOUI_ROOTDIR")
+    @field_validator("IPYAUTOUI_ROOTDIR")
+    @classmethod
     def _IPYAUTOUI_ROOTDIR(cls, v):
         """Checks for app.db in parent directory and copies from repo if it does not
         exist.

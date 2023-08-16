@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -79,7 +79,7 @@ def _init_widgets_and_labels(
     return di_labels, di_widgets
 
 
-# + tags=[]
+# +
 def _get_value_trait(obj_with_traits):
     """gets the trait type for a given object (looks for "_value" and
     "value" allowing use of setters and getters)
@@ -836,6 +836,10 @@ if __name__ == "__main__":
     )
     display(ui)
 # -
+
+CoreIpywidgets.model_json_schema()
+
+from pydantic.v1 import BaseModel
 
 if __name__ == "__main__":
     ui.show_savebuttonbar = False

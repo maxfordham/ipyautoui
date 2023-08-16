@@ -24,7 +24,7 @@ from ipyautoui.basemodel import file
 from ipyautoui._utils import file
 
 setattr(BaseModel, "file", file)
-from pydantic import validator, Field, ValidationError
+from pydantic import ConfigDict, validator, Field, ValidationError
 from ipyautoui.constants import LOAD_BUTTON_KWARGS
 from IPython.display import clear_output, Markdown
 
@@ -68,15 +68,21 @@ class SelectDirBase(BaseModel):
     app_name: str = None
     pyobject_read_dir: str = None
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("key", always=True, pre=True)
     def _key(cls, v, values):
         return ("-").join(values["tags"])
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("fdir", always=True, pre=True)
     def _fdir(cls, v, values):
         parts = list(values["fdir_root"].parts) + values["tags"]
         return pathlib.Path(*parts)
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("fpth_log", always=True, pre=True)
     def _fpth_log(cls, v, values):
         if values["fdir_log"] is not None:
@@ -84,9 +90,9 @@ class SelectDirBase(BaseModel):
             return pathlib.Path(values["fdir_log"]) / fnm
         else:
             return None
-
-    class Config:
-        json_encoders = {PyObject: obj_to_importstr}
+    # TODO[pydantic]: The following keys were removed: `json_encoders`.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config for more information.
+    model_config = ConfigDict(json_encoders={PyObject: obj_to_importstr})
 
 
 class SelectDir(SelectDirBase):

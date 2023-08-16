@@ -21,7 +21,7 @@
 # %load_ext lab_black
 
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 from ipyautoui import AutoUi
 from ipyautoui.autoipywidget import AutoObject
 from ipyautoui._utils import html_link
@@ -159,13 +159,10 @@ class Rule(BaseModel):
         description="Value to filter by. Evaluates to the appropriate type. Leave empty if none required (e.g. has value operator)",
         autoui="ipyautoui.autowidgets.Combobox",
     )
-
-    class Config:
-        allow_extra = True
-        schema_extra = {
-            "align_horizontal": False,
-            "autoui": "ipyautoui.demo_schemas.ruleset.RuleUi",  # this explicitly defines RuleUi as the interface rather than AutoObject
-        }
+    model_config = ConfigDict(allow_extra=True, json_schema_extra={
+        "align_horizontal": False,
+        "autoui": "ipyautoui.demo_schemas.ruleset.RuleUi",  # this explicitly defines RuleUi as the interface rather than AutoObject
+    })
 
 
 class ScheduleRuleSet(BaseModel):
@@ -176,10 +173,7 @@ class ScheduleRuleSet(BaseModel):
 rules return a boolean for the logical evaluation defined below for every item within the categories defined
 """,
     )
-
-    class Config:
-        allow_extra = True
-        schema_extra = {"align_horizontal": False}
+    model_config = ConfigDict(allow_extra=True, json_schema_extra={"align_horizontal": False})
 
 
 ScheduleRuleSet.__doc__ = (
@@ -198,12 +192,9 @@ class Filter(BaseModel):
     name: str = Field()
     is_schedule: bool = Field(True, disabled=True, const=True)
     rule_set: ScheduleRuleSet = Field(show_title=False, show_description=False)  #
-
-    class Config:
-        allow_extra = True
-        schema_extra = {
-            "align_horizontal": False,
-        }
+    model_config = ConfigDict(allow_extra=True, json_schema_extra={
+        "align_horizontal": False,
+    })
 
 
 # %%

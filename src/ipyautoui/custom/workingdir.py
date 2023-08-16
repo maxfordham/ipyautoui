@@ -101,6 +101,8 @@ class WorkingDir(BaseModel):
     usage: ty.List[Usage] = Field(default_factory=lambda: [])
     dir_model: str
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("fdir", always=True, pre=True)
     def _fdir(cls, v, values):
         return (
@@ -111,6 +113,8 @@ class WorkingDir(BaseModel):
             / values["riba_stage"].value
         )
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("key", always=True, pre=True)
     def _key(cls, v, values):
         return (
@@ -162,34 +166,50 @@ class AnalysisDir(BaseModel):
     models: pathlib.Path = None
     outputs: pathlib.Path = None
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("reference", always=True, pre=True)
     def _reference(cls, v, values):
         return values["fdir"] / "00_Reference"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("incoming", always=True, pre=True)
     def _incoming(cls, v, values):
         return values["fdir"] / "01_Incoming"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("input_data", always=True, pre=True)
     def _input_data(cls, v, values):
         return values["fdir"] / "02_InputData"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("cad", always=True, pre=True)
     def _cad(cls, v, values):
         return values["fdir"] / "03_CAD"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("images", always=True, pre=True)
     def _images(cls, v, values):
         return values["fdir"] / "04_Images"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("calcs", always=True, pre=True)
     def _calcs(cls, v, values):
         return values["fdir"] / "05_Calcs"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("models", always=True, pre=True)
     def _models(cls, v, values):
         return values["fdir"] / "06_Models"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("outputs", always=True, pre=True)
     def _outputs(cls, v, values):
         return values["fdir"] / "99_Outputs"

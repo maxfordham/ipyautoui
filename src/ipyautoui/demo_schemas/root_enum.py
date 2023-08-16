@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 from enum import Enum
 
 
@@ -20,6 +20,4 @@ class RootEnum(BaseModel):
     __root__: UniclassProducts = Field(
         None, autoui="ipyautoui.autowidgets.Combobox", layout={"width": "400px"}
     )
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)

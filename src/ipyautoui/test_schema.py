@@ -5,12 +5,13 @@ An example schema definition that demonstrates the current capability of the Aut
 """
 import typing as ty
 from enum import Enum
-from pydantic import Field, conint, constr
+from pydantic import StringConstraints, ConfigDict, Field
 from ipyautoui.basemodel import BaseModel
-from pydantic.color import Color
 from datetime import datetime, date
 import pathlib
 from pathlib import PurePosixPath
+from typing_extensions import Annotated
+from pydantic_extra_types.color import Color
 
 # from ipyautoui.custom.modelrun import RunName
 
@@ -38,7 +39,7 @@ class NestedObject(BaseModel):
     """description in docstring"""
 
     string1: str = Field(default="adsf", description="a description about my string")
-    int_slider1: conint(ge=0, le=3) = 2
+    int_slider1: Annotated[int, Field(ge=0, le=3)] = 2
     int_text1: int = 1
 
 
@@ -46,7 +47,7 @@ class RecursiveNest(BaseModel):
     """description in RecursiveNest docstring"""
 
     string1: str = Field(default="adsf", description="a description about my string")
-    int_slider1: conint(ge=1, le=3) = 2
+    int_slider1: Annotated[int, Field(ge=1, le=3)] = 2
     int_text1: int = 1
     nested: NestedObject = Field(default=None)
 
@@ -81,7 +82,7 @@ class TestAutoLogicSimple(BaseModel):
     """
 
     text: str = Field(default="adsf", description="a description about my string")
-    int_slider: conint(ge=1, le=3) = 2
+    int_slider: Annotated[int, Field(ge=1, le=3)] = 2
     int_text: int = 1
     int_range_slider: tuple[int, int] = Field(default=(0, 3), ge=0, le=4)  # check
     float_slider: float = Field(default=2.2, ge=1, le=3)
@@ -99,8 +100,10 @@ class TestAutoLogicSimple(BaseModel):
         enum=["asd", "asdf"],
         autoui="ipyautoui.autowidgets.Combobox",
     )
-    text_short: constr(min_length=0, max_length=20) = "short text"
-    text_area: constr(min_length=0, max_length=800) = Field(
+    text_short: Annotated[
+        str, StringConstraints(min_length=0, max_length=20)
+    ] = "short text"
+    text_area: Annotated[str, StringConstraints(min_length=0, max_length=800)] = Field(
         "long text " * 50, description="long text field"
     )
     auto_markdown: str = Field(
@@ -150,17 +153,17 @@ class TestAutoLogic(TestAutoLogicSimple, TestEditGrid, TestNested):
     # FIXME: Needing refactor or cleanup -@jovyan at 8/23/2022, 10:28:36 PM
     # select_multiple_search needs a wrapper that calls it from a schema var
 
-    array: ty.List[str] = Field(default=[], max_items=5)
-    objects_array: ty.List[NestedObject] = Field(default=[], max_items=5)
+    array: ty.List[str] = Field(default=[], max_length=5)
+    objects_array: ty.List[NestedObject] = Field(default=[], max_length=5)
     # file_upload # TODO: how best to implement this? could auto-save to another location...
     run_name: str = Field(
         default="000-lean-description",
         autoui="ipyautoui.autowidgets.RunName",
         zfill=3,
     )
-
-    class Config:
-        json_encoders = {PurePosixPath: str}
+    # TODO[pydantic]: The following keys were removed: `json_encoders`.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config for more information.
+    model_config = ConfigDict(json_encoders={PurePosixPath: str})
 
 
 class TestObjects(BaseModel):
@@ -170,9 +173,9 @@ class TestObjects(BaseModel):
 
 
 class TestArrays(BaseModel):
-    array_strings: ty.List[str] = Field(default=["f", "d"], max_items=5, min_items=2)
+    array_strings: ty.List[str] = Field(default=["f", "d"], max_length=5, min_length=2)
     array_strings1: ty.List[str] = Field(default=[], max_length=5, min_length=2)
-    array_objects: ty.List[NestedObject] = Field(default=[], max_items=5)
+    array_objects: ty.List[NestedObject] = Field(default=[], max_length=5)
     # array_mixed: ty.List[ty.Union[NestedObject, str]] = Field(default=[], max_items=5)
     # TODO: do we want to support this?
 
@@ -181,7 +184,7 @@ class TestVjsf(BaseModel):
     objects_array_styled: ty.List[NestedObject] = Field(
         description="styled array, only works with AutoVjsf",
         default=[],
-        max_items=5,
+        max_length=5,
         x_itemTitle="titleProp",
         x_options={"arrayItemCardProps": {"outlined": True}},
     )

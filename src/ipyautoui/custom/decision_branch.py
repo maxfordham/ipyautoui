@@ -24,7 +24,7 @@ a UI element that loads a folder for data caching, whilst storing a record of fo
 # %run __init__.py
 #
 # %load_ext lab_black
-from pydantic import BaseModel
+from pydantic import ConfigDict, BaseModel
 import ipywidgets as w
 import typing as ty
 import traitlets as tr
@@ -40,9 +40,7 @@ class TreeModel(BaseModel):
     children: ty.ForwardRef("TreeModel") = None
     disabled: bool = False
     placeholder: str = ""
-
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 TreeModel.update_forward_refs()

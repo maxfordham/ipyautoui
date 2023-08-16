@@ -117,6 +117,8 @@ class IterableItem(BaseModel):
     orient_rows: bool = True
     row: ty.Any = None
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("key", always=True)
     def _key(cls, v, values):
         """if no key given return uuid.uuid4()"""
@@ -125,6 +127,8 @@ class IterableItem(BaseModel):
         else:
             return v
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("add", always=True)
     def _add(cls, v, values):
         if v is None:
@@ -132,6 +136,8 @@ class IterableItem(BaseModel):
         else:
             return v
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("remove", always=True)
     def _remove(cls, v, values):
         if v is None:
@@ -139,6 +145,8 @@ class IterableItem(BaseModel):
         else:
             return v
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("label", always=True)
     def _label(cls, v, values):
         if v is None:
@@ -146,6 +154,8 @@ class IterableItem(BaseModel):
         else:
             return v
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("item", always=True)
     def _item(cls, v, values):
         if v is None:
@@ -153,6 +163,8 @@ class IterableItem(BaseModel):
         else:
             return v
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("row", always=True)
     def _row(cls, v, values):
         ItemBox = BOX[values["orient_rows"]]

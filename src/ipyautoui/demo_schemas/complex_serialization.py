@@ -1,9 +1,9 @@
 from ipyautoui.basemodel import BaseModel
-from pydantic.color import Color
 from pydantic import Field
 from datetime import datetime, date
 import pathlib
 import typing as ty
+from pydantic_extra_types.color import Color
 
 
 class ComplexSerialisation(BaseModel):

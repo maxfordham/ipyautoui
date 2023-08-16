@@ -1,6 +1,6 @@
 """extending default pydantic BaseModel. NOT IN USE."""
 import pathlib
-from pydantic import BaseModel
+from pydantic import ConfigDict, BaseModel
 from typing import Type
 
 def file(self:Type[BaseModel], path: pathlib.Path, **json_kwargs):
@@ -21,9 +21,7 @@ def file(self:Type[BaseModel], path: pathlib.Path, **json_kwargs):
     
 
 class BaseModel(BaseModel):
-        
-    class Config:
-        json_encoders = {pathlib.PurePosixPath:  str}
-        arbitrary_types_allowed = True
-        
+    # TODO[pydantic]: The following keys were removed: `json_encoders`.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config for more information.
+    model_config = ConfigDict(json_encoders={pathlib.PurePosixPath:  str}, arbitrary_types_allowed=True)
 setattr(BaseModel, 'file', file)

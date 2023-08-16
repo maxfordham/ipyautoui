@@ -52,7 +52,7 @@ import time
 import typing as ty
 import ipywidgets as w
 import traitlets as tr
-from pydantic import BaseModel, validator, HttpUrl
+from pydantic import ConfigDict, BaseModel, validator, HttpUrl
 
 #  local imports
 from ipyautoui.autodisplay_renderers import (
@@ -121,6 +121,8 @@ class DisplayObjectActions(BaseModel):
     renderer: ty.Callable = None
     check_date_modified: ty.Callable = None
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("renderer", always=True)
     def _renderer(cls, v, values):
         if v is None:
@@ -133,9 +135,7 @@ class DisplayObjectActions(BaseModel):
             return fn
         else:
             return functools.partial(v, values["path"])
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 def check_exists(path):
@@ -150,20 +150,28 @@ class DisplayFromPath(DisplayObjectActions):
     open_file: ty.Callable = None
     open_folder: ty.Callable = None
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("path", always=True)
     def _path(cls, v, values):
         return pathlib.Path(v)
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("path_new", always=True)
     def _path_new(cls, v, values):
         return make_new_path(values["path"].absolute())
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("name", always=True)
     def _name(cls, v, values):
         if values["path"] is not None:
             v = values["path"].name
         return v
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("ext", always=True)
     def _ext(cls, v, values):
         if values["path"] is not None:
@@ -173,11 +181,15 @@ class DisplayFromPath(DisplayObjectActions):
             ValueError("ext must be given to map data to renderer")
         return v
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("check_exists", always=True)
     def _check_exists(cls, v, values):
         fn = functools.partial(check_exists, values["path"])
         return fn
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("check_date_modified", always=True)
     def _date_modified(cls, v, values):
         p = values["path"]
@@ -186,6 +198,8 @@ class DisplayFromPath(DisplayObjectActions):
         else:
             return None
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("open_file", always=True)
     def _open_file(cls, v, values):
         p = values["path"]
@@ -195,6 +209,8 @@ class DisplayFromPath(DisplayObjectActions):
         else:
             return lambda: "Error: path given is None"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("open_folder", always=True)
     def _open_folder(cls, v, values):
         p = values["path"]
@@ -205,9 +221,7 @@ class DisplayFromPath(DisplayObjectActions):
             return fn
         else:
             return lambda: "Error: path given is None"
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 def url_ok(url):
@@ -233,11 +247,15 @@ def url_ok(url):
 class DisplayFromRequest(DisplayObjectActions):
     path: HttpUrl
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("check_exists", always=True)
     def _check_exists(cls, v, values):
         fn = functools.partial(url_ok, values["path"])
         return fn
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("name", always=True)
     def _name(cls, v, values):
         return values["path"].path
@@ -260,10 +278,14 @@ def check_callable(fn: ty.Callable):  # NTO USED
 class DisplayFromCallable(DisplayObjectActions):
     path: ty.Callable
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("check_exists", always=True)
     def _check_exists(cls, v, values):
         return functools.partial(check_callable, values["path"])
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("name", always=True)
     def _name(cls, v, values):
         if v is not None:

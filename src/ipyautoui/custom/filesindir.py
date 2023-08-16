@@ -53,6 +53,8 @@ class FilesInDir(BaseModel):
     patterns: List[str] = Field([], description=PATTERNS_DES)
     fpths: List[pathlib.Path] = []
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("fdir", always=True)
     def _fdir(cls, v, values):
         """if no key given return uuid.uuid4()"""
@@ -61,6 +63,8 @@ class FilesInDir(BaseModel):
             raise ValueError(f"fdir must be a valid file directory, {str(v)} given")
         return v
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("patterns", always=True, pre=True)
     def _patterns(cls, v, values):
         """if no key given return uuid.uuid4()"""
@@ -69,6 +73,8 @@ class FilesInDir(BaseModel):
         else:
             return v
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("fpths", always=True)
     def _fpths(cls, v, values):
         """if no key given return uuid.uuid4()"""
