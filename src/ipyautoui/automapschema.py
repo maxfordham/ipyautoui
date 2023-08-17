@@ -151,7 +151,9 @@ def attach_nullable_field(schema):
     if schema["type"] == "object":
         schema = add_nullable_to_object(schema)
     elif schema["type"] == "array":
-        if len(schema["items"]) > 1:
+        if not any(c in ["items", "prefixItems"] for c in schema.keys()):
+            raise ValueError("array must have items or prefixItems")
+        if "prefixItems" in schema.keys() and len(schema["prefixItems"]) > 1:
             pass  # must be a range slider
         elif schema["items"]["type"] == "object":
             # currently array with 1 item type only supported
@@ -283,8 +285,8 @@ def is_range(di, is_type="numeric"):
     """
 
     def get_type(di):
-        t = di["items"][0]["type"]
-        t1 = di["items"][0]["type"]
+        t = di["prefixItems"][0]["type"]
+        t1 = di["prefixItems"][0]["type"]
         if t != t1:
             raise ValueError("items are different types")
         else:
@@ -292,9 +294,11 @@ def is_range(di, is_type="numeric"):
 
     if di["type"] != "array":
         return False
-    if not "items" in di.keys() and len(di["items"]) != 2:
+    if not "prefixItems" in di.keys():
         return False
-    for i in di["items"]:
+    elif len(di["prefixItems"]) != 2:
+        return False
+    for i in di["prefixItems"]:
         if "minimum" not in i and "maximum" not in i:
             return False
 
