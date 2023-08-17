@@ -13,7 +13,6 @@
 #     name: python3
 # ---
 
-# +
 # TODO: support arrary / dictionary of length = 0
 """A generic iterable object.
 
@@ -71,17 +70,18 @@ Example:
 
 """
 # TODO: move iterable.py to root
-# TODO: review: https://github.com/widgetti/reacton - it could simplify the code required below.
 # %run ../_dev_sys_path_append.py
 # %run __init__.py
 # %load_ext lab_black
+
+# +
 import ipywidgets as w
 import traitlets as tr
 from traitlets import validate
 import typing as ty
 from IPython.display import display
 from ipyautoui.basemodel import BaseModel
-from pydantic import validator
+from pydantic import field_validator, FieldValidationInfo, model_validator
 import uuid
 from uuid import UUID
 import functools
@@ -106,10 +106,12 @@ TOGGLE_BUTTON_KWARGS = frozenmap(
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
 )
 
-# +
+
+# -
+
 class IterableItem(BaseModel):
     index: int
-    key: ty.Union[UUID, str, int, float, bool] = None
+    key: ty.Union[UUID, str, int, float, bool, None] = None
     item: ty.Any = None
     add: ty.Any = None
     remove: ty.Any = None
@@ -117,58 +119,22 @@ class IterableItem(BaseModel):
     orient_rows: bool = True
     row: ty.Any = None
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("key", always=True)
-    def _key(cls, v, values):
-        """if no key given return uuid.uuid4()"""
-        if v is None:
-            return uuid.uuid4()
-        else:
-            return v
-
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("add", always=True)
-    def _add(cls, v, values):
-        if v is None:
-            return w.Button(layout=dict(BUTTON_MIN_SIZE))
-        else:
-            return v
-
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("remove", always=True)
-    def _remove(cls, v, values):
-        if v is None:
-            return w.Button(layout=dict(BUTTON_MIN_SIZE))
-        else:
-            return v
-
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("label", always=True)
-    def _label(cls, v, values):
-        if v is None:
-            return w.HTML("placeholder label")
-        else:
-            return v
-
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("item", always=True)
-    def _item(cls, v, values):
-        if v is None:
-            return w.ToggleButton(description="placeholder item")
-        else:
-            return v
-
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("row", always=True)
-    def _row(cls, v, values):
-        ItemBox = BOX[values["orient_rows"]]
-        if v is None:
+    @model_validator(mode="after")
+    @classmethod
+    def check_card_number_omitted(cls, data: ty.Any) -> ty.Any:
+        if data.key is None:
+            data.key = uuid.uuid4()
+        if data.add is None:
+            data.add = w.Button(layout=dict(BUTTON_MIN_SIZE))
+        if data.remove is None:
+            data.remove = w.Button(layout=dict(BUTTON_MIN_SIZE))
+        if data.label is None:
+            data.label = w.HTML("placeholder label")
+        if data.item is None:
+            data.item = w.ToggleButton(description="placeholder item")
+        if data.row is None:
+            ItemBox = BOX[data.orient_rows]
+            v = data.row
             v = ItemBox(
                 children=[
                     ItemBox(layout=w.Layout(flex="1 0 auto")),  # buttons
@@ -176,12 +142,13 @@ class IterableItem(BaseModel):
                     ItemBox(layout=w.Layout(flex="100%")),  # item
                 ]
             )
-            v.children[2].children = [values["item"]]
-            return v
-        else:
-            return v
+            v.children[2].children = [data.item]
+            data.row = v
+
+        return data
 
 
+# +
 # # +
 class Array(w.VBox, TitleDescription):
     """generic iterable. pass a list of items"""
@@ -577,6 +544,7 @@ class Array(w.VBox, TitleDescription):
 
     def _add_row(self, onclick, key=None):
         if self.fn_add_dialogue is None:
+            print(key)
             self.add_row(key=key)
         else:
             out = w.Output()
@@ -744,8 +712,8 @@ class AutoArray(Array):
 
     @validate("_schema")
     def _validate_schema(self, proposal):
-        if "type" and "items" not in list(proposal.value.keys()):
-            raise ValueError(f"not valid array schema")
+        # if "type" and ("items" or "prefixItems") not in list(proposal.value.keys()):
+        #     raise ValueError(f"not valid array schema")
         if proposal.value["type"] != "array":
             raise ValueError(f"not valid array schema")
         item = list(proposal.value["items"].keys())[0]
@@ -845,7 +813,7 @@ class TextareaArray(AutoArray):
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
 
-    schema = TestArrays.schema()["properties"]["array_strings"]
+    schema = TestArrays.model_json_schema()["properties"]["array_strings"]
     ui = TextareaArray(schema=schema)
     display(ui)
 # -
@@ -931,7 +899,7 @@ if __name__ == "__main__":
     from ipyautoui.autowidgets import create_widget_caller
     from ipyautoui.autoipywidget import AutoObject
 
-    schema = TestArrays.schema()["properties"]["array_strings"]
+    schema = TestArrays.model_json_schema()["properties"]["array_strings"]
     ui = AutoArray(schema)
     display(ui)
 
@@ -940,16 +908,16 @@ if __name__ == "__main__":
     from ipyautoui.autoipywidget import AutoObject
     from ipyautoui import AutoUi
 
-    # TestArrays.schema()["properties"]  # ["array_strings"]
+    # TestArrays.model_json_schema()["properties"]  # ["array_strings"]
 
-    schema = TestArrays.schema()
+    schema = TestArrays.model_json_schema()
     ui = AutoUi(schema=TestArrays)
     display(ui)
 
 if __name__ == "__main__":
     from ipyautoui.test_schema import TestArrays
 
-    schema = TestArrays.schema()
+    schema = TestArrays.model_json_schema()
     schema = schema["properties"]["array_strings1"]
     ui = AutoArray(schema)
     display(ui)
