@@ -361,6 +361,8 @@ class Dropdown(w.Dropdown):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
+        if self.caller["value"] == None:
+            del self.caller["value"]
         super().__init__(**self.caller)
 
 
