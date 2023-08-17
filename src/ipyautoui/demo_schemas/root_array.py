@@ -11,4 +11,5 @@ class NestedObject(BaseModel):
     int_text1: int = 1
 
 
-RootArray = RootModel[list[NestedObject]]
+class RootArray(RootModel):
+    root: list[NestedObject]

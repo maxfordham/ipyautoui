@@ -15,5 +15,8 @@ DI_TEST = {
 UniclassProducts = StrEnum("Uniclass Product Codes", DI_TEST)
 UniclassProducts.__doc__ = "A list of valid Uniclass Product codes"
 
-RootEnum = RootModel[list[UniclassProducts]]
-RootEnum.model_config = ConfigDict(arbitrary_types_allowed=True)
+
+class RootEnum(RootModel):
+    root: list[UniclassProducts]
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)

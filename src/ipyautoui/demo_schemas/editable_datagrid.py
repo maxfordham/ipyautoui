@@ -23,13 +23,14 @@ class DataFrameCols(BaseModel):
     something_else: float = Field(324, json_schema_extra=dict(column_width=100))
 
 
-EditableGrid = RootModel[ty.List[DataFrameCols]]
-EditableGrid.model_config = ConfigDict(
-    json_schema_extra=dict(
-        default=DATAGRID_TEST_VALUE,
-        # default_factory=lambda: DATAGRID_TEST_VALUE, # TODO: AutoUi isn't getting data when set using default_factory. make this work!
-        format="DataFrame",
-        warn_on_delete=True,  # TODO: this isn't being passed
-        global_decimal_places=2,
+class EditableGrid(RootModel):
+    root: ty.List[DataFrameCols]
+    model_config = ConfigDict(
+        json_schema_extra=dict(
+            default=DATAGRID_TEST_VALUE,
+            # default_factory=lambda: DATAGRID_TEST_VALUE, # TODO: AutoUi isn't getting data when set using default_factory. make this work!
+            format="DataFrame",
+            warn_on_delete=True,  # TODO: this isn't being passed
+            global_decimal_places=2,
+        )
     )
-)
