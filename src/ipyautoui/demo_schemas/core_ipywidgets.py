@@ -38,7 +38,9 @@ class CoreIpywidgets(BaseModel):
     float_slider: float = Field(default=2.2, ge=1, le=3)
     float_text: float = 2.2
     float_text_locked: float = Field(default=2.2, disabled=True)
-    float_range_slider: tuple[confloat(ge=0, le=4), confloat(ge=0, le=4)] = Field(default=(0, 2.2))
+    float_range_slider: tuple[confloat(ge=0, le=4), confloat(ge=0, le=4)] = Field(
+        default=(0, 2.2)
+    )
     checkbox: bool = True
     dropdown: FruitEnum = None
     combobox: str = Field("apple", examples=FruitEnum._member_names_)
