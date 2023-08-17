@@ -109,6 +109,7 @@ TOGGLE_BUTTON_KWARGS = frozenmap(
 
 # -
 
+
 class IterableItem(BaseModel):
     index: int
     key: ty.Union[UUID, str, int, float, bool, None] = None
@@ -544,7 +545,6 @@ class Array(w.VBox, TitleDescription):
 
     def _add_row(self, onclick, key=None):
         if self.fn_add_dialogue is None:
-            print(key)
             self.add_row(key=key)
         else:
             out = w.Output()
@@ -812,7 +812,6 @@ class TextareaArray(AutoArray):
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import RootArray
-    
 
     schema = RootArray.model_json_schema()["properties"]["array_strings"]
     ui = TextareaArray(schema=schema)
@@ -896,7 +895,6 @@ if __name__ == "__main__":
     display(arr)
 
 if __name__ == "__main__":
-    
     from ipyautoui.autowidgets import create_widget_caller
     from ipyautoui.autoipywidget import AutoObject
 
@@ -905,7 +903,6 @@ if __name__ == "__main__":
     display(ui)
 
 if __name__ == "__main__":
-    
     from ipyautoui.autoipywidget import AutoObject
     from ipyautoui import AutoUi
 
@@ -916,8 +913,6 @@ if __name__ == "__main__":
     display(ui)
 
 if __name__ == "__main__":
-    
-
     schema = RootArray.model_json_schema()
     schema = schema["properties"]["array_strings1"]
     ui = AutoArray(schema)
