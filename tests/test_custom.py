@@ -1,7 +1,6 @@
 import shutil
 import pytest
 
-# from src.ipyautoui.test_schema import TestSchema
 
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES

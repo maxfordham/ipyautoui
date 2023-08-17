@@ -7,7 +7,6 @@ import shutil
 import pathlib
 import pytest
 
-# from src.ipyautoui.test_schema import TestSchema
 
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
@@ -18,12 +17,11 @@ from ipyautoui.autoipywidget import (
     demo_autoobject_form,
     AutoObjectFormLayout,
 )
-from ipyautoui.demo_schemas import RootEnum, RootArrayEnum
-from ipyautoui.test_schema import TestAutoLogicSimple
+from ipyautoui.demo_schemas import RootEnum, RootArrayEnum, CoreIpywidgets
 import stringcase
 import ipywidgets as w
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, RootModel
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
@@ -63,11 +61,10 @@ class TestAutoObjectFormLayout:
 
 class TestAutoObject:
     def test_root(self):
-        class ExampleRoot(BaseModel):
-            __root__: str = Field(default="Test", description="This test is important")
+        ExampleRoot = RootModel[str]
 
         ui = AutoObject(ExampleRoot)
-        assert ui.value == {"__root__": "Test"}
+        assert ui.value == {"__root__": ""}
         print("done")
 
     def test_simple(self):
@@ -94,7 +91,7 @@ class TestAutoObject:
             ui = AutoObject(auto_ui_eg)
 
     def test_TestAutoLogicSimple(self):
-        ui = AutoObject(TestAutoLogicSimple)
+        ui = AutoObject(CoreIpywidgets)
         getstr = (
             lambda obj: str(type(obj))
             .replace("<class 'ipyautoui.autowidgets.", "")
@@ -119,13 +116,13 @@ class TestAutoObject:
 
     def test_RootArrayEnum(self):
         ui = AutoObject(RootArrayEnum)
-        assert "allOf" not in ui.schema["$defs"]["UniclassProductsUi"].keys()
+        assert "allOf" not in ui.schema["$defs"]["Uniclass_Product_Codes"].keys()
         print("done")
 
 
 class TestAutoObjectStylingOptions:
     def test_align_horizontal(self):
-        ui = AutoObject(TestAutoLogicSimple)
+        ui = AutoObject(CoreIpywidgets)
         from ipyautoui.custom.showhide import ShowHide
 
         get_rowbox = lambda ui: list(
@@ -145,10 +142,10 @@ class TestAutoObjectStylingOptions:
 
 
 class TestAutoObjectRowOrder:
-    ui = AutoObject(TestAutoLogicSimple)
+    ui = AutoObject(CoreIpywidgets)
 
     def test_order(self):
-        self.ui = AutoObject(TestAutoLogicSimple)
+        self.ui = AutoObject(CoreIpywidgets)
 
         self.ui.order_can_hide_rows = False
         # ui.order =

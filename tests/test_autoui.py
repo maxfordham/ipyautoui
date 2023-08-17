@@ -6,7 +6,6 @@ from pprint import pprint
 import shutil
 import pathlib
 
-# from src.ipyautoui.test_schema import TestSchema
 
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
@@ -41,9 +40,10 @@ class TestAutoUi:
         assert ui.value["text"] == value_changed["text"]
         print("done")
 
-
     def test_pass_kwargs(self):
-        ui = AutoUi(CoreIpywidgets, path=PATH_TEST_AUTO_READ_FILE, show_savebuttonbar=False)
+        ui = AutoUi(
+            CoreIpywidgets, path=PATH_TEST_AUTO_READ_FILE, show_savebuttonbar=False
+        )
         assert ui.savebuttonbar.layout.display == "None"
         print("done")
 

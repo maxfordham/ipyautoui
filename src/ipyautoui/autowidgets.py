@@ -254,9 +254,9 @@ class IntText(w.IntText):  # TODO: add value to these as arg?
 
 class IntSlider(w.IntSlider):
     """extends `ipywidgets.IntSlider`. Example:
-    >>> from ipyautoui.test_schema import TestAutoLogic
+    >>> from ipyautoui.demo_schemas import CoreIpywidgets
     >>> import ipywidgets as w
-    >>> sch = TestAutoLogic.schema()["properties"]['int_slider']
+    >>> sch = CoreIpywidgets.model_json_schema()["properties"]['int_slider']
     >>> IntSlider(sch)
     IntSlider(value=2, max=3, min=1)
     >>> sch['type']
@@ -275,9 +275,9 @@ class IntSlider(w.IntSlider):
 
 class FloatText(w.FloatText):
     """Example:
-    >>> from ipyautoui.test_schema import TestAutoLogic
+    >>> from ipyautoui.demo_schemas import CoreIpywidgets
     >>> import ipywidgets as w
-    >>> sch = TestAutoLogic.schema()["properties"]['float_text']
+    >>> sch = CoreIpywidgets.model_json_schema()["properties"]['float_text']
     >>> FloatText(sch)
     FloatText(value=2.2)
     >>> sch['type']
@@ -292,9 +292,9 @@ class FloatText(w.FloatText):
 
 class FloatSlider(w.FloatSlider):
     """Example:
-    >>> from ipyautoui.test_schema import TestAutoLogic
+    >>> from ipyautoui.demo_schemas import CoreIpywidgets
     >>> import ipywidgets as w
-    >>> sch = TestAutoLogic.schema()["properties"]['float_slider']
+    >>> sch = CoreIpywidgets.model_json_schema()["properties"]['float_slider']
     >>> FloatSlider(sch)
     FloatSlider(value=2.2, max=3.0, min=1.0)
     >>> sch['type']
@@ -311,8 +311,8 @@ class IntRangeSlider(w.IntRangeSlider):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
-        self.caller["min"] = self.schema["items"][0]["minimum"]
-        self.caller["max"] = self.schema["items"][0]["maximum"]
+        self.caller["min"] = self.schema["prefixItems"][0]["minimum"]
+        self.caller["max"] = self.schema["prefixItems"][0]["maximum"]
         super().__init__(**self.caller)
 
 
@@ -320,8 +320,8 @@ class FloatRangeSlider(w.FloatRangeSlider):
     def __init__(self, schema):
         self.schema = schema
         self.caller = create_widget_caller(schema)
-        self.caller["min"] = self.schema["items"][0]["minimum"]
-        self.caller["max"] = self.schema["items"][0]["maximum"]
+        self.caller["min"] = self.schema["prefixItems"][0]["minimum"]
+        self.caller["max"] = self.schema["prefixItems"][0]["maximum"]
         super().__init__(**self.caller)
 
 
@@ -350,10 +350,10 @@ class Dropdown(w.Dropdown):
     """extends `ipywidgets.Dropdown`. Example:
     >>> from ipyautoui.demo_schemas import CoreIpywidgets
     >>> import ipywidgets as w
-    >>> sch = CoreIpywidgets.schema()["properties"]['dropdown']
+    >>> sch = CoreIpywidgets.model_json_schema()["properties"]['dropdown']
     >>> Dropdown(sch).value
 
-    # >>> sch = CoreIpywidgets.schema()["properties"]['dropdown_edge_case']
+    # >>> sch = CoreIpywidgets.model_json_schema()["properties"]['dropdown_edge_case']
     # >>> Dropdown(sch).value
     # "apple"
     """

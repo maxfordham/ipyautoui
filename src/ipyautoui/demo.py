@@ -99,7 +99,7 @@ class Demo(w.Tab, tr.HasTraits):
     def _update_jsonschema(self):
         s_sch = f"""
 ```json
-{json.dumps(self.pydantic_model.schema(), indent=4)}
+{json.dumps(self.pydantic_model.model_json_schema(), indent=4)}
 ```
 """
         with self.out_sch:

@@ -811,9 +811,10 @@ class TextareaArray(AutoArray):
 
 
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestArrays
+    from ipyautoui.demo_schemas import RootArray
+    
 
-    schema = TestArrays.model_json_schema()["properties"]["array_strings"]
+    schema = RootArray.model_json_schema()["properties"]["array_strings"]
     ui = TextareaArray(schema=schema)
     display(ui)
 # -
@@ -895,29 +896,29 @@ if __name__ == "__main__":
     display(arr)
 
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestArrays
+    
     from ipyautoui.autowidgets import create_widget_caller
     from ipyautoui.autoipywidget import AutoObject
 
-    schema = TestArrays.model_json_schema()["properties"]["array_strings"]
+    schema = RootArray.model_json_schema()["properties"]["array_strings"]
     ui = AutoArray(schema)
     display(ui)
 
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestArrays
+    
     from ipyautoui.autoipywidget import AutoObject
     from ipyautoui import AutoUi
 
-    # TestArrays.model_json_schema()["properties"]  # ["array_strings"]
+    # RootArray.model_json_schema()["properties"]  # ["array_strings"]
 
-    schema = TestArrays.model_json_schema()
-    ui = AutoUi(schema=TestArrays)
+    schema = RootArray.model_json_schema()
+    ui = AutoUi(schema=RootArray)
     display(ui)
 
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestArrays
+    
 
-    schema = TestArrays.model_json_schema()
+    schema = RootArray.model_json_schema()
     schema = schema["properties"]["array_strings1"]
     ui = AutoArray(schema)
     display(ui)

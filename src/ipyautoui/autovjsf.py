@@ -41,12 +41,12 @@ class Vjsf(v.VuetifyTemplate):
 
 # -
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
+    from ipyautoui.demo_schemas import CoreIpywidgets, TestAutoLogicSimple
     from IPython.display import display
 
     ui = Vjsf(schema=TestAutoLogicSimple)
-    test = TestAutoLogic()
-    schema = test.schema()
+    test = CoreIpywidgets()
+    schema = test.model_json_schema()
     ui = Vjsf(schema=schema)
     display(ui)
 
@@ -140,9 +140,9 @@ class AutoVjsf(AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
 # -
 
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogicSimple, TestAutoLogic
+    from ipyautoui.demo_schemas import CoreIpywidgets
 
-    vui = AutoVjsf(schema=TestAutoLogicSimple, path="test_vuetify.json")
+    vui = AutoVjsf(schema=CoreIpywidgets, path="test_vuetify.json")
     display(vui)
 
 if __name__ == "__main__":

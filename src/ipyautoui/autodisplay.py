@@ -135,6 +135,7 @@ class DisplayObjectActions(BaseModel):
             return fn
         else:
             return functools.partial(v, values["path"])
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
@@ -221,6 +222,7 @@ class DisplayFromPath(DisplayObjectActions):
             return fn
         else:
             return lambda: "Error: path given is None"
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
@@ -613,7 +615,7 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.demo_schemas import CoreIpywidgets
     from ipyautoui.autoui import AutoUi
     from ipyautoui.constants import load_test_constants
 
@@ -636,10 +638,10 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.demo_schemas import CoreIpywidgets
 
     user_file_renderers = AutoUi.create_autodisplay_map(
-        ext=".aui.json", schema=TestAutoLogic
+        ext=".aui.json", schema=CoreIpywidgets
     )
     path1 = tests_constants.PATH_TEST_AUI
 
@@ -1007,7 +1009,7 @@ class AutoDisplay(tr.HasTraits):
 # TODO: render pdf update the relative path
 
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.demo_schemas import CoreIpywidgets
     from ipyautoui.autoui import AutoUi
     from ipyautoui.constants import load_test_constants
 
@@ -1022,10 +1024,10 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.demo_schemas import CoreIpywidgets
 
     user_file_renderers = AutoUi.create_autodisplay_map(
-        ext=".aui.json", schema=TestAutoLogic
+        ext=".aui.json", schema=CoreIpywidgets
     )
 
     test_ui = AutoDisplay.from_paths(
@@ -1038,7 +1040,7 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.demo_schemas import CoreIpywidgets
 
     test_ui = AutoDisplay.from_requests(
         map_requests={
@@ -1053,7 +1055,7 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.demo_schemas import CoreIpywidgets
     from pydantic import parse_obj_as
 
     test_ui = AutoDisplay.from_any(

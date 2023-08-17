@@ -1,12 +1,12 @@
 # +
-# auiwidgets.AutoMarkdown(TestAutoLogic.schema()["properties"]["markdown"])
+# auiwidgets.AutoMarkdown(CoreIpywidgets.model_json_schema()["properties"]["markdown"])
 # -
 
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic
+    from ipyautoui.demo_schemas import CoreIpywidgets
 
-    di = TestAutoLogic.schema()["properties"]["markdown"]
-    di_ = TestAutoLogic.schema()["properties"]["text_area"]
+    di = CoreIpywidgets.model_json_schema()["properties"]["markdown"]
+    di_ = CoreIpywidgets.model_json_schema()["properties"]["text_area"]
     print("test markdown - ")
     print(is_Markdown(di))
     print(is_Text(di))

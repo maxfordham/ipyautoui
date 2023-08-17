@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -35,11 +35,12 @@ import pathlib
 from IPython.display import display
 from pydantic import BaseModel
 import json
-import traitlets as tr
+import traitlets as tr  #
 import typing as ty
 
 from ipyautoui.custom import SaveButtonBar  # removing makes circular import error
 from ipyautoui.autoipywidget import AutoObject, get_from_schema_root
+
 
 # +
 def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
@@ -179,9 +180,7 @@ class AutoRenderMethods:
         if isinstance(schema, dict):
             docstring = f"AutoRenderer for {get_from_schema_root(schema, 'title')}"
         else:
-            docstring = (
-                f"AutoRenderer for {get_from_schema_root(schema.schema(), 'title')}"
-            )
+            docstring = f"AutoRenderer for {get_from_schema_root(schema.model_json_schema(), 'title')}"
 
         class AutoRenderer(cls):
             def __init__(self, path: pathlib.Path = path):
@@ -278,7 +277,6 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
         self.savebuttonbar.unsaved_changes = False
 
     def get_fdir(self, path=None, fdir=None):
-
         if path is not None and fdir is None:
             return pathlib.Path(path).parent
         elif path is None and fdir is not None:
@@ -290,10 +288,10 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
 
 
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
+    from ipyautoui.demo_schemas import CoreIpywidgets
 
     aui = AutoUi(
-        TestAutoLogicSimple,
+        CoreIpywidgets,
         path=pathlib.Path("test.json"),
         show_description=True,
         show_raw=False,
@@ -302,6 +300,7 @@ if __name__ == "__main__":
     )
     # aui.show_savebuttonbar = False
     display(aui)
+
 
 # +
 # aui.savebuttonbar.layout.display
@@ -329,39 +328,39 @@ if __name__ == "__main__":
 #  'text': 'short text',
 #  'text_area': 'long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ',
 #  'markdown': '\nSee details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. \n'}
+#
+# if __name__ == "__main__":
+#     fn = lambda: print("it works!")
+#     fn.__name__ = "test-func"
+#     TestRenderer = AutoUi.create_autoui_renderer(
+#         CoreIpywidgets,
+#         path=pathlib.Path("test.json"),
+#         fns_onsave=[fn],
+#     )
+#     r = TestRenderer()
+#     r.show_savebuttonbar = True
+#     display(r)
+#
+# if __name__ == "__main__":
+#     from ipyautoui.demo_schemas import CoreIpywidgets
+#
+#     aui = AutoUi(
+#         CoreIpywidgets,
+#         path=pathlib.Path("test.json"),
+#         show_raw=True,
+#         fn_onsave=lambda: print("test onsave"),
+#     )
+#     display(aui)
+#
+# if __name__ == "__main__":
+#     aui.show_description = False
+#     aui.show_title = False
+#     aui.show_raw = False
+# -
 
-if __name__ == "__main__":
-    fn = lambda: print("it works!")
-    fn.__name__ = "test-func"
-    TestRenderer = AutoUi.create_autoui_renderer(
-        TestAutoLogicSimple,
-        path=pathlib.Path("test.json"),
-        fns_onsave=[fn],
-    )
-    r = TestRenderer()
-    r.show_savebuttonbar = True
-    display(r)
-
-if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
-
-    aui = AutoUi(
-        TestAutoLogicSimple,
-        path=pathlib.Path("test.json"),
-        show_raw=True,
-        fn_onsave=lambda: print("test onsave"),
-    )
-    display(aui)
-
-if __name__ == "__main__":
-    aui.show_description = False
-    aui.show_title = False
-    aui.show_raw = False
-
-# + tags=[]
 if __name__ == "__main__":
     # Renderer = AutoUi.create_autoui_renderer(schema)
     from ipyautoui.autoipywidget import get_from_schema_root
 
-    Renderer = AutoUi.create_autoui_renderer(TestAutoLogic, show_raw=False)
+    Renderer = AutoUi.create_autoui_renderer(CoreIpywidgets, show_raw=False)
     display(Renderer(path="test1.json"))
