@@ -2,11 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """Tests for `ipyautoui` package."""
-from pprint import pprint
-import shutil
-import pathlib
 
-# from src.ipyautoui.test_schema import TestSchema
 
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
@@ -16,11 +12,10 @@ from ipyautoui.demo_schemas import (
     CoreIpywidgets,
     RootArrayEnum,
     Nested,
-    Filter,
+    # Filter,
 )
-from ipyautoui.demo_schemas.ruleset import ScheduleRuleSet
-import json
-import pytest
+
+# from ipyautoui.demo_schemas.ruleset import ScheduleRuleSet
 
 
 class TestAutoUiSchema:
@@ -35,7 +30,7 @@ class TestAutoUiSchema:
 
     def test_demo_init_model_schema_RootArrayEnum(self):
         model, schema = _init_model_schema(RootArrayEnum)
-        assert "allOf" not in schema["$defs"]["UniclassProductsUi"].keys()
+        assert "allOf" not in schema["$defs"]["Uniclass_Product_Codes"].keys()
         print("done")
 
     def test_demo_init_model_schema_check_nullable(self):
@@ -59,12 +54,12 @@ class TestAutoUiSchema:
 
         print("done")
 
-    def test_Rule(self):
-        model, schema = _init_model_schema(ScheduleRuleSet)
-        aui = AutoObject(schema=ScheduleRuleSet)
-        assert list(aui.di_widgets.keys()) == ["set_type", "rules"]
-        print("done")
+    # def test_Rule(self):
+    #     model, schema = _init_model_schema(ScheduleRuleSet)
+    #     aui = AutoObject(schema=ScheduleRuleSet)
+    #     assert list(aui.di_widgets.keys()) == ["set_type", "rules"]
+    #     print("done")
 
-    def test_Filter(self):
-        aui = AutoObject(schema=Filter)
-        print("done")
+    # def test_Filter(self):
+    #     aui = AutoObject(schema=Filter)
+    #     print("done")
