@@ -1,4 +1,4 @@
-from pydantic import ConfigDict, BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field, RootModel
 from enum import Enum
 
 
@@ -15,9 +15,5 @@ DI_TEST = {
 UniclassProducts = StrEnum("Uniclass Product Codes", DI_TEST)
 UniclassProducts.__doc__ = "A list of valid Uniclass Product codes"
 
-
-class RootEnum(BaseModel):
-    __root__: UniclassProducts = Field(
-        None, autoui="ipyautoui.autowidgets.Combobox", layout={"width": "400px"}
-    )
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+RootEnum = RootModel[list[UniclassProducts]]
+RootEnum.model_config = ConfigDict(arbitrary_types_allowed=True)

@@ -10,6 +10,7 @@ class OverrideIpywidgets(BaseModel):
 
     combobox: str = Field(
         default="asd",
-        enum=["asd", "asdf"],
-        autoui="ipyautoui.autowidgets.Combobox",
+        json_schema_extra=dict(
+            enum=["asd", "asdf"], autoui="ipyautoui.autowidgets.Combobox"
+        ),
     )

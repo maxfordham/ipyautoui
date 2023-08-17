@@ -29,7 +29,9 @@ class NullableCoreIpywidgets(BaseModel):
     int_range_slider: tuple[int, int] = Field(default=None, ge=0, le=4)
     float_slider: float = Field(default=None, ge=1, le=3)
     float_text: float = None
-    float_text_locked: float = Field(default=None, disabled=True)
+    float_text_locked: float = Field(
+        default=None, json_schema_extra=dict(disabled=True)
+    )
     float_range_slider: tuple[float, float] = Field(default=None, ge=0, le=3.5)
     checkbox: bool = None
     dropdown: FruitEnum = None
@@ -41,6 +43,6 @@ class NullableCoreIpywidgets(BaseModel):
     dropdown_simple: str = Field(default=None, enum=["asd", "asdf"])
     text: str = Field(default=None, description="a description about my string")
     text_short: Annotated[str, StringConstraints(min_length=0, max_length=20)] = None
-    text_area: Annotated[str, StringConstraints(min_length=0, max_length=800)] = Field(None, description="long text field")
-
-
+    text_area: Annotated[str, StringConstraints(min_length=0, max_length=800)] = Field(
+        None, description="long text field"
+    )

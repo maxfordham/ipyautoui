@@ -19,4 +19,4 @@ class ComplexSerialisation(BaseModel):
         datetime
     ] = datetime.now()  # TODO: update with ipywidgets-v8 # TODO: fix this!
     color_picker_ipywidgets: Color = "#f5f595"
-    markdown: str = Field(format="markdown")
+    markdown: str = Field(json_schema_extra=dict(format="markdown"))
