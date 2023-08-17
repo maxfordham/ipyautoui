@@ -17,8 +17,8 @@ UniclassProducts.__doc__ = "A list of valid Uniclass Product codes"
 
 RootArrayEnum = RootModel[list[UniclassProducts]]
 RootArrayEnum.model_config = ConfigDict(
+    title="UniclassProductsUi",
     json_schema_extra=dict(
-        title="UniclassProductsUi",
         arbitrary_types_allowed=True,
         autoui="ipyautoui.autowidgets.Combobox",
         layout={"width": "400px"},
