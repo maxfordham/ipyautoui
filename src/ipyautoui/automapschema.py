@@ -612,7 +612,9 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
     except Exception as e:
         if show_errors:
             from ipyautoui.custom.widgetcaller_error import WidgetCallerError
+            import traceback
 
+            e = str(e) + "\n" + traceback.format_exc()
             txt = f"""
 ERROR: widgetcaller
 -----
@@ -623,7 +625,7 @@ schema:
 {str(caller.schema_)}
 
 error:
-{str(e)}
+{e}
 """
             # TODO: add logging
             wi = WidgetCallerError(
