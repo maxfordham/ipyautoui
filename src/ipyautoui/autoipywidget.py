@@ -835,11 +835,11 @@ if __name__ == "__main__":
         fns_onsave=[fn],
     )
     display(ui)
+
+# +
+# if __name__ == "__main__":
+#     display(CoreIpywidgets.model_json_schema())
 # -
-
-CoreIpywidgets.model_json_schema()
-
-from pydantic.v1 import BaseModel
 
 if __name__ == "__main__":
     ui.show_savebuttonbar = False
