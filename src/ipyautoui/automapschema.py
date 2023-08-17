@@ -139,7 +139,7 @@ def add_nullable_to_object(schema_obj):
                 " This can be overridden by specifying a `autoui` pyobject renderer."
             )
     for k, v in schema_obj["properties"].items():
-        if k not in req and "default" not in v.keys():
+        if k not in req and "default" in v.keys() and v["default"] is None:
             v["nullable"] = True
         else:
             pass
