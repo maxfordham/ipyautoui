@@ -20,13 +20,15 @@ dependencies = [
     "ipython",
     "ipywidgets>8",
     "ipydatagrid>=1.1.14",
-    "ipyfilechooser",      # make optional
-    "ipyvuetify",          # make optional
+    "ipyfilechooser",       # make optional
+    "ipyvuetify",           # make optional
     "Markdown",
     "numpy",
-    "openpyxl",            # for excel fiel viewer
+    "openpyxl",             # for excel fiel viewer
     "pandas",
-    "pydantic",
+    "pydantic>2",
+    "pydantic-settings",
+    "pydantic-extra-types",
     "pytest",
     "PyYAML",
     "stringcase",
