@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -37,6 +37,10 @@ from ipydatagrid import CellRenderer, DataGrid, TextRenderer
 from ipydatagrid.datagrid import SelectionHelper
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
+# -
+
+
+
 
 
 # +
@@ -452,6 +456,7 @@ class GridSchema:
 
 
 if __name__ == "__main__":
+    from pydantic import RootModel
 
     class DataFrameCols(BaseModel):
         string: str = Field(
@@ -464,9 +469,9 @@ if __name__ == "__main__":
             1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
         )
 
-    class TestDataFrame(BaseModel):
+    class TestDataFrame(RootModel):
         # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
-        __root__: ty.List[DataFrameCols] = Field(
+        root: ty.List[DataFrameCols] = Field(
             ..., format="dataframe", global_decimal_places=2
         )
 
@@ -561,9 +566,6 @@ class DataGrid(DataGrid):
 
         return SelectionHelper(view_data_object, self.selections, self.selection_mode)
 
-    # these terms (below) avoid row or col terminology and can be used if transposed or not...
-    # only these methods are called be EditGrid, allowing it to operate the same if the
-    # view is transposed or not.
     # ----------
 
 
@@ -948,7 +950,9 @@ class AutoGrid(DataGrid):
         ]
 
     # ----------------
-
+    # these terms (below) avoid row or col terminology and can be used if transposed or not...
+    # only these methods are called be EditGrid, allowing it to operate the same if the
+    # view is transposed or not.
     @property
     def selected(self):
         if self.transposed:
@@ -1053,6 +1057,7 @@ class AutoGrid(DataGrid):
 # -
 
 if __name__ == "__main__":
+    from pydantic import RootModel
 
     class DataFrameCols(BaseModel):
         string: str = Field(
@@ -1065,9 +1070,9 @@ if __name__ == "__main__":
             1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
         )
 
-    class TestDataFrame(BaseModel):
+    class TestDataFrame(RootModel):
         # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
-        __root__: ty.List[DataFrameCols] = Field(
+        root: ty.List[DataFrameCols] = Field(
             # [DataFrameCols()], format="dataframe", global_decimal_places=2
             format="dataframe",
             global_decimal_places=2,
@@ -1089,8 +1094,8 @@ if __name__ == "__main__":
             1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
         )
 
-    class TestDataFrame(BaseModel):
-        __root__: ty.List[DataFrameCols] = Field(
+    class TestDataFrame(RootModel):
+        root: ty.List[DataFrameCols] = Field(
             format="dataframe",
             global_decimal_places=2,
         )
@@ -1109,6 +1114,13 @@ if __name__ == "__main__":
         pd.DataFrame([DataFrameCols(string="test", floater=2.45, integer=2).dict()])
     )
 
+# +
+# grid.traits()
+# -
+
+if __name__ == "__main__":
+    display(grid.selections)
+
 if __name__ == "__main__":
     # ORDER OVERRIDE
     class DataFrameCols(BaseModel):
@@ -1122,8 +1134,8 @@ if __name__ == "__main__":
             1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
         )
 
-    class TestDataFrame(BaseModel):
-        __root__: ty.List[DataFrameCols] = Field(
+    class TestDataFrame(RootModel):
+        root: ty.List[DataFrameCols] = Field(
             format="dataframe",
             global_decimal_places=2,
         )
@@ -1143,8 +1155,8 @@ if __name__ == "__main__":
             title="Floater", column_width=70  # , renderer={"format": ".2f"}
         )
 
-    class TestDataFrame(BaseModel):
-        __root__: ty.List[DataFrameCols] = Field(
+    class TestDataFrame(RootModel):
+        root: ty.List[DataFrameCols] = Field(
             [
                 DataFrameCols(string="string", integer=1, floater=1.2),
                 DataFrameCols(string="another string", integer=10, floater=2.5),
@@ -1156,6 +1168,9 @@ if __name__ == "__main__":
 
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
     display(grid)
+
+# +
+# grid.selections
 
 # +
 
@@ -1223,4 +1238,3 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
-# -

@@ -9,7 +9,7 @@ from ipyautoui.custom.editgrid import EditGrid
 from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui.demo_schemas import EditableGrid
 from ipyautoui.autoipywidget import AutoObject
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, RootModel
 import typing as ty
 
 # from ipyautoui.demo_schemas.editable_datagrid import DATAGRID_TEST_VALUE
@@ -68,10 +68,10 @@ class TestEditGrid:
             )
             inty: int = Field(1, section="b")
 
-        class TestGridSchema(BaseModel):
+        class TestGridSchema(RootModel):
             """no default"""
 
-            __root__: ty.List[TestProperties] = Field(
+            root: ty.List[TestProperties] = Field(
                 [TestProperties(string="string").dict()],
                 format="dataframe",
                 datagrid_index_name=("section", "title"),

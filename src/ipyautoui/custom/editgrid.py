@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -618,6 +618,8 @@ class EditGrid(w.VBox, TitleDescription):
 # -
 
 if __name__ == "__main__":
+    from pydantic import RootModel
+
     # Test: EditGrid instance with multi-indexing.
     AUTO_GRID_DEFAULT_VALUE = [
         {
@@ -633,10 +635,10 @@ if __name__ == "__main__":
         integer: int = Field(1, column_width=80, section="a")
         floater: float = Field(None, column_width=70, section="b")
 
-    class TestDataFrame(BaseModel):
+    class TestDataFrame(RootModel):
         """a description of TestDataFrame"""
 
-        __root__: ty.List[DataFrameCols] = Field(
+        root: ty.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE,
             format="dataframe",
             datagrid_index_name=("section", "title"),
@@ -723,7 +725,7 @@ if __name__ == "__main__":
                 ).dict()
             ],
             format="dataframe",
-            #datagrid_index_name=("section", "title"),
+            # datagrid_index_name=("section", "title"),
         )
 
     description = markdown(

@@ -42,7 +42,9 @@ class TestAutoUi:
 
     def test_pass_kwargs(self):
         ui = AutoUi(
-            CoreIpywidgets, path=PATH_TEST_AUTO_READ_FILE, show_savebuttonbar=False
+            CoreIpywidgets,
+            path=PATH_TEST_AUTO_READ_FILE,
+            json_schema_extra=dict(show_savebuttonbar=False),
         )
         assert ui.savebuttonbar.layout.display == "None"
         print("done")
