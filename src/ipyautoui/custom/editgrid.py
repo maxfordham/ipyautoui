@@ -713,16 +713,16 @@ if __name__ == "__main__":
         integer: int = Field(1, column_width=80, section="b")
         floater: float = Field(None, column_width=70, section="b")
 
-    class TestDataFrame(BaseModel):
+    class TestDataFrame(RootModel):
         """a description of TestDataFrame"""
 
-        __root__: ty.List[DataFrameCols] = Field(
+        root: ty.List[DataFrameCols] = Field(
             [
                 DataFrameCols(
                     string="String",
                     integer=1,
                     floater=2.5,
-                ).dict()
+                ).model_dump()
             ],
             format="dataframe",
             # datagrid_index_name=("section", "title"),

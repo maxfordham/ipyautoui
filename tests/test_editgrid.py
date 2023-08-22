@@ -72,7 +72,7 @@ class TestEditGrid:
             """no default"""
 
             root: ty.List[TestProperties] = Field(
-                [TestProperties(string="string").dict()],
+                [TestProperties(string="string").model_dump()],
                 format="dataframe",
                 datagrid_index_name=("section", "title"),
             )

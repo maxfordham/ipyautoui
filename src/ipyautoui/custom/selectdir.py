@@ -90,6 +90,7 @@ class SelectDirBase(BaseModel):
             return pathlib.Path(values["fdir_log"]) / fnm
         else:
             return None
+
     # TODO[pydantic]: The following keys were removed: `json_encoders`.
     # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config for more information.
     model_config = ConfigDict(json_encoders={PyObject: obj_to_importstr})
@@ -130,6 +131,7 @@ if __name__ == "__main__":
 from datetime import datetime
 from ipyautoui.basemodel import file
 
+
 # READ WRITE TO FILE.
 def record_load(value):
     fpth_log = value["fpth_log"]
@@ -138,7 +140,7 @@ def record_load(value):
     else:
         log = SelectDir(**value)
     log.usage.append(Usage(user=getuser(), timestamp=datetime.now()))
-    print(log.dict())
+    print(log.model_dump())
     file(log, fpth_log)
 
 
@@ -158,7 +160,7 @@ class SelectDirUi(w.VBox):
         if v.fpth_log.is_file():
             v = SelectDir.parse_file(v.fpth_log)
 
-        return v.dict()
+        return v.model_dump()
 
     @tr.observe("value")
     def _observe_value_update_path(self, change):
@@ -264,7 +266,6 @@ class SelectDirUi(w.VBox):
 
 
 if __name__ == "__main__":
-
     c1_str_exists = "📁👍 - `{}` : folder exists in location. press to load."
     c1_str_not_exists = (
         "📁⚠️ - `{}` : folder does not exist in location. It will be created on load"

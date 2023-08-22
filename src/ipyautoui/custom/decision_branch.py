@@ -76,7 +76,7 @@ class DecisionUi(w.HBox):
 
     def _init_form(self):
         li = []
-        li = gen_widget(self.config.dict(), widgets=li)
+        li = gen_widget(self.config.model_dump(), widgets=li)
         self.children = li
 
     def _init_controls(self):

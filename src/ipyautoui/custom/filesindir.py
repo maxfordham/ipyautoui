@@ -200,7 +200,7 @@ class FindFiles(w.VBox, tr.HasTraits):
     @pydantic_obj.setter
     def pydantic_obj(self, value):
         self._pydantic_obj = value
-        self.value = self._pydantic_obj.dict()
+        self.value = self._pydantic_obj.model_dump()
         self.fpths_ui.value = self.pydantic_obj.fpths
 
     @property
@@ -308,7 +308,6 @@ class FindFiles(w.VBox, tr.HasTraits):
 
 
 if __name__ == "__main__":
-
     fdir = "../"
     patterns = ["*file*"]
     pydantic_obj = FilesInDir(fdir=fdir, patterns=patterns)

@@ -66,6 +66,7 @@ def get_projects():
 
 # PROJECTS = get_projects()
 
+
 # +
 class RibaStages(str, Enum):
     stage1 = "Stage1"
@@ -154,6 +155,7 @@ def get_working_dirs(path=FPTH_WORKING_DIRS):
 
 # get_working_dirs()
 
+
 # + tags=[]
 class AnalysisDir(BaseModel):
     fdir: pathlib.Path
@@ -224,11 +226,11 @@ def add_working_dir(
     if isinstance(wdir, dict):
         wdir = WorkingDir(**wdir)
     wdirs = get_working_dirs(path=path).dict(by_alias=False)
-    now_usage = [Usage(user=get_user(), timestamp=datetime.now()).dict()]
+    now_usage = [Usage(user=get_user(), timestamp=datetime.now()).model_dump()]
     if wdir.key in wdirs["dirs"].keys():
         past_usage = wdirs["dirs"][wdir.key]["usage"]
     else:
-        wdirs["dirs"][wdir.key] = wdir.dict()
+        wdirs["dirs"][wdir.key] = wdir.model_dump()
         past_usage = []
     usage = past_usage + now_usage
     wdirs["dirs"][wdir.key]["usage"] = usage
@@ -237,7 +239,7 @@ def add_working_dir(
 
 
 def is_templated_dir(adir: ty.Type[BaseModel]):
-    for k, v in adir.dict().items():
+    for k, v in adir.model_dump().items():
         if not v.exists():
             return False
     else:
@@ -245,7 +247,7 @@ def is_templated_dir(adir: ty.Type[BaseModel]):
 
 
 def make_dirs(adir):
-    for k, v in adir.dict().items():
+    for k, v in adir.model_dump().items():
         if isinstance(v, pathlib.Path):
             v.mkdir(parents=True, exist_ok=True)
     return adir
@@ -410,7 +412,6 @@ class WorkingDirsUi(w.HBox):
 
     @fn_onload.setter
     def fn_onload(self, value):
-
         if isinstance(value, ty.Callable):
             value = [value]
         elif isinstance(value, ty.List):

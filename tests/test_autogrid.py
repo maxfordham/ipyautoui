@@ -68,7 +68,7 @@ class TestGridSchema:
             """no default"""
 
             root: ty.List[TestProperties] = Field(
-                [TestProperties(string="string").dict()], format="dataframe"
+                [TestProperties(string="string").model_dump()], format="dataframe"
             )
 
         model, schema = _init_model_schema(TestGridSchema)
@@ -95,7 +95,7 @@ class TestGridSchema:
             """no default"""
 
             root: ty.List[TestProperties] = Field(
-                [TestProperties(string="string").dict()],
+                [TestProperties(string="string").model_dump()],
                 format="dataframe",
                 datagrid_index_name=("section", "title"),
             )
@@ -136,7 +136,7 @@ class TestGridSchema:
             """no default"""
 
             root: ty.List[TestProperties] = Field(
-                [TestProperties(string="string").dict()],
+                [TestProperties(string="string").model_dump()],
                 format="dataframe",
                 datagrid_index_name=("section", "title"),
             )
@@ -183,7 +183,7 @@ class TestGridSchema:
             """no default"""
 
             root: ty.List[TestProperties] = Field(
-                [TestProperties(string="string").dict()],
+                [TestProperties(string="string").model_dump()],
                 format="dataframe",
                 datagrid_index_name=("section", "title"),
             )
@@ -215,7 +215,7 @@ class TestGridSchema:
             """no default"""
 
             root: ty.List[TestProperties] = Field(
-                [TestProperties(string="string").dict()],
+                [TestProperties(string="string").model_dump()],
                 format="dataframe",
             )
 
@@ -242,7 +242,7 @@ class TestGridSchema:
             """no default"""
 
             root: ty.List[TestProperties] = Field(
-                [TestProperties(stringy="string").dict()],
+                [TestProperties(stringy="string").model_dump()],
                 format="dataframe",
             )
 
@@ -291,7 +291,7 @@ class TestAutoGrid:
             """default."""
 
             root: ty.List[Cols] = Field(
-                [Cols(string="test", floater=1.5).dict()], format="dataframe"
+                [Cols(string="test", floater=1.5).model_dump()], format="dataframe"
             )
 
         grid = AutoGrid(schema=DataFrameSchema)
@@ -420,7 +420,7 @@ class TestAutoGrid:
             schema=DataFrameSchema, transposed=transposed, order=order
         )
         # Test with data passed
-        data = pd.DataFrame([Cols(string="test", floater=2.5).dict()])
+        data = pd.DataFrame([Cols(string="test", floater=2.5).model_dump()])
         grid_with_data = AutoGrid(
             schema=DataFrameSchema,
             data=data,
@@ -473,7 +473,7 @@ class TestAutoGrid:
         # Test without data passed
         grid_without_data = AutoGrid(schema=DataFrameSchema, order=order)
         # Test with data passed
-        data = pd.DataFrame([Cols(string="test", floater=2.5).dict()])
+        data = pd.DataFrame([Cols(string="test", floater=2.5).model_dump()])
         grid_with_data = AutoGrid(
             schema=DataFrameSchema,
             data=data,
@@ -515,7 +515,7 @@ class TestAutoGrid:
             schema=DataFrameSchema, transposed=transposed, order=order
         )
         # Test with data passed
-        data = pd.DataFrame([Cols(string="test", floater=2.5).dict()])
+        data = pd.DataFrame([Cols(string="test", floater=2.5).model_dump()])
         grid_with_data = AutoGrid(
             schema=DataFrameSchema,
             data=data,
@@ -569,7 +569,7 @@ class TestAutoGrid:
         # Test without data passed
         grid_without_data = AutoGrid(schema=DataFrameSchema, order=order)
         # Test with data passed
-        data = pd.DataFrame([Cols(string="test", floater=2.5).dict()])
+        data = pd.DataFrame([Cols(string="test", floater=2.5).model_dump()])
         grid_with_data = AutoGrid(
             schema=DataFrameSchema,
             data=data,
@@ -609,7 +609,7 @@ class TestAutoGrid:
 
             root: ty.List[Cols] = Field(format="dataframe")
 
-        data = pd.DataFrame([Cols(string="test", floater=2.5).dict()])
+        data = pd.DataFrame([Cols(string="test", floater=2.5).model_dump()])
         grid = AutoGrid(schema=DataFrameSchema, data=data)
         assert grid.records() == [{"string": "test", "floater": 2.5}]
         grid.order = ("floater", "string")
