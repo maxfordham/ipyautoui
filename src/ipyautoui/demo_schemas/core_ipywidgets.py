@@ -4,7 +4,7 @@ An example schema definition that demonstrates the current capability of the Aut
 import typing as ty
 import annotated_types
 from enum import Enum
-from pydantic import StringConstraints, Field, conint, confloat
+from pydantic import StringConstraints, Field, conint, confloat, ConfigDict
 from ipyautoui.basemodel import BaseModel
 import pandas as pd
 from pathlib import PurePosixPath
@@ -26,7 +26,7 @@ class CoreIpywidgets(BaseModel):
     """
 
     int_slider_req: Annotated[int, Field(ge=1, le=3)]
-    int_slider_nullable: Annotated[int, Field(ge=1, le=3)] = None
+    int_slider_nullable: ty.Optional[Annotated[int, Field(ge=1, le=3)] = None
     int_slider: Annotated[int, Field(ge=1, le=3)] = 2
     int_text: int = 1
     int_range_slider: tuple[conint(ge=0, le=4), conint(ge=0, le=4)] = Field(
@@ -58,3 +58,5 @@ class CoreIpywidgets(BaseModel):
     text_area: Annotated[str, StringConstraints(min_length=0, max_length=800)] = Field(
         "long text " * 50, description="long text field"
     )
+
+    model_config = ConfigDict(json_schema_extra=dict(show_raw=True))
