@@ -109,32 +109,34 @@ def get_renderers(
         return dict(DEFAULT_FILE_RENDERERS)
 
 
+from pydantic import field_validator, FieldValidationInfo
+
+
 # %%
 class DisplayObjectActions(BaseModel):
     """base object with callables for creating a display object"""
 
     renderers: dict[str, ty.Callable] = dict(DEFAULT_FILE_RENDERERS)
     path: ty.Union[str, pathlib.Path, HttpUrl, ty.Callable]
-    ext: str = None
-    name: str = None
-    check_exists: ty.Callable = None
-    renderer: ty.Callable = None
-    check_date_modified: ty.Callable = None
+    ext: ty.Optional[str] = None
+    name: ty.Optional[str] = None
+    check_exists: ty.Optional[ty.Callable] = None
+    renderer: ty.Optional[ty.Callable] = None
+    check_date_modified: ty.Optional[ty.Callable] = None
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("renderer", always=True)
-    def _renderer(cls, v, values):
+    @field_validator("renderer")
+    @classmethod
+    def _renderer(cls, v: ty.Callable, info: FieldValidationInfo):
         if v is None:
-            ext = values["ext"]
-            map_ = values["renderers"]
+            ext = info.data["ext"]
+            map_ = info.data["renderers"]
             if ext in map_.keys():
-                fn = functools.partial(map_[ext], values["path"])
+                fn = functools.partial(map_[ext], info.data["path"])
             else:
                 fn = lambda: w.HTML("File renderer not found")
             return fn
         else:
-            return functools.partial(v, values["path"])
+            return functools.partial(v, info.data["path"])
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -147,74 +149,67 @@ def check_exists(path):
 
 
 class DisplayFromPath(DisplayObjectActions):
-    path_new: pathlib.Path = None
-    open_file: ty.Callable = None
-    open_folder: ty.Callable = None
+    path_new: ty.Optional[pathlib.Path] = None
+    open_file: ty.Optional[ty.Callable] = None
+    open_folder: ty.Optional[ty.Callable] = None
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("path", always=True)
-    def _path(cls, v, values):
+    @field_validator("path")
+    @classmethod
+    def _path(cls, v):
         return pathlib.Path(v)
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("path_new", always=True)
-    def _path_new(cls, v, values):
-        return make_new_path(values["path"].absolute())
+    @field_validator("path_new")
+    @classmethod
+    def _path_new(cls, v, info: FieldValidationInfo):
+        return make_new_path(info.data["path"].absolute())
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("name", always=True)
-    def _name(cls, v, values):
-        if values["path"] is not None:
-            v = values["path"].name
+    @field_validator("name")
+    @classmethod
+    def _name(cls, v, info: FieldValidationInfo):
+        if info.data["path"] is not None:
+            v = info.data["path"].name
         return v
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("ext", always=True)
-    def _ext(cls, v, values):
-        if values["path"] is not None:
-            v = get_ext(values["path"])
-            v = handle_compound_ext(v, renderers=values["renderers"])
+    @field_validator("ext")
+    @classmethod
+    def _ext(cls, v, info: FieldValidationInfo):
+        p = info.data["path"]
+        rs = info.data["renderers"]
+        if p is not None:
+            v = get_ext(p)
+            v = handle_compound_ext(v, renderers=rs)
         if v is None:
             ValueError("ext must be given to map data to renderer")
         return v
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("check_exists", always=True)
-    def _check_exists(cls, v, values):
-        fn = functools.partial(check_exists, values["path"])
+    @field_validator("check_exists")
+    @classmethod
+    def _check_exists(cls, v, info: FieldValidationInfo):
+        fn = functools.partial(check_exists, info.data["path"])
         return fn
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("check_date_modified", always=True)
-    def _date_modified(cls, v, values):
-        p = values["path"]
+    @field_validator("check_date_modified")
+    @classmethod
+    def _check_date_modified(cls, v, info: FieldValidationInfo):
+        p = info.data["path"]
         if p is not None:
             return functools.partial(st_mtime_string, p)
         else:
             return None
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("open_file", always=True)
-    def _open_file(cls, v, values):
-        p = values["path"]
+    @field_validator("open_file")
+    @classmethod
+    def _open_file(cls, v, info: FieldValidationInfo):
+        p = info.data["path"]
         if p is not None:
-            fn = functools.partial(open_path, p)
-            return fn
+            return functools.partial(open_path, p)
         else:
-            return lambda: "Error: path given is None"
+            return None
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("open_folder", always=True)
-    def _open_folder(cls, v, values):
-        p = values["path"]
+    @field_validator("open_folder")
+    @classmethod
+    def _open_folder(cls, v, info: FieldValidationInfo):
+        p = info.data["path"]
         if not p.is_dir():
             p = p.parent
         if p is not None:
@@ -249,18 +244,16 @@ def url_ok(url):
 class DisplayFromRequest(DisplayObjectActions):
     path: HttpUrl
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("check_exists", always=True)
-    def _check_exists(cls, v, values):
-        fn = functools.partial(url_ok, values["path"])
+    @field_validator("check_exists")
+    @classmethod
+    def _check_exists(cls, v, info: FieldValidationInfo):
+        fn = functools.partial(url_ok, info.data["path"])
         return fn
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("name", always=True)
-    def _name(cls, v, values):
-        return values["path"].path
+    @field_validator("name")
+    @classmethod
+    def _name(cls, v, info: FieldValidationInfo):
+        return info.data["path"].path
 
 
 def check_callable_in_namespace(fn: ty.Callable):  # NTO USED
@@ -280,20 +273,16 @@ def check_callable(fn: ty.Callable):  # NTO USED
 class DisplayFromCallable(DisplayObjectActions):
     path: ty.Callable
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("check_exists", always=True)
-    def _check_exists(cls, v, values):
-        return functools.partial(check_callable, values["path"])
+    @field_validator("check_exists")
+    @classmethod
+    def _check_exists(cls, v, info: FieldValidationInfo):
+        fn = functools.partial(check_callable, info.data["path"])
+        return fn
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("name", always=True)
-    def _name(cls, v, values):
-        if v is not None:
-            return v
-        else:
-            return values["path"].__name__
+    @field_validator("name")
+    @classmethod
+    def _name(cls, v, info: FieldValidationInfo):
+        return info.data["path"].__name__
 
 
 # %%
