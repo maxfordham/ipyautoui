@@ -822,6 +822,16 @@ def dropdown_drop_null_value(kwargs, call=None):
     return kwargs
 
 
+class AutoPlaceholder(w.Textarea):
+    def __init__(self, **kwargs):
+        txt = f"""
+PLACEHOLDER WIDGET
+schema:
+{str(**kwargs)}
+"""
+        super().__init__(value=txt)
+
+
 def get_widgets_map(di_update=None):
     from ipyautoui.custom.iterable import AutoArray
     from ipyautoui.autoipywidget import AutoObject  # Ipywidget
@@ -833,7 +843,7 @@ def get_widgets_map(di_update=None):
         **{
             "AutoOveride": WidgetMapper(
                 fn_filt=is_AutoOveride,
-                widget=auiwidgets.AutoPlaceholder,
+                widget=AutoPlaceholder,
             ),
             "IntText": WidgetMapper(
                 fn_filt=is_IntText,
@@ -911,28 +921,18 @@ def get_widgets_map(di_update=None):
                 widget=w.Checkbox,
             ),
             "Date": WidgetMapper(fn_filt=is_Date, widget=DatePickerString),
-            "object": WidgetMapper(
-                fn_filt=is_Object, widget=auiwidgets.AutoPlaceholder
-            ),
+            "object": WidgetMapper(fn_filt=is_Object, widget=AutoObject),
             "array": WidgetMapper(
                 fn_filt=is_Array,
                 widget=AutoArray,
                 li_fn_modify=[flatten_type_and_nullable, add_schema_key],
             ),
-            "dataframe": WidgetMapper(
-                fn_filt=is_DataFrame, widget=auiwidgets.AutoPlaceholder
-            ),
+            "dataframe": WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid),
         }
     )
 
-    di_update_ = {
-        "dataframe": WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid),
-        "object": WidgetMapper(fn_filt=is_Object, widget=AutoObject),
-    }
-    if di_update is not None:
-        di_update = {**di_update_, **di_update}
-    else:
-        di_update = di_update_
+    if di_update is None:
+        di_update = {}
     return update_widgets_map(WIDGETS_MAP, di_update=di_update)
 
 
