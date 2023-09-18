@@ -433,8 +433,6 @@ if __name__ == "__main__":
     form = demo_autoobject_form()
     display(form)
 
-# +
-# form.title = "<b>asdfasdf</b>"
 
 # +
 # form.show_raw = True
@@ -502,6 +500,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
     order_can_hide_rows = tr.Bool(default_value=True)
     insert_rows = tr.Dict(default_value=None, allow_none=True)
     disabled = tr.Bool(default_value=False)
+    # properties
 
     @tr.validate("insert_rows")
     def validate_insert_rows(self, proposal):
@@ -568,19 +567,18 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
 
     @tr.default("nested_widgets")
     def _default_nested_widgets(self):
-        from ipyautoui.autowidgets import AutoMarkdown  # , EditGrid
+        from ipyautoui.custom.markdown_widget import MarkdownWidget  # , EditGrid
         from ipyautoui.custom.iterable import AutoArray
         from ipyautoui.custom.editgrid import EditGrid  # as EditGridCore
         from ipyautoui import AutoUi
 
-        default_nested = [
+        return [
             AutoArray,
-            AutoMarkdown,
+            MarkdownWidget,
             EditGrid,
             AutoUi,
             AutoObject,
         ]
-        return default_nested
 
     @tr.validate("nested_widgets")
     def _valid_nested_widgets(self, proposal):
@@ -666,7 +664,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
     @property
     def json(self):
         if self.model is not None:
-            return self.model(**self.value).json(indent=4)
+            return self.model(**self.value).model_dump_json(indent=4)
         else:
             return json.dumps(self.value, indent=4)
 
@@ -685,7 +683,7 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
         if "properties" in self.schema.keys():
             pr = self.schema["properties"]
         else:
-            pr = {"__root__": self.schema}
+            pr = {"__root__": self.schema}  # TODO: fixme
         self.pr = {
             property_key: aumap.map_widget(
                 property_schema, widgets_map=self.widgets_map
@@ -800,15 +798,8 @@ class AutoObject(AutoObjectFormLayout):  # w.VBox
                 )
 
     @property
-    def di_widgets_value(self):
+    def di_widgets_value(self):  # used to set _value
         return {k: v.value for k, v in self.di_widgets.items()}
-
-    def disable_edits(self):
-        for v in self.di_widgets.values():
-            try:
-                v.disabled = True
-            except:
-                pass
 
     @property
     def update_map_widgets(self):
@@ -827,7 +818,7 @@ if __name__ == "__main__":
     fn.__name__ = "test-func"
     ui = AutoObject(
         CoreIpywidgets,
-        order=["text", "int_text", "int_slider", "int_slider_nullable"],
+        # order=["text", "int_text", "int_slider", "int_slider_nullable"],
         show_description=True,
         show_title=True,
         show_savebuttonbar=True,
@@ -835,11 +826,17 @@ if __name__ == "__main__":
         fns_onsave=[fn],
     )
     display(ui)
-
-# +
-# if __name__ == "__main__":
-#     display(CoreIpywidgets.model_json_schema())
 # -
+
+if __name__ == "__main__":
+    from jsonref import replace_refs
+
+    s = CoreIpywidgets.model_json_schema()
+    s = replace_refs(s)
+
+    di = {k: v for k, v in s["properties"].items() if "type" not in v.keys()}
+    display(di)
+
 
 if __name__ == "__main__":
     ui.show_savebuttonbar = False

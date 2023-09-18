@@ -10,7 +10,11 @@ class OverrideIpywidgets(BaseModel):
 
     combobox: str = Field(
         default="asd",
-        json_schema_extra=dict(
-            enum=["asd", "asdf"], autoui="ipyautoui.autowidgets.Combobox"
-        ),
+        json_schema_extra=dict(enum=["asd", "asdf"], autoui="ipywidgets.Combobox"),
+    )
+    toggle: bool = Field(
+        default=True,
+        title="Toggle Button",
+        description="This is a toggle button, normally a checkbox is used for booleans.",
+        json_schema_extra=dict(autoui="ipywidgets.ToggleButton"),
     )
