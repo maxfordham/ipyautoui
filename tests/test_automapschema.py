@@ -1,65 +1,90 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+import pytest
+import pathlib
+from pytest_examples import find_examples, CodeExample, EvalExample
+from ipyautoui.automapschema import _init_model_schema, map_widget
+from ipyautoui.demo_schemas import CoreIpywidgets
+import stringcase
+from pydantic import BaseModel, Field, conint
+from ipyautoui.demo_schemas.array_object_dataframe import ArrayObjectDataframe
 
-"""Tests for `ipyautoui` package."""
-
-
-# from ipyautoui.tests import test_display_widget_mapping
-from .constants import DIR_TESTS, DIR_FILETYPES
-from ipyautoui.automapschema import _init_model_schema  # AutoUiSchema,
-from ipyautoui.autoipywidget import AutoObject
-from ipyautoui.demo_schemas import (
-    CoreIpywidgets,
-    RootArrayEnum,
-    Nested,
-    # Filter,
+fpth_module = (
+    pathlib.Path(__file__).parent.parent / "src" / "ipyautoui" / "automapschema.py"
 )
 
-# from ipyautoui.demo_schemas.ruleset import ScheduleRuleSet
+
+@pytest.mark.parametrize("example", find_examples(fpth_module), ids=str)
+def test_docstrings(example: CodeExample, eval_example: EvalExample):
+    eval_example.run_print_check(example)
 
 
-class TestAutoUiSchema:
-    # def test_demo_schema(self):
-    #     sch = AutoUiSchema(CoreIpywidgets)
-    #     assert type(sch.schema) == dict
-    #     print("done")
+def test_simple():
+    class Test(BaseModel):
+        # a: int
+        b: int = Field(
+            1, title="b title", ge=0, le=10, json_schema_extra=dict(tooltip="b tooltip")
+        )
 
-    # def test_demo_RootArrayEnum(self):
-    #     sch = AutoUiSchema(RootArrayEnum)
-    #     print("done")
+    model, schema = _init_model_schema(Test)
+    pr = schema["properties"]
+    wi = {
+        property_key: map_widget(property_schema)
+        for property_key, property_schema in pr.items()
+    }
+    assert wi["b"].kwargs["tooltip"] == "b tooltip"
+    print("done")
 
-    def test_demo_init_model_schema_RootArrayEnum(self):
-        model, schema = _init_model_schema(RootArrayEnum)
-        assert "allOf" not in schema["$defs"]["Uniclass_Product_Codes"].keys()
-        print("done")
 
-    def test_demo_init_model_schema_check_nullable(self):
-        model, schema = _init_model_schema(CoreIpywidgets)
-        # assert schema
-        assert schema["properties"]["int_slider_nullable"]["nullable"]
-        assert "nullable" not in schema["properties"]["int_slider_req"].keys()
-        print("done")
+def test_range_slider():
+    class Test(BaseModel):
+        # a: int
+        b: tuple[conint(ge=0, le=10), conint(ge=0, le=10)] = Field(
+            (3, 5),
+            title="b title",
+            json_schema_extra=dict(tooltip="b tooltip"),
+        )
 
-    def test_Nested(self):
-        model, schema = _init_model_schema(Nested)
-        aui = AutoObject(schema=Nested)
-        assert list(aui.di_widgets.keys()) == [
-            "nested",
-            "recursive_nest",
-            "array_simple",
-            "array_objects",
-            "nullable_list",
-            "nullable_object",
-        ]
+    model, schema = _init_model_schema(Test)
+    pr = schema["properties"]
+    wi = {
+        property_key: map_widget(property_schema)
+        for property_key, property_schema in pr.items()
+    }
+    assert wi["b"].kwargs["tooltip"] == "b tooltip"
+    assert wi["b"].kwargs["min"] == 0
+    assert wi["b"].kwargs["max"] == 10
+    print("done")
 
-        print("done")
 
-    # def test_Rule(self):
-    #     model, schema = _init_model_schema(ScheduleRuleSet)
-    #     aui = AutoObject(schema=ScheduleRuleSet)
-    #     assert list(aui.di_widgets.keys()) == ["set_type", "rules"]
-    #     print("done")
+def test_core_ipywidgets_map_widget():
+    model, schema = _init_model_schema(CoreIpywidgets)
+    pr = schema["properties"]
+    wi = {
+        property_key: map_widget(property_schema, fail_on_error=True)
+        for property_key, property_schema in pr.items()
+    }
+    for k, v in wi.items():
+        got, target = v.autoui.__name__, stringcase.pascalcase(k)
+        try:
+            assert got in target
+        except:
+            s = v.schema_
+            print(got, target)
+            raise AssertionError(got, target)
 
-    # def test_Filter(self):
-    #     aui = AutoObject(schema=Filter)
-    #     print("done")
+
+def test_array_object_dataframe_map_widget():
+    model, schema = _init_model_schema(ArrayObjectDataframe)
+    pr = schema["properties"]
+    wi = {
+        property_key: map_widget(property_schema, fail_on_error=True)
+        for property_key, property_schema in pr.items()
+    }
+    for k, v in wi.items():
+        got, target = v.autoui.__name__, stringcase.pascalcase(k)
+        try:
+            assert got in target
+        except:
+            s = v.schema_
+            print(got, target)
+            raise AssertionError(got, target)
+    print("done")
