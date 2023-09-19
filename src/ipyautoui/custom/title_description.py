@@ -53,8 +53,9 @@ class TitleDescription(tr.HasTraits):
             else:
                 self.html_title.layout.display = ""
                 get = lambda v: "" if v is None else v
+                get_des = lambda v: "" if v is None else ", "+v
                 self.html_title.value = (
-                    f"<b>{get(self.title)}</b>, <i>{get(self.description)}</i>"
+                    f"<b>{get(self.title)}</b><i>{get_des(self.description)}</i>"
                 )
 
     def __init__(self, **kwargs):
