@@ -1,0 +1,197 @@
+# ---
+# jupyter:
+#   jupytext:
+#     formats: py:light
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.15.0
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
+# ---
+
+"""create a simple row item for a form
+"""
+# %run _dev_sys_path_append.py
+# %run __init__.py
+# %load_ext lab_black
+
+# +
+import logging
+import ipywidgets as w
+from IPython.display import display
+import traitlets as tr
+from ipyautoui.custom.title_description import TitleDescription
+
+logger = logging.getLogger(__name__)
+
+
+# +
+# functions to format the box based on traits
+SPACER = w.HBox(layout={"width": "48px"})
+
+f1 = lambda self: [
+    w.HBox(
+        [
+            self.tgl,
+            self.html_title,
+        ]
+    ),
+    w.HBox([SPACER, self.widget]),
+]
+f2 = lambda self: [
+    w.HBox(
+        [
+            self.tgl,
+            self.html_title,
+        ]
+    ),
+    self.widget,
+]
+
+f3 = lambda self: [
+    w.HBox(
+        [
+            w.HBox([SPACER, self.widget]),
+            self.html_title,
+        ]
+    )
+]
+f4 = lambda self: [
+    w.HBox(
+        [
+            self.widget,
+            self.html_title,
+        ]
+    )
+]
+f5 = lambda self: [w.VBox([w.HBox([SPACER, self.tgl, self.html_title]), self.widget])]
+
+f6 = lambda self: [w.VBox([w.HBox([self.tgl, self.html_title]), self.widget])]
+
+f7 = lambda self: [
+    w.VBox(
+        [
+            self.html_title,
+            w.HBox(
+                [
+                    SPACER,
+                    self.widget,
+                ]
+            ),
+        ]
+    )
+]
+
+f8 = lambda self: [self.html_title, self.widget]
+
+# (align_horizontal, nested, indent)
+map_format = {
+    (True, True, True): f1,
+    (True, True, False): f2,
+    (True, False, True): f3,
+    (True, False, False): f4,
+    (False, True, True): f5,
+    (False, True, False): f6,
+    (False, False, True): f7,
+    (False, False, False): f8,
+}
+
+
+# -
+
+
+class Nest:
+    def _init_Nest(self):
+        if not hasattr(self, "tgl"):
+            self.tgl = w.ToggleButton(description="show")
+            self._init_controls_Nest()
+
+    def _init_controls_Nest(self):
+        self.tgl.observe(self._tgl, "value")
+
+    def _tgl(self, on_change):
+        if self.tgl.value:
+            self.widget.layout.display = ""
+        else:
+            self.widget.layout.display = "None"
+
+
+class AutoBox(w.VBox, TitleDescription, Nest):
+    align_horizontal = tr.Bool(default_value=True).tag(sync=True)
+    hide = tr.Bool(default_value=True).tag(sync=True)
+    widget = tr.Any(default_value=w.ToggleButton(layout={"width": "600px"}))
+    nested = tr.Bool(default_value=False)
+    indent = tr.Bool(default_value=False)
+
+    @tr.observe("align_horizontal")
+    def _align_horizontal(self, on_change):
+        # flip(self, align_horizontal=self.align_horizontal)
+        self.format_box()
+
+    @tr.observe("indent")
+    def _indent(self, on_change):
+        self.format_box()
+
+    @tr.observe("nested")
+    def _nested(self, on_change):
+        self._init_Nest()
+        self.format_box()
+        if not self.nested:
+            self.tgl.value = True
+        self._tgl("")
+
+    @tr.observe("widget")
+    def _widget(self, on_change):
+        self.format_box()
+
+    @tr.observe("hide")
+    def _hide(self, on_change):
+        if self.hide:
+            self.layout.display = "None"
+        else:
+            self.layout.display = ""
+
+    def __init__(self, **kwargs):
+        self._update_title_description()
+        super().__init__(**kwargs)
+        self.format_box()
+
+    @property
+    def format_tuple(self):
+        return (self.align_horizontal, self.nested, self.indent)
+
+    def format_box(self):
+        self.children = map_format[self.format_tuple](self)
+
+
+if __name__ == "__main__":
+    bx = AutoBox(title="asdfasdf")
+    display(bx)
+
+if __name__ == "__main__":
+    (bx.align_horizontal, bx.nested, bx.indent) = True, True, True  # f1
+
+if __name__ == "__main__":
+    (bx.align_horizontal, bx.nested, bx.indent) = True, True, False  # f2
+
+if __name__ == "__main__":
+    (bx.align_horizontal, bx.nested, bx.indent) = (True, False, True)  # f3
+
+if __name__ == "__main__":
+    (bx.align_horizontal, bx.nested, bx.indent) = (True, False, False)  # f4
+
+if __name__ == "__main__":
+    (bx.align_horizontal, bx.nested, bx.indent) = False, True, True  # f5
+
+if __name__ == "__main__":
+    (bx.align_horizontal, bx.nested, bx.indent) = False, True, False  # f6
+
+if __name__ == "__main__":
+    (bx.align_horizontal, bx.nested, bx.indent) = False, False, True  # f7
+
+if __name__ == "__main__":
+    (bx.align_horizontal, bx.nested, bx.indent) = False, False, False  # f8
