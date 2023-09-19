@@ -32,7 +32,7 @@ class CoreIpywidgets(BaseModel):
     only simple datatypes used (i.e. not lists/arrays or objects)
     """
 
-    int_slider_req: Annotated[int, Field(ge=1, le=3)]
+    int_slider_req: Annotated[int, Field(ge=1, le=3)] = Field(2, description="a slider")
     int_slider_nullable: ty.Optional[Annotated[int, Field(ge=1, le=3)]] = None
     int_slider: Annotated[int, Field(ge=1, le=3)] = 2
     int_text_req: int
@@ -49,7 +49,9 @@ class CoreIpywidgets(BaseModel):
     float_range_slider: tuple[confloat(ge=0, le=4), confloat(ge=0, le=4)] = Field(
         default=(0, 2.2)
     )
-    checkbox: bool = Field(default=True, title="boolean checkbox")
+    checkbox: bool = Field(
+        default=True, title="boolean checkbox", description="a checkbox"
+    )
     dropdown: ty.Optional[FruitEnum] = None
     dropdown_int: Number = Field(default=Number.ONE)
     combobox: str = Field("apple", examples=FruitEnum._member_names_)
