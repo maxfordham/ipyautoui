@@ -26,12 +26,10 @@ from ipyautoui._utils import frozenmap, obj_from_importstr
 from jsonref import replace_refs
 from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET
 from ipyautoui._utils import remove_non_present_kwargs
-from copy import deepcopy
-
-from ipyautoui.autowidgets import create_widget_caller
 from ipyautoui.custom.markdown_widget import MarkdownWidget
 from ipyautoui.custom.filechooser import FileChooser
 from ipyautoui.custom.date_string import DatePickerString
+from ipyautoui.autobox import AutoBox
 
 
 def _init_model_schema(
@@ -690,7 +688,11 @@ def update_keys(di, di_map=MAP_JSONSCHEMA_TO_IPYWIDGET):
     return {update_key(k, di_map): v for k, v in di.items()}
 
 
-def create_widget_caller(schema, calling=None):
+def remove_title_and_description(di):
+    return {k: v for k, v in di.items() if k != "description" and k != "title"}
+
+
+def create_widget_caller(schema, calling=None, remove_title=True):
     """
     creates a "caller" object from the schema.
     this renames schema keys as follows to match ipywidgets:
@@ -716,10 +718,9 @@ def create_widget_caller(schema, calling=None):
             initialised like ```calling(**caller)```
 
     """
-    caller = deepcopy(schema)
     caller = update_keys(schema)
-    caller = {k: v for k, v in caller.items() if k != "description"}
-    caller = {k: v for k, v in caller.items() if k != "title"}
+    if remove_title:
+        caller = remove_title_and_description(caller)
     if calling is not None:
         caller = remove_non_present_kwargs(calling, caller)
     return caller
@@ -744,6 +745,7 @@ class WidgetCaller(BaseModel):
     allow_none: bool = False
     args: ty.List = Field(default_factory=lambda: [])
     kwargs: ty.Dict = Field(default_factory=lambda: {})
+    kwargs_box: ty.Dict = Field(default_factory=lambda: {})
 
 
 def widgetcaller(caller: WidgetCaller, show_errors=True):
@@ -982,7 +984,7 @@ def map_widget(
         if fail_on_error:
             raise ValueError(f"widget map not found for: {di}")
         else:
-            return WidgetCaller(schema_=di, autoui=auiwidgets.AutoPlaceholder)
+            return WidgetCaller(schema_=di, autoui=AutoPlaceholder)
     elif len(mapped) == 1:
         # ONLY THIS ONE SHOULD HAPPEN
         widget_name, allow_none = mapped[0]
@@ -990,7 +992,16 @@ def map_widget(
         kwargs = di
         for l in widgets_map[widget_name].li_fn_modify:
             kwargs = l(kwargs, wi)
-        return WidgetCaller(schema_=di, autoui=wi, allow_none=allow_none, kwargs=kwargs)
+
+        kwargs_box = update_keys(di)
+        kwargs_box = remove_non_present_kwargs(AutoBox, kwargs_box)
+        return WidgetCaller(
+            schema_=di,
+            autoui=wi,
+            allow_none=allow_none,
+            kwargs=kwargs,
+            kwargs_box=kwargs_box,
+        )
     else:
         # s = str(mapped)
         e = f"multiple matches found. . using the last one. {di}."
