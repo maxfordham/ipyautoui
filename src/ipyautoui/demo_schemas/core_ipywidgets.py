@@ -53,7 +53,8 @@ class CoreIpywidgets(BaseModel):
         default=True, title="boolean checkbox", description="a checkbox"
     )
     dropdown: ty.Optional[FruitEnum] = None
-    dropdown_int: Number = Field(default=Number.ONE)
+    dropdown_int: Number = Field(default=Number.ONE)  #
+    dropdown_int_optional: ty.Optional[Number] = Field(default=Number.ONE)  #
     combobox: str = Field("apple", examples=FruitEnum._member_names_)
     combobox1: ty.Union[str, FruitEnum] = Field("apple")  # TODO: make this work
     dropdown_edge_case: FruitEnum = Field(
