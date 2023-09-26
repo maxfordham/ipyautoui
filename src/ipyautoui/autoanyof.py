@@ -5,6 +5,7 @@ import typing as ty
 
 # +
 
+
 def value_type_as_json(value):
     if isinstance(value, str):
         return "string"
@@ -21,19 +22,23 @@ def value_type_as_json(value):
     elif isinstance(value, None):
         return "null"
     else:
-        raise ValueError("value must be: string, integer, number, array, object or None")
-    
+        raise ValueError(
+            "value must be: string, integer, number, array, object or None"
+        )
 
 
 # -
 
+
 class AnyOf(w.HBox):
-    anyOf = tr.List(trait=tr.Dict())  # TODO: use any_of? how to recursively change keys?
+    anyOf = tr.List(
+        trait=tr.Dict()
+    )  # TODO: use any_of? how to recursively change keys?
     selected_item = tr.Dict()
-    map_value_type = tr.Dict()
+    map_title_type = tr.Dict()
     titles = tr.List(trait=tr.Unicode())
     _value = tr.Any()
-    
+
     @property
     def value(self):
         return self._value
@@ -44,14 +49,17 @@ class AnyOf(w.HBox):
         ti = self.map_type_title[t]
         self.select.value = ti
         self.widget.value = value
-        
 
     @tr.observe("anyOf")
     def _anyOf(self, on_change):
         get_name = lambda l: l["title"] if "title" in l else l["type"]
-        self.map_type_title = {get_name(l):l["type"] for l in self.anyOf}
-        self.titles = list(self.map_type_title.values())
+        self.map_title_type = {get_name(l): l["type"] for l in self.anyOf}
+        self.titles = list(self.map_title_type.keys())
         self.select.options = self.titles
+
+    @property
+    def map_type_title(self):
+        return {v: k for k, v in self.map_title_type.items()}
 
     @tr.observe("selected_item")
     def _selected_item(self, on_change):
@@ -88,14 +96,14 @@ class AnyOf(w.HBox):
         n = self.titles.index(self.select.value)
         self.selected_item = self.anyOf[n]
 
+
 if __name__ == "__main__":
-    
     from pydantic import conint, RootModel
     from enum import Enum
 
     class MyEnum(str, Enum):
-        state1 = 'state1'
-        state2 = 'state2'
+        state1 = "state1"
+        state2 = "state2"
 
     class RootSimple(RootModel):
         root: ty.Union[conint(ge=0, le=3), str] = 2
@@ -111,5 +119,3 @@ if __name__ == "__main__":
     ui = AnyOf(**sch)
     display(sch)
     display(ui)
-
-

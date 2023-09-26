@@ -53,9 +53,9 @@ if __name__ == "__main__":
 # +
 from ipyautoui.autoipywidget import (
     AutoObjectFormLayout,
-    make_bold,
     get_from_schema_root,
 )
+from ipyautoui.autoform_layout import make_bold
 
 
 class AutoVjsf(AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):

@@ -460,6 +460,4 @@ if __name__ == "__main__":
     ui = AutoObject(**s)
     display(ui)
 
-ui.align_horizontal = True
-
 
