@@ -190,6 +190,8 @@ class Array(w.VBox, TitleDescription):
 
     @value.setter
     def value(self, value: ty.List):
+        self.boxes = []
+        self.bx_boxes.children = []
         [self.add_row() for v in value]
         for n, v in enumerate(value):
             self.boxes[n].obj.value = v
@@ -385,6 +387,21 @@ class AutoArray(Array):
     #       : adds tuple functionality
     #       : maybe this should be a different widget all together?
 
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(
+        self, value: ty.List
+    ):  # TODO: should be able to have this in parent `Array` ?
+        self.boxes = []
+        self.bx_boxes.children = []
+        [self.add_row() for v in value]
+        for n, v in enumerate(value):
+            self.boxes[n].obj.value = v
+        self._update_value("onchange")
+
     @tr.observe("allOf")  # TODO: is this requried?
     def _allOf(self, on_change):
         if self.allOf is not None and len(self.allOf) == 1:
@@ -453,7 +470,6 @@ if __name__ == "__main__":
     s = replace_refs(MyArray.model_json_schema())
     ui = AutoArray(**s)
     display(ui)
-
 
 if __name__ == "__main__":
     import random
