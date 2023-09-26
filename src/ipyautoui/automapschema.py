@@ -840,7 +840,7 @@ def is_Array(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, 
     ```
     """
     if "type" not in di.keys() and not checked_nullable:
-        return handle_null_or_unknown_types(is_DataFrame, di)
+        return handle_null_or_unknown_types(is_Array, di)
     t = di["type"]
     if "autoui" in di.keys():
         return False, allow_none
@@ -850,7 +850,7 @@ def is_Array(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, 
         return False, allow_none
     if "enum" in di.keys():
         return False, allow_none  # as this is picked up from SelectMultiple
-    if is_DataFrame(di)[0]:
+    if is_DataFrame(di, checked_nullable=checked_nullable)[0]:
         return False, allow_none
     return True, allow_none
 
@@ -1102,7 +1102,7 @@ def get_widgets_map(di_update=None):
             "array": WidgetMapper(
                 fn_filt=is_Array,
                 widget=AutoArray,
-                li_fn_modify=[flatten_type_and_nullable, add_schema_key],
+                li_fn_modify=[flatten_type_and_nullable],
             ),
             "dataframe": WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid),
             "anyOf": WidgetMapper(fn_filt=is_AnyOf, widget=AnyOf),
@@ -1205,3 +1205,21 @@ if __name__ == "__main__":
     caller = map_widget(di)
     assert "IntText" in str(caller.autoui)
     print(caller)
+
+
+def from_schema_method(
+    cls, schema: ty.Union[ty.Type[BaseModel], dict], value: dict = None
+):
+    schema = replace_refs(schema)
+    ui = cls(**schema)
+    ui.model = None
+    return ui
+
+
+def from_model_method(cls, model: ty.Type[BaseModel], value: dict = None):
+    schema = replace_refs(model.model_json_schema())
+    if value is not None:
+        schema["value"] = value
+    ui = cls(**schema)
+    ui.model = model
+    return ui
