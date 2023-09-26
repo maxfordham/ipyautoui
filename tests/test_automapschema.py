@@ -55,6 +55,60 @@ def test_range_slider():
     print("done")
 
 
+from pydantic import BaseModel, Field, conint
+import typing as ty
+from typing_extensions import Annotated
+from enum import Enum
+
+
+def assert_widget_map(schema):
+    pr = schema["properties"]
+    wi = {
+        property_key: map_widget(property_schema)
+        for property_key, property_schema in pr.items()
+    }
+    for k, v in wi.items():
+        got, target = v.autoui.__name__, stringcase.pascalcase(k)
+        try:
+            assert got in target
+        except:
+            s = v.schema_
+            print(got, target)
+            raise AssertionError(got, target)
+
+
+def test_range_slider():
+    class Test(BaseModel):
+        """this is a test UI form to demonstrate how pydantic class can  be used to generate an ipywidget input form.
+        only simple datatypes used (i.e. not lists/arrays or objects)
+        """
+
+        int_slider_nullable: ty.Optional[Annotated[int, Field(ge=1, le=3)]] = None
+
+    model, schema = _init_model_schema(Test)
+    assert_widget_map(schema)
+
+
+def test_combobox():
+    class FruitEnum(str, Enum):
+        """fruit example."""
+
+        apple = "apple"
+        pear = "pear"
+        banana = "banana"
+        orange = "orange"
+
+    class Test(BaseModel):
+        """this is a test UI form to demonstrate how pydantic class can  be used to generate an ipywidget input form.
+        only simple datatypes used (i.e. not lists/arrays or objects)
+        """
+
+        combobox: ty.Union[str, FruitEnum] = Field("apple")
+
+    model, schema = _init_model_schema(Test)
+    assert_widget_map(schema)
+
+
 def test_core_ipywidgets_map_widget():
     model, schema = _init_model_schema(CoreIpywidgets)
     pr = schema["properties"]

@@ -38,7 +38,9 @@ from pydantic import BaseModel
 logger = logging.getLogger(__name__)
 
 
-# +
+# -
+
+
 def _get_value_trait(obj_with_traits):
     """gets the trait type for a given object (looks for "_value" and
     "value" allowing use of setters and getters)
@@ -60,9 +62,6 @@ def _get_value_trait(obj_with_traits):
         raise ValueError(
             f"{str(type(obj_with_traits))}: has no '_value' or 'value' trait"
         )
-
-
-# -
 
 
 class AutoObject(w.VBox):
@@ -103,6 +102,7 @@ class AutoObject(w.VBox):
     update_map_widgets = tr.Dict()
     widgets_map = tr.Dict()
     type = tr.Unicode(default_value="object")
+    allOf = tr.List(allow_none=True, default_value=None)
     properties = tr.Dict()
     _value = tr.Dict(allow_none=True)
     fdir = tr.Instance(klass=pathlib.PurePath, default_value=None, allow_none=True)
@@ -123,7 +123,7 @@ class AutoObject(w.VBox):
         self.widgets_map = dict(aumap.get_widgets_map(self.update_map_widgets))
 
     @tr.default("widgets_map")
-    def _update_map_widgets(self):
+    def _widgets_map(self):
         return dict(aumap.get_widgets_map(self.update_map_widgets))
 
     @tr.validate("type")
@@ -131,6 +131,13 @@ class AutoObject(w.VBox):
         if proposal["value"] != "object":
             raise ValueError("AutoObject for object only")
         return proposal["value"]
+
+    @tr.observe("allOf")  # TODO: is this requried?
+    def _allOf(self, on_change):
+        if self.allOf is not None and len(self.allOf) == 1:
+            self.properties = self.allOf[0]
+        else:
+            raise ValueError("allOf not supported from objects")
 
     @tr.observe("properties")
     def _properties(self, on_change):
@@ -452,3 +459,7 @@ if __name__ == "__main__":
     s["value"] = v
     ui = AutoObject(**s)
     display(ui)
+
+ui.align_horizontal = True
+
+
