@@ -30,24 +30,19 @@ This item is used for the AutoObject `array`.
 # +
 import ipywidgets as w
 import traitlets as tr
-from traitlets import validate
 import typing as ty
 from IPython.display import display
 from ipyautoui.basemodel import BaseModel
-from pydantic import model_validator
 import uuid
 from uuid import UUID
 import functools
 from ipyautoui.constants import (
     ADD_BUTTON_KWARGS,
     REMOVE_BUTTON_KWARGS,
-    BLANK_BUTTON_KWARGS,
     BUTTON_WIDTH_MIN,
     BUTTON_HEIGHT_MIN,
-    BUTTON_MIN_SIZE,
 )
 from ipyautoui._utils import frozenmap
-from ipyautoui.autowidgets import create_widget_caller
 import logging
 from ipyautoui.custom.title_description import TitleDescription
 import enum
@@ -55,13 +50,10 @@ import string
 import random
 import inspect
 from ipyautoui.automapschema import (
-    replace_refs,
-    remove_non_present_kwargs,
-    widgetcaller,
-    map_widget,
+    from_schema_method,
+    get_widget
 )
-from ipyautoui.automapschema import from_schema_method
-from ipyautoui.automapschema import get_widget
+from jsonref import replace_refs
 
 
 logger = logging.getLogger(__name__)
@@ -356,6 +348,7 @@ class Array(w.VBox, TitleDescription):
         self._sort_boxes()  # update map
         self._init_row_controls(bx.key)  # init controls
         self._update_boxes()
+        self._update_value("")
 
     def _remove_rows(self, onclick, key=None):
         self.remove_row(key=key)
@@ -377,6 +370,7 @@ class Array(w.VBox, TitleDescription):
         self.boxes.pop(n)
         self._sort_boxes()
         self._update_boxes()
+        self._update_value("")
 
 
 class AutoArray(Array):
@@ -548,8 +542,6 @@ if __name__ == "__main__":
     display(arr)
 
 if __name__ == "__main__":
-    from ipyautoui.autowidgets import create_widget_caller
-    from ipyautoui.autoipywidget import AutoObject
     from ipyautoui.demo_schemas import RootArray
 
     schema = RootArray.model_json_schema()
