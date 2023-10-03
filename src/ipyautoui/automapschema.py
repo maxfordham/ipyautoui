@@ -92,35 +92,6 @@ def _init_model_schema(
 #     return type_, nullable
 
 
-def flatten_type_and_nullable(di: dict, fn=None) -> dict:  # TODO: delete
-    if "type" in di.keys():
-        return {**di, **{"nullable": False}}
-    else:
-        if "anyOf" in di.keys():
-            kw = "anyOf"
-        elif "allOf" in di.keys():
-            kw = "allOf"
-        else:
-            raise ValueError("currently must have anyOf or allOf or type in schema")
-        types = di[kw]
-        n = "null" in [l["type"] for l in types]
-        t = [l for l in types if l["type"] != "null"]  # [0]  # get non-null type
-
-        def get_enum(t):
-            li = [_["enum"] for _ in t if "enum" in _.keys()]
-            if len(li) == 0:
-                return None
-            else:
-                return li[0]
-
-        e = get_enum(t)
-        if len(t) > 1 and e is not None:
-            di["examples"] = e
-        for _ in t:
-            di = {**di, **_}
-        return {**di, **{"nullable": n}}
-
-
 def is_allowed_type(di: dict) -> bool:
     #  https://json-schema.org/understanding-json-schema/reference/combining.html
     if "anyOf" in di:
@@ -217,9 +188,6 @@ def is_AnyOf(di: dict, allow_none=False, checked_nullable=False):
         else:
             return False, allow_none
 
-
-def add_schema_key(di: dict, wi=None) -> dict:
-    return {"schema": di}
 
 
 def is_IntText(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, bool]:
@@ -897,6 +865,41 @@ def create_widget_caller(schema, calling=None, remove_title=True):
         caller = remove_non_present_kwargs(calling, caller)
     return caller
 
+def flatten_type_and_nullable(di: dict, fn=None) -> dict:
+    if "type" in di.keys():
+        return {**di, **{"nullable": False}}
+    else:
+        if "anyOf" in di.keys():
+            kw = "anyOf"
+        elif "allOf" in di.keys():
+            kw = "allOf"
+        else:
+            raise ValueError("currently must have anyOf or allOf or type in schema")
+        types = di[kw]
+        n = "null" in [l["type"] for l in types]
+        t = [l for l in types if l["type"] != "null"]  # [0]  # get non-null type
+
+        def get_enum(t):
+            li = [_["enum"] for _ in t if "enum" in _.keys()]
+            if len(li) == 0:
+                return None
+            else:
+                return li[0]
+
+        e = get_enum(t)
+        if len(t) > 1 and e is not None:
+            di["examples"] = e
+        for _ in t:
+            di = {**di, **_}
+        return {**di, **{"nullable": n}}
+
+
+def add_schema_key(di: dict, wi=None) -> dict:
+    return {"schema": di}
+
+def add_max_layout(di: dict, wi=None) -> dict:
+    return di | {"layout":{"width":"100%"}}
+
 
 class WidgetMapper(BaseModel):
     """defines a filter function and associated widget. the "fn_filt" is used to search the
@@ -1104,7 +1107,10 @@ def get_widgets_map(di_update=None):
                 widget=AutoArray,
                 li_fn_modify=[flatten_type_and_nullable],
             ),
-            "dataframe": WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid),
+            "dataframe": WidgetMapper(
+                fn_filt=is_DataFrame, 
+                widget=EditGrid, 
+                li_fn_modify=[add_schema_key, add_max_layout]),
             "anyOf": WidgetMapper(fn_filt=is_AnyOf, widget=AnyOf),
         }
     )
@@ -1208,7 +1214,7 @@ if __name__ == "__main__":
 
 
 def from_schema_method(
-    cls, schema: ty.Union[ty.Type[BaseModel], dict], value: dict = None
+    cls, schema: ty.Union[ty.Type[BaseModel], dict], value: ty.Optional[dict] = None
 ):
     schema = replace_refs(schema)
     ui = cls(**schema)
@@ -1216,7 +1222,7 @@ def from_schema_method(
     return ui
 
 
-def from_model_method(cls, model: ty.Type[BaseModel], value: dict = None):
+def from_model_method(cls, model: ty.Type[BaseModel], value: ty.Optional[dict] = None):
     schema = replace_refs(model.model_json_schema())
     if value is not None:
         schema["value"] = value
