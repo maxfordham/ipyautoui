@@ -8,7 +8,7 @@ from ipyautoui.custom.buttonbars import SaveButtonBar
 from ipyautoui.custom.showhide import ShowHide
 from ipyautoui.autowidgets import Nullable
 from ipyautoui._utils import display_python_string, obj_from_importstr
-
+import json
 
 # +
 def show_hide_widget(widget, show: bool):
@@ -20,11 +20,12 @@ def show_hide_widget(widget, show: bool):
     except:
         ValueError(str(widget) + "failed to change layout.display")
 
+
 def make_bold(s: str) -> str:
     return f"<big><b>{s}</b></big>"
 
 
-class AutoObjectFormLayout(w.VBox):
+class AutoObjectFormLayout(tr.HasTraits):  # TODO: extend TitleDescription
     """UI container for autoui form
 
     Attributes:
@@ -128,26 +129,14 @@ class AutoObjectFormLayout(w.VBox):
         return self.savebuttonbar.fns_onsave
 
     def __init__(self, **kwargs):
+        self._init_autoform(**kwargs)
+        
+    def _init_autoform(self, **kwargs):
         self._init_form()
         self._init_bn_showraw_controls()
-        super().__init__(
-            layout=w.Layout(
-                width="100%",
-                display="flex",
-                flex="flex-grow",
-            ),
-            **kwargs,
-        )
-        self.children = [
-            self.savebuttonbar,
-            self.hbx_title,
-            self.html_description,
-            self.autowidget,
-            self.vbx_showraw,
-        ]
+        super().__init__(**kwargs)
 
     def _init_form(self):
-        self.autowidget = w.VBox()
         self.hbx_title = w.HBox()
         self.savebuttonbar = SaveButtonBar(layout={"display": "None"})  #
         self.html_title = w.HTML()
@@ -186,16 +175,35 @@ class AutoObjectFormLayout(w.VBox):
             self.fn_onhideraw()
             self.vbx_showraw.layout.display = "None"
 
-    def display_ui(self):
+    def display_ui(self): # NOTE: this overwritten this in AutoObjectForm
         self.autowidget.layout.display = ""
 
-    def display_showraw(self):  # NOTE: this overwritten this in AutoObject
+    def display_showraw(self):  # NOTE: this overwritten this in AutoObjectForm
         self.autowidget.layout.display = "None"
-        return '{"test": "json"}'
+        return self.json
 
 
 if __name__ == "__main__":
     ui = AutoObjectFormLayout(description="description", show_savebuttonbar=True)
+    display(ui)
+# -
+
+if __name__ == "__main__":
+    class ParentForm(AutoObjectFormLayout, w.VBox):
+        def __init__(self, **kwargs):
+            super().__init__(
+                **kwargs,
+            )
+            # self._init_autoform(**kwargs)
+            self.children = [
+                self.savebuttonbar,
+                self.hbx_title,
+                self.html_description,
+                self.autowidget,
+                self.vbx_showraw,
+            ]
+        
+    ui = ParentForm(description="description", show_savebuttonbar=True)
     display(ui)
 
 
@@ -204,7 +212,7 @@ def demo_autoobject_form(title="test", description="a description of the title")
     """for docs and testing only..."""
     from ipyautoui.custom.buttonbars import SaveButtonBar
 
-    form = AutoObjectFormLayout()
+    form = ParentForm()
     form.title = make_bold(title)
     form.description = description
     form.show_raw = True
@@ -244,5 +252,29 @@ if __name__ == "__main__":
     form.show_description = True
     form.show_title = True
     form.show_raw = True
+
+w.ToggleButton(icon="greater-than")
+
+w.ToggleButton(icon="minus")
+
+# +
+import pandas as pd
+import numpy as np
+from ipydatagrid import DataGrid
+
+np.random.seed(104)
+rang = 10
+df = pd.DataFrame(
+    data=[np.random.randint(0, 11, rang) for i in range(rang)],
+    columns=[f"Col {i}" for i in range(rang)],
+)
+df.loc[1, :] = None
+g = DataGrid(
+    df, layout={"height": "300px", "width": "800px"}, selection_mode="cell"
+)
+g
+# -
+
+g.data.loc[1]
 
 
