@@ -17,7 +17,6 @@
 """AutoObject - create a 
 """
 # %run _dev_sys_path_append.py
-# %run __init__.py
 # %load_ext lab_black
 
 import logging
@@ -89,7 +88,6 @@ class AutoObject(w.VBox):
         fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
         align_horizontal (bool, optional): aligns widgets horizontally. Defaults to True.
         nested_widgets (list, optional): allows user to indicate widgets that should be show / hide type. Defaults to [].
-        auto_open (bool, optional): automatically opens the nested_widget. Defaults to True.
         order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
         order_can_hide_rows (bool): allows user to hide rows by removing them from the order list.
         insert_rows (dict): e.g. {3:w.Button()}. allows user to insert a widget into the rows. its presence
@@ -107,12 +105,12 @@ class AutoObject(w.VBox):
     _value = tr.Dict(allow_none=True)
     fdir = tr.Instance(klass=pathlib.PurePath, default_value=None, allow_none=True)
     align_horizontal = tr.Bool(default_value=True)
-    auto_open = tr.Bool(default_value=True)
     nested_widgets = tr.List()
     order = tr.List(default_value=None, allow_none=True)
     order_can_hide_rows = tr.Bool(default_value=True)
     insert_rows = tr.Dict(default_value=None, allow_none=True)
     disabled = tr.Bool(default_value=False)
+    open_nested = tr.Bool(default_value=None, allow_none=True)
 
     @tr.default("update_map_widgets")
     def _default_update_map_widgets(self):
@@ -147,6 +145,9 @@ class AutoObject(w.VBox):
             )
             for property_key, property_schema in self.properties.items()
         }
+        for k, v in self.di_callers.items():
+            if v.autoui in self.nested_widgets:
+                v.kwargs_box = v.kwargs_box | {"nested": True}
         self._init_ui()
 
     @tr.observe("align_horizontal")
@@ -227,7 +228,7 @@ class AutoObject(w.VBox):
             )
             self.order = on_change["old"]
         else:
-            self.children = [self.di_boxes[o] for o in self.order]
+            self.vbx_main.children = [self.di_boxes[o] for o in self.order]
 
     @tr.validate("order_can_hide_rows")
     def _order_can_hide_rows(self, proposal):
@@ -257,10 +258,27 @@ class AutoObject(w.VBox):
         fn = lambda s: obj_from_importstr(s) if isinstance(s, str) else s
         return [fn(p) for p in proposal["value"]]
 
+    @tr.observe("open_nested")
+    def observe_open_nested(self, on_change):
+        if self.open_nested:
+            self._open_nested()
+        else:
+            self._close_nested()
+
     @tr.validate("_value")
     def _valid_value(self, proposal):
         # TODO: add validation?
         return proposal["value"]
+
+    @classmethod
+    def trait_order(cls):
+        return [k for k, v in cls.__dict__.items() if isinstance(v, tr.TraitType)]
+
+    def get_ordered_kwargs(self, kwargs):
+        in_order = list(kwargs.keys())
+        tr_order = self.trait_order()
+        out_order = tr_order + [i for i in in_order if i not in tr_order]
+        return {o: kwargs[o] for o in out_order if o in in_order}
 
     def __init__(
         self,
@@ -279,10 +297,15 @@ class AutoObject(w.VBox):
         Returns:
             AutoObject(w.VBox)
         """
+        self.vbx_main = w.VBox()
         self.model = None
         if "properties" not in kwargs.keys():
             raise ValueError("properties must be in kwargs")
-        super().__init__(**kwargs)
+        super().__init__()
+        kwargs = self.get_ordered_kwargs(kwargs)
+        {setattr(self, k, v) for k, v in kwargs.items()}
+
+        self.children = [self.vbx_main]
         if "value" in kwargs.keys():
             self.value = kwargs["value"]
         else:
@@ -292,9 +315,10 @@ class AutoObject(w.VBox):
     def from_schema(
         cls, schema: ty.Union[ty.Type[BaseModel], dict], value: dict = None
     ):
-        if isinstance(schema, BaseModel):
-            model = schema
-            schema = replace_refs(CoreIpywidgets.model_json_schema())
+        if isinstance(schema, type):
+            if issubclass(schema, BaseModel):
+                model = schema
+                schema = replace_refs(schema.model_json_schema())
         elif isinstance(schema, dict):
             model = None
             schema = replace_refs(schema)
@@ -306,13 +330,13 @@ class AutoObject(w.VBox):
         ui.model = model
         return ui
 
-    def show_nested(self):
-        for r in self.boxes:
+    def _open_nested(self):
+        for r in self.di_boxes.values():
             if r.nested:
                 r.tgl.value = True
 
-    def hide_nested(self):
-        for r in self.boxes:
+    def _close_nested(self):
+        for r in self.di_boxes.values():
             if r.nested:
                 r.tgl.value = False
 
@@ -357,7 +381,7 @@ class AutoObject(w.VBox):
             )
             for k in self.di_callers.keys()
         }
-        self.children = list(self.di_boxes.values())
+        self.vbx_main.children = list(self.di_boxes.values())
         self.indent_non_nullable()
 
     def indent_non_nullable(self):
@@ -400,7 +424,8 @@ class AutoObject(w.VBox):
         #             "currently a pydantic model is required to validate on change"
         #         )
         self._value = self.di_widgets_value
-        # self.savebuttonbar.unsaved_changes = True
+        if hasattr(self, "savebuttonbar"):
+            self.savebuttonbar.unsaved_changes = True
         # NOTE: it is required to set the whole "_value" otherwise
         #       traitlets doesn't register the change.
 
@@ -422,6 +447,34 @@ class AutoObject(w.VBox):
     def di_widgets_value(self):  # used to set _value
         return {k: v.value for k, v in self.di_widgets.items()}
 
+
+# +
+from ipyautoui.autoform import AutoObjectFormLayout
+
+
+class AutoObjectForm(AutoObject, AutoObjectFormLayout):
+    def __init__(self, **kwargs):
+        super().__init__(
+            **kwargs,
+        )
+        # self._init_autoform(**kwargs)
+        self.children = [
+            self.savebuttonbar,
+            self.hbx_title,
+            self.html_description,
+            self.vbx_main,
+            self.vbx_showraw,
+        ]
+
+    def display_ui(self):  # NOTE: this overwritten this in AutoObjectForm
+        self.vbx_main.layout.display = ""
+
+    def display_showraw(self):  # NOTE: this overwritten this in AutoObjectForm
+        self.vbx_main.layout.display = "None"
+        return self.json
+
+
+# -
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
@@ -447,12 +500,86 @@ if __name__ == "__main__":
         "dropdown_simple": "asd",
         "text": "adsf",
         "text_short": "short text",
-        "textarea": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ",
+        "textarea": "long text long text " * 20,
+    }
+    s = replace_refs(CoreIpywidgets.model_json_schema())
+    # s["align_horizontal"] = False
+    s["order_can_hide_rows"] = True
+    s["order"] = ["int_slider_req", "dropdown_int", "int_range_slider_disabled"]
+    ui = AutoObjectForm.from_schema(s, value=v)
+    display(ui)
+
+# +
+# summarize_di_callers
+# s_sch = f"""
+# ```json
+# {json.dumps(di, indent=4)}
+# ```
+# """
+# from IPython.display import Markdown
+
+# Markdown(s_sch)
+# -
+
+if __name__ == "__main__":
+    ui.show_savebuttonbar = True
+
+if __name__ == "__main__":
+    from ipyautoui.demo_schemas import NestedEditableGrid, ComplexSerialisation
+
+    s = replace_refs(NestedEditableGrid.model_json_schema())
+    s["order_can_hide_rows"] = False
+    s["open_nested"] = True
+    ui = AutoObject.from_schema(s)
+    display(ui)
+
+# +
+# ui.schema
+# -
+
+if __name__ == "__main__":
+    from ipyautoui.demo_schemas import NestedEditableGrid, ComplexSerialisation
+
+    s = replace_refs(ComplexSerialisation.model_json_schema())
+    s["order_can_hide_rows"] = False
+    ui = AutoObject.from_schema(s)
+    display(ui)
+
+if __name__ == "__main__":
+    from ipyautoui.demo_schemas import CoreIpywidgets
+
+    v = {
+        "int_slider_req": 1,
+        "int_slider_nullable": 2,
+        "int_slider": 1,
+        "int_text_req": 0,
+        "int_text_nullable": None,
+        "int_range_slider": [0, 1],
+        "int_range_slider_disabled": [0, 1],
+        "float_slider": 0,
+        "float_text": 0,
+        "float_text_locked": 0,
+        "float_range_slider": [0.0, 1.1],
+        "checkbox": False,
+        "dropdown": None,
+        "dropdown_int": 1,
+        "combobox": "apple",
+        "combobox1": "apple",
+        "dropdown_edge_case": "apple",
+        "dropdown_simple": "asd",
+        "text": "adsf",
+        "text_short": "short text",
+        "textarea": "long text long text" * 20,
     }
     s = replace_refs(CoreIpywidgets.model_json_schema())
     # s["align_horizontal"] = False
     s["order_can_hide_rows"] = False
     ui = AutoObject.from_schema(s, value=v)
+    display(ui)
+
+if __name__ == "__main__":
+    s["value"] = v
+    ui = AutoObject(**s)
     display(ui)
 
 if __name__ == "__main__":
