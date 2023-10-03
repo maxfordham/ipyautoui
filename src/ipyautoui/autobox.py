@@ -36,16 +36,17 @@ SPACER = w.HBox(layout={"width": "48px"})
 f1 = lambda self: [
     w.HBox(
         [
-            self.tgl,
+            SPACER,
+            self.get_tgl,
             self.html_title,
         ]
     ),
-    w.HBox([SPACER, self.widget]),
+    self.widget,
 ]
 f2 = lambda self: [
     w.HBox(
         [
-            self.tgl,
+            self.get_tgl,
             self.html_title,
         ]
     ),
@@ -68,9 +69,11 @@ f4 = lambda self: [
         ]
     )
 ]
-f5 = lambda self: [w.VBox([w.HBox([SPACER, self.tgl, self.html_title]), self.widget])]
+f5 = lambda self: [
+    w.VBox([w.HBox([SPACER, self.get_tgl, self.html_title]), self.widget])
+]
 
-f6 = lambda self: [w.VBox([w.HBox([self.tgl, self.html_title]), self.widget])]
+f6 = lambda self: [w.VBox([w.HBox([self.get_tgl, self.html_title]), self.widget])]
 
 f7 = lambda self: [
     w.VBox(
@@ -105,10 +108,12 @@ map_format = {
 
 
 class Nest:
-    def _init_Nest(self):
+    @property
+    def get_tgl(self):
         if not hasattr(self, "tgl"):
-            self.tgl = w.ToggleButton(description="show")
+            self.tgl = w.ToggleButton(description="show", layout={"width": "300px"})
             self._init_controls_Nest()
+        return self.tgl
 
     def _init_controls_Nest(self):
         self.tgl.observe(self._tgl, "value")
@@ -120,29 +125,28 @@ class Nest:
             self.widget.layout.display = "None"
 
 
-class AutoBox(w.VBox, TitleDescription, Nest):
+class AutoBox(w.VBox, Nest, TitleDescription):
+    nested = tr.Bool(default_value=False)
     align_horizontal = tr.Bool(default_value=True).tag(sync=True)
     hide = tr.Bool(default_value=True).tag(sync=True)
     widget = tr.Any(default_value=w.ToggleButton(layout={"width": "600px"}))
-    nested = tr.Bool(default_value=False)
     indent = tr.Bool(default_value=False)
+
+    @tr.observe("nested")
+    def _nested(self, on_change):
+        self.get_tgl
+        self.format_box()
+        if not self.nested:
+            self.tgl.value = True
+        self._tgl("")
 
     @tr.observe("align_horizontal")
     def _align_horizontal(self, on_change):
-        # flip(self, align_horizontal=self.align_horizontal)
         self.format_box()
 
     @tr.observe("indent")
     def _indent(self, on_change):
         self.format_box()
-
-    @tr.observe("nested")
-    def _nested(self, on_change):
-        self._init_Nest()
-        self.format_box()
-        if not self.nested:
-            self.tgl.value = True
-        self._tgl("")
 
     @tr.observe("widget")
     def _widget(self, on_change):
@@ -157,6 +161,7 @@ class AutoBox(w.VBox, TitleDescription, Nest):
 
     def __init__(self, **kwargs):
         self._update_title_description()
+        # with self.hold_trait_notifications():
         super().__init__(**kwargs)
         self.format_box()
 
@@ -169,7 +174,7 @@ class AutoBox(w.VBox, TitleDescription, Nest):
 
 
 if __name__ == "__main__":
-    bx = AutoBox(title="asdfasdf")
+    bx = AutoBox(title="asdfasdf", nested=True)
     display(bx)
 
 if __name__ == "__main__":
@@ -195,3 +200,5 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     (bx.align_horizontal, bx.nested, bx.indent) = False, False, False  # f8
+
+
