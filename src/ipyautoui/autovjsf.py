@@ -26,9 +26,41 @@ import ipywidgets as w
 from ipyautoui.constants import PATH_VJSF_TEMPLATE
 from ipyautoui.autoui import AutoUiFileMethods, AutoRenderMethods
 from ipyautoui.automapschema import _init_model_schema
+from ipyautoui.autoui import (
+    AutoObjectFormLayout,
+    get_from_schema_root,
+)
+from ipyautoui.autoform import make_bold
 
 # import ipyvue
 # ipyvue.watch(PATH_VJSF_TEMPLATE.parent)  # for hot-reloading. currently not in use. requires watchdog
+
+
+def rename_vjsf_schema_keys(obj, old="x_", new="x-"):  # NOTE: not in use
+    """recursive function to replace all keys beginning x_ --> x-
+    this allows schema Field keys to be definied in pydantic and then
+    converted to vjsf compliant schema"""
+
+    if type(obj) == list:
+        for l in list(obj):
+            if type(l) == str and l[0:2] == old:
+                l = new + l[2:]
+            if type(l) == list or type(l) == dict:
+                l = rename_vjsf_schema_keys(l)
+            else:
+                pass
+    if type(obj) == dict:
+        for k, v in obj.copy().items():
+            if k[0:2] == old:
+                obj[new + k[2:]] = v
+                del obj[k]
+            if type(v) == list or type(v) == dict:
+                v = rename_vjsf_schema_keys(v)
+            else:
+                pass
+    else:
+        pass
+    return obj
 
 
 class Vjsf(v.VuetifyTemplate):
@@ -41,7 +73,7 @@ class Vjsf(v.VuetifyTemplate):
 
 # -
 if __name__ == "__main__":
-    from ipyautoui.demo_schemas import CoreIpywidgets, TestAutoLogicSimple
+    from ipyautoui.demo_schemas import CoreIpywidgets
     from IPython.display import display
 
     ui = Vjsf(schema=TestAutoLogicSimple)
@@ -51,11 +83,6 @@ if __name__ == "__main__":
     display(ui)
 
 # +
-from ipyautoui.autoipywidget import (
-    AutoObjectFormLayout,
-    get_from_schema_root,
-)
-from ipyautoui.autoform_layout import make_bold
 
 
 class AutoVjsf(AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
