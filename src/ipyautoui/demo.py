@@ -105,11 +105,12 @@ class Demo(w.Tab, tr.HasTraits):
         with self.out_sch:
             clear_output()
             display(Markdown(s_sch))
+            
 
     def _update_jsonschema_caller(self):
         s_sch = f"""
 ```json
-{json.dumps(self.autoui.schema, indent=4)}
+{json.dumps(self.autoui.jsonschema_caller, indent=4)}
 ```
 """
         with self.out_caller:
