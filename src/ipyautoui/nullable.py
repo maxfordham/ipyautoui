@@ -4,6 +4,7 @@ import numpy as np
 import math
 import ipywidgets as w
 import traitlets as tr
+from ipyautoui.constants import BUTTON_WIDTH_MIN
 
 SHOW_NONE_KWARGS = dict(value="None", disabled=True, layout={"display": "None"})
 
