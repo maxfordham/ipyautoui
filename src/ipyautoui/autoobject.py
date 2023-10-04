@@ -509,6 +509,9 @@ if __name__ == "__main__":
     ui = AutoObjectForm.from_schema(s, value=v)
     display(ui)
 
+if __name__ == "__main__":
+    ui.order_can_hide_rows = False
+
 # +
 # summarize_di_callers
 # s_sch = f"""
