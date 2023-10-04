@@ -21,7 +21,7 @@
 import typing as ty
 import ipywidgets as w
 from pydantic import BaseModel, Field
-import ipyautoui.autowidgets as auiwidgets
+from ipyautoui.nullable import nullable
 from ipyautoui._utils import frozenmap, obj_from_importstr
 from jsonref import replace_refs
 from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET
@@ -187,7 +187,6 @@ def is_AnyOf(di: dict, allow_none=False, checked_nullable=False):
             return True, allow_none
         else:
             return False, allow_none
-
 
 
 def is_IntText(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, bool]:
@@ -865,6 +864,7 @@ def create_widget_caller(schema, calling=None, remove_title=True):
         caller = remove_non_present_kwargs(calling, caller)
     return caller
 
+
 def flatten_type_and_nullable(di: dict, fn=None) -> dict:
     if "type" in di.keys():
         return {**di, **{"nullable": False}}
@@ -897,8 +897,9 @@ def flatten_type_and_nullable(di: dict, fn=None) -> dict:
 def add_schema_key(di: dict, wi=None) -> dict:
     return {"schema": di}
 
+
 def add_max_layout(di: dict, wi=None) -> dict:
-    return di | {"layout":{"width":"100%"}}
+    return di | {"layout": {"width": "100%"}}
 
 
 class WidgetMapper(BaseModel):
@@ -934,7 +935,7 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
     try:
         # if "nullable" in caller.schema_.keys() and caller.schema_["nullable"]:
         if caller.allow_none:
-            fn = auiwidgets.nullable(caller.autoui)
+            fn = nullable(caller.autoui)
         else:
             fn = caller.autoui
         wi = fn(**caller.kwargs)
@@ -1108,9 +1109,10 @@ def get_widgets_map(di_update=None):
                 li_fn_modify=[flatten_type_and_nullable],
             ),
             "dataframe": WidgetMapper(
-                fn_filt=is_DataFrame, 
-                widget=EditGrid, 
-                li_fn_modify=[add_schema_key, add_max_layout]),
+                fn_filt=is_DataFrame,
+                widget=EditGrid,
+                li_fn_modify=[add_schema_key, add_max_layout],
+            ),
             "anyOf": WidgetMapper(fn_filt=is_AnyOf, widget=AnyOf),
         }
     )

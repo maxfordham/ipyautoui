@@ -79,7 +79,7 @@ class WidgetCallerError(w.VBox):
 
 # %%
 if __name__ == "__main__":
-    widget = "<class 'ipyautoui.autoipywidget.AutoObject'>"
+    widget = "<class 'ipyautoui.autoobject.AutoObject'>"
 
     schema = {
         "title": "ScheduleRuleSet",
@@ -111,7 +111,7 @@ if __name__ == "__main__":
                         "parameter": {
                             "title": "Parameter",
                             "description": "name of schedule parameter against which to apply filter rule",
-                            "autoui": "ipyautoui.autowidgets.Combobox",
+                            "autoui": "ipywidgets.Combobox",
                             "type": "string",
                         },
                         "operator": {
@@ -122,7 +122,7 @@ if __name__ == "__main__":
                             "title": "Value",
                             "description": "Value to filter by. Evaluates to the appropriate type. Leave empty if none required (e.g. has value operator)",
                             "default": "",
-                            "autoui": "ipyautoui.autowidgets.Combobox",
+                            "autoui": "ipywidgets.Combobox",
                             "type": "string",
                         },
                     },
