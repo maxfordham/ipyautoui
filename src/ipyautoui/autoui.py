@@ -239,11 +239,6 @@ class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods)
     model = tr.Type(klass=BaseModel, default_value=None, allow_none=True)
     _value = tr.Any()  # TODO: update trait type on schema change
 
-    # @tr.validate("schema")
-    # def _v_schema(self, proposal):
-    #     self.model, schema = _init_model_schema(proposal["value"])
-    #     return schema
-
     @property
     def value(self):
         return self._value
@@ -284,12 +279,11 @@ class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods)
         kwargs["model"], kwargs["schema"] = _init_model_schema(schema)
 
         super().__init__(
-            value=None,
             **kwargs,
         )
         # self.path = path
         if "value" in kwargs:
-            self.value = self._get_value(value, self.path)
+            self.value = self._get_value(kwargs["value"], self.path)
             self.savebuttonbar.unsaved_changes = False
         self.children = [
             self.savebuttonbar,
@@ -300,6 +294,11 @@ class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods)
         ]
         self._init_controls()
         self._watch_change({"new": None})
+        {
+            setattr(self.autowidget, k, v)
+            for k, v in kwargs.items()
+            if k not in self.trait_names() and k in self.autowidget.trait_names()
+        }  # pass traits to autowidget on init.
 
     def _init_controls(self):
         self._init_watch_widget()
@@ -338,7 +337,7 @@ class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods)
         return json.dumps(self.autowidget.value, indent=4)
 
 
-def summarize_di_callers(obj: AutoUi):
+def summarize_di_callers(obj: AutoUi):  # NOTE: mainly used for demo
     fn_ser = lambda k, v: str(v) if k == "autoui" else v
     fn_item = lambda v: {
         k_: fn_ser(k_, v_) for k_, v_ in v.model_dump().items() if k_ != "schema_"
@@ -374,9 +373,7 @@ if __name__ == "__main__":
     display(aui)
 
 # +
-# from ipyautoui.automapschema import map_widget
 
-# map_widget(EditableGrid.model_json_schema()).dict()
 # -
 
 if __name__ == "__main__":
@@ -426,165 +423,3 @@ if __name__ == "__main__":
     )
     # aui.show_savebuttonbar = False
     display(aui)
-
-# +
-# aui.show_raw = True
-
-# +
-# class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
-#     """extends AutoObject and AutoUiCommonMethods to create an
-#     AutoUi user-input form. The data that can be saved to a json
-#     file `path` and loaded from a json file.
-
-#     Attributes:
-
-#         # AutoFileMethods
-#         # ------------------------------
-#         path (tr.Instance(klass=pathlib.PurePath, ... ): path to file
-
-#         # AutoObjectFormLayout
-#         # -------------------------
-#         title (str): form title
-#         description (str): form description
-#         show_description (bool, optional): show the description. Defaults to True.
-#         show_title (bool, optional): show the title. Defaults to True.
-#         show_savebuttonbar (bool, optional): show the savebuttonbar. Defaults to True.
-#         show_raw (bool, optional): show the raw json. Defaults to False.
-#         fn_onshowraw (callable): do not edit
-#         fn_onhideraw (callable): do not edit
-#         fns_onsave (callable): additional functions to be called on save
-#         fns_onrevert (callable): additional functions to be called on revert
-
-#         # AutoObject
-#         # -------------------------
-#         _value (dict): use `value` to set and get. the value of the form. this is a dict of the form {key: value}
-#         fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
-#         align_horizontal (bool, optional): aligns widgets horizontally. Defaults to True.
-#         nested_widgets (list, optional): allows user to indicate widgets that should be show / hide type. Defaults to [].
-#         auto_open (bool, optional): automatically opens the nested_widget. Defaults to True.
-#         order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
-#         order_can_hide_rows (bool): allows user to hide rows by removing them from the order list.
-#         insert_rows (dict): e.g. {3:w.Button()}. allows user to insert a widget into the rows. its presence
-#             is ignored by the widget otherwise.
-#         disabled (bool, optional): disables all widgets. If widgets are disabled
-#             using schema kwargs this is remembered when re-enabled. Defaults to False.
-
-#     """
-
-#     def __init__(
-#         self,
-#         schema: ty.Union[ty.Type[BaseModel], dict],
-#         value: dict = None,
-#         path: pathlib.Path = None,  # TODO: generalise data retrieval?
-#         update_map_widgets=None,
-#         # validate_onchange=True,  # TODO: sort out how the validation works
-#         **kwargs,
-#     ):
-#         """initialises the AutoUi. in Jupyter hit "cntrl + I" to load "inspector"
-#         and see the attributes.
-
-#         Args:
-#             schema (ty.Union[ty.Type[BaseModel], dict]): defines the form
-#             value (dict, optional): form value. Defaults to None.
-#             path (pathlib.Path, optional): read / write file location. Defaults to None.
-#             update_map_widgets (dict, optional): allows user to update the map_widgets. Defaults to None.
-#             fns_onsave (list, optional): list of functions to run on save. Defaults to None.
-#             fns_onrevert (list, optional): list of functions to run on revert. Defaults to None.
-#             **kwargs: passed to AutoObject. see attributes for details.
-#         """
-
-#         fdir = self.get_fdir(path=path, fdir=kwargs.get("fdir", None))
-#         if fdir is not None:
-#             kwargs = kwargs | {"fdir": fdir}
-#         # init app
-#         super().__init__(
-#             schema,
-#             value=None,
-#             update_map_widgets=update_map_widgets,
-#             **kwargs,
-#         )
-#         self.path = path
-#         self.value = self._get_value(value, self.path)
-#         self.savebuttonbar.unsaved_changes = False
-
-#     def get_fdir(self, path=None, fdir=None):
-#         if path is not None and fdir is None:
-#             return pathlib.Path(path).parent
-#         elif path is None and fdir is not None:
-#             return fdir
-#         elif path is not None and fdir is not None:
-#             return fdir
-#         else:
-#             return None
-
-
-# if __name__ == "__main__":
-#     from ipyautoui.demo_schemas import CoreIpywidgets
-
-#     aui = AutoUi(
-#         CoreIpywidgets,
-#         path=pathlib.Path("test.json"),
-#         show_description=True,
-#         show_raw=False,
-#         show_savebuttonbar=True,
-#         fns_onsave=[lambda: print("asdf")],
-#     )
-#     # aui.show_savebuttonbar = False
-#     display(aui)
-
-
-# +
-# aui.savebuttonbar.layout.display
-
-# + active=""
-# aui.save_actions.fns_onrevert[1]()
-
-# + active=""
-# aui.value = parse_json_file(aui._get_path(), model=aui.model)
-
-# + active=""
-# v = {'string': 'asdfasdfasdfasdf',
-#  'int_slider': 1,
-#  'int_text': 1,
-#  'int_range_slider': (0, 3),
-#  'float_slider': 2,
-#  'float_text': 2.2,
-#  'float_text_locked': 2.2,
-#  'float_range_slider': (0.0, 2.2),
-#  'checkbox': True,
-#  'dropdown': 'male',
-#  'dropdown_edge_case': 'female',
-#  'dropdown_simple': 'asd',
-#  'combobox': 'asd',
-#  'text': 'short text',
-#  'text_area': 'long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ',
-#  'markdown': '\nSee details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. \n'}
-#
-# if __name__ == "__main__":
-#     fn = lambda: print("it works!")
-#     fn.__name__ = "test-func"
-#     TestRenderer = AutoUi.create_autoui_renderer(
-#         CoreIpywidgets,
-#         path=pathlib.Path("test.json"),
-#         fns_onsave=[fn],
-#     )
-#     r = TestRenderer()
-#     r.show_savebuttonbar = True
-#     display(r)
-#
-# if __name__ == "__main__":
-#     from ipyautoui.demo_schemas import CoreIpywidgets
-#
-#     aui = AutoUi(
-#         CoreIpywidgets,
-#         path=pathlib.Path("test.json"),
-#         show_raw=True,
-#         fn_onsave=lambda: print("test onsave"),
-#     )
-#     display(aui)
-#
-# if __name__ == "__main__":
-#     aui.show_description = False
-#     aui.show_title = False
-#     aui.show_raw = False
-# -
