@@ -28,7 +28,7 @@ dependencies:
   - nodejs
   - altair
   - pydantic>2
-  - dacite
+  - stringcase
   - pyyaml
   - pillow
   - openpyxl
@@ -49,6 +49,8 @@ dependencies:
   - pip:
       - maplocal==0.1.1
       - pytest-sphinx
+      - jsonref
+      - pydantic-extra-types
 #  - xlsxwriter
 #  - xlsxtemplater
 #  - mf_file_utilities
