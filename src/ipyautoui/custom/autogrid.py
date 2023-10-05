@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -23,7 +23,7 @@ defines AutoGrid, a datagrid generated from a jsonschema."""
 # %run ../_dev_sys_path_append.py
 # %run __init__.py
 # %run ../__init__.py
-# %load_ext lab_black
+# # %load_ext lab_black
 
 import typing as ty
 import traitlets as tr
@@ -33,7 +33,7 @@ from pydantic import BaseModel, Field
 import ipyautoui.automapschema as asch
 from ipyautoui._utils import obj_from_importstr, frozenmap
 
-from ipydatagrid import CellRenderer, DataGrid, TextRenderer
+from ipydatagrid import CellRenderer, DataGrid, TextRenderer, VegaExpr
 from ipydatagrid.datagrid import SelectionHelper
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
@@ -478,6 +478,7 @@ class DataGrid(DataGrid):
     """extends DataGrid with useful generic functions"""
 
     global_decimal_places = tr.Int(default_value=None, allow_none=True)
+    hide_nan = tr.Bool(default_value=False)
     count_changes = tr.Int()
 
     @tr.default("count_changes")
@@ -485,20 +486,38 @@ class DataGrid(DataGrid):
         self._observe_changes()
         return 0
 
-    @tr.observe("global_decimal_places")
-    def _global_decimal_places(self, change):
-        newfmt = f".{str(self.global_decimal_places)}f"
-        number_cols = [
-            f["name"] for f in self.datagrid_schema_fields if f["type"] == "number"
-        ]
-        di = {}
-        for col in number_cols:
-            if col in self.renderers.keys():
-                if self.renderers[col].format is None:  # no overwrite format if set
-                    self.renderers[col].format = newfmt
-            else:
-                di[col] = TextRenderer(format=newfmt)
-        self.renderers = self.renderers | di
+    @tr.observe("global_decimal_places", "hide_nan")
+    def _set_text_value(self, change):
+        newfmt = f".{self.global_decimal_places}f"
+        global_decimal_place_vega_expr = f"""
+            if (
+                !isNumber(cell.value),
+                cell.value,
+                if (
+                    round(cell.value) == cell.value,
+                    cell.value,
+                    format(cell.value, '{newfmt}')
+                )
+            )
+        """ 
+        # ^ If not a number then return the value, else if the value is a whole number 
+        # then return the value, else format the value to the number of decimal places specified
+        if self.hide_nan:
+            vega_expr = f"""
+                if(
+                    !isValid(cell.value),
+                    ' ',
+                    {global_decimal_place_vega_expr}
+                )
+                """
+            # ^ If the value is not valid (i.e. NaN) then return a blank space, else return the value
+            # evaluated by global_decimal_place vega expression
+        else:
+            vega_expr = global_decimal_place_vega_expr
+        if self.default_renderer is None:
+            self.default_renderer = TextRenderer(VegaExpr(vega_expr)) 
+        else:
+            self.default_renderer.text_value = VegaExpr(vega_expr)
 
     @property
     def datagrid_schema_fields(self):
@@ -1224,3 +1243,31 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
 # -
+
+if __name__ == "__main__":
+    # Check hide_nan works
+    class DataFrameCols(BaseModel):
+        floater: float = Field(
+            None,
+        )
+        inty: int = Field(
+            None,
+        )
+        stringy: str = Field(
+            None,
+        )
+
+    class TestDataFrame(BaseModel):
+        __root__: ty.List[DataFrameCols] = Field(
+            format="dataframe",
+            global_decimal_places=2,
+            hide_nan=True,
+        )
+
+    grid = AutoGrid(
+        schema=TestDataFrame,
+        data=pd.DataFrame([DataFrameCols(inty=3, stringy="string").dict(), DataFrameCols(floater=2.555).dict()])
+    )
+    display(grid)
+
+
