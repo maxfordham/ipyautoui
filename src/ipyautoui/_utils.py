@@ -18,8 +18,8 @@ import getpass
 import logging
 
 logger = logging.getLogger(__name__)
-
 frozenmap = immutables.Map
+
 try:
     import maplocal
 

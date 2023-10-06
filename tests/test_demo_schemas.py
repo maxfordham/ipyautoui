@@ -4,12 +4,13 @@ from ipyautoui.demo_schemas import (
     CoreIpywidgets,
     ArrayObjectDataframe,
     OverrideIpywidgets,
+    # ScheduleRuleSet,
 )
 from ipyautoui import AutoUi
 
 
 def assert_no_error_widget_in_autoui(autoui):
-    for k, wi in autoui.di_widgets.items():
+    for k, wi in autoui.autowidget.di_widgets.items():
         nm = str(wi.__class__)
         try:
             assert "WidgetCallerError" not in nm
@@ -32,4 +33,9 @@ def test_ArrayObjectDataframe():
 
 def test_OverrideIpywidgets():
     autoui = AutoUi(OverrideIpywidgets)
+    assert_no_error_widget_in_autoui(autoui)
+
+
+def test_ScheduleRuleSet():
+    autoui = AutoUi(ScheduleRuleSet)
     assert_no_error_widget_in_autoui(autoui)

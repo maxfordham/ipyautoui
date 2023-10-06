@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.0
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -49,10 +49,7 @@ import enum
 import string
 import random
 import inspect
-from ipyautoui.automapschema import (
-    from_schema_method,
-    get_widget
-)
+from ipyautoui.automapschema import from_schema_method, get_widget
 from jsonref import replace_refs
 
 
@@ -155,7 +152,7 @@ class ItemBox(w.Box):
 # -
 
 
-class Array(w.VBox, TitleDescription):
+class Array(w.VBox):
     _value = tr.List()
     fn_add = tr.Callable(
         default_value=lambda **kwargs: w.ToggleButton(
@@ -247,8 +244,7 @@ class Array(w.VBox, TitleDescription):
         self.bx_boxes = w.Box()
         self.boxes = [ItemBox(n, obj=obj) for n, obj in enumerate(self.objects)]
         super().__init__(**kwargs)
-        self._update_title_description()
-        self.children = [self.html_title, self.bn_add_from_zero, self.bx_boxes]
+        self.children = [self.bn_add_from_zero, self.bx_boxes]
         self._init_controls()
         self._update_boxes()
         self._align_horizontal("on_change")
@@ -420,6 +416,13 @@ class AutoArray(Array):
             self.value = kwargs["value"]
 
 
+class AutoArrayForm(AutoArray, TitleDescription):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._update_title_description()
+        self.children = [self.html_title, self.bn_add_from_zero, self.bx_boxes]
+
+
 if __name__ == "__main__":
     from pydantic import RootModel, Field, BaseModel
     from ipyautoui.demo_schemas import ArrayWithUnionType, RootArray, RootArrayEnum
@@ -441,7 +444,7 @@ if __name__ == "__main__":
     v = MyObject(floaty=0.2).model_dump()
     s["value"] = [v]
     # ui = AutoArrayNew(**{**s, **{"value": v}})
-    ui = AutoArray(**s)
+    ui = AutoArrayForm(**s)
     display(ui)
 
 

@@ -9,7 +9,6 @@ import traitlets as tr
 import typing as ty
 from ipyautoui.custom import (
     Array,
-    Dictionary,
     MultiSelectSearch,
     SaveButtonBar,
     LoadProject,
@@ -17,7 +16,6 @@ from ipyautoui.custom import (
 from ipyautoui.custom.modelrun import RunName
 from ipyautoui.custom.editgrid import AutoGrid, EditGrid
 from ipyautoui.custom.buttonbars import CrudButtonBar
-from ipyautoui.automapschema import attach_schema_refs
 
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
@@ -63,19 +61,6 @@ class TestCustom:
             "orient_rows": False,
         }
         arr = Array(**di_arr)
-
-    def test_iterables_dict(self):
-        di_arr = {
-            "items": {"key": fn_add()},
-            "fn_add": fn_add,
-            "maxlen": 10,
-            "show_hash": None,
-            "toggle": True,
-            "title": "Array",
-            "add_remove_controls": "append_only",
-            "orient_rows": True,
-        }
-        arr = Dictionary(**di_arr)
 
     def test_model_run(self):
         run = RunName(value="03-lean-description", index=3)

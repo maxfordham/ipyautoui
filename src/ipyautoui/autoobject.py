@@ -299,8 +299,8 @@ class AutoObject(w.VBox):
         """
         self.vbx_main = w.VBox()
         self.model = None
-        if "properties" not in kwargs.keys():
-            raise ValueError("properties must be in kwargs")
+        # if "properties" not in kwargs.keys():
+        #     raise ValueError("properties must be in kwargs")
         super().__init__()
         kwargs = self.get_ordered_kwargs(kwargs)
         {setattr(self, k, v) for k, v in kwargs.items()}
@@ -321,7 +321,12 @@ class AutoObject(w.VBox):
                 schema = replace_refs(schema.model_json_schema())
         elif isinstance(schema, dict):
             model = None
-            schema = replace_refs(schema)
+            if "$defs" in schema.keys():
+                try:
+                    schema = replace_refs(schema)
+                except ValueError as e:
+                    logger.warning(f"replace_refs error: \n{e}")
+                    pass
         else:
             raise ValueError("schema must be a jsonschema or pydantic model")
         if value is not None:

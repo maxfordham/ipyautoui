@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 def _init_model_schema(
     schema, by_alias=False
 ) -> tuple[ty.Optional[ty.Type[BaseModel]], dict]:
-    if type(schema) == dict:
+    if isinstance(schema, dict):
         model = None  # jsonschema_to_pydantic(schema)
         # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM
         # jsonschema_to_pydantic
@@ -49,6 +49,7 @@ def _init_model_schema(
         schema = model.schema(by_alias=by_alias).copy()
 
     schema = replace_refs(schema)
+    schema = {k: v for k, v in schema.items() if k != "$defs"}
     return model, schema
 
 
@@ -58,7 +59,7 @@ def _init_model_schema(
 #     True
 #     """
 #     if "type" not in di.keys() and "anyOf" in di.keys():
-#         if "null" in [l["type"] for l in di["anyOf"]]:
+#         if "null" in [l.get("type") for l in di["anyOf"]]:
 #             return True
 #         else:
 #             return False
@@ -76,7 +77,7 @@ def _init_model_schema(
 #             kw = "allOf"
 #         else:
 #             raise ValueError("currently must have anyOf or allOf or type in schema")
-#         types = list(set([l["type"] for l in di[kw]]))
+#         types = list(set([l.get("type") for l in di[kw]]))
 #         if len(types) > 2:
 #             raise ValueError(
 #                 f"currently a single type must be specified. a specific type + null is also allowed. not {str([l['type'] for l in di['anyOf']])}"
@@ -117,6 +118,7 @@ def flatten_allOf(di: dict) -> dict:
         types = di[kw]
         for _ in types:
             di = {**di, **_}
+        del di[kw]
         return di
     else:
         return di
@@ -149,11 +151,11 @@ def is_anyof_widget(fn):
 def is_Nullable(fn: ty.Callable, di: dict) -> tuple[bool, bool]:
     # if not is_allowed_type(di):
     #     return False, False
-    allow_none = "null" in [l["type"] for l in di["anyOf"]]
+    allow_none = "null" in [l.get("type") for l in di["anyOf"]]
     if not allow_none and not is_anyof_widget(fn):
         return False, allow_none
     else:
-        non_null = [l for l in di["anyOf"] if l["type"] != "null"]
+        non_null = [l for l in di["anyOf"] if l.get("type") != "null"]
 
         if len(non_null) == 1:
             di = {k: v for k, v in di.items() if k != "anyOf"}
@@ -182,10 +184,13 @@ def is_AnyOf(di: dict, allow_none=False, checked_nullable=False):
     if not checked_nullable:
         return is_Nullable(is_AnyOf, di)
     else:
-        types = [l["type"] for l in di["anyOf"]]
+        types = [l.get("type") for l in di["anyOf"]]
         if len(set(types)) > 1:
             return True, allow_none
+        elif len(set(types)) == 1 and types[0] == "object":
+            return True, allow_none
         else:
+            logger.warning("anyOf with same types not implemented")
             return False, allow_none
 
 
@@ -525,7 +530,7 @@ def is_anyof_combobox(di: dict) -> bool:
             return li[0]
 
     types = di["anyOf"]
-    t = [l for l in types if l["type"]]
+    t = [l for l in types if l.get("type")]
     e = get_enum(t)
     if len(t) > 1 and e is not None:
         return True
@@ -876,8 +881,8 @@ def flatten_type_and_nullable(di: dict, fn=None) -> dict:
         else:
             raise ValueError("currently must have anyOf or allOf or type in schema")
         types = di[kw]
-        n = "null" in [l["type"] for l in types]
-        t = [l for l in types if l["type"] != "null"]  # [0]  # get non-null type
+        n = "null" in [l.get("type") for l in types]
+        t = [l for l in types if l.get("type") != "null"]  # [0]  # get non-null type
 
         def get_enum(t):
             li = [_["enum"] for _ in t if "enum" in _.keys()]
@@ -891,6 +896,7 @@ def flatten_type_and_nullable(di: dict, fn=None) -> dict:
             di["examples"] = e
         for _ in t:
             di = {**di, **_}
+        del di[kw]
         return {**di, **{"nullable": n}}
 
 
@@ -1218,7 +1224,12 @@ if __name__ == "__main__":
 def from_schema_method(
     cls, schema: ty.Union[ty.Type[BaseModel], dict], value: ty.Optional[dict] = None
 ):
-    schema = replace_refs(schema)
+    if "$defs" in schema.keys():
+        try:
+            schema = replace_refs(schema)
+        except ValueError as e:
+            logger.warning(f"replace_refs error: \n{e}")
+            pass
     ui = cls(**schema)
     ui.model = None
     return ui
