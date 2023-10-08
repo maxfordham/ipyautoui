@@ -444,7 +444,7 @@ if __name__ == "__main__":
     v = MyObject(floaty=0.2).model_dump()
     s["value"] = [v]
     # ui = AutoArrayNew(**{**s, **{"value": v}})
-    ui = AutoArrayForm(**s)
+    ui = AutoArrayForm.from_schema(s)
     display(ui)
 
 
