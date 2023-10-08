@@ -9,6 +9,8 @@ from ipyautoui.demo_schemas.array_object_dataframe import ArrayObjectDataframe
 import typing as ty
 from typing_extensions import Annotated
 from enum import Enum
+from jsonref import replace_refs
+from ipyautoui.automapschema import widgetcaller
 
 fpth_module = (
     pathlib.Path(__file__).parent.parent / "src" / "ipyautoui" / "automapschema.py"
@@ -139,3 +141,17 @@ def test_array_object_dataframe_map_widget():
             print(got, target)
             raise AssertionError(got, target)
     print("done")
+
+def test_union():
+
+    class MyObject(BaseModel):
+        stringy: str = Field("stringy", description="asdfsadf")
+        inty: int = 1
+        floaty: ty.Union[float, str] = 1.5
+
+    di = replace_refs(MyObject.model_json_schema())
+    caller = map_widget(di)
+    assert "anyOf" in caller.kwargs["properties"]["floaty"]
+    ui = widgetcaller(caller)
+    assert len(ui.di_widgets["floaty"].anyOf) == 2
+    
