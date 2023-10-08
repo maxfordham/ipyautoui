@@ -37,5 +37,6 @@ def test_OverrideIpywidgets():
 
 
 def test_ScheduleRuleSet():
+    from ipyautoui.demo_schemas.ruleset import ScheduleRuleSet
     autoui = AutoUi(ScheduleRuleSet)
     assert_no_error_widget_in_autoui(autoui)
