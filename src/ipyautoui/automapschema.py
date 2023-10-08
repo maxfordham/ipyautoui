@@ -1119,7 +1119,10 @@ def get_widgets_map(di_update=None):
                 widget=EditGrid,
                 li_fn_modify=[add_schema_key, add_max_layout],
             ),
-            "anyOf": WidgetMapper(fn_filt=is_AnyOf, widget=AnyOf),
+            "anyOf": WidgetMapper(fn_filt=is_AnyOf, 
+                widget=AnyOf,
+                li_fn_modify=[create_widget_caller],
+            ),
         }
     )
 

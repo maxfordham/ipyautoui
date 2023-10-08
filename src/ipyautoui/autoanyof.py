@@ -14,7 +14,6 @@
 # ---
 
 # %run _dev_sys_path_append.py
-# %run __init__.py
 # %load_ext lab_black
 
 import ipywidgets as w
@@ -100,13 +99,6 @@ class AnyOf(w.HBox):
     @tr.observe("anyOf")
     def _anyOf(self, on_change):
         get_name = lambda l: l["title"] if "title" in l else l["type"]
-        # get_type = (
-        #     lambda l: l["anyOf"]
-        #     if "anyOf" in l
-        #     elif l["type"]
-        #     if l["type"] != "object"
-        #     else l["type"] + "-" + "".join(l["properties"].keys())
-        # )
         self.map_title_type = {get_name(l): get_anyOf_type(l) for l in self.anyOf}
         self.titles = list(self.map_title_type.keys())
         self.select.options = self.titles
