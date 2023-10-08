@@ -3,7 +3,8 @@ from ipyautoui.autoobject import AutoObject
 import pytest
 import stringcase
 from ipyautoui.demo_schemas import RootEnum, RootArrayEnum, CoreIpywidgets
-
+import typing as ty
+from enum import Enum
 
 class TestAutoObject:
     def test_root(self):
@@ -22,24 +23,44 @@ class TestAutoObject:
 
 
 class TestAutoObjectRowOrder:
-    ui = AutoObject.from_schema(CoreIpywidgets)
-
     def test_order(self):
-        self.ui = AutoObject.from_schema(CoreIpywidgets)
+        ui = AutoObject.from_schema(CoreIpywidgets)
 
-        self.ui.order_can_hide_rows = False
+        ui.order_can_hide_rows = False
         # ui.order =
-        order = self.ui.default_order[0:3]
+        order = ui.default_order[0:3]
         try:
-            self.ui.order = order
+            ui.order = order
         except:
             assert True == True
 
-        self.ui.order_can_hide_rows = True
-        assert self.ui.order_can_hide_rows == True
-        self.ui.order = order
-        assert len(self.ui.vbx_main.children) == 3
+        ui.order_can_hide_rows = True
+        assert ui.order_can_hide_rows == True
+        ui.order = order
+        assert len(ui.vbx_main.children) == 3
 
-        self.ui.order_can_hide_rows = False
-        assert self.ui.order == self.ui.default_order
-        assert len(self.ui.vbx_main.children) == len(self.ui.default_order)
+        ui.order_can_hide_rows = False
+        assert ui.order == ui.default_order
+        assert len(ui.vbx_main.children) == len(ui.default_order)
+
+class TestAnyOf:
+    def test_recursive_anyof(self):
+
+        class RuleSetType(str, Enum):
+            """how the rules logically multiply. Must be `AND` for schedules"""
+            AND: str = "AND"
+            OR: str = "OR"
+
+        class Obj(BaseModel):
+            a: int
+            b: str
+
+        ObjSet = ty.ForwardRef("ObjSet")
+
+        class ObjSet(BaseModel):
+            op_type: RuleSetType
+            obj_set: list[ty.Union[Obj, ObjSet]]
+
+        ui = AutoObject.from_schema(ObjSet)
+        assert "anyOf" in ui.di_callers['obj_set'].kwargs["items"]
+
