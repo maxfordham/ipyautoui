@@ -36,10 +36,7 @@ from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
-
 # -
-
-
 def _get_value_trait(obj_with_traits):
     """gets the trait type for a given object (looks for "_value" and
     "value" allowing use of setters and getters)
@@ -133,7 +130,7 @@ class AutoObject(w.VBox):
     @tr.observe("allOf")  # TODO: is this requried?
     def _allOf(self, on_change):
         if self.allOf is not None and len(self.allOf) == 1:
-            self.properties = self.allOf[0]
+            self.properties = self.allOf[0]["properties"]
         else:
             raise ValueError("allOf not supported from objects")
 
@@ -456,7 +453,6 @@ class AutoObject(w.VBox):
 # +
 from ipyautoui.autoform import AutoObjectFormLayout
 
-
 class AutoObjectForm(AutoObject, AutoObjectFormLayout):
     def __init__(self, **kwargs):
         super().__init__(
@@ -477,7 +473,6 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout):
     def display_showraw(self):  # NOTE: this overwritten this in AutoObjectForm
         self.vbx_main.layout.display = "None"
         return self.json
-
 
 # -
 
@@ -516,18 +511,6 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     ui.order_can_hide_rows = False
-
-# +
-# summarize_di_callers
-# s_sch = f"""
-# ```json
-# {json.dumps(di, indent=4)}
-# ```
-# """
-# from IPython.display import Markdown
-
-# Markdown(s_sch)
-# -
 
 if __name__ == "__main__":
     ui.show_savebuttonbar = True
