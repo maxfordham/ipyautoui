@@ -20,7 +20,6 @@
 """widget caller error"""
 # %load_ext lab_black
 # %run ../_dev_sys_path_append.py
-# %run __init__.py
 # %run ../__init__.py
 
 # %%

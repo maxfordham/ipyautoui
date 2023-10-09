@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -17,8 +17,6 @@
 
 """generic support for observed title and description"""
 # %run ../_dev_sys_path_append.py
-# %run __init__.py
-# %run ../__init__.py
 # %load_ext lab_black
 
 import traitlets as tr
@@ -53,7 +51,7 @@ class TitleDescription(tr.HasTraits):
             else:
                 self.html_title.layout.display = ""
                 get = lambda v: "" if v is None else v
-                get_des = lambda v: "" if v is None else ", "+v
+                get_des = lambda v: "" if v is None else ", " + v
                 self.html_title.value = (
                     f"<b>{get(self.title)}</b><i>{get_des(self.description)}</i>"
                 )

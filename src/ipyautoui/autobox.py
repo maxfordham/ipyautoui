@@ -16,7 +16,6 @@
 """create a simple row item for a form. contains some simple automated layout features
 """
 # %run _dev_sys_path_append.py
-# %run __init__.py
 # %load_ext lab_black
 
 # +

@@ -21,7 +21,6 @@ contains methods for validation, coercion, and default values.
 
 defines AutoGrid, a datagrid generated from a jsonschema."""
 # %run ../_dev_sys_path_append.py
-# %run __init__.py
 # %load_ext lab_black
 
 import typing as ty
