@@ -488,36 +488,34 @@ class DataGrid(DataGrid):
 
     @tr.observe("global_decimal_places", "hide_nan")
     def _set_text_value(self, change):
-        newfmt = f".{self.global_decimal_places}f"
-        global_decimal_place_vega_expr = f"""
-            if (
-                !isNumber(cell.value),
-                cell.value,
+        if self.global_decimal_places is None:
+            vega_expr = "cell.value"
+        else:
+            newfmt = f".{self.global_decimal_places}f"
+            vega_expr = f"""
                 if (
-                    round(cell.value) == cell.value,
+                    !isNumber(cell.value),
                     cell.value,
-                    format(cell.value, '{newfmt}')
+                    if (
+                        round(cell.value) == cell.value,
+                        cell.value,
+                        format(cell.value, '{newfmt}')
+                    )
                 )
-            )
-        """ 
-        # ^ If not a number then return the value, else if the value is a whole number 
-        # then return the value, else format the value to the number of decimal places specified
+            """ 
+            # ^ If not a number then return the value, else if the value is a whole number 
+            # then return the value, else format the value to the number of decimal places specified
         if self.hide_nan:
             vega_expr = f"""
                 if(
                     !isValid(cell.value),
                     ' ',
-                    {global_decimal_place_vega_expr}
+                    {vega_expr}
                 )
                 """
             # ^ If the value is not valid (i.e. NaN) then return a blank space, else return the value
             # evaluated by global_decimal_place vega expression
-        else:
-            vega_expr = global_decimal_place_vega_expr
-        if self.default_renderer is None:
-            self.default_renderer = TextRenderer(VegaExpr(vega_expr)) 
-        else:
-            self.default_renderer.text_value = VegaExpr(vega_expr)
+        self.default_renderer.text_value = VegaExpr(vega_expr)
 
     @property
     def datagrid_schema_fields(self):
@@ -1260,7 +1258,6 @@ if __name__ == "__main__":
     class TestDataFrame(BaseModel):
         __root__: ty.List[DataFrameCols] = Field(
             format="dataframe",
-            global_decimal_places=2,
             hide_nan=True,
         )
 
