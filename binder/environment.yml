@@ -10,22 +10,21 @@ dependencies:
   - python>=3.7
   - numpy
   - pandas
-  - jupyterlab>=3.0.14
+  - jupyterlab
   - jupyterlab-unfold
   - xeus-python
   - ipywidgets
   - ipyfilechooser
   - ipydatagrid
   - ipyvuetify
-  - voila>=0.2.11
+  - voila
   - plotly
   - halo
   - jupytext
   - markdown
   - nodejs
   - altair
-  - pydantic
-  - dacite
+  - pydantic>2
   - pyyaml
   - openpyxl
   - black
@@ -36,3 +35,5 @@ dependencies:
   - pip
   - pip:
       - maplocal==0.1.1
+      - jsonref
+      - pydantic-extra-types

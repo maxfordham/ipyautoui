@@ -21,8 +21,6 @@ contains methods for validation, coercion, and default values.
 
 defines AutoGrid, a datagrid generated from a jsonschema."""
 # %run ../_dev_sys_path_append.py
-# %run __init__.py
-# %run ../__init__.py
 # %load_ext lab_black
 
 import typing as ty
@@ -37,10 +35,6 @@ from ipydatagrid import CellRenderer, DataGrid, TextRenderer
 from ipydatagrid.datagrid import SelectionHelper
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
-# -
-
-
-
 
 
 # +
@@ -453,8 +447,6 @@ class GridSchema:
 
 
 # -
-
-
 if __name__ == "__main__":
     from pydantic import RootModel
 
@@ -484,6 +476,11 @@ class DataGrid(DataGrid):
 
     global_decimal_places = tr.Int(default_value=None, allow_none=True)
     count_changes = tr.Int()
+    map_name_index = tr.Dict()
+
+    @property
+    def map_index_name(self):
+        return {v: k for k, v in self.map_name_index.items()}
 
     @tr.default("count_changes")
     def _default_count_changes(self):
@@ -571,6 +568,7 @@ class DataGrid(DataGrid):
 
 # +
 # datagrid_index = "title"
+# from ipyautoui.automapschema import from_schema_method
 
 
 class AutoGrid(DataGrid):
@@ -586,9 +584,14 @@ class AutoGrid(DataGrid):
 
     """
 
-    schema = tr.Dict()
+    schema = tr.Dict()  # TODO: deprecate / make optional...
     transposed = tr.Bool(default_value=False)
     order = tr.Tuple(default_value=None, allow_none=True)
+    datagrid_index_name = tr.Union(trait_types=[tr.Unicode(), tr.Tuple()])
+
+    # @classmethod
+    # def from_schema(cls, schema, value=None):
+    #     return from_schema_method(cls, schema, value=value)
 
     @tr.observe("schema")
     def _update_from_schema(self, change):
@@ -612,7 +615,7 @@ class AutoGrid(DataGrid):
         if not set(self.order) <= set(self.gridschema.properties.keys()):
             raise ValueError(
                 "set(self.order) <= set(self.gridschema.properties.keys()) must be"
-                " true. (i.e. on valid scheam properties allowed)"
+                " true. (i.e. only valid scheam properties allowed)"
             )
         if self.transposed:
             data = self.data.T
@@ -780,6 +783,8 @@ class AutoGrid(DataGrid):
         """
         set row (transposed==False) or col (transposed==True) value
         """
+        if self.order is not None:
+            value = {o: value[o] for o in self.order}
         if self.transposed:
             return self.set_col_value(index, value)
         else:
@@ -1111,7 +1116,9 @@ if __name__ == "__main__":
     )
     display(grid)
     grid.data = grid._init_data(
-        pd.DataFrame([DataFrameCols(string="test", floater=2.45, integer=2).dict()])
+        pd.DataFrame(
+            [DataFrameCols(string="test", floater=2.45, integer=2).model_dump()]
+        )
     )
 
 # +
@@ -1173,17 +1180,17 @@ if __name__ == "__main__":
 # grid.selections
 
 # +
-
-
 if __name__ == "__main__":
     grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)  # .T
 
 if __name__ == "__main__":
     print(grid.is_transposed)
+# -
 
 if __name__ == "__main__":
     grid.transposed = True
 
+# +
 if __name__ == "__main__":
     grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
 
@@ -1203,6 +1210,7 @@ if __name__ == "__main__":
     print(grid.count_changes)
 
 if __name__ == "__main__":
+    from pydantic import RootModel
 
     class DataFrameCols(BaseModel):
         string: str = Field(
@@ -1218,9 +1226,9 @@ if __name__ == "__main__":
             section="b",  # , renderer={"format": ".2f"}
         )
 
-    class TestDataFrame(BaseModel):
+    class TestDataFrame(RootModel):
         # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
-        __root__: ty.List[DataFrameCols] = Field(
+        root: ty.List[DataFrameCols] = Field(
             [DataFrameCols()],
             format="dataframe",
             global_decimal_places=2,
@@ -1238,3 +1246,4 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
+# -

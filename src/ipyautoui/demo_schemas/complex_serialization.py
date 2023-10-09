@@ -1,5 +1,5 @@
 from ipyautoui.basemodel import BaseModel
-from pydantic import Field
+from pydantic import Field, conint
 from datetime import datetime, date
 import pathlib
 import typing as ty
@@ -20,3 +20,6 @@ class ComplexSerialisation(BaseModel):
     ] = datetime.now()  # TODO: update with ipywidgets-v8 # TODO: fix this!
     color_picker_ipywidgets: Color = "#f5f595"
     markdown: str = Field(json_schema_extra=dict(format="markdown"))
+    anyof: ty.Union[conint(ge=0, le=3), str] = Field(
+        description="anyof widget. once selected the type is fixed."
+    )

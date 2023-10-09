@@ -15,29 +15,30 @@
 
 # +
 # %run _dev_sys_path_append.py
-# %run __init__.py
 # %load_ext lab_black
 
 import typing as ty
 import ipywidgets as w
 from pydantic import BaseModel, Field
-import ipyautoui.autowidgets as auiwidgets
+from ipyautoui.nullable import nullable
 from ipyautoui._utils import frozenmap, obj_from_importstr
 from jsonref import replace_refs
 from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET
 from ipyautoui._utils import remove_non_present_kwargs
-from copy import deepcopy
-
-from ipyautoui.autowidgets import create_widget_caller
 from ipyautoui.custom.markdown_widget import MarkdownWidget
 from ipyautoui.custom.filechooser import FileChooser
 from ipyautoui.custom.date_string import DatePickerString
+from ipyautoui.autobox import AutoBox
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _init_model_schema(
     schema, by_alias=False
 ) -> tuple[ty.Optional[ty.Type[BaseModel]], dict]:
-    if type(schema) == dict:
+    if isinstance(schema, dict):
         model = None  # jsonschema_to_pydantic(schema)
         # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM
         # jsonschema_to_pydantic
@@ -47,6 +48,7 @@ def _init_model_schema(
         schema = model.schema(by_alias=by_alias).copy()
 
     schema = replace_refs(schema)
+    schema = {k: v for k, v in schema.items() if k != "$defs"}
     return model, schema
 
 
@@ -56,7 +58,7 @@ def _init_model_schema(
 #     True
 #     """
 #     if "type" not in di.keys() and "anyOf" in di.keys():
-#         if "null" in [l["type"] for l in di["anyOf"]]:
+#         if "null" in [l.get("type") for l in di["anyOf"]]:
 #             return True
 #         else:
 #             return False
@@ -74,7 +76,7 @@ def _init_model_schema(
 #             kw = "allOf"
 #         else:
 #             raise ValueError("currently must have anyOf or allOf or type in schema")
-#         types = list(set([l["type"] for l in di[kw]]))
+#         types = list(set([l.get("type") for l in di[kw]]))
 #         if len(types) > 2:
 #             raise ValueError(
 #                 f"currently a single type must be specified. a specific type + null is also allowed. not {str([l['type'] for l in di['anyOf']])}"
@@ -90,66 +92,140 @@ def _init_model_schema(
 #     return type_, nullable
 
 
-def flatten_type_and_nullable(di: dict, fn=None) -> dict:
-    if "type" in di.keys():
-        return {**di, **{"nullable": False}}
+def is_allowed_type(di: dict) -> bool:
+    #  https://json-schema.org/understanding-json-schema/reference/combining.html
+    if "anyOf" in di:
+        return True
+    elif "allOf" in di:  # do something...
+        logger.warning(f"allOf not implemented \nGiven : {str(di)}")
+        return False
+    elif "oneOf" in di:
+        logger.warning(f"allOf not implemented \nGiven : {str(di)}")
+        return False
+    elif "not" in di:
+        logger.warning(f"allOf not implemented \nGiven : {str(di)}")
+        return False
     else:
-        if "anyOf" in di.keys():
-            kw = "anyOf"
-        elif "allOf" in di.keys():
-            kw = "allOf"
-        else:
-            raise ValueError("currently must have anyOf or allOf or type in schema")
+        raise ValueError(
+            f"of: anyOf, allOf, oneOf or not, only anyOf is supported. \n Given : {str(di)}"
+        )
+
+
+def flatten_allOf(di: dict) -> dict:
+    if "allOf" in di.keys():
+        kw = "allOf"
         types = di[kw]
-        n = "null" in [l["type"] for l in types]
-        t = [l for l in types if l["type"] != "null"]  # [0]  # get non-null type
-
-        def get_enum(t):
-            li = [_["enum"] for _ in t if "enum" in _.keys()]
-            if len(li) == 0:
-                return None
-            else:
-                return li[0]
-
-        e = get_enum(t)
-        if len(t) > 1 and e is not None:
-            di["examples"] = e
-        for _ in t:
+        for _ in types:
             di = {**di, **_}
-        return {**di, **{"nullable": n}}
+        del di[kw]
+        return di
+    else:
+        return di
 
 
-def add_schema_key(di: dict, wi=None) -> dict:
-    return {"schema": di}
+def handle_null_or_unknown_types(fn, di: dict) -> tuple[bool, bool]:
+    if "anyOf" in di:
+        return is_Nullable(fn, di)
+    elif "allOf" in di:  # do something...
+        logger.info(
+            f"allOf not properly implemented. it is flattened and re-evaluated.\nGiven : {str(di)}"
+        )
+        return fn(flatten_allOf(di))
+    elif "oneOf" in di:
+        logger.warning(f"oneOf not implemented \nGiven : {str(di)}")
+        return False, False
+    elif "not" in di:
+        logger.warning(f"not not implemented \nGiven : {str(di)}")
+        return False, False
+    else:
+        raise ValueError(
+            f"of: anyOf, allOf, oneOf or not, only anyOf is supported. \n Given : {str(di)}"
+        )
 
 
-def is_IntText(di: dict) -> tuple[bool, bool]:
+def is_anyof_widget(fn):
+    return fn.__name__ == "is_AnyOf" or fn.__name__ == "is_Combobox"
+
+
+def is_Nullable(fn: ty.Callable, di: dict) -> tuple[bool, bool]:
+    # if not is_allowed_type(di):
+    #     return False, False
+    allow_none = "null" in [l.get("type") for l in di["anyOf"]]
+    if not allow_none and not is_anyof_widget(fn):
+        return False, allow_none
+    else:
+        non_null = [l for l in di["anyOf"] if l.get("type") != "null"]
+
+        if len(non_null) == 1:
+            di = {k: v for k, v in di.items() if k != "anyOf"}
+            di = {**di, **non_null[0]}
+            return fn(di, allow_none=allow_none, checked_nullable=True)
+        else:
+            di["anyOf"] = non_null
+            if fn.__name__ == "is_AnyOf" or fn.__name__ == "is_Combobox":
+                return fn(di, allow_none=allow_none, checked_nullable=True)
+            return False, allow_none
+
+
+def is_AnyOf(di: dict, allow_none=False, checked_nullable=False):
+    """
+    ```py
+    from ipyautoui.automapschema import is_AnyOf
+
+    print(is_AnyOf({'title': 'Int Text', "anyOf": [{'default': 1, 'type': 'integer'}, {"type": "string"}]}))
+    #> (True, False)
+    ```
+    """
+    if "anyOf" not in di:
+        return False, allow_none
+    if is_anyof_combobox(di):
+        return False, allow_none
+    if not checked_nullable:
+        return is_Nullable(is_AnyOf, di)
+    else:
+        types = [l.get("type") for l in di["anyOf"]]
+        if len(set(types)) > 1:
+            return True, allow_none
+        elif len(set(types)) == 1 and types[0] == "object":
+            return True, allow_none
+        else:
+            logger.warning("anyOf with same types not implemented")
+            return False, allow_none
+
+
+def is_IntText(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, bool]:
+    """
+    ```py
+    from ipyautoui.automapschema import is_IntText
+
+    is_IntText({'title': 'Int Text', 'default': 1, 'type': 'integer'})
+    (True, False)
+    is_IntText({'title': 'Int Text', 'default': 1, 'type': 'number'})
+    (False, False)
+    is_IntText({'title': 'floater', 'default': 1.33, 'type': 'number'})
+    (False, False)
+    is_IntText({'title': 'floater', 'default':1, 'anyOf': [{'type': 'integer'},{'type': 'null'}]})
+    (True, True)
+    ```
     """
 
-    Example:
-        is_IntText({'title': 'Int Text', 'default': 1, 'type': 'integer'})
-        (True, False)
-        is_IntText({'title': 'Int Text', 'default': 1, 'type': 'number'})
-        (False, False)
-        is_IntText({'title': 'floater', 'default': 1.33, 'type': 'number'})
-        (False, False)
-        is_IntText({'title': 'floater', 'default': 1.33, 'anyOf': [{'type': 'string'},{'type': 'null'}]})
-        (False, True)
-    """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_IntText, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not t == "integer":
-        return False, n
+        return False, allow_none
     if "minimum" and "maximum" in di.keys():
-        return False, n
+        return False, allow_none
     if "enum" in di.keys() or "examples" in di.keys():
-        return False, n
-    return True, n
+        return False, allow_none
+    return True, allow_none
 
 
-def is_IntSlider(di: dict) -> tuple[bool, bool]:
+def is_IntSlider(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
     """
     ```py
     from ipyautoui.automapschema import is_IntSlider
@@ -166,20 +242,24 @@ def is_IntSlider(di: dict) -> tuple[bool, bool]:
     #> (True, True)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_IntSlider, di)
+    t = di["type"]
+
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not t == "integer":
-        return False, n
+        return False, allow_none
     if "minimum" and "maximum" in di.keys():
-        return True, n
+        return True, allow_none
     if "enum" in di.keys() or "examples" in di.keys():
-        return False, n
-    return False, n
+        return False, allow_none
+    return False, allow_none
 
 
-def is_FloatText(di: dict) -> tuple[bool, bool]:
+def is_FloatText(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
     """
 
     ```py
@@ -193,20 +273,23 @@ def is_FloatText(di: dict) -> tuple[bool, bool]:
     #> (False, False)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_FloatText, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not t == "number":
-        return False, n
+        return False, allow_none
     if "minimum" and "maximum" in di.keys():
-        return False, n
+        return False, allow_none
     if "enum" in di.keys() or "examples" in di.keys():
-        return False, n
-    return True, n
+        return False, allow_none
+    return True, allow_none
 
 
-def is_FloatSlider(di: dict) -> tuple[bool, bool]:
+def is_FloatSlider(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
     """
     ```py
     from ipyautoui.automapschema import is_FloatSlider
@@ -221,17 +304,18 @@ def is_FloatSlider(di: dict) -> tuple[bool, bool]:
     #> (True, False)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_FloatSlider, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not t == "number":
-        return False, n
+        return False, allow_none
     if "minimum" and "maximum" not in di.keys():
-        return False, n
+        return False, allow_none
     if "enum" in di.keys() or "examples" in di.keys():
-        return False, n
-    return True, n
+        return False, allow_none
+    return True, allow_none
 
 
 def is_range(di, is_type="numeric"):
@@ -274,7 +358,9 @@ def is_range(di, is_type="numeric"):
     return True
 
 
-def is_IntRangeSlider(di: dict) -> tuple[bool, bool]:
+def is_IntRangeSlider(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
     """
     Example:
     ```py
@@ -294,16 +380,19 @@ def is_IntRangeSlider(di: dict) -> tuple[bool, bool]:
     #> (True, True)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_IntRangeSlider, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if t == "array" and is_range(di, is_type="integer"):
-        return True, n
-    return False, n
+        return True, allow_none
+    return False, allow_none
 
 
-def is_FloatRangeSlider(di: dict) -> tuple[bool, bool]:
+def is_FloatRangeSlider(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
     """
     Example:
     ```py
@@ -323,16 +412,17 @@ def is_FloatRangeSlider(di: dict) -> tuple[bool, bool]:
     #> (True, True)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_FloatRangeSlider, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if t == "array" and is_range(di, is_type="number"):
-        return True, n
-    return False, n
+        return True, allow_none
+    return False, allow_none
 
 
-def is_Date(di: dict) -> tuple[bool, bool]:
+def is_Date(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, bool]:
     """
     ```py
     from ipyautoui.automapschema import is_Date# , is_Text
@@ -343,22 +433,23 @@ def is_Date(di: dict) -> tuple[bool, bool]:
     # #> print(False)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_Date, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not t == t:
-        return False, n
+        return False, allow_none
     if not "format" in di.keys():
-        return False, n
+        return False, allow_none
     if "format" in di.keys() and di["format"] != "date":
-        return False, n
+        return False, allow_none
     if "enum" in di.keys() or "examples" in di.keys():
-        return False, n
-    return True, n
+        return False, allow_none
+    return True, allow_none
 
 
-def is_Color(di: dict) -> tuple[bool, bool]:
+def is_Color(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, bool]:
     """check if schema object is a color
 
     Args:
@@ -378,23 +469,24 @@ def is_Color(di: dict) -> tuple[bool, bool]:
         #> (False, False)
         ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_Color, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not t == "string":
-        return False, n
+        return False, allow_none
     if not "format" in di.keys():
-        return False, n
+        return False, allow_none
     if "enum" in di.keys() or "examples" in di.keys():
-        return False, n
+        return False, allow_none
     if "format" in di.keys() and "color" in di["format"]:
-        return True, n
+        return True, allow_none
     else:
-        return False, n
+        return False, allow_none
 
 
-def is_Path(di: dict) -> tuple[bool, bool]:
+def is_Path(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, bool]:
     """check if schema object is a path
 
     Args:
@@ -411,23 +503,43 @@ def is_Path(di: dict) -> tuple[bool, bool]:
         #> (True, False)
         ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_Path, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not t == "string":
-        return False, n
+        return False, allow_none
     if not "format" in di.keys():
-        return False, n
+        return False, allow_none
     if "enum" in di.keys() or "examples" in di.keys():
-        return False, n
+        return False, allow_none
     if "format" in di.keys() and di["format"] == "path":
-        return True, n
+        return True, allow_none
     else:
-        return False, n
+        return False, allow_none
 
 
-def is_Combobox(di: dict) -> tuple[bool, bool]:
+def is_anyof_combobox(di: dict) -> bool:
+    def get_enum(t):
+        li = [_["enum"] for _ in t if "enum" in _.keys()]
+        if len(li) == 0:
+            return None
+        else:
+            return li[0]
+
+    types = di["anyOf"]
+    t = [l for l in types if l.get("type")]
+    e = get_enum(t)
+    if len(t) > 1 and e is not None:
+        return True
+    else:
+        return False
+
+
+def is_Combobox(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
     """
     ```py
     from ipyautoui.automapschema import is_Combobox
@@ -440,36 +552,45 @@ def is_Combobox(di: dict) -> tuple[bool, bool]:
     #> (True, False)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if "examples" in di.keys():
-        return True, n
+        return True, allow_none
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_Combobox, di)
+    if "type" not in di.keys() and checked_nullable:
+        return is_anyof_combobox(di), allow_none
     else:
-        return False, n
+        return False, allow_none
 
 
-def is_Dropdown(di: dict) -> tuple[bool, bool]:
+def is_Dropdown(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
     """
     ```py
     from ipyautoui.automapschema import is_Dropdown
     di = {"title": "Dropdown", "enum": [1,2], "type": "integer"}
     print(is_Dropdown(di))
     #> (True, False)
+    di = {"title": "Dropdown", "enum": [1,2], "anyOf":[ {"type": "integer"}, {"type": "null"}]}
+    print(is_Dropdown(di))
+    #> (True, True)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_Dropdown, di)
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if "enum" in di.keys() and "examples" not in di.keys():
-        return True, n
+        return True, allow_none
     else:
-        return False, n
+        return False, allow_none
 
 
-def is_Markdown(di: dict) -> tuple[bool, bool]:
+def is_Markdown(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
     """
     ```py
     from ipyautoui.automapschema import is_Markdown
@@ -478,17 +599,18 @@ def is_Markdown(di: dict) -> tuple[bool, bool]:
     #> (True, False)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_Markdown, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not t == "string":
-        return False, n
+        return False, allow_none
     if not "format" in di.keys():
-        return False, n
+        return False, allow_none
     if "format" in di.keys() and "markdown" == di["format"]:
-        return True, n
-    return False, n
+        return True, allow_none
+    return False, allow_none
 
 
 def isnot_Text(di: dict) -> bool:
@@ -503,7 +625,7 @@ def isnot_Text(di: dict) -> bool:
     return False
 
 
-def is_Text(di: dict) -> tuple[bool, bool]:
+def is_Text(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, bool]:
     """check if schema object is a Text
 
     Args:
@@ -520,25 +642,31 @@ def is_Text(di: dict) -> tuple[bool, bool]:
     di = {"title": "Text", "default": 210*"s", "type": "string", "maxLength":210}
     print(is_Text(di))
     #> (False, False)
+    di = {"title": "Text", "default": 199*"s", "anyOf": [{"type":"string"}, {"type":"null"}]}
+    print(is_Text(di))
+    #> (True, True)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_Text, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not t == "string":
-        return False, n
+        return False, allow_none
     if "maxLength" in di.keys() and di["maxLength"] >= 200:
-        return False, n
+        return False, allow_none
     if "enum" in di.keys() or "examples" in di.keys():
-        return False, n
+        return False, allow_none
     if isnot_Text(di):
-        return False, n
+        return False, allow_none
     else:
-        return True, n
+        return True, allow_none
 
 
-def is_Textarea(di: dict, max_length=200) -> tuple[bool, bool]:
+def is_Textarea(
+    di: dict, max_length=200, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
     """check if schema object is a is_Textarea
 
     Args:
@@ -547,35 +675,37 @@ def is_Textarea(di: dict, max_length=200) -> tuple[bool, bool]:
     Returns:
         bool: is the object a is_Textarea
 
-    Example:
-        >>> di = {"title": "Text", "default": 210*"s", "type": "string", "maxLength":210}
-        >>> is_Textarea(di)
-        True
-
     ```py
     from ipyautoui.automapschema import is_Textarea
     di = {"title": "Text", "default": 210*"s", "type": "string", "maxLength":210}
     print(is_Textarea(di))
     #> (True, False)
+    d = 210*"s"
+    di = {"title": "Text",  "anyOf": [{"type":"string", "maxLength":210, "default": d}, {"type":"null"}]}
+    print(is_Textarea(di))
+    #> (True, True)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_Textarea, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not t == "string":
-        return False, n
+        return False, allow_none
     if "enum" in di.keys() or "examples" in di.keys():
-        return False, n
+        return False, allow_none
     if "maxLength" not in di.keys():
-        return False, n
+        return False, allow_none
     if "maxLength" in di.keys() and di["maxLength"] >= max_length:  # i.e. == long text
-        return True, n
+        return True, allow_none
     else:
-        return False, n
+        return False, allow_none
 
 
-def is_SelectMultiple(di: dict) -> tuple[bool, bool]:
+def is_SelectMultiple(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
     """
     ```py
     from ipyautoui.automapschema import is_SelectMultiple
@@ -584,18 +714,21 @@ def is_SelectMultiple(di: dict) -> tuple[bool, bool]:
     #> (True, False)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_SelectMultiple, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not "enum" in di.keys():
-        return False, n
+        return False, allow_none
     if t != "array":
-        return False, n
-    return True, n
+        return False, allow_none
+    return True, allow_none
 
 
-def is_Checkbox(di: dict) -> tuple[bool, bool]:
+def is_Checkbox(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
     """
     ```py
     from ipyautoui.automapschema import is_Checkbox
@@ -604,24 +737,27 @@ def is_Checkbox(di: dict) -> tuple[bool, bool]:
     #> (True, False)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_Checkbox, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if t != "boolean":
-        return False, n
-    return True, n
+        return False, allow_none
+    return True, allow_none
 
 
-def is_AutoOveride(di: dict) -> tuple[bool, bool]:
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+def is_AutoOveride(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_AutoOveride, di)
     if "autoui" not in di.keys():
-        return False, n
-    return True, n
+        return False, allow_none
+    return True, allow_none
 
 
-def is_Object(di: dict) -> tuple[bool, bool]:
+def is_Object(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, bool]:
     """
     ```py
     from ipyautoui.automapschema import is_Object
@@ -630,16 +766,19 @@ def is_Object(di: dict) -> tuple[bool, bool]:
     #> (True, False)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_Object, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not t == "object":
-        return False, n
-    return True, n
+        return False, allow_none
+    return True, allow_none
 
 
-def is_DataFrame(di: dict) -> tuple[bool, bool]:
+def is_DataFrame(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
     """
     ```py
     from ipyautoui.automapschema import is_DataFrame
@@ -648,20 +787,21 @@ def is_DataFrame(di: dict) -> tuple[bool, bool]:
     #> (True, False)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_DataFrame, di)
+    t = di["type"]
     if not t == "array":
-        return False, n
+        return False, allow_none
     if "format" in di.keys():
         if di["format"].lower() == "dataframe":
-            return True, n
+            return True, allow_none
         else:
-            return False, n
+            return False, allow_none
     else:
-        return False, n
+        return False, allow_none
 
 
-def is_Array(di: dict) -> tuple[bool, bool]:
+def is_Array(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, bool]:
     """
     ```py
     from ipyautoui.automapschema import is_Array
@@ -670,19 +810,20 @@ def is_Array(di: dict) -> tuple[bool, bool]:
     #> (True, False)
     ```
     """
-    di = flatten_type_and_nullable(di)
-    t, n = di["type"], di["nullable"]
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_Array, di)
+    t = di["type"]
     if "autoui" in di.keys():
-        return False, n
+        return False, allow_none
     if not t == "array":
-        return False, n
+        return False, allow_none
     if is_range(di):
-        return False, n
+        return False, allow_none
     if "enum" in di.keys():
-        return False, n  # as this is picked up from SelectMultiple
-    if is_DataFrame(di)[0]:
-        return False, n
-    return True, n
+        return False, allow_none  # as this is picked up from SelectMultiple
+    if is_DataFrame(di, checked_nullable=checked_nullable)[0]:
+        return False, allow_none
+    return True, allow_none
 
 
 def update_keys(di, di_map=MAP_JSONSCHEMA_TO_IPYWIDGET):
@@ -690,7 +831,11 @@ def update_keys(di, di_map=MAP_JSONSCHEMA_TO_IPYWIDGET):
     return {update_key(k, di_map): v for k, v in di.items()}
 
 
-def create_widget_caller(schema, calling=None):
+def remove_title_and_description(di):
+    return {k: v for k, v in di.items() if k != "description" and k != "title"}
+
+
+def create_widget_caller(schema, calling=None, remove_title=True):
     """
     creates a "caller" object from the schema.
     this renames schema keys as follows to match ipywidgets:
@@ -716,13 +861,50 @@ def create_widget_caller(schema, calling=None):
             initialised like ```calling(**caller)```
 
     """
-    caller = deepcopy(schema)
     caller = update_keys(schema)
-    caller = {k: v for k, v in caller.items() if k != "description"}
-    caller = {k: v for k, v in caller.items() if k != "title"}
+    if remove_title:
+        caller = remove_title_and_description(caller)
     if calling is not None:
         caller = remove_non_present_kwargs(calling, caller)
     return caller
+
+
+def flatten_type_and_nullable(di: dict, fn=None) -> dict:
+    if "type" in di.keys():
+        return {**di, **{"nullable": False}}
+    else:
+        if "anyOf" in di.keys():
+            kw = "anyOf"
+        elif "allOf" in di.keys():
+            kw = "allOf"
+        else:
+            raise ValueError("currently must have anyOf or allOf or type in schema")
+        types = di[kw]
+        n = "null" in [l.get("type") for l in types]
+        t = [l for l in types if l.get("type") != "null"]  # [0]  # get non-null type
+
+        def get_enum(t):
+            li = [_["enum"] for _ in t if "enum" in _.keys()]
+            if len(li) == 0:
+                return None
+            else:
+                return li[0]
+
+        e = get_enum(t)
+        if len(t) > 1 and e is not None:
+            di["examples"] = e
+        for _ in t:
+            di = {**di, **_}
+        del di[kw]
+        return {**di, **{"nullable": n}}
+
+
+def add_schema_key(di: dict, wi=None) -> dict:
+    return {"schema": di}
+
+
+def add_max_layout(di: dict, wi=None) -> dict:
+    return di | {"layout": {"width": "100%"}}
 
 
 class WidgetMapper(BaseModel):
@@ -744,6 +926,7 @@ class WidgetCaller(BaseModel):
     allow_none: bool = False
     args: ty.List = Field(default_factory=lambda: [])
     kwargs: ty.Dict = Field(default_factory=lambda: {})
+    kwargs_box: ty.Dict = Field(default_factory=lambda: {})
 
 
 def widgetcaller(caller: WidgetCaller, show_errors=True):
@@ -757,7 +940,7 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
     try:
         # if "nullable" in caller.schema_.keys() and caller.schema_["nullable"]:
         if caller.allow_none:
-            fn = auiwidgets.nullable(caller.autoui)
+            fn = nullable(caller.autoui)
         else:
             fn = caller.autoui
         wi = fn(**caller.kwargs)
@@ -832,9 +1015,12 @@ schema:
         super().__init__(value=txt)
 
 
+from ipyautoui.autoanyof import AnyOf
+
+
 def get_widgets_map(di_update=None):
     from ipyautoui.custom.iterable import AutoArray
-    from ipyautoui.autoipywidget import AutoObject  # Ipywidget
+    from ipyautoui.autoobject import AutoObject  # Ipywidget
     from ipyautoui.custom.editgrid import EditGrid
 
     # from ipyautoui.custom.iterable import AutoArrayNew, AutoArray
@@ -925,9 +1111,17 @@ def get_widgets_map(di_update=None):
             "array": WidgetMapper(
                 fn_filt=is_Array,
                 widget=AutoArray,
-                li_fn_modify=[flatten_type_and_nullable, add_schema_key],
+                li_fn_modify=[flatten_type_and_nullable],
             ),
-            "dataframe": WidgetMapper(fn_filt=is_DataFrame, widget=EditGrid),
+            "dataframe": WidgetMapper(
+                fn_filt=is_DataFrame,
+                widget=EditGrid,
+                li_fn_modify=[add_schema_key, add_max_layout],
+            ),
+            "anyOf": WidgetMapper(fn_filt=is_AnyOf, 
+                widget=AnyOf,
+                li_fn_modify=[create_widget_caller],
+            ),
         }
     )
 
@@ -982,7 +1176,7 @@ def map_widget(
         if fail_on_error:
             raise ValueError(f"widget map not found for: {di}")
         else:
-            return WidgetCaller(schema_=di, autoui=auiwidgets.AutoPlaceholder)
+            return WidgetCaller(schema_=di, autoui=AutoPlaceholder)
     elif len(mapped) == 1:
         # ONLY THIS ONE SHOULD HAPPEN
         widget_name, allow_none = mapped[0]
@@ -990,10 +1184,19 @@ def map_widget(
         kwargs = di
         for l in widgets_map[widget_name].li_fn_modify:
             kwargs = l(kwargs, wi)
-        return WidgetCaller(schema_=di, autoui=wi, allow_none=allow_none, kwargs=kwargs)
+
+        kwargs_box = update_keys(di)
+        kwargs_box = remove_non_present_kwargs(AutoBox, kwargs_box)
+        return WidgetCaller(
+            schema_=di,
+            autoui=wi,
+            allow_none=allow_none,
+            kwargs=kwargs,
+            kwargs_box=kwargs_box,
+        )
     else:
-        # s = str(mapped)
-        e = f"multiple matches found. . using the last one. {di}."
+        s = str(mapped)
+        e = f"multiple matches found. . using the last one. {di}. \n  {s}"
         if fail_on_error:
             raise ValueError(e)
         else:
@@ -1002,6 +1205,11 @@ def map_widget(
             widget_name, allow_none = mapped[-1]
             wi = get_widget(di, widget_name, widgets_map)
             return WidgetCaller(schema_=di, autoui=wi, allow_none=allow_none)
+
+
+def get_widget(di):
+    caller = map_widget(di)
+    return widgetcaller(caller)  # TODO: add passing of value
 
 
 if __name__ == "__main__":
@@ -1013,3 +1221,26 @@ if __name__ == "__main__":
     caller = map_widget(di)
     assert "IntText" in str(caller.autoui)
     print(caller)
+
+
+def from_schema_method(
+    cls, schema: ty.Union[ty.Type[BaseModel], dict], value: ty.Optional[dict] = None
+):
+    if "$defs" in schema.keys():
+        try:
+            schema = replace_refs(schema)
+        except ValueError as e:
+            logger.warning(f"replace_refs error: \n{e}")
+            pass
+    ui = cls(**schema)
+    ui.model = None
+    return ui
+
+
+def from_model_method(cls, model: ty.Type[BaseModel], value: ty.Optional[dict] = None):
+    schema = replace_refs(model.model_json_schema())
+    if value is not None:
+        schema["value"] = value
+    ui = cls(**schema)
+    ui.model = model
+    return ui

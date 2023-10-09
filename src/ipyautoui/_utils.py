@@ -15,9 +15,11 @@ import importlib.util
 import inspect
 import immutables
 import getpass
+import logging
 
-
+logger = logging.getLogger(__name__)
 frozenmap = immutables.Map
+
 try:
     import maplocal
 
@@ -418,10 +420,26 @@ def create_pydantic_json_file(
     return path
 
 
+def argspecs_in_kwargs(call: ty.Callable, kwargs: dict):
+    """get argspecs for kwargs"""
+    args = inspect.getfullargspec(call).args
+    return {k: v for k, v in kwargs.items() if k in args}
+
+
+def traits_in_kwargs(call: ty.Callable, kwargs: dict):
+    """get traits for kwargs"""
+    if not hasattr(call, "traits"):
+        logger.error("call must have traits attribute")
+        return {}
+    else:
+        return {k: v for k, v in kwargs.items() if k in list(call.traits(call).keys())}
+
+
 def remove_non_present_kwargs(callable_: ty.Callable, di: dict):
     """do this if required (get allowed args from callable)"""
-    args = inspect.getfullargspec(callable_).args
-    return {k_: v_ for k_, v_ in di.items() if k_ in args}
+    argspec = argspecs_in_kwargs(callable_, di)
+    traits = traits_in_kwargs(callable_, di)
+    return {**argspec, **traits}
 
 
 def get_ext(fpth):

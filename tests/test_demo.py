@@ -10,7 +10,7 @@ class TestDemo:
         d = Demo()
         assert d.pydantic_model == CoreIpywidgets
         assert d.python_file == PosixPath(inspect.getfile(CoreIpywidgets))
-        for k, wi in d.autoui.di_widgets.items():
+        for k, wi in d.autoui.autowidget.di_widgets.items():
             nm = str(wi.__class__)
             assert "WidgetCallerError" not in nm
 

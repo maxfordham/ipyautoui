@@ -19,8 +19,6 @@ a UI element that loads a folder for data caching, whilst storing a record of fo
 """
 
 # %run ../_dev_sys_path_append.py
-# %run __init__.py
-#
 # %load_ext lab_black
 
 # +

@@ -2,7 +2,8 @@
     "int_slider_req": 1,
     "int_slider_nullable": null,
     "int_slider": 2,
-    "int_text": 1,
+    "int_text_req": 1,
+    "int_text_nullable": null,
     "int_range_slider": [
         0,
         3
@@ -15,15 +16,18 @@
     "float_text": 2.2,
     "float_text_locked": 2.2,
     "float_range_slider": [
-        0,
+        0.0,
         2.2
     ],
     "checkbox": true,
     "dropdown": null,
+    "dropdown_int": 1,
+    "dropdown_int_optional": 1,
     "combobox": "apple",
+    "combobox1": "apple",
     "dropdown_edge_case": "apple",
     "dropdown_simple": "asd",
-    "text": "changed",
+    "text": "adsf",
     "text_short": "short text",
-    "text_area": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text "
+    "textarea": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text "
 }

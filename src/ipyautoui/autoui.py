@@ -28,48 +28,26 @@ Example:
         DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
 """
 # %run _dev_sys_path_append.py
-# %run __init__.py
 # %load_ext lab_black
 
 import pathlib
 from IPython.display import display
 from pydantic import BaseModel
 import json
-import traitlets as tr  #
+import traitlets as tr
 import typing as ty
-
+from ipyautoui.autoform import AutoObjectFormLayout
 from ipyautoui.custom import SaveButtonBar  # removing makes circular import error
-from ipyautoui.autoipywidget import AutoObject, get_from_schema_root
+import json
+import logging
+from ipyautoui.automapschema import map_widget, widgetcaller, _init_model_schema
+import ipywidgets as w
+from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 
 # +
-def rename_vjsf_schema_keys(obj, old="x_", new="x-"):
-    """recursive function to replace all keys beginning x_ --> x-
-    this allows schema Field keys to be definied in pydantic and then
-    converted to vjsf compliant schema"""
-
-    if type(obj) == list:
-        for l in list(obj):
-            if type(l) == str and l[0:2] == old:
-                l = new + l[2:]
-            if type(l) == list or type(l) == dict:
-                l = rename_vjsf_schema_keys(l)
-            else:
-                pass
-    if type(obj) == dict:
-        for k, v in obj.copy().items():
-            if k[0:2] == old:
-                obj[new + k[2:]] = v
-                del obj[k]
-            if type(v) == list or type(v) == dict:
-                v = rename_vjsf_schema_keys(v)
-            else:
-                pass
-    else:
-        pass
-    return obj
-
-
 def parse_json_file(path: pathlib.Path, model=None):
     """read json from file"""
     p = pathlib.Path(path)
@@ -104,6 +82,7 @@ class AutoUiFileMethods(tr.HasTraits):
     """
 
     path = tr.Instance(klass=pathlib.PurePath, default_value=None, allow_none=True)
+    fdir = tr.Instance(klass=pathlib.PurePath, default_value=None, allow_none=True)
 
     @tr.observe("path")
     def _observe_path(self, proposal):
@@ -171,6 +150,20 @@ class AutoUiFileMethods(tr.HasTraits):
             unsaved_changes = True
         self.load_value(parse_json_file(p, model=self.model), unsaved_changes)
 
+    def get_fdir(self, path=None, fdir=None):
+        if path is not None and fdir is None:
+            return pathlib.Path(path).parent
+        elif path is None and fdir is not None:
+            return fdir
+        elif path is not None and fdir is not None:
+            return fdir
+        else:
+            return None
+
+
+def get_from_schema_root(schema: ty.Dict, key: ty.AnyStr) -> ty.AnyStr:
+    return schema[key] if key in schema.keys() else ""
+
 
 class AutoRenderMethods:
     @classmethod
@@ -200,7 +193,8 @@ class AutoRenderMethods:
 
 
 # +
-class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
+class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
+
     """extends AutoObject and AutoUiCommonMethods to create an
     AutoUi user-input form. The data that can be saved to a json
     file `path` and loaded from a json file.
@@ -240,13 +234,33 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
 
     """
 
+    schema = tr.Dict()
+    model = tr.Type(klass=BaseModel, default_value=None, allow_none=True)
+    _value = tr.Any()  # TODO: update trait type on schema change
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        """this is for setting the value via the API"""
+        if value is not None:
+            self.autowidget.value = value
+
+    @tr.observe("schema")
+    def _schema(self, on_change):
+        self.caller = map_widget(self.schema)
+        self.autowidget = widgetcaller(self.caller)
+        self.children = [self.autowidget]
+
+    @property
+    def jsonschema_caller(self):
+        return summarize_di_callers(self)
+
     def __init__(
         self,
-        schema: ty.Union[ty.Type[BaseModel], dict],
-        value: dict = None,
-        path: pathlib.Path = None,  # TODO: generalise data retrieval?
-        update_map_widgets=None,
-        # validate_onchange=True,  # TODO: sort out how the validation works
+        schema,
         **kwargs,
     ):
         """initialises the AutoUi. in Jupyter hit "cntrl + I" to load "inspector"
@@ -261,20 +275,51 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
             fns_onrevert (list, optional): list of functions to run on revert. Defaults to None.
             **kwargs: passed to AutoObject. see attributes for details.
         """
+        kwargs["model"], kwargs["schema"] = _init_model_schema(schema)
 
-        fdir = self.get_fdir(path=path, fdir=kwargs.get("fdir", None))
-        if fdir is not None:
-            kwargs = kwargs | {"fdir": fdir}
-        # init app
         super().__init__(
-            schema,
-            value=None,
-            update_map_widgets=update_map_widgets,
             **kwargs,
         )
-        self.path = path
-        self.value = self._get_value(value, self.path)
-        self.savebuttonbar.unsaved_changes = False
+        # self.path = path
+        if "value" in kwargs:
+            self.value = self._get_value(kwargs["value"], self.path)
+            self.savebuttonbar.unsaved_changes = False
+        self.children = [
+            self.savebuttonbar,
+            self.hbx_title,
+            self.html_description,
+            self.autowidget,
+            self.vbx_showraw,
+        ]
+        self._init_controls()
+        self._watch_change({"new": None})
+        {
+            setattr(self.autowidget, k, v)
+            for k, v in kwargs.items()
+            if k not in self.trait_names() and k in self.autowidget.trait_names()
+        }  # pass traits to autowidget on init.
+
+    def _init_controls(self):
+        self._init_watch_widget()
+
+    def _init_watch_widget(self):
+        v = self.autowidget
+        if v.has_trait("value"):
+            logger.debug(f"value trait found for: {v.value}")
+            v.observe(self._watch_change, "value")
+        elif v.has_trait("_value"):
+            logger.debug(f"_value trait found for: {v.value}")
+            v.observe(self._watch_change, "_value")
+        else:
+            pass
+
+    def _watch_change(self, on_change):
+        if on_change["new"] != self._value:
+            self._value = self.autowidget.value
+            if hasattr(self, "savebuttonbar"):
+                self.savebuttonbar.unsaved_changes = True
+            # NOTE: it is required to set the whole "_value" otherwise
+            #       traitlets doesn't register the change.
 
     def get_fdir(self, path=None, fdir=None):
         if path is not None and fdir is None:
@@ -286,81 +331,94 @@ class AutoUi(AutoObject, AutoUiFileMethods, AutoRenderMethods):
         else:
             return None
 
+    @property
+    def json(self):
+        return json.dumps(self.autowidget.value, indent=4)
+
+
+def summarize_di_callers(obj: AutoUi):  # NOTE: mainly used for demo
+    fn_ser = lambda k, v: str(v) if k == "autoui" else v
+    fn_item = lambda v: {
+        k_: fn_ser(k_, v_) for k_, v_ in v.model_dump().items() if k_ != "schema_"
+    }
+    if hasattr(obj.autowidget, "di_callers"):  # AutoObject
+        return {k: fn_item(v) for k, v in obj.autowidget.di_callers.items()}
+    else:  # root item
+        return fn_item(obj.caller)
+
+
+#     @classmethod
+#     def from_json_schema(cls, schema):
+#         schema = replace_refs(schema)
+
+#     def from_pydantic_model(cls, model):
+#         schema = replace_refs(model.model_json_schema())
+
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
 
+    fn = lambda: print("asdf")
+    fn.__name__ = "asdf"
     aui = AutoUi(
         CoreIpywidgets,
         path=pathlib.Path("test.json"),
         show_description=True,
-        show_raw=False,
+        show_raw=True,
         show_savebuttonbar=True,
-        fns_onsave=[lambda: print("asdf")],
+        fns_onsave=[fn],
     )
     # aui.show_savebuttonbar = False
     display(aui)
 
-
 # +
-# aui.savebuttonbar.layout.display
 
-# + active=""
-# aui.save_actions.fns_onrevert[1]()
-
-# + active=""
-# aui.value = parse_json_file(aui._get_path(), model=aui.model)
-
-# + active=""
-# v = {'string': 'asdfasdfasdfasdf',
-#  'int_slider': 1,
-#  'int_text': 1,
-#  'int_range_slider': (0, 3),
-#  'float_slider': 2,
-#  'float_text': 2.2,
-#  'float_text_locked': 2.2,
-#  'float_range_slider': (0.0, 2.2),
-#  'checkbox': True,
-#  'dropdown': 'male',
-#  'dropdown_edge_case': 'female',
-#  'dropdown_simple': 'asd',
-#  'combobox': 'asd',
-#  'text': 'short text',
-#  'text_area': 'long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ',
-#  'markdown': '\nSee details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. \n'}
-#
-# if __name__ == "__main__":
-#     fn = lambda: print("it works!")
-#     fn.__name__ = "test-func"
-#     TestRenderer = AutoUi.create_autoui_renderer(
-#         CoreIpywidgets,
-#         path=pathlib.Path("test.json"),
-#         fns_onsave=[fn],
-#     )
-#     r = TestRenderer()
-#     r.show_savebuttonbar = True
-#     display(r)
-#
-# if __name__ == "__main__":
-#     from ipyautoui.demo_schemas import CoreIpywidgets
-#
-#     aui = AutoUi(
-#         CoreIpywidgets,
-#         path=pathlib.Path("test.json"),
-#         show_raw=True,
-#         fn_onsave=lambda: print("test onsave"),
-#     )
-#     display(aui)
-#
-# if __name__ == "__main__":
-#     aui.show_description = False
-#     aui.show_title = False
-#     aui.show_raw = False
 # -
 
 if __name__ == "__main__":
-    # Renderer = AutoUi.create_autoui_renderer(schema)
-    from ipyautoui.autoipywidget import get_from_schema_root
+    from ipyautoui.demo_schemas import EditableGrid
 
-    Renderer = AutoUi.create_autoui_renderer(CoreIpywidgets, show_raw=False)
-    display(Renderer(path="test1.json"))
+    fn = lambda: print("asdf")
+    fn.__name__ = "asdf"
+    aui = AutoUi(
+        EditableGrid,
+        path=pathlib.Path("test.json"),
+        show_description=True,
+        show_raw=True,
+        show_savebuttonbar=True,
+        fns_onsave=[fn],
+    )
+    # aui.show_savebuttonbar = False
+    display(aui)
+
+if __name__ == "__main__":
+    from ipyautoui.demo_schemas import RootSimple
+
+    fn = lambda: print("asdf")
+    fn.__name__ = "asdf"
+    aui = AutoUi(
+        RootSimple,
+        path=pathlib.Path("test.json"),
+        show_description=True,
+        show_raw=True,
+        show_savebuttonbar=True,
+        fns_onsave=[fn],
+    )
+    # aui.show_savebuttonbar = False
+    display(aui)
+
+if __name__ == "__main__":
+    from ipyautoui.demo_schemas import RootArray
+
+    fn = lambda: print("asdf")
+    fn.__name__ = "asdf"
+    aui = AutoUi(
+        RootArray,
+        path=pathlib.Path("test.json"),
+        show_description=True,
+        show_raw=True,
+        show_savebuttonbar=True,
+        fns_onsave=[fn],
+    )
+    # aui.show_savebuttonbar = False
+    display(aui)

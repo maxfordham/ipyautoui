@@ -214,7 +214,6 @@ MAP_JSONSCHEMA_TO_IPYWIDGET = frozenmap(
         "enum": "options",
         "examples": "options",
         "default": "value",
-        "description": "autoui_description",
     }
 )
 #  ^ this is how the json-schema names map to ipywidgets.

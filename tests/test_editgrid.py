@@ -8,7 +8,7 @@ from .constants import DIR_TESTS, DIR_FILETYPES
 from ipyautoui.custom.editgrid import EditGrid
 from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui.demo_schemas import EditableGrid
-from ipyautoui.autoipywidget import AutoObject
+from ipyautoui import AutoUi
 from pydantic import BaseModel, Field, RootModel
 import typing as ty
 
@@ -128,7 +128,7 @@ class TestAutoEditGrid:
         )
     )
     def test_editgrid_change_data(self):
-        grid = AutoObject(schema=EditableGrid)
+        grid = AutoUi(schema=EditableGrid)
         v = grid.value.copy()
 
         check = False
