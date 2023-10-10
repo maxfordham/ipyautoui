@@ -21,9 +21,7 @@ contains methods for validation, coercion, and default values.
 
 defines AutoGrid, a datagrid generated from a jsonschema."""
 # %run ../_dev_sys_path_append.py
-# %run __init__.py
-# %run ../__init__.py
-# # %load_ext lab_black
+# %load_ext lab_black
 
 import typing as ty
 import traitlets as tr
@@ -32,12 +30,10 @@ import pandas as pd
 from pydantic import BaseModel, Field
 import ipyautoui.automapschema as asch
 from ipyautoui._utils import obj_from_importstr, frozenmap
-
 from ipydatagrid import CellRenderer, DataGrid, TextRenderer, VegaExpr
 from ipydatagrid.datagrid import SelectionHelper
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
-
 
 # +
 def get_property_types(properties):
@@ -224,7 +220,7 @@ class GridSchema:
             "format",
             "type",
             "items",
-            "definitions",
+            "$defs",
         ]
         {
             setattr(self, k, v)
@@ -449,25 +445,27 @@ class GridSchema:
 
 
 # -
-
-
 if __name__ == "__main__":
+    from pydantic import RootModel
 
     class DataFrameCols(BaseModel):
         string: str = Field(
             "string",
             title="Important String",
-            column_width=120,
+            json_schema_extra=dict(column_width=120),
         )
-        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        integer: int = Field(
+            40, title="Integer of somesort", json_schema_extra=dict(column_width=150)
+        )
         floater: float = Field(
-            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
+            1.3398234,
+            title="Floater",
+            json_schema_extra=dict(column_width=70),  # , renderer={"format": ".2f"}
         )
 
-    class TestDataFrame(BaseModel):
-        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
-        __root__: ty.List[DataFrameCols] = Field(
-            ..., format="dataframe", global_decimal_places=2
+    class TestDataFrame(RootModel):
+        root: ty.List[DataFrameCols] = Field(
+            ..., json_schema_extra=dict(global_decimal_places=2, format="dataframe")
         )
 
     model, schema = asch._init_model_schema(TestDataFrame)
@@ -480,6 +478,11 @@ class DataGrid(DataGrid):
     global_decimal_places = tr.Int(default_value=None, allow_none=True)
     hide_nan = tr.Bool(default_value=False)
     count_changes = tr.Int()
+    map_name_index = tr.Dict()
+
+    @property
+    def map_index_name(self):
+        return {v: k for k, v in self.map_name_index.items()}
 
     @tr.default("count_changes")
     def _default_count_changes(self):
@@ -578,14 +581,12 @@ class DataGrid(DataGrid):
 
         return SelectionHelper(view_data_object, self.selections, self.selection_mode)
 
-    # these terms (below) avoid row or col terminology and can be used if transposed or not...
-    # only these methods are called be EditGrid, allowing it to operate the same if the
-    # view is transposed or not.
     # ----------
 
 
 # +
 # datagrid_index = "title"
+# from ipyautoui.automapschema import from_schema_method
 
 
 class AutoGrid(DataGrid):
@@ -601,9 +602,14 @@ class AutoGrid(DataGrid):
 
     """
 
-    schema = tr.Dict()
+    schema = tr.Dict()  # TODO: deprecate / make optional...
     transposed = tr.Bool(default_value=False)
     order = tr.Tuple(default_value=None, allow_none=True)
+    datagrid_index_name = tr.Union(trait_types=[tr.Unicode(), tr.Tuple()])
+
+    # @classmethod
+    # def from_schema(cls, schema, value=None):
+    #     return from_schema_method(cls, schema, value=value)
 
     @tr.observe("schema")
     def _update_from_schema(self, change):
@@ -627,7 +633,7 @@ class AutoGrid(DataGrid):
         if not set(self.order) <= set(self.gridschema.properties.keys()):
             raise ValueError(
                 "set(self.order) <= set(self.gridschema.properties.keys()) must be"
-                " true. (i.e. on valid scheam properties allowed)"
+                " true. (i.e. only valid scheam properties allowed)"
             )
         if self.transposed:
             data = self.data.T
@@ -795,6 +801,8 @@ class AutoGrid(DataGrid):
         """
         set row (transposed==False) or col (transposed==True) value
         """
+        if self.order is not None:
+            value = {o: value[o] for o in self.order}
         if self.transposed:
             return self.set_col_value(index, value)
         else:
@@ -965,7 +973,9 @@ class AutoGrid(DataGrid):
         ]
 
     # ----------------
-
+    # these terms (below) avoid row or col terminology and can be used if transposed or not...
+    # only these methods are called be EditGrid, allowing it to operate the same if the
+    # view is transposed or not.
     @property
     def selected(self):
         if self.transposed:
@@ -1070,6 +1080,7 @@ class AutoGrid(DataGrid):
 # -
 
 if __name__ == "__main__":
+    from pydantic import RootModel
 
     class DataFrameCols(BaseModel):
         string: str = Field(
@@ -1082,12 +1093,9 @@ if __name__ == "__main__":
             1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
         )
 
-    class TestDataFrame(BaseModel):
-        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
-        __root__: ty.List[DataFrameCols] = Field(
-            # [DataFrameCols()], format="dataframe", global_decimal_places=2
-            format="dataframe",
-            global_decimal_places=2,
+    class TestDataFrame(RootModel):
+        root: ty.List[DataFrameCols] = Field(
+            json_schema_extra=dict(format="dataframe", global_decimal_places=2),
         )
 
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
@@ -1099,17 +1107,18 @@ if __name__ == "__main__":
         string: str = Field(
             "string",
             title="Important String",
-            column_width=120,
+            json_schema_extra=dict(column_width=120),
         )
-        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        integer: int = Field(
+            40, title="Integer of somesort", json_schema_extra=dict(column_width=150)
+        )
         floater: float = Field(
-            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
+            1.3398234, title="Floater", json_schema_extra=dict(column_width=70)
         )
 
-    class TestDataFrame(BaseModel):
-        __root__: ty.List[DataFrameCols] = Field(
-            format="dataframe",
-            global_decimal_places=2,
+    class TestDataFrame(RootModel):
+        root: ty.List[DataFrameCols] = Field(
+            json_schema_extra=dict(format="dataframe", global_decimal_places=2),
         )
 
     grid = AutoGrid(
@@ -1123,8 +1132,17 @@ if __name__ == "__main__":
     )
     display(grid)
     grid.data = grid._init_data(
-        pd.DataFrame([DataFrameCols(string="test", floater=2.45, integer=2).dict()])
+        pd.DataFrame(
+            [DataFrameCols(string="test", floater=2.45, integer=2).model_dump()]
+        )
     )
+
+# +
+# grid.traits()
+# -
+
+if __name__ == "__main__":
+    display(grid.selections)
 
 if __name__ == "__main__":
     # ORDER OVERRIDE
@@ -1132,17 +1150,17 @@ if __name__ == "__main__":
         string: str = Field(
             "string",
             title="Important String",
-            column_width=120,
+            json_schema_extra=dict(column_width=120),
         )
-        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        integer: int = Field(40, title="Integer of somesort", json_schema_extra=dict(column_width=150))
         floater: float = Field(
-            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
+            1.3398234, title="Floater", json_schema_extra=dict(column_width=70)  # , renderer={"format": ".2f"}
         )
 
-    class TestDataFrame(BaseModel):
-        __root__: ty.List[DataFrameCols] = Field(
-            format="dataframe",
-            global_decimal_places=2,
+    class TestDataFrame(RootModel):
+        root: ty.List[DataFrameCols] = Field(
+            json_schema_extra=dict(format="dataframe",
+            global_decimal_places=2),
         )
 
     grid = AutoGrid(schema=TestDataFrame, order=("floater", "string", "integer"))
@@ -1155,37 +1173,40 @@ if __name__ == "__main__":
             title="Important String",
             column_width=120,
         )
-        integer: int = Field(title="Integer of somesort", column_width=400)
+        integer: int = Field(title="Integer of somesort", json_schema_extra=dict(column_width=400))
         floater: float = Field(
-            title="Floater", column_width=70  # , renderer={"format": ".2f"}
+            title="Floater", json_schema_extra=dict(column_width=70)  # , renderer={"format": ".2f"}
         )
 
-    class TestDataFrame(BaseModel):
-        __root__: ty.List[DataFrameCols] = Field(
+    class TestDataFrame(RootModel):
+        root: ty.List[DataFrameCols] = Field(
             [
                 DataFrameCols(string="string", integer=1, floater=1.2),
                 DataFrameCols(string="another string", integer=10, floater=2.5),
                 DataFrameCols(string="test", integer=42, floater=0.78),
             ],
-            format="dataframe",
-            global_decimal_places=2,
+            json_schema_extra=dict(format="dataframe",
+            global_decimal_places=2),
         )
 
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
     display(grid)
 
 # +
+# grid.selections
 
-
+# +
 if __name__ == "__main__":
     grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)  # .T
 
 if __name__ == "__main__":
     print(grid.is_transposed)
+# -
 
 if __name__ == "__main__":
     grid.transposed = True
 
+# +
 if __name__ == "__main__":
     grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
 
@@ -1205,6 +1226,7 @@ if __name__ == "__main__":
     print(grid.count_changes)
 
 if __name__ == "__main__":
+    from pydantic import RootModel
 
     class DataFrameCols(BaseModel):
         string: str = Field(
@@ -1216,17 +1238,17 @@ if __name__ == "__main__":
         floater: float = Field(
             1.3398234,
             title="Floater",
-            column_width=70,
-            section="b",  # , renderer={"format": ".2f"}
+            json_schema_extra=dict(column_width=70,
+            section="b"),  # , renderer={"format": ".2f"}
         )
 
-    class TestDataFrame(BaseModel):
+    class TestDataFrame(RootModel):
         # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
-        __root__: ty.List[DataFrameCols] = Field(
+        root: ty.List[DataFrameCols] = Field(
             [DataFrameCols()],
-            format="dataframe",
+            json_schema_extra=dict(format="dataframe",
             global_decimal_places=2,
-            datagrid_index_name=("section", "title"),
+            datagrid_index_name=("section", "title")),
         )
 
     grid = AutoGrid(schema=TestDataFrame, by_title=True)

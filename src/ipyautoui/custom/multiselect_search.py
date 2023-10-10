@@ -45,13 +45,13 @@ class MultiSelectSearch(w.VBox):
     def __init__(self, options=[], value=[]):
         super().__init__()
         self.check_all = w.Button(
-            icon="fa-check-square-o",
+            icon="check-square-o",
             tooltip="Check all",
             button_style="success",
             layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
         self.uncheck_all = w.Button(
-            icon="fa-square-o",
+            icon="square-o",
             tooltip="Uncheck all",
             button_style="warning",
             layout=w.Layout(width=BUTTON_WIDTH_MIN),

@@ -17,10 +17,10 @@ DATAGRID_TEST_VALUE = [
 
 
 class DataFrameCols(BaseModel):
-    string: str = Field("string", column_width=200)
+    string: str = Field("string", json_schema_extra=dict(column_width=200))
     integer: int = Field(1)
-    floater: float = Field(3.1415, column_width=70)
-    something_else: float = Field(324, column_width=100)
+    floater: float = Field(3.1415, json_schema_extra=dict(column_width=70))
+    something_else: float = Field(324, json_schema_extra=dict(column_width=100))
 
 
 class NestedEditableGrid(BaseModel):
@@ -28,7 +28,5 @@ class NestedEditableGrid(BaseModel):
     reference: ty.Optional[str] = None  # TODO: this creates formatting issue
     grid: ty.List[DataFrameCols] = Field(
         default=DATAGRID_TEST_VALUE,
-        format="DataFrame",
-        global_decimal_places=2,
-        # default_factory=lambda: DATAGRID_TEST_VALUE, # TODO: AutoUi isn't getting data when set using default_factory. make this work!
+        json_schema_extra=dict(format="DataFrame", global_decimal_places=2),
     )

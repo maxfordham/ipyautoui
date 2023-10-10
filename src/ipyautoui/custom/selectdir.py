@@ -15,7 +15,6 @@
 
 # +
 # %run ../_dev_sys_path_append.py
-# %run __init__.py
 # %load_ext lab_black
 
 from IPython.display import display
@@ -24,7 +23,7 @@ from ipyautoui.basemodel import file
 from ipyautoui._utils import file
 
 setattr(BaseModel, "file", file)
-from pydantic import validator, Field, ValidationError
+from pydantic import ConfigDict, validator, Field, ValidationError
 from ipyautoui.constants import LOAD_BUTTON_KWARGS
 from IPython.display import clear_output, Markdown
 
@@ -68,15 +67,21 @@ class SelectDirBase(BaseModel):
     app_name: str = None
     pyobject_read_dir: str = None
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("key", always=True, pre=True)
     def _key(cls, v, values):
         return ("-").join(values["tags"])
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("fdir", always=True, pre=True)
     def _fdir(cls, v, values):
         parts = list(values["fdir_root"].parts) + values["tags"]
         return pathlib.Path(*parts)
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("fpth_log", always=True, pre=True)
     def _fpth_log(cls, v, values):
         if values["fdir_log"] is not None:
@@ -85,8 +90,9 @@ class SelectDirBase(BaseModel):
         else:
             return None
 
-    class Config:
-        json_encoders = {PyObject: obj_to_importstr}
+    # TODO[pydantic]: The following keys were removed: `json_encoders`.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config for more information.
+    model_config = ConfigDict(json_encoders={PyObject: obj_to_importstr})
 
 
 class SelectDir(SelectDirBase):
@@ -124,6 +130,7 @@ if __name__ == "__main__":
 from datetime import datetime
 from ipyautoui.basemodel import file
 
+
 # READ WRITE TO FILE.
 def record_load(value):
     fpth_log = value["fpth_log"]
@@ -132,7 +139,7 @@ def record_load(value):
     else:
         log = SelectDir(**value)
     log.usage.append(Usage(user=getuser(), timestamp=datetime.now()))
-    print(log.dict())
+    print(log.model_dump())
     file(log, fpth_log)
 
 
@@ -152,7 +159,7 @@ class SelectDirUi(w.VBox):
         if v.fpth_log.is_file():
             v = SelectDir.parse_file(v.fpth_log)
 
-        return v.dict()
+        return v.model_dump()
 
     @tr.observe("value")
     def _observe_value_update_path(self, change):
@@ -258,7 +265,6 @@ class SelectDirUi(w.VBox):
 
 
 if __name__ == "__main__":
-
     c1_str_exists = "📁👍 - `{}` : folder exists in location. press to load."
     c1_str_not_exists = (
         "📁⚠️ - `{}` : folder does not exist in location. It will be created on load"

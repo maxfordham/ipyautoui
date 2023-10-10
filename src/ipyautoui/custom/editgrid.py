@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -18,8 +18,6 @@
 # +
 """General widget for editing data"""
 # %run ../_dev_sys_path_append.py
-# %run __init__.py
-# %run ../__init__.py
 # %load_ext lab_black
 # TODO: move editgrid.py to root ?
 
@@ -33,7 +31,7 @@ from IPython.display import clear_output
 from markdown import markdown
 from pydantic import BaseModel, Field
 
-import ipyautoui.autoipywidget as aui
+from ipyautoui.autoobject import AutoObjectForm
 from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui._utils import frozenmap
 from ipyautoui.constants import BUTTON_WIDTH_MIN
@@ -80,7 +78,7 @@ if __name__ == "__main__":
     def test_revert():
         print("Reverted.")
 
-    ui = aui.AutoObject(schema=TestModel)
+    ui = AutoObjectForm.from_schema(TestModel)
     display(ui)
 
 if __name__ == "__main__":
@@ -321,13 +319,13 @@ class EditGrid(w.VBox, TitleDescription):
 
         self._init_form()
         if ui_add is None:
-            self.ui_add = aui.AutoObject(self.row_schema, app=self)
+            self.ui_add = AutoObjectForm.from_schema(self.row_schema)
         else:
-            self.ui_add = ui_add(self.row_schema, app=self)
+            self.ui_add = ui_add.from_schema(self.row_schema)
         if ui_edit is None:
-            self.ui_edit = aui.AutoObject(self.row_schema, app=self)
+            self.ui_edit = AutoObjectForm.from_schema(self.row_schema)
         else:
-            self.ui_edit = ui_edit(self.row_schema, app=self)
+            self.ui_edit = ui_edit.from_schema(self.row_schema)
         if ui_delete is None:
             self.ui_delete = UiDelete()
         else:
@@ -618,6 +616,8 @@ class EditGrid(w.VBox, TitleDescription):
 # -
 
 if __name__ == "__main__":
+    from pydantic import RootModel
+
     # Test: EditGrid instance with multi-indexing.
     AUTO_GRID_DEFAULT_VALUE = [
         {
@@ -629,17 +629,17 @@ if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
 
     class DataFrameCols(BaseModel):
-        string: str = Field("string", column_width=400, section="a")
-        integer: int = Field(1, column_width=80, section="a")
-        floater: float = Field(None, column_width=70, section="b")
+        string: str = Field("string", json_schema_extra=dict(column_width=400, section="a"))
+        integer: int = Field(1, json_schema_extra=dict(column_width=80, section="a"))
+        floater: float = Field(None, json_schema_extra=dict(column_width=70, section="b"))
 
-    class TestDataFrame(BaseModel):
+    class TestDataFrame(RootModel):
         """a description of TestDataFrame"""
 
-        __root__: ty.List[DataFrameCols] = Field(
+        root: ty.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE,
-            format="dataframe",
-            datagrid_index_name=("section", "title"),
+            json_schema_extra=dict(format="dataframe",
+                datagrid_index_name=("section", "title")),
         )
 
     title = "The Wonderful Edit Grid Application"
@@ -672,8 +672,8 @@ if __name__ == "__main__":
         stringy: str = "as"
         num: int = 1
 
-    class Test(BaseModel):
-        __root__: list[TestListCol]
+    class Test(RootModel):
+        root: list[TestListCol]
 
     gr = EditGrid(Test, value=[{"li_col": ["a", "b"], "stringy": "string", "num": 23}])
     display(gr)
@@ -703,27 +703,29 @@ if __name__ == "__main__":
 # -
 
 if __name__ == "__main__":
-    from ipyautoui.demo_schemas import CoreIpywidgets
-    from ipyautoui.autoipywidget import AutoObject
 
     class DataFrameCols(BaseModel):
-        string: str = Field("string", column_width=400, section="a")
-        integer: int = Field(1, column_width=80, section="b")
-        floater: float = Field(None, column_width=70, section="b")
+        string: str = Field(
+            "string", json_schema_extra=dict(column_width=400, section="a")
+        )
+        integer: int = Field(1, json_schema_extra=dict(column_width=80, section="b"))
+        floater: float = Field(
+            None, json_schema_extra=dict(column_width=70, section="b")
+        )
 
-    class TestDataFrame(BaseModel):
+    class TestDataFrame(RootModel):
         """a description of TestDataFrame"""
 
-        __root__: ty.List[DataFrameCols] = Field(
+        root: ty.List[DataFrameCols] = Field(
             [
                 DataFrameCols(
                     string="String",
                     integer=1,
                     floater=2.5,
-                ).dict()
+                ).model_dump()
             ],
-            format="dataframe",
-            #datagrid_index_name=("section", "title"),
+            json_schema_extra=dict(format="dataframe"),
+            # datagrid_index_name=("section", "title"),
         )
 
     description = markdown(
@@ -742,22 +744,3 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     editgrid.transposed = True
-
-if __name__ == "__main__":
-
-    class TestDataFrame(BaseModel):
-        __root__: ty.List[DataFrameCols] = Field(
-            default=AUTO_GRID_DEFAULT_VALUE, format="dataframe"
-        )
-
-
-if __name__ == "__main__":
-    from ipyautoui import AutoUi
-    from ipyautoui.autoipywidget import AutoObject
-
-    ui = AutoObject(schema=TestDataFrame)
-    ui.align_horizontal = True
-    ui.auto_open = True
-    ui.observe(lambda c: print("_value change"), "_value")
-    ui.di_widgets["__root__"].observe(lambda c: print("grid _value change"), "_value")
-    display(ui)

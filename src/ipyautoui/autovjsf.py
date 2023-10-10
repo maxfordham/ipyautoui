@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -15,8 +15,6 @@
 
 # +
 # %run _dev_sys_path_append.py
-# %run __init__.py
-#
 # %load_ext lab_black
 
 import ipyvuetify as v
@@ -26,9 +24,44 @@ import ipywidgets as w
 from ipyautoui.constants import PATH_VJSF_TEMPLATE
 from ipyautoui.autoui import AutoUiFileMethods, AutoRenderMethods
 from ipyautoui.automapschema import _init_model_schema
+from ipyautoui.autoui import (
+    AutoObjectFormLayout,
+    get_from_schema_root,
+)
+from ipyautoui.autoform import make_bold
+import logging
+import json
 
+logger = logging.getLogger(__name__)
 # import ipyvue
 # ipyvue.watch(PATH_VJSF_TEMPLATE.parent)  # for hot-reloading. currently not in use. requires watchdog
+
+
+def rename_vjsf_schema_keys(obj, old="x_", new="x-"):  # NOTE: not in use
+    """recursive function to replace all keys beginning x_ --> x-
+    this allows schema Field keys to be definied in pydantic and then
+    converted to vjsf compliant schema"""
+
+    if type(obj) == list:
+        for l in list(obj):
+            if type(l) == str and l[0:2] == old:
+                l = new + l[2:]
+            if type(l) == list or type(l) == dict:
+                l = rename_vjsf_schema_keys(l)
+            else:
+                pass
+    if type(obj) == dict:
+        for k, v in obj.copy().items():
+            if k[0:2] == old:
+                obj[new + k[2:]] = v
+                del obj[k]
+            if type(v) == list or type(v) == dict:
+                v = rename_vjsf_schema_keys(v)
+            else:
+                pass
+    else:
+        pass
+    return obj
 
 
 class Vjsf(v.VuetifyTemplate):
@@ -41,56 +74,42 @@ class Vjsf(v.VuetifyTemplate):
 
 # -
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogic, TestAutoLogicSimple
+    from ipyautoui.demo_schemas import CoreIpywidgets
     from IPython.display import display
 
-    ui = Vjsf(schema=TestAutoLogicSimple)
-    test = TestAutoLogic()
-    schema = test.schema()
+    schema = CoreIpywidgets.model_json_schema()
     ui = Vjsf(schema=schema)
     display(ui)
 
-# +
-from ipyautoui.autoipywidget import (
-    AutoObjectFormLayout,
-    make_bold,
-    get_from_schema_root,
-)
 
-
-class AutoVjsf(AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
+class AutoVjsf(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
     _value = tr.Dict()
     """create a vuetify form using ipyvuetify using VJSF """
 
-    def __init__(
-        self,
-        schema,
-        value=None,
-        path=None,
-        fns_onsave=None,
-        show_raw=True,
-        show_title=True,
-    ):
-        super().__init__()
-        self.show_raw = show_raw
-        self.show_description = False
+    def __init__(self, schema, **kwargs):
+        super().__init__(**kwargs)
+        # self.show_raw = show_raw
+        # self.show_description = False
 
         self.model, schema = _init_model_schema(schema)
-        self.path = path
-        value = self._get_value(value, self.path)
-        # list of actions to be called on save
-        self.fns_onsave = fns_onsave
-        if value is None:
-            self.vui = Vjsf(schema=schema)
+        if "value" in kwargs:
+            value = self._get_value(kwargs["value"], self.path)
         else:
-            self.vui = Vjsf(schema=schema, value=value)
-        self.show_title = show_title
-        self.title.value = make_bold(self.get_title())
-        self.description.value = self.get_description()
-        self._value = self.vui.value
-        self.vbx_raw = w.HBox()
-        self._init_vui_form()
+            value = None
+        # list of actions to be called on save
+        if value is None:
+            self.autowidget = Vjsf(schema=schema)
+        else:
+            self.autowidget = Vjsf(schema=schema, value=value)
+        self._value = self.autowidget.value
         self._init_controls()
+        self.children = [
+            self.savebuttonbar,
+            self.hbx_title,
+            self.html_description,
+            self.autowidget,
+            self.vbx_showraw,
+        ]
 
     def get_description(self):  # TODO: put this in AutoObjectFormLayout
         return get_from_schema_root(self.schema, "description")
@@ -105,7 +124,11 @@ class AutoVjsf(AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
     @property
     def json(self):
         if self.model is not None:
-            return self.model(**self.value).json(indent=4)
+            try:
+                return self.model(**self.value).json(indent=4)
+            except:
+                logger.warning("pydantic validation failed")
+                return json.dumps(self.value, indent=4)
         else:
             return json.dumps(self.value, indent=4)
 
@@ -117,45 +140,38 @@ class AutoVjsf(AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
     def value(self, value):
         # TODO: add validation
         self._value = value
-        self.vui.value = self._value
-
-    def _init_vui_form(self):
-        self.autowidget = w.VBox()
-        self.autowidget.children = [self.vui]
-        li = list(self.children)
-        li.append(self.autowidget)
-        self.children = li
+        self.autowidget.value = self._value
 
     def _init_controls(self):
-        self.vui.observe(self.update_value, "value")
+        self.autowidget.observe(self.update_value, "value")
 
     def update_value(self, on_change):
-        self._value = self.vui.value
+        self._value = self.autowidget.value
 
     @property
     def schema(self):
-        return self.vui.schema
+        return self.autowidget.schema
 
-
-# -
 
 if __name__ == "__main__":
-    from ipyautoui.test_schema import TestAutoLogicSimple, TestAutoLogic
+    from ipyautoui.demo_schemas import CoreIpywidgets
 
-    vui = AutoVjsf(schema=TestAutoLogicSimple, path="test_vuetify.json")
-    display(vui)
-
-if __name__ == "__main__":
-    vui.show_savebuttonbar = False
-    vui.show_description = False
-    vui.show_title = False
-    vui.show_raw = False
+    autowidget = AutoVjsf(schema=CoreIpywidgets, path=pathlib.Path("test_vuetify.json"))
+    display(autowidget)
 
 if __name__ == "__main__":
-    vui.show_savebuttonbar = True
-    vui.show_description = True
-    vui.show_title = True
-    vui.show_raw = True
+    autowidget.show_savebuttonbar = False
+    autowidget.show_description = False
+    autowidget.show_title = False
+    autowidget.show_raw = False
+
+if __name__ == "__main__":
+    autowidget.show_savebuttonbar = True
+    autowidget.show_description = True
+    autowidget.show_title = True
+    autowidget.show_raw = True
+
+
 
 if __name__ == "__main__":
     Renderer = AutoVjsf.create_autoui_renderer(schema)

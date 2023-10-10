@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -18,14 +18,12 @@
 """file upload wrapper"""
 # %load_ext lab_black
 # %run ../_dev_sys_path_append.py
-# %run __init__.py
-# %run ../__init__.py
 
 # +
 import ipywidgets as w
 from markdown import markdown
 from IPython.display import display, clear_output
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, field_validator, Field
 import pathlib
 import typing as ty
 import stringcase
@@ -44,18 +42,25 @@ IPYAUTOUI_ROOTDIR = Env().IPYAUTOUI_ROOTDIR
 IS_IPYWIDGETS8 = (lambda: True if "8" in w.__version__ else False)()
 logger = logging.getLogger(__name__)
 
+logger.warning(
+    "FileUploadToDir still needs fixing following updates to `iterable.py`. DO NOT USE."
+)
 
-# +
+
+# -
+
+
 class File(BaseModel):
     name: str
     fdir: pathlib.Path = pathlib.Path(".")
     path: pathlib.Path = None
 
-    @validator("path", always=True, pre=True)
+    @field_validator("path")
     def _path(cls, v, values):
         return values["fdir"] / values["name"]
 
 
+# +
 def read_file_upload_item(di: dict, fdir=pathlib.Path("."), added_by=None):
     if added_by is None:
         added_by = getuser()
@@ -88,6 +93,7 @@ def add_files(upld_value, fdir=pathlib.Path(".")):
     return add_files_ipywidgets8(upld_value, fdir=fdir)
 
 
+# +
 class FilesUploadToDir(Array):
     def __init__(
         self,
@@ -102,7 +108,7 @@ class FilesUploadToDir(Array):
         )
         coerce_none = lambda v: {} if v is None else v
         self.kwargs_display_path = coerce_none(kwargs_display_path)
-        self.rows_box.layout = {"border": "solid LightCyan 2px"}
+        self.bx_boxes.layout = {"border": "solid LightCyan 2px"}
         self.fdir = fdir
         self.upld = w.FileUpload(**kwargs)
         self.children = [self.upld] + list(self.children)
@@ -121,7 +127,7 @@ class FilesUploadToDir(Array):
 
     def add_files(self, paths: list[str]):
         for p in paths:
-            self.add_row(item=DisplayPath(str(p), **self.kwargs_display_path))
+            self.add_row(obj=DisplayPath(str(p), **self.kwargs_display_path))
 
     def fn_remove_file(self, key=None):
         p = pathlib.Path(self.map_key_value[key])
@@ -154,9 +160,9 @@ class AutoUploadPaths(FilesUploadToDir):
 # -
 
 if __name__ == "__main__":
-    upld = FilesUploadToDir(
-        ["/mnt/c/engDev/git_mf/test.PNG"], fdir=pathlib.Path("/mnt/c/engDev/git_mf")
-    )
+    p = pathlib.Path()
+    p_ = list(IPYAUTOUI_ROOTDIR.parents)[2] / "docs" / "logo.png"
+    upld = FilesUploadToDir([str(p_)])
     display(upld)
     # test
 
@@ -171,9 +177,9 @@ if __name__ == "__main__":
     class Test(BaseModel):
         string: str
         paths: list[pathlib.Path] = Field(
-            autoui="__main__.AutoUploadPaths",
             title="A longish title about something",
             description="with a rambling description as well...",
+            json_schema_extra=dict(autoui="__main__.AutoUploadPaths"),
         )
 
     value = {"string": "string", "paths": ["bdns.csv"]}
@@ -226,7 +232,9 @@ if __name__ == "__main__":
     from ipyautoui import AutoUi
 
     class Test(BaseModel):
-        paths: list[pathlib.Path] = Field(autoui="__main__.AutoUploadPathsValueString")
+        paths: list[pathlib.Path] = Field(
+            json_schema_extra=dict(autoui="__main__.AutoUploadPathsValueString")
+        )
 
     aui = AutoUi(Test)
     display(aui)

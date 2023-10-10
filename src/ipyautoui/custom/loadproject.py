@@ -15,7 +15,6 @@
 # %%
 """generic iterable object."""
 # %run ../_dev_sys_path_append.py
-# %run __init__.py
 #
 # %load_ext lab_black
 
@@ -54,7 +53,7 @@ class LoadProject(w.HBox, tr.HasTraits):
         if not bool(matched):
             print(self.pattern)
             print(val)
-            raise TraitError(f"string musts have format: {self.pattern}")  #
+            raise tr.TraitError(f"string musts have format: {self.pattern}")  #
         return val
 
     def __init__(
@@ -93,7 +92,7 @@ class LoadProject(w.HBox, tr.HasTraits):
             # description='add run',
             tooltip="load job",
             button_style="success",
-            icon="fa-upload",
+            icon="upload",
             style={"font_weight": "bold"},
             layout=dict(width=BUTTON_WIDTH_MIN),
         )

@@ -38,7 +38,7 @@ TRUE_BUTTON_KWARGS = frozenmap(
     disabled=True,
 )
 
-FILEUPLD_BUTTON_KWARGS = frozenmap( 
+FILEUPLD_BUTTON_KWARGS = frozenmap(
     icon="upload",
     description="",
     button_style="info",
@@ -214,7 +214,6 @@ MAP_JSONSCHEMA_TO_IPYWIDGET = frozenmap(
         "enum": "options",
         "examples": "options",
         "default": "value",
-        "description": "autoui_description",
     }
 )
 #  ^ this is how the json-schema names map to ipywidgets.
@@ -233,14 +232,3 @@ def load_test_constants():
         "constants", str(path_testing_constants)
     ).load_module()
     return test_constants
-
-
-def display_template_ui_model():
-    from ipyautoui import test_schema
-    from ipyautoui.autodisplay import PreviewPy
-
-    display(PreviewPy(test_schema, docstring_priority=False))
-
-
-def DISPLAY_AUTOUI_EXAMPLE():
-    display_template_ui_model()

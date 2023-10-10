@@ -2,15 +2,14 @@ import shutil
 import pytest
 import pandas as pd
 
-# from src.ipyautoui.test_schema import TestSchema
 
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
 from ipyautoui.custom.editgrid import EditGrid
 from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui.demo_schemas import EditableGrid
-from ipyautoui.autoipywidget import AutoObject
-from pydantic import BaseModel, Field
+from ipyautoui import AutoUi
+from pydantic import BaseModel, Field, RootModel
 import typing as ty
 
 # from ipyautoui.demo_schemas.editable_datagrid import DATAGRID_TEST_VALUE
@@ -69,11 +68,11 @@ class TestEditGrid:
             )
             inty: int = Field(1, section="b")
 
-        class TestGridSchema(BaseModel):
+        class TestGridSchema(RootModel):
             """no default"""
 
-            __root__: ty.List[TestProperties] = Field(
-                [TestProperties(string="string").dict()],
+            root: ty.List[TestProperties] = Field(
+                [TestProperties(string="string").model_dump()],
                 format="dataframe",
                 datagrid_index_name=("section", "title"),
             )
@@ -129,7 +128,7 @@ class TestAutoEditGrid:
         )
     )
     def test_editgrid_change_data(self):
-        grid = AutoObject(schema=EditableGrid)
+        grid = AutoUi(schema=EditableGrid)
         v = grid.value.copy()
 
         check = False

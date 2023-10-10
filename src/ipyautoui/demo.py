@@ -99,22 +99,30 @@ class Demo(w.Tab, tr.HasTraits):
     def _update_jsonschema(self):
         s_sch = f"""
 ```json
-{json.dumps(self.pydantic_model.schema(), indent=4)}
+{json.dumps(self.pydantic_model.model_json_schema(), indent=4)}
 ```
 """
         with self.out_sch:
             clear_output()
             display(Markdown(s_sch))
+            
 
     def _update_jsonschema_caller(self):
-        s_sch = f"""
+        try:
+            s_sch = f"""
 ```json
-{json.dumps(self.autoui.schema, indent=4)}
+{json.dumps(self.autoui.jsonschema_caller, indent=4)}
 ```
 """
-        with self.out_caller:
-            clear_output()
-            display(Markdown(s_sch))
+            with self.out_caller:
+                clear_output()
+                display(Markdown(s_sch))
+        except:
+            with self.out_caller:
+                s_sch = self.autoui.jsonschema_caller
+                from pprint import pprint
+                clear_output()
+                display(pprint(s_sch))
 
     def _update_value(self):
         s_value = f"""

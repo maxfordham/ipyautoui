@@ -11,4 +11,10 @@ from ipyautoui.demo_schemas.root_array import RootArray
 from ipyautoui.demo_schemas.root_simple import RootSimple
 from ipyautoui.demo_schemas.root_enum import RootEnum
 from ipyautoui.demo_schemas.root_array_enum import RootArrayEnum
-from ipyautoui.demo_schemas.ruleset import Filter
+from ipyautoui.demo_schemas.array_object_dataframe import ArrayObjectDataframe
+from ipyautoui.demo_schemas.array_examples import ArrayWithUnionType
+from ipyautoui.demo_schemas.recursive_array import RecursiveArray
+from ipyautoui.demo_schemas.recursive_object import RecursiveObject
+
+
+# from ipyautoui.demo_schemas.ruleset import ScheduleRuleSet

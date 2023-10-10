@@ -1,6 +1,5 @@
-from pydantic import Field, conint, constr
-from ipyautoui.basemodel import BaseModel
+from pydantic import conint, RootModel, ConfigDict
 
-class RootSimple(BaseModel):
-    """a description about my string"""
-    __root__: float = Field(default=2, ge=0, le=3)
+
+class RootSimple(RootModel):
+    root: conint(ge=0, le=3) = 2

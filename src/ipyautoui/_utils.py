@@ -9,15 +9,17 @@ from math import log10, floor
 import ipywidgets as w
 from IPython.display import display, Markdown
 import codecs
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, field_validator, Field, FieldValidationInfo
 import typing as ty
 import importlib.util
 import inspect
 import immutables
 import getpass
+import logging
 
-
+logger = logging.getLogger(__name__)
 frozenmap = immutables.Map
+
 try:
     import maplocal
 
@@ -63,7 +65,8 @@ def getuser():
 # ------------------------------
 def str_presenter(dumper, data):
     """configures yaml for dumping multiline strings
-    Ref: https://stackoverflow.com/questions/8640959/how-can-i-control-what-scalar-form-pyyaml-uses-for-my-data"""
+    Ref: https://stackoverflow.com/questions/8640959/how-can-i-control-what-scalar-form-pyyaml-uses-for-my-data
+    """
     if len(data.splitlines()) > 1:  # check for multiline string
         return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
     return dumper.represent_scalar("tag:yaml.org,2002:str", data)
@@ -233,7 +236,8 @@ def read_yaml(fpth, encoding="utf8"):
     read yaml file.
 
     Ref:
-        https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python"""
+        https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
+    """
     with open(fpth, encoding=encoding) as stream:
         try:
             data = yaml.safe_load(stream)
@@ -276,9 +280,10 @@ class PyObj(BaseModel):
         None, description="ignore, this is overwritten by a validator"
     )
 
-    @validator("module_name", always=True)
-    def _module_name(cls, v, values):
-        return values["path"].stem
+    @field_validator("module_name")
+    @classmethod
+    def _module_name(cls, v, info: FieldValidationInfo):
+        return info.data["path"].stem
 
 
 def load_PyObj(obj: PyObj):
@@ -349,72 +354,25 @@ def obj_from_importstr(importstr: str) -> ty.Type:
     return getattr(importlib.import_module(mod), nm)
 
 
-class SerializableCallable(BaseModel):  # NOT IN USE
-    callable_str: ty.Union[ty.Callable, str] = Field(
-        ...,
-        description="import string that can use importlib\
-                                                              to create a python obj. Note. if a Callable object\
-                                                              is given it will be converted into a string",
-    )
-    callable_obj: ty.Union[ty.Callable, ty.Type] = Field(None, exclude=True)
-
-    @validator("callable_str", always=True)
-    def _callable_str(cls, v, values):
-        if type(v) != str:
-            return obj_to_importstr(v)
-        invalid = [i for i in "!@#£[]()<>|¬$%^&*,?''- "]
-        for i in invalid:
-            if i in v:
-                raise ValueError(
-                    f"callable_str = {v}. import_str must not contain spaces {i}"
-                )
-        return v
-
-    @validator("callable_obj", always=True)
-    def _callable_obj(cls, v, values):
-        return obj_from_importstr(values["callable_str"])
+def argspecs_in_kwargs(call: ty.Callable, kwargs: dict):
+    """get argspecs for kwargs"""
+    return {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(call).args}
 
 
-def create_pydantic_json_file(
-    pyobj: ty.Union[str, PyObj], path: pathlib.Path, **kwargs
-):
-    """
-    loads a pyobj (which must be a pydantic model) and then saves the default Json to file.
-    this requires defaults for all pydantic attributes.
-
-    Todo:
-        could extend the functionality to cover models that don't have defaults
-        using [pydantic-factories](https://github.com/Goldziher/pydantic-factories)
-
-    Args:
-        pyobj (SerializableCallable): definition of where to get a pydantic model
-        path (pathlib.Path): where to save the pydantic json
-        **kwargs : passed to the pydantic model upon initiation
-
-    Returns:
-        path
-    """
-    if type(pyobj) == str:
-        obj = SerializableCallable(pyobj).callable_obj
+def traits_in_kwargs(call: ty.Callable, kwargs: dict):
+    """get traits for kwargs"""
+    if not hasattr(call, "traits"):
+        logger.error("call must have traits attribute")
+        return {}
     else:
-        obj = load_PyObj(pyobj)
-    assert (
-        str(type(obj)) == "<class 'pydantic.main.ModelMetaclass'>"
-    ), "the python object must be a pydantic model"
-    if not hasattr(obj, "file"):
-        setattr(obj, "file", file)
-    assert hasattr(
-        obj, "file"
-    ), "the pydantic BaseModel must be extended to have method 'file' for writing model to json"
-    myobj = obj(**kwargs)
-    myobj.file(path)
-    return path
+        return {k: v for k, v in kwargs.items() if k in list(call.traits(call).keys())}
 
 
 def remove_non_present_kwargs(callable_: ty.Callable, di: dict):
     """do this if required (get allowed args from callable)"""
-    args = inspect.getfullargspec(callable_).args
-    return {k_: v_ for k_, v_ in di.items() if k_ in args}
+    argspec = argspecs_in_kwargs(callable_, di)
+    traits = traits_in_kwargs(callable_, di)
+    return {**argspec, **traits}
 
 
 def get_ext(fpth):
@@ -426,6 +384,7 @@ def st_mtime_string(path):
     """st_mtime_string for a given path"""
     try:
         import time
+
         t = path.stat().st_mtime
         return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
     except:

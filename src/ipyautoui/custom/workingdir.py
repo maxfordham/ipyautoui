@@ -19,8 +19,6 @@ a UI element that loads a folder for data caching, whilst storing a record of fo
 """
 
 # %run ../_dev_sys_path_append.py
-# %run __init__.py
-#
 # %load_ext lab_black
 
 # +
@@ -66,6 +64,7 @@ def get_projects():
 
 # PROJECTS = get_projects()
 
+
 # +
 class RibaStages(str, Enum):
     stage1 = "Stage1"
@@ -101,6 +100,8 @@ class WorkingDir(BaseModel):
     usage: ty.List[Usage] = Field(default_factory=lambda: [])
     dir_model: str
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("fdir", always=True, pre=True)
     def _fdir(cls, v, values):
         return (
@@ -111,6 +112,8 @@ class WorkingDir(BaseModel):
             / values["riba_stage"].value
         )
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("key", always=True, pre=True)
     def _key(cls, v, values):
         return (
@@ -150,6 +153,7 @@ def get_working_dirs(path=FPTH_WORKING_DIRS):
 
 # get_working_dirs()
 
+
 # + tags=[]
 class AnalysisDir(BaseModel):
     fdir: pathlib.Path
@@ -162,34 +166,50 @@ class AnalysisDir(BaseModel):
     models: pathlib.Path = None
     outputs: pathlib.Path = None
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("reference", always=True, pre=True)
     def _reference(cls, v, values):
         return values["fdir"] / "00_Reference"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("incoming", always=True, pre=True)
     def _incoming(cls, v, values):
         return values["fdir"] / "01_Incoming"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("input_data", always=True, pre=True)
     def _input_data(cls, v, values):
         return values["fdir"] / "02_InputData"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("cad", always=True, pre=True)
     def _cad(cls, v, values):
         return values["fdir"] / "03_CAD"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("images", always=True, pre=True)
     def _images(cls, v, values):
         return values["fdir"] / "04_Images"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("calcs", always=True, pre=True)
     def _calcs(cls, v, values):
         return values["fdir"] / "05_Calcs"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("models", always=True, pre=True)
     def _models(cls, v, values):
         return values["fdir"] / "06_Models"
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("outputs", always=True, pre=True)
     def _outputs(cls, v, values):
         return values["fdir"] / "99_Outputs"
@@ -204,11 +224,11 @@ def add_working_dir(
     if isinstance(wdir, dict):
         wdir = WorkingDir(**wdir)
     wdirs = get_working_dirs(path=path).dict(by_alias=False)
-    now_usage = [Usage(user=get_user(), timestamp=datetime.now()).dict()]
+    now_usage = [Usage(user=get_user(), timestamp=datetime.now()).model_dump()]
     if wdir.key in wdirs["dirs"].keys():
         past_usage = wdirs["dirs"][wdir.key]["usage"]
     else:
-        wdirs["dirs"][wdir.key] = wdir.dict()
+        wdirs["dirs"][wdir.key] = wdir.model_dump()
         past_usage = []
     usage = past_usage + now_usage
     wdirs["dirs"][wdir.key]["usage"] = usage
@@ -217,7 +237,7 @@ def add_working_dir(
 
 
 def is_templated_dir(adir: ty.Type[BaseModel]):
-    for k, v in adir.dict().items():
+    for k, v in adir.model_dump().items():
         if not v.exists():
             return False
     else:
@@ -225,7 +245,7 @@ def is_templated_dir(adir: ty.Type[BaseModel]):
 
 
 def make_dirs(adir):
-    for k, v in adir.dict().items():
+    for k, v in adir.model_dump().items():
         if isinstance(v, pathlib.Path):
             v.mkdir(parents=True, exist_ok=True)
     return adir
@@ -390,7 +410,6 @@ class WorkingDirsUi(w.HBox):
 
     @fn_onload.setter
     def fn_onload(self, value):
-
         if isinstance(value, ty.Callable):
             value = [value]
         elif isinstance(value, ty.List):

@@ -1,70 +1,157 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-"""Tests for `ipyautoui` package."""
-from pprint import pprint
-import shutil
-import pathlib
-
-# from src.ipyautoui.test_schema import TestSchema
-
-# from ipyautoui.tests import test_display_widget_mapping
-from .constants import DIR_TESTS, DIR_FILETYPES
-from ipyautoui.automapschema import _init_model_schema  # AutoUiSchema,
-from ipyautoui.autoipywidget import AutoObject
-from ipyautoui.demo_schemas import (
-    CoreIpywidgets,
-    RootArrayEnum,
-    Nested,
-    Filter,
-)
-from ipyautoui.demo_schemas.ruleset import ScheduleRuleSet
-import json
 import pytest
+import pathlib
+from pytest_examples import find_examples, CodeExample, EvalExample
+from ipyautoui.automapschema import _init_model_schema, map_widget
+from ipyautoui.demo_schemas import CoreIpywidgets
+import stringcase
+from pydantic import BaseModel, Field, conint
+from ipyautoui.demo_schemas.array_object_dataframe import ArrayObjectDataframe
+import typing as ty
+from typing_extensions import Annotated
+from enum import Enum
+from jsonref import replace_refs
+from ipyautoui.automapschema import widgetcaller
+
+fpth_module = (
+    pathlib.Path(__file__).parent.parent / "src" / "ipyautoui" / "automapschema.py"
+)
 
 
-class TestAutoUiSchema:
-    # def test_demo_schema(self):
-    #     sch = AutoUiSchema(CoreIpywidgets)
-    #     assert type(sch.schema) == dict
-    #     print("done")
+@pytest.mark.parametrize("example", find_examples(fpth_module), ids=str)
+def test_docstrings(example: CodeExample, eval_example: EvalExample):
+    eval_example.run_print_check(example)
 
-    # def test_demo_RootArrayEnum(self):
-    #     sch = AutoUiSchema(RootArrayEnum)
-    #     print("done")
 
-    def test_demo_init_model_schema_RootArrayEnum(self):
-        model, schema = _init_model_schema(RootArrayEnum)
-        assert "allOf" not in schema["definitions"]["UniclassProductsUi"].keys()
-        print("done")
+def test_simple():
+    class Test(BaseModel):
+        # a: int
+        b: int = Field(
+            1, title="b title", ge=0, le=10, json_schema_extra=dict(tooltip="b tooltip")
+        )
 
-    def test_demo_init_model_schema_check_nullable(self):
-        model, schema = _init_model_schema(CoreIpywidgets)
-        # assert schema
-        assert schema["properties"]["int_slider_nullable"]["nullable"]
-        assert "nullable" not in schema["properties"]["int_slider_req"].keys()
-        print("done")
+    model, schema = _init_model_schema(Test)
+    pr = schema["properties"]
+    wi = {
+        property_key: map_widget(property_schema)
+        for property_key, property_schema in pr.items()
+    }
+    assert wi["b"].kwargs["tooltip"] == "b tooltip"
+    print("done")
 
-    def test_Nested(self):
-        model, schema = _init_model_schema(Nested)
-        aui = AutoObject(schema=Nested)
-        assert list(aui.di_widgets.keys()) == [
-            "nested",
-            "recursive_nest",
-            "array_simple",
-            "array_objects",
-            "nullable_list",
-            "nullable_object",
-        ]
 
-        print("done")
+# def test_range_slider():
+#     class Test(BaseModel):
+#         # a: int
+#         b: tuple[conint(ge=0, le=10), conint(ge=0, le=10)] = Field(
+#             (3, 5),
+#             title="b title",
+#             json_schema_extra=dict(tooltip="b tooltip"),
+#         )
 
-    def test_Rule(self):
-        model, schema = _init_model_schema(ScheduleRuleSet)
-        aui = AutoObject(schema=ScheduleRuleSet)
-        assert list(aui.di_widgets.keys()) == ["set_type", "rules"]
-        print("done")
+#     model, schema = _init_model_schema(Test)
+#     pr = schema["properties"]
+#     wi = {
+#         property_key: map_widget(property_schema)
+#         for property_key, property_schema in pr.items()
+#     }
+#     assert wi["b"].kwargs["tooltip"] == "b tooltip"
+#     assert wi["b"].kwargs["min"] == 0
+#     assert wi["b"].kwargs["max"] == 10
+#     print("done")
 
-    def test_Filter(self):
-        aui = AutoObject(schema=Filter)
-        print("done")
+
+def assert_widget_map(schema):
+    pr = schema["properties"]
+    wi = {
+        property_key: map_widget(property_schema)
+        for property_key, property_schema in pr.items()
+    }
+    for k, v in wi.items():
+        got, target = v.autoui.__name__, stringcase.pascalcase(k)
+        try:
+            assert got in target
+        except:
+            s = v.schema_
+            print(got, target)
+            raise AssertionError(got, target)
+
+
+def test_range_slider():
+    class Test(BaseModel):
+        """this is a test UI form to demonstrate how pydantic class can  be used to generate an ipywidget input form.
+        only simple datatypes used (i.e. not lists/arrays or objects)
+        """
+
+        int_slider_nullable: ty.Optional[Annotated[int, Field(ge=1, le=3)]] = None
+
+    model, schema = _init_model_schema(Test)
+    assert_widget_map(schema)
+
+
+def test_combobox():
+    class FruitEnum(str, Enum):
+        """fruit example."""
+
+        apple = "apple"
+        pear = "pear"
+        banana = "banana"
+        orange = "orange"
+
+    class Test(BaseModel):
+        """this is a test UI form to demonstrate how pydantic class can  be used to generate an ipywidget input form.
+        only simple datatypes used (i.e. not lists/arrays or objects)
+        """
+
+        combobox: ty.Union[str, FruitEnum] = Field("apple")
+
+    model, schema = _init_model_schema(Test)
+    assert_widget_map(schema)
+
+
+def test_core_ipywidgets_map_widget():
+    model, schema = _init_model_schema(CoreIpywidgets)
+    pr = schema["properties"]
+    wi = {
+        property_key: map_widget(property_schema, fail_on_error=True)
+        for property_key, property_schema in pr.items()
+    }
+    for k, v in wi.items():
+        got, target = v.autoui.__name__, stringcase.pascalcase(k)
+        try:
+            assert got in target
+        except:
+            s = v.schema_
+            print(got, target)
+            raise AssertionError(got, target)
+
+
+def test_array_object_dataframe_map_widget():
+    model, schema = _init_model_schema(ArrayObjectDataframe)
+    pr = schema["properties"]
+    wi = {
+        property_key: map_widget(property_schema, fail_on_error=True)
+        for property_key, property_schema in pr.items()
+    }
+    for k, v in wi.items():
+        got, target = v.autoui.__name__, stringcase.pascalcase(k)
+        try:
+            assert got in target
+        except:
+            s = v.schema_
+            print(got, target)
+            raise AssertionError(got, target)
+    print("done")
+
+def test_union():
+
+    class MyObject(BaseModel):
+        stringy: str = Field("stringy", description="asdfsadf")
+        inty: int = 1
+        floaty: ty.Union[float, str] = 1.5
+
+    di = replace_refs(MyObject.model_json_schema())
+    caller = map_widget(di)
+    assert "anyOf" in caller.kwargs["properties"]["floaty"]
+    ui = widgetcaller(caller)
+    assert len(ui.di_widgets["floaty"].anyOf) == 2
+    
