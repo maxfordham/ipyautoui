@@ -42,10 +42,13 @@ IPYAUTOUI_ROOTDIR = Env().IPYAUTOUI_ROOTDIR
 IS_IPYWIDGETS8 = (lambda: True if "8" in w.__version__ else False)()
 logger = logging.getLogger(__name__)
 
-logger.warning("FileUploadToDir still needs fixing following updates to `iterable.py`. DO NOT USE.")
+logger.warning(
+    "FileUploadToDir still needs fixing following updates to `iterable.py`. DO NOT USE."
+)
 
 
 # -
+
 
 class File(BaseModel):
     name: str
@@ -174,9 +177,9 @@ if __name__ == "__main__":
     class Test(BaseModel):
         string: str
         paths: list[pathlib.Path] = Field(
-            autoui="__main__.AutoUploadPaths",
             title="A longish title about something",
             description="with a rambling description as well...",
+            json_schema_extra=dict(autoui="__main__.AutoUploadPaths"),
         )
 
     value = {"string": "string", "paths": ["bdns.csv"]}
@@ -229,7 +232,9 @@ if __name__ == "__main__":
     from ipyautoui import AutoUi
 
     class Test(BaseModel):
-        paths: list[pathlib.Path] = Field(autoui="__main__.AutoUploadPathsValueString")
+        paths: list[pathlib.Path] = Field(
+            json_schema_extra=dict(autoui="__main__.AutoUploadPathsValueString")
+        )
 
     aui = AutoUi(Test)
     display(aui)

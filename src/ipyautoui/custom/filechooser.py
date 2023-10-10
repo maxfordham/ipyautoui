@@ -107,13 +107,12 @@ if __name__ == "__main__":
     fc.value = test_constants.PATH_TEST_AUI
 
 if __name__ == "__main__":
-
     from pydantic import BaseModel, Field
     from ipyautoui import AutoUi
 
     class Test(BaseModel):
         path: pathlib.Path = Field(
-            ".", filter_pattern=["*.py"]
+            ".", json_schema_extra=dict(filter_pattern=["*.py"])
         )  # note. filter_pattern ipyfilechooser kwarg passed on
         string: str = "test"
 

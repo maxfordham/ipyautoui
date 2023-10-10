@@ -629,17 +629,17 @@ if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
 
     class DataFrameCols(BaseModel):
-        string: str = Field("string", column_width=400, section="a")
-        integer: int = Field(1, column_width=80, section="a")
-        floater: float = Field(None, column_width=70, section="b")
+        string: str = Field("string", json_schema_extra=dict(column_width=400, section="a"))
+        integer: int = Field(1, json_schema_extra=dict(column_width=80, section="a"))
+        floater: float = Field(None, json_schema_extra=dict(column_width=70, section="b"))
 
     class TestDataFrame(RootModel):
         """a description of TestDataFrame"""
 
         root: ty.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE,
-            format="dataframe",
-            datagrid_index_name=("section", "title"),
+            json_schema_extra=dict(format="dataframe",
+                datagrid_index_name=("section", "title")),
         )
 
     title = "The Wonderful Edit Grid Application"

@@ -454,17 +454,20 @@ if __name__ == "__main__":
         string: str = Field(
             "string",
             title="Important String",
-            column_width=120,
+            json_schema_extra=dict(column_width=120),
         )
-        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        integer: int = Field(
+            40, title="Integer of somesort", json_schema_extra=dict(column_width=150)
+        )
         floater: float = Field(
-            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
+            1.3398234,
+            title="Floater",
+            json_schema_extra=dict(column_width=70),  # , renderer={"format": ".2f"}
         )
 
     class TestDataFrame(RootModel):
-        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
         root: ty.List[DataFrameCols] = Field(
-            ..., format="dataframe", global_decimal_places=2
+            ..., json_schema_extra=dict(global_decimal_places=2, format="dataframe")
         )
 
     model, schema = asch._init_model_schema(TestDataFrame)
@@ -1076,11 +1079,8 @@ if __name__ == "__main__":
         )
 
     class TestDataFrame(RootModel):
-        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
         root: ty.List[DataFrameCols] = Field(
-            # [DataFrameCols()], format="dataframe", global_decimal_places=2
-            format="dataframe",
-            global_decimal_places=2,
+            json_schema_extra=dict(format="dataframe", global_decimal_places=2),
         )
 
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
@@ -1092,17 +1092,18 @@ if __name__ == "__main__":
         string: str = Field(
             "string",
             title="Important String",
-            column_width=120,
+            json_schema_extra=dict(column_width=120),
         )
-        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        integer: int = Field(
+            40, title="Integer of somesort", json_schema_extra=dict(column_width=150)
+        )
         floater: float = Field(
-            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
+            1.3398234, title="Floater", json_schema_extra=dict(column_width=70)
         )
 
     class TestDataFrame(RootModel):
         root: ty.List[DataFrameCols] = Field(
-            format="dataframe",
-            global_decimal_places=2,
+            json_schema_extra=dict(format="dataframe", global_decimal_places=2),
         )
 
     grid = AutoGrid(
@@ -1134,17 +1135,17 @@ if __name__ == "__main__":
         string: str = Field(
             "string",
             title="Important String",
-            column_width=120,
+            json_schema_extra=dict(column_width=120),
         )
-        integer: int = Field(40, title="Integer of somesort", column_width=150)
+        integer: int = Field(40, title="Integer of somesort", json_schema_extra=dict(column_width=150))
         floater: float = Field(
-            1.3398234, title="Floater", column_width=70  # , renderer={"format": ".2f"}
+            1.3398234, title="Floater", json_schema_extra=dict(column_width=70)  # , renderer={"format": ".2f"}
         )
 
     class TestDataFrame(RootModel):
         root: ty.List[DataFrameCols] = Field(
-            format="dataframe",
-            global_decimal_places=2,
+            json_schema_extra=dict(format="dataframe",
+            global_decimal_places=2),
         )
 
     grid = AutoGrid(schema=TestDataFrame, order=("floater", "string", "integer"))
@@ -1157,9 +1158,9 @@ if __name__ == "__main__":
             title="Important String",
             column_width=120,
         )
-        integer: int = Field(title="Integer of somesort", column_width=400)
+        integer: int = Field(title="Integer of somesort", json_schema_extra=dict(column_width=400))
         floater: float = Field(
-            title="Floater", column_width=70  # , renderer={"format": ".2f"}
+            title="Floater", json_schema_extra=dict(column_width=70)  # , renderer={"format": ".2f"}
         )
 
     class TestDataFrame(RootModel):
@@ -1169,8 +1170,8 @@ if __name__ == "__main__":
                 DataFrameCols(string="another string", integer=10, floater=2.5),
                 DataFrameCols(string="test", integer=42, floater=0.78),
             ],
-            format="dataframe",
-            global_decimal_places=2,
+            json_schema_extra=dict(format="dataframe",
+            global_decimal_places=2),
         )
 
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
@@ -1222,17 +1223,17 @@ if __name__ == "__main__":
         floater: float = Field(
             1.3398234,
             title="Floater",
-            column_width=70,
-            section="b",  # , renderer={"format": ".2f"}
+            json_schema_extra=dict(column_width=70,
+            section="b"),  # , renderer={"format": ".2f"}
         )
 
     class TestDataFrame(RootModel):
         # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
         root: ty.List[DataFrameCols] = Field(
             [DataFrameCols()],
-            format="dataframe",
+            json_schema_extra=dict(format="dataframe",
             global_decimal_places=2,
-            datagrid_index_name=("section", "title"),
+            datagrid_index_name=("section", "title")),
         )
 
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
