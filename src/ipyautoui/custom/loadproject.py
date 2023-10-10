@@ -53,7 +53,7 @@ class LoadProject(w.HBox, tr.HasTraits):
         if not bool(matched):
             print(self.pattern)
             print(val)
-            raise TraitError(f"string musts have format: {self.pattern}")  #
+            raise tr.TraitError(f"string musts have format: {self.pattern}")  #
         return val
 
     def __init__(
