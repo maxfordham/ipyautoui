@@ -950,19 +950,6 @@ def widgetcaller(caller: WidgetCaller, show_errors=True):
             import traceback
 
             e = str(e) + "\n" + traceback.format_exc()
-            txt = f"""
-ERROR: widgetcaller
------
-widget:
-{str(caller.autoui)}
-
-schema: 
-{str(caller.schema_)}
-
-error:
-{e}
-"""
-            # TODO: add logging
             wi = WidgetCallerError(
                 widget=str(caller.autoui), schema=caller.schema_, error=str(e)
             )
