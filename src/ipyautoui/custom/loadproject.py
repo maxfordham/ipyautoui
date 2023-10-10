@@ -92,7 +92,7 @@ class LoadProject(w.HBox, tr.HasTraits):
             # description='add run',
             tooltip="load job",
             button_style="success",
-            icon="fa-upload",
+            icon="upload",
             style={"font_weight": "bold"},
             layout=dict(width=BUTTON_WIDTH_MIN),
         )
