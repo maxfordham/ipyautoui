@@ -1,4 +1,4 @@
-name: Test Python Package (Cached Conda Environment)
+name: Tests
 
 on:
   push:
