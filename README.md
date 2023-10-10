@@ -1,6 +1,6 @@
 # ipyautoui
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![PyPI version](https://badge.fury.io/py/ipyautoui.svg)](https://badge.fury.io/py/ipyautoui)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![PyPI version](https://badge.fury.io/py/ipyautoui.svg)](https://badge.fury.io/py/ipyautoui) [![Test Python Package](https://github.com/maxfordham/ipyautoui/actions/workflows/test-python-package.yml/badge.svg)](https://github.com/maxfordham/ipyautoui/actions/workflows/test-python-package.yml)
 
 ![](docs/logo.png)
 
