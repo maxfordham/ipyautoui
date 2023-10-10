@@ -95,12 +95,10 @@ class ItemBox(w.Box):
         self.map_controls[self.add_remove_controls]()
 
     @tr.observe("widget")
-    def _obj(self, on_change):
-        try:
-            self.children[2].children = [self.widget]
-        except:
+    def _widget(self, on_change):
+        if len(self.children) == 0:
             self.set_children()
-            self.children[2].children = [self.widget]
+        self.children[2].children = [self.widget]
 
     def _remove_only(self):
         self.bn_add.layout.display = "None"
@@ -227,13 +225,15 @@ class Array(w.VBox):
     def __init__(self, **kwargs):
         self.bn_add_from_zero = w.Button(**ADD_BUTTON_KWARGS)
         self.bn_add_from_zero.layout.display = "None"
-        if "objects" not in kwargs:  # TODO: objects -> li_widgets ?
-            self.objects = []
+        if "li_widgets" not in kwargs:  # TODO: li_widgets -> li_widgets ?
+            self.li_widgets = []
             self.bn_add_from_zero.layout.display = ""
         else:
-            self.objects = kwargs["objects"]
+            self.li_widgets = kwargs["li_widgets"]
         self.bx_boxes = w.Box()
-        self.boxes = [ItemBox(n, widget=widget) for n, widget in enumerate(self.objects)]
+        self.boxes = [
+            ItemBox(n, widget=widget) for n, widget in enumerate(self.li_widgets)
+        ]
         super().__init__(**kwargs)
         self.children = [self.bn_add_from_zero, self.bx_boxes]
         self._init_controls()
