@@ -354,76 +354,9 @@ def obj_from_importstr(importstr: str) -> ty.Type:
     return getattr(importlib.import_module(mod), nm)
 
 
-# class SerializableCallable(BaseModel):  # NOT IN USE
-#     callable_str: ty.Union[ty.Callable, str] = Field(
-#         ...,
-#         description="import string that can use importlib\
-#                                                               to create a python obj. Note. if a Callable object\
-#                                                               is given it will be converted into a string",
-#     )
-#     callable_obj: ty.Union[ty.Callable, ty.Type] = Field(None, exclude=True)
-
-#     # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-#     # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-#     @validator("callable_str", always=True)
-#     def _callable_str(cls, v, values):
-#         if type(v) != str:
-#             return obj_to_importstr(v)
-#         invalid = [i for i in "!@#£[]()<>|¬$%^&*,?''- "]
-#         for i in invalid:
-#             if i in v:
-#                 raise ValueError(
-#                     f"callable_str = {v}. import_str must not contain spaces {i}"
-#                 )
-#         return v
-
-#     # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-#     # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-#     @validator("callable_obj", always=True)
-#     def _callable_obj(cls, v, values):
-#         return obj_from_importstr(values["callable_str"])
-
-
-def create_pydantic_json_file(
-    pyobj: ty.Union[str, PyObj], path: pathlib.Path, **kwargs
-):
-    """
-    loads a pyobj (which must be a pydantic model) and then saves the default Json to file.
-    this requires defaults for all pydantic attributes.
-
-    Todo:
-        could extend the functionality to cover models that don't have defaults
-        using [pydantic-factories](https://github.com/Goldziher/pydantic-factories)
-
-    Args:
-        pyobj (SerializableCallable): definition of where to get a pydantic model
-        path (pathlib.Path): where to save the pydantic json
-        **kwargs : passed to the pydantic model upon initiation
-
-    Returns:
-        path
-    """
-    if type(pyobj) == str:
-        obj = SerializableCallable(pyobj).callable_obj
-    else:
-        obj = load_PyObj(pyobj)
-    assert (
-        str(type(obj)) == "<class 'pydantic.main.ModelMetaclass'>"
-    ), "the python object must be a pydantic model"
-    if not hasattr(obj, "file"):
-        setattr(obj, "file", file)
-    assert hasattr(
-        obj, "file"
-    ), "the pydantic BaseModel must be extended to have method 'file' for writing model to json"
-    myobj = obj(**kwargs)
-    myobj.file(path)
-    return path
-
-
 def argspecs_in_kwargs(call: ty.Callable, kwargs: dict):
     """get argspecs for kwargs"""
-    args = inspect.getfullargspec(call).args
-    return {k: v for k, v in kwargs.items() if k in args}
+    return {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(call).args}
 
 
 def traits_in_kwargs(call: ty.Callable, kwargs: dict):
