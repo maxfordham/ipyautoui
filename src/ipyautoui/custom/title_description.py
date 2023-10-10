@@ -61,6 +61,7 @@ class TitleDescription(tr.HasTraits):
 
 
 if __name__ == "__main__":
+    from IPython.display import display
 
     class Test(w.HBox, TitleDescription):
         def __init__(self, **kwargs):

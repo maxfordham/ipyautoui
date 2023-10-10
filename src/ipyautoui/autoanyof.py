@@ -148,6 +148,7 @@ if __name__ == "__main__":
     from enum import Enum
     from ipyautoui.automapschema import _init_model_schema
     from typing_extensions import Annotated
+    from IPython.display import display
 
     class MyEnum(str, Enum):
         state1 = "state1"

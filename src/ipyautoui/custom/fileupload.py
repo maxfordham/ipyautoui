@@ -127,7 +127,7 @@ class FilesUploadToDir(Array):
 
     def add_files(self, paths: list[str]):
         for p in paths:
-            self.add_row(obj=DisplayPath(str(p), **self.kwargs_display_path))
+            self.add_row(widget=DisplayPath(str(p), **self.kwargs_display_path))
 
     def fn_remove_file(self, key=None):
         p = pathlib.Path(self.map_key_value[key])

@@ -17,6 +17,7 @@
 # %run _dev_sys_path_append.py
 # %load_ext lab_black
 
+import pathlib
 import ipyvuetify as v
 import traitlets as tr
 import ipywidgets as w

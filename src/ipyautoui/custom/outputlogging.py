@@ -173,6 +173,7 @@ class LoggingAccordion(w.Accordion):  # TODO; inherit from LoggingUiBase
 # -
 
 if __name__ == "__main__":
+    from IPython.display import display
 
     def div(a, b):
         try:

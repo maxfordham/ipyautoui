@@ -307,6 +307,8 @@ class FindFiles(w.VBox, tr.HasTraits):
 
 
 if __name__ == "__main__":
+    from IPython.display import display
+    
     fdir = "../"
     patterns = ["*file*"]
     pydantic_obj = FilesInDir(fdir=fdir, patterns=patterns)

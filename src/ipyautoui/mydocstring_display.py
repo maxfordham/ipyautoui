@@ -172,6 +172,10 @@ def md_to_file(str_md, fpth_md):
     return fpth_md
 
 
+def fpth_chg_extension(fpth, new_ext='docx'):
+    return os.path.splitext(fpth)[0] + '.' + new_ext
+
+
 def docstring_to_mdfile(fpth_py, fpth_md=None, functions=None):
     if fpth_md is None:
         fpth_md = fpth_chg_extension(fpth_py, new_ext=".md")

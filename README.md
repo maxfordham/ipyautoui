@@ -141,7 +141,7 @@ $ git clone https://github.com/maxfordham/ipyautoui
 $ cd ipyautoui
 
 # assuming that you have `mamba` installed:
-$ mamba env create -f environment-dev.yml
+$ mamba env create -f environment.yml
 
 # run tests
 $ pytest

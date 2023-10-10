@@ -1080,6 +1080,7 @@ class AutoGrid(DataGrid):
 # -
 
 if __name__ == "__main__":
+    from IPython.display import display
     from pydantic import RootModel
 
     class DataFrameCols(BaseModel):

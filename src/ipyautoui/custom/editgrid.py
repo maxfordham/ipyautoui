@@ -27,7 +27,7 @@ import logging
 import traceback
 import pandas as pd
 import ipywidgets as w
-from IPython.display import clear_output
+from IPython.display import clear_output, display
 from markdown import markdown
 from pydantic import BaseModel, Field
 
@@ -66,7 +66,6 @@ class DataHandler(BaseModel):
 
 
 if __name__ == "__main__":
-
     class TestModel(BaseModel):
         string: str = Field("string", title="Important String")
         integer: int = Field(40, title="Integer of somesort")

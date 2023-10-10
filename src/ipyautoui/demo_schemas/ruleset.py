@@ -186,6 +186,7 @@ Analogous to filter rules in
 
 # %%
 if __name__ == "__main__":
+    from IPython.display import display
     # m, s = _init_model_schema(ObjSet)
     ui = AutoObject.from_schema(ScheduleRuleSet)  # .model_json_schema()
     display(ui)
