@@ -13,8 +13,6 @@
 #     name: python3
 # ---
 
-# TODO: support arrary / dictionary of length = 0
-# TODO: change `align_horizontal` to `align_horizontal` and flip logic
 """A generic iterable object.
 
 Creates an array object where widgets can be added or removed. if the widgets have a "value" or "_value" trait the 
@@ -80,19 +78,13 @@ class ItemControl(enum.Enum):
     none = None
 
 
-# USE: number (as int)
-
-
-# TODO: inherit AutoBox ?
 class ItemBox(w.Box):
     index = tr.Int()
     key = tr.Union([tr.Int(), tr.Unicode(), tr.Instance(klass=UUID)])
     add_remove_controls = tr.UseEnum(ItemControl, default_value=ItemControl.add_remove)
-    obj = tr.Any(
+    widget = tr.Any(
         default_value=w.ToggleButton(description="placeholder")
     )  # TODO: rename widget
-
-    # show_hash = tr.Bool(default_value=True)  # TODO
 
     @tr.default("key")
     def _default_key(self):
@@ -102,19 +94,19 @@ class ItemBox(w.Box):
     def _add_remove_controls(self, on_change):
         self.map_controls[self.add_remove_controls]()
 
-    @tr.observe("obj")
+    @tr.observe("widget")
     def _obj(self, on_change):
         try:
-            self.children[2].children = [self.obj]
+            self.children[2].children = [self.widget]
         except:
             self.set_children()
-            self.children[2].children = [self.obj]
+            self.children[2].children = [self.widget]
 
     def _remove_only(self):
         self.bn_add.layout.display = "None"
         self.bn_remove.layout.display = ""
 
-    def _append_only(self):  # TODO: remove option?
+    def _append_only(self):
         self.bn_add.layout.display = "None"
         self.bn_remove.layout.display = ""
 
@@ -144,7 +136,7 @@ class ItemBox(w.Box):
                 [self.bn_add, self.bn_remove], layout=w.Layout(flex="1 0 auto")
             ),  # buttons
             w.Box(layout=w.Layout(flex="1 0 auto")),  # label
-            w.Box([self.obj], layout=w.Layout(flex="100%")),  # item
+            w.Box([self.widget], layout=w.Layout(flex="100%")),  # item
         ]
 
 
@@ -182,7 +174,7 @@ class Array(w.VBox):
         self.bx_boxes.children = []
         [self.add_row() for v in value]
         for n, v in enumerate(value):
-            self.boxes[n].obj.value = v
+            self.boxes[n].widget.value = v
         self._update_value("onchange")
 
     @tr.validate("type")
@@ -241,7 +233,7 @@ class Array(w.VBox):
         else:
             self.objects = kwargs["objects"]
         self.bx_boxes = w.Box()
-        self.boxes = [ItemBox(n, obj=obj) for n, obj in enumerate(self.objects)]
+        self.boxes = [ItemBox(n, widget=widget) for n, widget in enumerate(self.objects)]
         super().__init__(**kwargs)
         self.children = [self.bn_add_from_zero, self.bx_boxes]
         self._init_controls()
@@ -267,11 +259,11 @@ class Array(w.VBox):
         self._get_attribute(key, "bn_remove").on_click(
             functools.partial(self._remove_rows, key=key)
         )
-        obj = self._get_attribute(key, "obj")
-        if "value" in obj.traits():
-            obj.observe(self._update_value, names="value")
-        elif "_value" in obj.traits():
-            obj.observe(self._update_value, names="_value")
+        widget = self._get_attribute(key, "widget")
+        if "value" in widget.traits():
+            widget.observe(self._update_value, names="value")
+        elif "_value" in widget.traits():
+            widget.observe(self._update_value, names="_value")
         else:
             logging.info(
                 'array item must have either "value" or "_value" trait to be observed'
@@ -287,7 +279,7 @@ class Array(w.VBox):
         self.boxes = sort
 
     def _update_value(self, on_change):
-        self._value = [bx.obj.value for bx in self.boxes]
+        self._value = [bx.widget.value for bx in self.boxes]
 
     def _update_boxes(self):
         self.bx_boxes.children = self.boxes
@@ -301,7 +293,7 @@ class Array(w.VBox):
     def _add_row(self, onclick, key=None):
         self.add_row(key=key)
 
-    def add_row(self, key=None, new_key=None, add_kwargs=None, obj=None):
+    def add_row(self, key=None, new_key=None, add_kwargs=None, widget=None):
         """add row to array after key. if key=None then append to end"""
         if self.max_items is not None and len(self.boxes) >= self.max_items:
             logging.warning(
@@ -328,15 +320,15 @@ class Array(w.VBox):
         if add_kwargs is None:
             add_kwargs = {}
 
-        if obj is None:
+        if widget is None:
             new_obj = self.fn_add(**add_kwargs)
         else:
-            new_obj = obj
+            new_obj = widget
 
         bx = ItemBox(
             index=index,
             key=new_key,
-            obj=new_obj,
+            widget=new_obj,
             add_remove_controls=self.add_remove_controls,
         )
         self.boxes.insert(index + 1, bx)
@@ -388,10 +380,10 @@ class AutoArray(Array):
         self.bx_boxes.children = []
         [self.add_row() for v in value]
         for n, v in enumerate(value):
-            self.boxes[n].obj.value = v
+            self.boxes[n].widget.value = v
         self._update_value("onchange")
 
-    @tr.observe("allOf")  # TODO: is this requried?
+    @tr.observe("allOf")
     def _allOf(self, on_change):
         if self.allOf is not None and len(self.allOf) == 1:
             if "items" in self.allOf[0]:
@@ -442,7 +434,6 @@ if __name__ == "__main__":
     s = replace_refs(ArrayWithUnionType.model_json_schema())
     v = MyObject(floaty=0.2).model_dump()
     s["value"] = [v]
-    # ui = AutoArrayNew(**{**s, **{"value": v}})
     ui = AutoArrayForm.from_schema(s)
     display(ui)
 
