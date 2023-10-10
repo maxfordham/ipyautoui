@@ -25,7 +25,7 @@ from ipyautoui.constants import (
     LOAD_BUTTON_KWARGS,
 )
 from ipyautoui.custom.halo_decorator import halo_decorator
-from IPython.display import clear_output
+from IPython.display import clear_output, display
 
 
 class SelectAndClick(w.Box):

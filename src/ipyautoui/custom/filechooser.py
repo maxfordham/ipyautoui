@@ -98,6 +98,7 @@ class FileChooser(FileChooser):
 
 if __name__ == "__main__":
     from ipyautoui.constants import load_test_constants
+    from IPython.display import display
 
     test_constants = load_test_constants()
     fc = FileChooser(test_constants.PATH_TEST_AUI.parent)

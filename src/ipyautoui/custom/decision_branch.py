@@ -108,6 +108,7 @@ class DecisionUi(w.HBox):
 
 
 if __name__ == "__main__":
+    from IPython.display import display
     PROJECTS = ["J5001", "J5002"]
     t = TreeModel(
         **{

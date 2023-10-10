@@ -209,6 +209,8 @@ class MultiToggleButtons(BaseToggleButtons):
 
 
 if __name__ == "__main__":
+    from IPython.display import display
+    
     wid = MultiToggleButtons(
         options=[str(i) for i in range(10)],
         # max_chosen_values=2,

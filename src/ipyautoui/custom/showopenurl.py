@@ -16,7 +16,7 @@
 # %run ../_dev_sys_path_append.py
 # %load_ext lab_black
 
-from IPython.display import IFrame, Javascript, clear_output
+from IPython.display import IFrame, Javascript, clear_output, display
 import ipywidgets as w
 import traitlets as tr
 from ipyautoui.custom.showhide import ShowHide

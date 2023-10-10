@@ -1,6 +1,7 @@
 # +
 import ipywidgets as w
 import traitlets as tr
+import typing as ty
 
 from IPython.display import display, clear_output
 from ipyautoui.constants import BUTTON_WIDTH_MIN

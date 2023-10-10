@@ -194,5 +194,7 @@ class RunName(w.HBox):
 # +
 
 if __name__ == "__main__":
+    from IPython.display import display
+    
     run = RunName(value="03-lean-description", index=3)
     display(run)

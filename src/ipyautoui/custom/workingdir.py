@@ -22,26 +22,21 @@ a UI element that loads a folder for data caching, whilst storing a record of fo
 # %load_ext lab_black
 
 # +
-from pydantic import BaseModel, validator, Field
-from ipyautoui.constants import LOAD_BUTTON_KWARGS, BUTTON_WIDTH_MIN
-from IPython.display import clear_output, Markdown
-from ipyautoui._utils import file, get_user
+import logging
+import pathlib
 import ipywidgets as w
 import traitlets as tr
-
-from halo import HaloNotebook
-from enum import Enum
-import pathlib
-from pydantic import BaseModel
 import typing as ty
 from datetime import datetime
-import logging
-from ipyautoui._utils import obj_to_importstr
+from halo import HaloNotebook
+from enum import Enum
+from pydantic import BaseModel, validator, Field
+from ipyautoui.constants import LOAD_BUTTON_KWARGS, BUTTON_WIDTH_MIN
+from IPython.display import clear_output, Markdown, display
+from ipyautoui._utils import file, get_user, obj_to_importstr
 
-try:
-    from mf_file_utilities.applauncher_wrapper import get_fpth_win
-except:
-    get_fpth_win = lambda v: v
+
+get_fpth_win = lambda v: v
 
 # +
 setattr(BaseModel, "file", file)
@@ -267,7 +262,7 @@ it will launch on load."""
                 )
             )
         return "analysis_dir_exists"
-    elif adir.fdir.exists() and not check_if_analysis_dir(adir):
+    elif adir.fdir.exists():
         if display_message:
             display(
                 Markdown(
