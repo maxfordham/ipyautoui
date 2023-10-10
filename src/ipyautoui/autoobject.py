@@ -29,12 +29,14 @@ import typing as ty
 import json
 import ipyautoui.automapschema as aumap
 from ipyautoui._utils import obj_from_importstr
-from ipyautoui.autowidgets import Nullable
+from ipyautoui.nullable import Nullable
 from ipyautoui.autobox import AutoBox
+from ipyautoui.autoform import AutoObjectFormLayout
 from jsonref import replace_refs
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
+
 
 # -
 def _get_value_trait(obj_with_traits):
@@ -127,7 +129,7 @@ class AutoObject(w.VBox):
             raise ValueError("AutoObject for object only")
         return proposal["value"]
 
-    @tr.observe("allOf")  # TODO: is this requried?
+    @tr.observe("allOf")
     def _allOf(self, on_change):
         if self.allOf is not None and len(self.allOf) == 1:
             self.properties = self.allOf[0]["properties"]
@@ -296,8 +298,6 @@ class AutoObject(w.VBox):
         """
         self.vbx_main = w.VBox()
         self.model = None
-        # if "properties" not in kwargs.keys():
-        #     raise ValueError("properties must be in kwargs")
         super().__init__()
         kwargs = self.get_ordered_kwargs(kwargs)
         {setattr(self, k, v) for k, v in kwargs.items()}
@@ -418,13 +418,6 @@ class AutoObject(w.VBox):
                 pass
 
     def _watch_change(self, change, key=None, watch="value"):
-        # if self.validate_on_change:  # TODO
-        #     if self.model is not None:
-        #         new_value = json.loads(self.model(**self.di_widgets_value).json())
-        #     else:
-        #         raise ValueError(
-        #             "currently a pydantic model is required to validate on change"
-        #         )
         self._value = self.di_widgets_value
         if hasattr(self, "savebuttonbar"):
             self.savebuttonbar.unsaved_changes = True
@@ -451,14 +444,11 @@ class AutoObject(w.VBox):
 
 
 # +
-from ipyautoui.autoform import AutoObjectFormLayout
-
 class AutoObjectForm(AutoObject, AutoObjectFormLayout):
     def __init__(self, **kwargs):
         super().__init__(
             **kwargs,
         )
-        # self._init_autoform(**kwargs)
         self.children = [
             self.savebuttonbar,
             self.hbx_title,
@@ -473,6 +463,7 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout):
     def display_showraw(self):  # NOTE: this overwritten this in AutoObjectForm
         self.vbx_main.layout.display = "None"
         return self.json
+
 
 # -
 
@@ -577,5 +568,3 @@ if __name__ == "__main__":
     s["value"] = v
     ui = AutoObject(**s)
     display(ui)
-
-

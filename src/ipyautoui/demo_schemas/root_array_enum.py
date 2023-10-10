@@ -21,7 +21,7 @@ class UniclassProductsUi(RootModel):
     model_config = ConfigDict(
         json_schema_extra=dict(
             arbitrary_types_allowed=True,
-            autoui="ipyautoui.autowidgets.Combobox",
+            autoui="ipywidgets.Combobox",
             layout={"width": "400px"},
         ),
     )
