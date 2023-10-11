@@ -401,21 +401,18 @@ class AutoObject(w.VBox):
     def _init_controls(self):
         self._init_watch_widgets()
 
+    def set_watcher(self, key, widget, watch):
+        logger.debug(f"{watch} trait found for: {key}")
+        widget.observe(
+            functools.partial(self._watch_change, key=key, watch=watch), watch
+        )
+
     def _init_watch_widgets(self):
         for k, v in self.di_widgets.items():
-            if v.has_trait("value"):
-                logger.debug(f"value trait found for: {k}")
-                v.observe(
-                    functools.partial(self._watch_change, key=k, watch="value"), "value"
-                )
-            elif v.has_trait("_value"):
-                logger.debug(f"_value trait found for: {k}")
-                v.observe(
-                    functools.partial(self._watch_change, key=k, watch="_value"),
-                    "_value",
-                )
-            else:
-                pass
+            for watch in ["_value", "value"]:
+                if v.has_trait(watch):
+                    self.set_watcher(k, v, watch)
+                    break  # if `_value` is found don't look for `value`
 
     def _watch_change(self, change, key=None, watch="value"):
         self._value = self.di_widgets_value
@@ -440,7 +437,8 @@ class AutoObject(w.VBox):
 
     @property
     def di_widgets_value(self):  # used to set _value
-        return {k: v.value for k, v in self.di_widgets.items()}
+        get_value = lambda v: v._value if "_value" in v.traits() else v.value
+        return {k: get_value(v) for k, v in self.di_widgets.items()}
 
 
 # +

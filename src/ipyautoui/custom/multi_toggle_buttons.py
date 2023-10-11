@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.7
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -14,8 +14,10 @@
 # ---
 
 # +
+"""
 # REF: copy and pasted in full from:
 # https://github.com/stas-prokopiev/ipywidgets_toggle_buttons
+"""
 
 # %run ../_dev_sys_path_append.py
 # %load_ext lab_black
@@ -28,6 +30,7 @@ from abc import abstractmethod
 
 # Third party imports
 import ipywidgets as w
+import traitlets as tr
 
 # Local imports
 DICT_LAYOUT_VBOX_ANY = dict(
@@ -149,6 +152,8 @@ class BaseToggleButtons(w.VBox):
 class MultiToggleButtons(BaseToggleButtons):
     """Class to show multi toggle buttons with auto width"""
 
+    _value = tr.Tuple()
+
     def __init__(self, max_chosen_values=999, **kwargs):
         """Initialize object
 
@@ -166,6 +171,14 @@ class MultiToggleButtons(BaseToggleButtons):
         self._update_buttons_for_new_options()
         self.value = kwargs.get("value", [])
         self._update_widget_view()
+        self._init_update_value()
+        self._update_value("bang!!!")
+
+    def _init_update_value(self):
+        self.widget_parent.observe(self._update_value, "value")
+
+    def _update_value(self, on_change):
+        self._value = self.value
 
     def _update_widget_view(self):
         """Update view of the widget according to all settings"""
@@ -217,7 +230,4 @@ if __name__ == "__main__":
     )
     display(wid)
 # -
-
-
-
 
