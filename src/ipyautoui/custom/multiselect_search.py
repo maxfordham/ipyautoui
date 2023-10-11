@@ -88,7 +88,7 @@ class MultiSelectSearch(w.VBox):
         self.children = [self.ui]
 
     @property
-    def value(self):
+    def value(self):  # FIXME: don't set value on retrieval in case it was changed
         self._value = [
             name
             for name, checkbox in self.options_dict.items()
