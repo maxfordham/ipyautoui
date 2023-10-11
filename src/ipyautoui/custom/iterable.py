@@ -260,14 +260,14 @@ class Array(w.VBox):
             functools.partial(self._remove_rows, key=key)
         )
         widget = self._get_attribute(key, "widget")
-        if "value" in widget.traits():
-            widget.observe(self._update_value, names="value")
-        elif "_value" in widget.traits():
-            widget.observe(self._update_value, names="_value")
-        else:
-            logging.info(
-                'array item must have either "value" or "_value" trait to be observed'
-            )
+        for watch in ["_value", "value"]:
+            if widget.has_trait(watch):
+                widget.observe(self._update_value, names=watch)
+                break  # if `_value` is found don't look for `value`
+            else:
+                logging.info(
+                    'array item must have either "value" or "_value" trait to be observed'
+                )
 
     def _sort_boxes(self):
         if self.sort_on_index:

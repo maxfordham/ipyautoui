@@ -10,8 +10,8 @@ SHOW_NONE_KWARGS = dict(value="None", disabled=True, layout={"display": "None"})
 
 
 def _get_value_trait(obj_with_traits):
-    """gets the trait type for a given object (looks for "_value" and
-    "value" allowing use of setters and getters)
+    """gets the trait type for a given object
+    (looks for "_value" and "value" allowing use of setters and getters)
     Args:
         obj_with_traits (traitlets.Type): obj with traits
     Raises:
@@ -102,7 +102,7 @@ class Nullable(w.HBox):
         # note. as the self.widget.value still exists in the background,
         #       this may not trigger a change event...
         #       so we'll manually do it too (below)
-        self._update("")
+        self.fn_update("")
 
     @value.setter
     def value(self, value):
@@ -116,8 +116,11 @@ class Nullable(w.HBox):
 
     def _init_controls(self):
         self.bn.observe(self._toggle_none, "value")
-        self.widget.observe(self._update, "value")
-        self.widget.observe(self._update, "_value")
+        for watch in ["_value", "value"]:
+            if watch in self.widget.trait_names():
+                self.fn_update = functools.partial(self._update, name=watch)
+                self.widget.observe(self.fn_update)
+                break
         self.observe(self._observe_nullable, "nullable")
 
     def _observe_nullable(self, onchange):
@@ -126,8 +129,8 @@ class Nullable(w.HBox):
         else:
             self.bn.layout.display = "None"
 
-    def _update(self, onchange):
-        self._value = self.widget.value
+    def _update(self, onchange, name="_value"):
+        self._value = getattr(self.widget, name)
 
     def _toggle_none(self, onchange):
         if self.bn.value:
