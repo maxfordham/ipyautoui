@@ -3,42 +3,37 @@ import traitlets as tr
 from datetime import datetime
 
 
-class DatePickerString(w.HBox):
-    _value = tr.Unicode(allow_none=True, default_value=None)
+class DatePickerString(w.DatePicker):
+    """extends DatePicker to save a jsonable string _value"""
+
+    _value = tr.Unicode()
     strftime_format = tr.Unicode(default_value="%Y-%m-%d")
 
-    def __init__(self, **kwargs):
-        """thin wrapper around ipywidgets.DatePicker that stores "value" as
-        json serializable Unicode"""
-        self.picker = w.DatePicker(**kwargs)
-        self._init_controls()
-        super().__init__(**kwargs)
-        self.children = [self.picker]
+    @tr.observe("value")
+    def _update_value_string(self, on_change):
+        self._value = self.value.strftime(self.strftime_format)
 
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        if type(value) == str:
-            self.picker.value = datetime.strptime(value, self.strftime_format)
+    @tr.validate("value")
+    def _validate_value(self, proposal):
+        if isinstance(proposal["value"], str):
+            return datetime.strptime(proposal["value"], self.strftime_format)
         else:
-            self.picker.value = value
+            return proposal["value"]
 
-    def _init_controls(self):
-        self.picker.observe(self._update_change, "value")
-        self.observe(self._update_change, "strftime_format")
-        # ts = [n for n in self.picker.trait_names() if n != "value" and n[0] != "_"]
-        # for t in ts:
-        #     self.picker.observe(self._update_change, t)
-        # TODO: pass traits to picker
 
-    def _get_value(self):
-        try:
-            return self.picker.value.strftime(self.strftime_format)
-        except:
-            return None
+class DatetimePickerString(w.DatetimePicker):
+    """extends DatetimePicker to save a jsonable string _value"""
 
-    def _update_change(self, on_change):
-        self._value = self._get_value()
+    _value = tr.Unicode()
+    strftime_format = tr.Unicode(default_value="%Y-%m-%dT%H:%M:%S")
+
+    @tr.validate("value")  # set value. if string convert to datetime
+    def _validate_value(self, proposal):
+        if isinstance(proposal["value"], str):
+            return datetime.strptime(proposal["value"], self.strftime_format)
+        else:
+            return proposal["value"]
+    
+    @tr.observe("value")  # convert datetime to string
+    def _update_value_string(self, on_change):
+        self._value = self.value.strftime(self.strftime_format)

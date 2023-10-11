@@ -27,7 +27,7 @@ from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET
 from ipyautoui._utils import remove_non_present_kwargs
 from ipyautoui.custom.markdown_widget import MarkdownWidget
 from ipyautoui.custom.filechooser import FileChooser
-from ipyautoui.custom.date_string import DatePickerString
+from ipyautoui.custom.date_string import DatePickerString, DatetimePickerString
 from ipyautoui.autobox import AutoBox
 
 import logging
@@ -438,11 +438,42 @@ def is_Date(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, b
     t = di["type"]
     if "autoui" in di.keys():
         return False, allow_none
-    if not t == t:
+    if not t == "string":
         return False, allow_none
     if not "format" in di.keys():
         return False, allow_none
     if "format" in di.keys() and di["format"] != "date":
+        return False, allow_none
+    if "enum" in di.keys() or "examples" in di.keys():
+        return False, allow_none
+    return True, allow_none
+
+
+def is_Datetime(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
+    """
+    ```py
+    from ipyautoui.automapschema import is_Datetime, is_Date
+    di = {"title": "Date Picker", "type": "string", "format": "date-time"}
+    is_Datetime(di)
+    #> print(True)
+    is_Date(di)
+    #> print(False)
+    # is_Text(di)
+    # #> print(False)
+    ```
+    """
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_Date, di)
+    t = di["type"]
+    if "autoui" in di.keys():
+        return False, allow_none
+    if not t == "string":
+        return False, allow_none
+    if not "format" in di.keys():
+        return False, allow_none
+    if "format" in di.keys() and di["format"] != "date-time":
         return False, allow_none
     if "enum" in di.keys() or "examples" in di.keys():
         return False, allow_none
@@ -1007,10 +1038,8 @@ from ipyautoui.autoanyof import AnyOf
 
 def get_widgets_map(di_update=None):
     from ipyautoui.custom.iterable import AutoArray
-    from ipyautoui.autoobject import AutoObject  # Ipywidget
+    from ipyautoui.autoobject import AutoObject
     from ipyautoui.custom.editgrid import EditGrid
-
-    # from ipyautoui.custom.iterable import AutoArrayNew, AutoArray
 
     WIDGETS_MAP = frozenmap(
         **{
@@ -1094,6 +1123,7 @@ def get_widgets_map(di_update=None):
                 widget=w.Checkbox,
             ),
             "Date": WidgetMapper(fn_filt=is_Date, widget=DatePickerString),
+            "Datetime": WidgetMapper(fn_filt=is_Datetime, widget=DatetimePickerString),
             "object": WidgetMapper(fn_filt=is_Object, widget=AutoObject),
             "array": WidgetMapper(
                 fn_filt=is_Array,
@@ -1105,7 +1135,8 @@ def get_widgets_map(di_update=None):
                 widget=EditGrid,
                 li_fn_modify=[add_schema_key, add_max_layout],
             ),
-            "anyOf": WidgetMapper(fn_filt=is_AnyOf, 
+            "anyOf": WidgetMapper(
+                fn_filt=is_AnyOf,
                 widget=AnyOf,
                 li_fn_modify=[create_widget_caller],
             ),
