@@ -2,10 +2,13 @@ import pytest
 import pathlib
 from pytest_examples import find_examples, CodeExample, EvalExample
 from ipyautoui.automapschema import _init_model_schema, map_widget
-from ipyautoui.demo_schemas import CoreIpywidgets
 import stringcase
 from pydantic import BaseModel, Field, conint
-from ipyautoui.demo_schemas.array_object_dataframe import ArrayObjectDataframe
+from ipyautoui.demo_schemas import (
+    ArrayObjectDataframe,
+    CoreIpywidgets,
+    ComplexSerialisation,
+)
 import typing as ty
 from typing_extensions import Annotated
 from enum import Enum
@@ -39,28 +42,8 @@ def test_simple():
     print("done")
 
 
-# def test_range_slider():
-#     class Test(BaseModel):
-#         # a: int
-#         b: tuple[conint(ge=0, le=10), conint(ge=0, le=10)] = Field(
-#             (3, 5),
-#             title="b title",
-#             json_schema_extra=dict(tooltip="b tooltip"),
-#         )
-
-#     model, schema = _init_model_schema(Test)
-#     pr = schema["properties"]
-#     wi = {
-#         property_key: map_widget(property_schema)
-#         for property_key, property_schema in pr.items()
-#     }
-#     assert wi["b"].kwargs["tooltip"] == "b tooltip"
-#     assert wi["b"].kwargs["min"] == 0
-#     assert wi["b"].kwargs["max"] == 10
-#     print("done")
-
-
-def assert_widget_map(schema):
+def assert_widget_map(pydantic_model):
+    model, schema = _init_model_schema(pydantic_model)
     pr = schema["properties"]
     wi = {
         property_key: map_widget(property_schema)
@@ -108,42 +91,19 @@ def test_combobox():
     assert_widget_map(schema)
 
 
-def test_core_ipywidgets_map_widget():
-    model, schema = _init_model_schema(CoreIpywidgets)
-    pr = schema["properties"]
-    wi = {
-        property_key: map_widget(property_schema, fail_on_error=True)
-        for property_key, property_schema in pr.items()
-    }
-    for k, v in wi.items():
-        got, target = v.autoui.__name__, stringcase.pascalcase(k)
-        try:
-            assert got in target
-        except:
-            s = v.schema_
-            print(got, target)
-            raise AssertionError(got, target)
+def test_CoreIpywidgets():
+    assert_widget_map(CoreIpywidgets)
 
 
-def test_array_object_dataframe_map_widget():
-    model, schema = _init_model_schema(ArrayObjectDataframe)
-    pr = schema["properties"]
-    wi = {
-        property_key: map_widget(property_schema, fail_on_error=True)
-        for property_key, property_schema in pr.items()
-    }
-    for k, v in wi.items():
-        got, target = v.autoui.__name__, stringcase.pascalcase(k)
-        try:
-            assert got in target
-        except:
-            s = v.schema_
-            print(got, target)
-            raise AssertionError(got, target)
-    print("done")
+def test_ArrayObjectDataframe():
+    assert_widget_map(ArrayObjectDataframe)
+
+
+def test_ComplexSerialisation():
+    assert_widget_map(ComplexSerialisation)
+
 
 def test_union():
-
     class MyObject(BaseModel):
         stringy: str = Field("stringy", description="asdfsadf")
         inty: int = 1
@@ -154,4 +114,3 @@ def test_union():
     assert "anyOf" in caller.kwargs["properties"]["floaty"]
     ui = widgetcaller(caller)
     assert len(ui.di_widgets["floaty"].anyOf) == 2
-    

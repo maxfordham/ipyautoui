@@ -9,6 +9,7 @@ from ipyautoui.demo_schemas import (
 from ipyautoui import AutoUi
 
 
+# NOTE: refer also to test_automapschema.py to ensure mappings are correct
 def assert_no_error_widget_in_autoui(autoui):
     for k, wi in autoui.autowidget.di_widgets.items():
         nm = str(wi.__class__)
@@ -38,5 +39,6 @@ def test_OverrideIpywidgets():
 
 def test_ScheduleRuleSet():
     from ipyautoui.demo_schemas.ruleset import ScheduleRuleSet
+
     autoui = AutoUi(ScheduleRuleSet)
     assert_no_error_widget_in_autoui(autoui)
