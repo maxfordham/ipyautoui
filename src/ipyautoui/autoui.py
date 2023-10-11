@@ -292,7 +292,7 @@ class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods)
             self.vbx_showraw,
         ]
         self._init_controls()
-        self._watch_change({"new": None})
+        self._watch_change({"new": "bang!!!"})
         {
             setattr(self.autowidget, k, v)
             for k, v in kwargs.items()
