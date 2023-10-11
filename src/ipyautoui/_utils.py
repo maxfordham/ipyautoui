@@ -362,7 +362,7 @@ def argspecs_in_kwargs(call: ty.Callable, kwargs: dict):
 def traits_in_kwargs(call: ty.Callable, kwargs: dict):
     """get traits for kwargs"""
     if not hasattr(call, "traits"):
-        logger.error("call must have traits attribute")
+        logger.info(f"{call.__name__} does not have traits attribute")
         return {}
     else:
         return {k: v for k, v in kwargs.items() if k in list(call.traits(call).keys())}
