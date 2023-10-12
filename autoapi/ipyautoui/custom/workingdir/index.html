@@ -1,0 +1,1244 @@
+
+
+<!DOCTYPE html>
+
+
+<html >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>ipyautoui.custom.workingdir &#8212; ipyautoui</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/ipyautoui/custom/workingdir/index';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="ipyautoui.demo_schemas" href="../../demo_schemas/index.html" />
+    <link rel="prev" title="ipyautoui.custom.widgetcaller_error" href="../widgetcaller_error/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="None"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../../intro.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../../_static/logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../intro.html">
+                    ipyautoui
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../demo.html">demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autoui.html">AutoUi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autovuetify.html">AutoVjsf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autodisplay.html">AutoDisplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../custom-renderers.html">Custom Renderers</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../../../api.html">API documentation</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../autogrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.autogrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../buttonbars/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.buttonbars</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../date_string/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.date_string</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../decision_branch/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.decision_branch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../editgrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.editgrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../filechooser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.filechooser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../filesindir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.filesindir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fileupload/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.fileupload</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../halo_decorator/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.halo_decorator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../iterable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.iterable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../loadproject/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.loadproject</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../markdown_widget/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.markdown_widget</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modelrun/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.modelrun</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../multi_toggle_buttons/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.multi_toggle_buttons</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../multiselect_search/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.multiselect_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outputlogging/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.outputlogging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../selectandclick/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.selectandclick</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../selectdir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.selectdir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../showhide/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.showhide</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../showopenurl/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.showopenurl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../title_description/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.title_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../urlimagelink/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.urlimagelink</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../widgetcaller_error/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.widgetcaller_error</span></code></a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.workingdir</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../demo_schemas/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/array_examples/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.array_examples</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/array_object_dataframe/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.array_object_dataframe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/complex_serialization/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.complex_serialization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/core_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.core_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/editable_datagrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.editable_datagrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/nested/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nested</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/nested_editable_datagrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nested_editable_datagrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/null_and_required/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.null_and_required</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/nullable_core_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nullable_core_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/override_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.override_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/recursive_array/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.recursive_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/recursive_object/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.recursive_object</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/root_array/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/root_array_enum/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_array_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/root_enum/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/root_simple/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_simple</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/ruleset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.ruleset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../_dev_sys_path_append/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._dev_sys_path_append</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._utils</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_utils_debounce/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._utils_debounce</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoanyof/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoanyof</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autobox/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autobox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autodisplay/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autodisplay</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autodisplay_renderers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autodisplay_renderers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoform/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoform</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../automapschema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.automapschema</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoobject/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoobject</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autovjsf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autovjsf</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../basemodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.basemodel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../constants/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.constants</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../demo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../env/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.env</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../mydocstring_display/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.mydocstring_display</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../nullable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.nullable</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/jgunstone/ipyautoui" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/jgunstone/ipyautoui/issues/new?title=Issue%20on%20page%20%2Fautoapi/ipyautoui/custom/workingdir/index.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../../_sources/autoapi/ipyautoui/custom/workingdir/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>ipyautoui.custom.workingdir</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="module-ipyautoui.custom.workingdir">
+<span id="ipyautoui-custom-workingdir"></span><h1><a class="reference internal" href="#module-ipyautoui.custom.workingdir" title="ipyautoui.custom.workingdir"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.workingdir</span></code></a><a class="headerlink" href="#module-ipyautoui.custom.workingdir" title="Permalink to this headline">#</a></h1>
+<p>a UI element that loads a folder for data caching, whilst storing a record of folders in use</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.RibaStages" title="ipyautoui.custom.workingdir.RibaStages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RibaStages</span></code></a></p></td>
+<td><p>str(object='') -&gt; str</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.ProcessSubType" title="ipyautoui.custom.workingdir.ProcessSubType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessSubType</span></code></a></p></td>
+<td><p>str(object='') -&gt; str</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.Usage" title="ipyautoui.custom.workingdir.Usage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Usage</span></code></a></p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.WorkingDir" title="ipyautoui.custom.workingdir.WorkingDir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkingDir</span></code></a></p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.WorkingDirs" title="ipyautoui.custom.workingdir.WorkingDirs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkingDirs</span></code></a></p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.AnalysisDir" title="ipyautoui.custom.workingdir.AnalysisDir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AnalysisDir</span></code></a></p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.WorkingDirsUi" title="ipyautoui.custom.workingdir.WorkingDirsUi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkingDirsUi</span></code></a></p></td>
+<td><p>a programmable UI object to load new working directories for ipyrun.runshell # TODO: move to ipyrun</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.get_projects" title="ipyautoui.custom.workingdir.get_projects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_projects</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.get_working_dirs" title="ipyautoui.custom.workingdir.get_working_dirs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_working_dirs</span></code></a>([path])</p></td>
+<td><p>loads working dir from folder</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.add_working_dir" title="ipyautoui.custom.workingdir.add_working_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_working_dir</span></code></a>(wdir[, path])</p></td>
+<td><p>add a working directory to global json log</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.is_templated_dir" title="ipyautoui.custom.workingdir.is_templated_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_templated_dir</span></code></a>(adir)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.make_dirs" title="ipyautoui.custom.workingdir.make_dirs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_dirs</span></code></a>(adir)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.return_fdir_status" title="ipyautoui.custom.workingdir.return_fdir_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">return_fdir_status</span></code></a>(adir[, display_message, map_dir])</p></td>
+<td><p>checks if a dir is already an analysis dir or not</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.create_folder_structure" title="ipyautoui.custom.workingdir.create_folder_structure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_folder_structure</span></code></a>(value[, model_dirs])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.get_fpth_win" title="ipyautoui.custom.workingdir.get_fpth_win"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_fpth_win</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.FDIR_PROJECTS_ROOT" title="ipyautoui.custom.workingdir.FDIR_PROJECTS_ROOT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FDIR_PROJECTS_ROOT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.FPTH_WORKING_DIRS" title="ipyautoui.custom.workingdir.FPTH_WORKING_DIRS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FPTH_WORKING_DIRS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.description" title="ipyautoui.custom.workingdir.description"><code class="xref py py-obj docutils literal notranslate"><span class="pre">description</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.workingdir.fix_attributes" title="ipyautoui.custom.workingdir.fix_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_attributes</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.get_fpth_win">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">get_fpth_win</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#get_fpth_win"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.get_fpth_win" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.FDIR_PROJECTS_ROOT">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">FDIR_PROJECTS_ROOT</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#FDIR_PROJECTS_ROOT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.FDIR_PROJECTS_ROOT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.FPTH_WORKING_DIRS">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">FPTH_WORKING_DIRS</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#FPTH_WORKING_DIRS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.FPTH_WORKING_DIRS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.get_projects">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">get_projects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#get_projects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.get_projects" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.RibaStages">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">RibaStages</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#RibaStages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.RibaStages" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>str(object=’’) -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to ‘strict’.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.RibaStages.stage1">
+<span class="sig-name descname"><span class="pre">stage1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Stage1'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#RibaStages.stage1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.RibaStages.stage1" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.RibaStages.stage2">
+<span class="sig-name descname"><span class="pre">stage2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Stage2'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#RibaStages.stage2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.RibaStages.stage2" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.RibaStages.stage3">
+<span class="sig-name descname"><span class="pre">stage3</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Stage3'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#RibaStages.stage3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.RibaStages.stage3" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.RibaStages.stage4">
+<span class="sig-name descname"><span class="pre">stage4</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Stage4'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#RibaStages.stage4"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.RibaStages.stage4" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.RibaStages.stage5">
+<span class="sig-name descname"><span class="pre">stage5</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Stage5'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#RibaStages.stage5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.RibaStages.stage5" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.RibaStages.stage6">
+<span class="sig-name descname"><span class="pre">stage6</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Stage6'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#RibaStages.stage6"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.RibaStages.stage6" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.RibaStages.stage7">
+<span class="sig-name descname"><span class="pre">stage7</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Stage7'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#RibaStages.stage7"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.RibaStages.stage7" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.ProcessSubType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">ProcessSubType</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#ProcessSubType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.ProcessSubType" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>str(object=’’) -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to ‘strict’.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.ProcessSubType.wufi">
+<span class="sig-name descname"><span class="pre">wufi</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WUFI'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#ProcessSubType.wufi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.ProcessSubType.wufi" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.ProcessSubType.tm52">
+<span class="sig-name descname"><span class="pre">tm52</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'TM52'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#ProcessSubType.tm52"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.ProcessSubType.tm52" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.ProcessSubType.tm54">
+<span class="sig-name descname"><span class="pre">tm54</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'TM54'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#ProcessSubType.tm54"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.ProcessSubType.tm54" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.ProcessSubType.tm59">
+<span class="sig-name descname"><span class="pre">tm59</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'TM59'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#ProcessSubType.tm59"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.ProcessSubType.tm59" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.ProcessSubType.compliance">
+<span class="sig-name descname"><span class="pre">compliance</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'compliance'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#ProcessSubType.compliance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.ProcessSubType.compliance" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.ProcessSubType.compliance_london_plan">
+<span class="sig-name descname"><span class="pre">compliance_london_plan</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'compliance_london_plan'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#ProcessSubType.compliance_london_plan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.ProcessSubType.compliance_london_plan" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.Usage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">Usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#Usage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.Usage" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p>
+<p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p>
+<p>A base class for creating Pydantic models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__class_vars__</strong> – The names of classvars defined on the model.</p></li>
+<li><p><strong>__private_attributes__</strong> – Metadata about the private attributes of the model.</p></li>
+<li><p><strong>__signature__</strong> – The signature for instantiating the model.</p></li>
+<li><p><strong>__pydantic_complete__</strong> – Whether model building is completed, or if there are still undefined fields.</p></li>
+<li><p><strong>__pydantic_core_schema__</strong> – The pydantic-core schema used to build the SchemaValidator and SchemaSerializer.</p></li>
+<li><p><strong>__pydantic_custom_init__</strong> – Whether the model has a custom <cite>__init__</cite> function.</p></li>
+<li><p><strong>__pydantic_decorators__</strong> – Metadata containing the decorators defined on the model.
+This replaces <cite>Model.__validators__</cite> and <cite>Model.__root_validators__</cite> from Pydantic V1.</p></li>
+<li><p><strong>__pydantic_generic_metadata__</strong> – Metadata for generic models; contains data used for a similar purpose to
+__args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.</p></li>
+<li><p><strong>__pydantic_parent_namespace__</strong> – Parent namespace of the model, used for automatic rebuilding of models.</p></li>
+<li><p><strong>__pydantic_post_init__</strong> – The name of the post-init method for the model, if defined.</p></li>
+<li><p><strong>__pydantic_root_model__</strong> – Whether the model is a <cite>RootModel</cite>.</p></li>
+<li><p><strong>__pydantic_serializer__</strong> – The pydantic-core SchemaSerializer used to dump instances of the model.</p></li>
+<li><p><strong>__pydantic_validator__</strong> – The pydantic-core SchemaValidator used to validate instances of the model.</p></li>
+<li><p><strong>__pydantic_extra__</strong> – An instance attribute with the values of extra fields from validation when
+<cite>model_config[‘extra’] == ‘allow’</cite>.</p></li>
+<li><p><strong>__pydantic_fields_set__</strong> – An instance attribute with the names of fields explicitly specified during validation.</p></li>
+<li><p><strong>__pydantic_private__</strong> – Instance attribute with the values of private attributes set on the model instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.Usage.user">
+<span class="sig-name descname"><span class="pre">user</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#Usage.user"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.Usage.user" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.Usage.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#Usage.timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.Usage.timestamp" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDir">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">WorkingDir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDir" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p>
+<p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p>
+<p>A base class for creating Pydantic models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__class_vars__</strong> – The names of classvars defined on the model.</p></li>
+<li><p><strong>__private_attributes__</strong> – Metadata about the private attributes of the model.</p></li>
+<li><p><strong>__signature__</strong> – The signature for instantiating the model.</p></li>
+<li><p><strong>__pydantic_complete__</strong> – Whether model building is completed, or if there are still undefined fields.</p></li>
+<li><p><strong>__pydantic_core_schema__</strong> – The pydantic-core schema used to build the SchemaValidator and SchemaSerializer.</p></li>
+<li><p><strong>__pydantic_custom_init__</strong> – Whether the model has a custom <cite>__init__</cite> function.</p></li>
+<li><p><strong>__pydantic_decorators__</strong> – Metadata containing the decorators defined on the model.
+This replaces <cite>Model.__validators__</cite> and <cite>Model.__root_validators__</cite> from Pydantic V1.</p></li>
+<li><p><strong>__pydantic_generic_metadata__</strong> – Metadata for generic models; contains data used for a similar purpose to
+__args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.</p></li>
+<li><p><strong>__pydantic_parent_namespace__</strong> – Parent namespace of the model, used for automatic rebuilding of models.</p></li>
+<li><p><strong>__pydantic_post_init__</strong> – The name of the post-init method for the model, if defined.</p></li>
+<li><p><strong>__pydantic_root_model__</strong> – Whether the model is a <cite>RootModel</cite>.</p></li>
+<li><p><strong>__pydantic_serializer__</strong> – The pydantic-core SchemaSerializer used to dump instances of the model.</p></li>
+<li><p><strong>__pydantic_validator__</strong> – The pydantic-core SchemaValidator used to validate instances of the model.</p></li>
+<li><p><strong>__pydantic_extra__</strong> – An instance attribute with the values of extra fields from validation when
+<cite>model_config[‘extra’] == ‘allow’</cite>.</p></li>
+<li><p><strong>__pydantic_fields_set__</strong> – An instance attribute with the names of fields explicitly specified during validation.</p></li>
+<li><p><strong>__pydantic_private__</strong> – Instance attribute with the values of private attributes set on the model instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDir.process_type">
+<span class="sig-name descname"><span class="pre">process_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDir.process_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDir.process_type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDir.process_subtype">
+<span class="sig-name descname"><span class="pre">process_subtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDir.process_subtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDir.process_subtype" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDir.project_number">
+<span class="sig-name descname"><span class="pre">project_number</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDir.project_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDir.project_number" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDir.riba_stage">
+<span class="sig-name descname"><span class="pre">riba_stage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#ipyautoui.custom.workingdir.RibaStages" title="ipyautoui.custom.workingdir.RibaStages"><span class="pre">RibaStages</span></a></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDir.riba_stage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDir.riba_stage" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDir.fdir">
+<span class="sig-name descname"><span class="pre">fdir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDir.fdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDir.fdir" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDir.key">
+<span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDir.key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDir.key" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDir.usage">
+<span class="sig-name descname"><span class="pre">usage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ipyautoui.custom.workingdir.Usage" title="ipyautoui.custom.workingdir.Usage"><span class="pre">Usage</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDir.usage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDir.usage" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDir.dir_model">
+<span class="sig-name descname"><span class="pre">dir_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDir.dir_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDir.dir_model" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDir._fdir">
+<span class="sig-name descname"><span class="pre">_fdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDir._fdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDir._fdir" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDir._key">
+<span class="sig-name descname"><span class="pre">_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDir._key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDir._key" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.description">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Multiline-String</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.description" title="Permalink to this definition">#</a></dt>
+<dd><blockquote>
+<div><details><summary>Show Value</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">a list of all the active working directories used for jupyter / ipyrun based analyses / processes / workflows</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</details></div></blockquote>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirs">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">WorkingDirs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirs" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p>
+<p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p>
+<p>A base class for creating Pydantic models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__class_vars__</strong> – The names of classvars defined on the model.</p></li>
+<li><p><strong>__private_attributes__</strong> – Metadata about the private attributes of the model.</p></li>
+<li><p><strong>__signature__</strong> – The signature for instantiating the model.</p></li>
+<li><p><strong>__pydantic_complete__</strong> – Whether model building is completed, or if there are still undefined fields.</p></li>
+<li><p><strong>__pydantic_core_schema__</strong> – The pydantic-core schema used to build the SchemaValidator and SchemaSerializer.</p></li>
+<li><p><strong>__pydantic_custom_init__</strong> – Whether the model has a custom <cite>__init__</cite> function.</p></li>
+<li><p><strong>__pydantic_decorators__</strong> – Metadata containing the decorators defined on the model.
+This replaces <cite>Model.__validators__</cite> and <cite>Model.__root_validators__</cite> from Pydantic V1.</p></li>
+<li><p><strong>__pydantic_generic_metadata__</strong> – Metadata for generic models; contains data used for a similar purpose to
+__args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.</p></li>
+<li><p><strong>__pydantic_parent_namespace__</strong> – Parent namespace of the model, used for automatic rebuilding of models.</p></li>
+<li><p><strong>__pydantic_post_init__</strong> – The name of the post-init method for the model, if defined.</p></li>
+<li><p><strong>__pydantic_root_model__</strong> – Whether the model is a <cite>RootModel</cite>.</p></li>
+<li><p><strong>__pydantic_serializer__</strong> – The pydantic-core SchemaSerializer used to dump instances of the model.</p></li>
+<li><p><strong>__pydantic_validator__</strong> – The pydantic-core SchemaValidator used to validate instances of the model.</p></li>
+<li><p><strong>__pydantic_extra__</strong> – An instance attribute with the values of extra fields from validation when
+<cite>model_config[‘extra’] == ‘allow’</cite>.</p></li>
+<li><p><strong>__pydantic_fields_set__</strong> – An instance attribute with the names of fields explicitly specified during validation.</p></li>
+<li><p><strong>__pydantic_private__</strong> – Instance attribute with the values of private attributes set on the model instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirs.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'working</span> <span class="pre">dirs'</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirs.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirs.name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirs.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirs.description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirs.description" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirs.dirs">
+<span class="sig-name descname"><span class="pre">dirs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#ipyautoui.custom.workingdir.WorkingDir" title="ipyautoui.custom.workingdir.WorkingDir"><span class="pre">WorkingDir</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirs.dirs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirs.dirs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.get_working_dirs">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">get_working_dirs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">FPTH_WORKING_DIRS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#get_working_dirs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.get_working_dirs" title="Permalink to this definition">#</a></dt>
+<dd><p>loads working dir from folder</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">AnalysisDir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p>
+<p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p>
+<p>A base class for creating Pydantic models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__class_vars__</strong> – The names of classvars defined on the model.</p></li>
+<li><p><strong>__private_attributes__</strong> – Metadata about the private attributes of the model.</p></li>
+<li><p><strong>__signature__</strong> – The signature for instantiating the model.</p></li>
+<li><p><strong>__pydantic_complete__</strong> – Whether model building is completed, or if there are still undefined fields.</p></li>
+<li><p><strong>__pydantic_core_schema__</strong> – The pydantic-core schema used to build the SchemaValidator and SchemaSerializer.</p></li>
+<li><p><strong>__pydantic_custom_init__</strong> – Whether the model has a custom <cite>__init__</cite> function.</p></li>
+<li><p><strong>__pydantic_decorators__</strong> – Metadata containing the decorators defined on the model.
+This replaces <cite>Model.__validators__</cite> and <cite>Model.__root_validators__</cite> from Pydantic V1.</p></li>
+<li><p><strong>__pydantic_generic_metadata__</strong> – Metadata for generic models; contains data used for a similar purpose to
+__args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.</p></li>
+<li><p><strong>__pydantic_parent_namespace__</strong> – Parent namespace of the model, used for automatic rebuilding of models.</p></li>
+<li><p><strong>__pydantic_post_init__</strong> – The name of the post-init method for the model, if defined.</p></li>
+<li><p><strong>__pydantic_root_model__</strong> – Whether the model is a <cite>RootModel</cite>.</p></li>
+<li><p><strong>__pydantic_serializer__</strong> – The pydantic-core SchemaSerializer used to dump instances of the model.</p></li>
+<li><p><strong>__pydantic_validator__</strong> – The pydantic-core SchemaValidator used to validate instances of the model.</p></li>
+<li><p><strong>__pydantic_extra__</strong> – An instance attribute with the values of extra fields from validation when
+<cite>model_config[‘extra’] == ‘allow’</cite>.</p></li>
+<li><p><strong>__pydantic_fields_set__</strong> – An instance attribute with the names of fields explicitly specified during validation.</p></li>
+<li><p><strong>__pydantic_private__</strong> – Instance attribute with the values of private attributes set on the model instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir.fdir">
+<span class="sig-name descname"><span class="pre">fdir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir.fdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir.fdir" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir.reference">
+<span class="sig-name descname"><span class="pre">reference</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir.reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir.reference" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir.incoming">
+<span class="sig-name descname"><span class="pre">incoming</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir.incoming"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir.incoming" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir.input_data">
+<span class="sig-name descname"><span class="pre">input_data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir.input_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir.input_data" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir.cad">
+<span class="sig-name descname"><span class="pre">cad</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir.cad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir.cad" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir.images">
+<span class="sig-name descname"><span class="pre">images</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir.images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir.images" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir.calcs">
+<span class="sig-name descname"><span class="pre">calcs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir.calcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir.calcs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir.models">
+<span class="sig-name descname"><span class="pre">models</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir.models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir.models" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir.outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir.outputs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir._reference">
+<span class="sig-name descname"><span class="pre">_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir._reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir._reference" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir._incoming">
+<span class="sig-name descname"><span class="pre">_incoming</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir._incoming"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir._incoming" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir._input_data">
+<span class="sig-name descname"><span class="pre">_input_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir._input_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir._input_data" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir._cad">
+<span class="sig-name descname"><span class="pre">_cad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir._cad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir._cad" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir._images">
+<span class="sig-name descname"><span class="pre">_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir._images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir._images" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir._calcs">
+<span class="sig-name descname"><span class="pre">_calcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir._calcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir._calcs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir._models">
+<span class="sig-name descname"><span class="pre">_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir._models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir._models" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.AnalysisDir._outputs">
+<span class="sig-name descname"><span class="pre">_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#AnalysisDir._outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.AnalysisDir._outputs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.add_working_dir">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">add_working_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wdir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#ipyautoui.custom.workingdir.WorkingDir" title="ipyautoui.custom.workingdir.WorkingDir"><span class="pre">WorkingDir</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">FPTH_WORKING_DIRS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#add_working_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.add_working_dir" title="Permalink to this definition">#</a></dt>
+<dd><p>add a working directory to global json log</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.is_templated_dir">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">is_templated_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">pydantic.BaseModel</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#is_templated_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.is_templated_dir" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.make_dirs">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">make_dirs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#make_dirs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.make_dirs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.return_fdir_status">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">return_fdir_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#return_fdir_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.return_fdir_status" title="Permalink to this definition">#</a></dt>
+<dd><p>checks if a dir is already an analysis dir or not</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.create_folder_structure">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">create_folder_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">AnalysisDir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#create_folder_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.create_folder_structure" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">WorkingDirsUi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn_onload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">lambda</span> <span class="pre">value:</span> <span class="pre">...</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dirs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">pydantic.BaseModel</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">AnalysisDir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdir_projects_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">FDIR_PROJECTS_ROOT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fpth_working_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">FPTH_WORKING_DIRS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ipywidgets.HBox</span></code></p>
+<p>a programmable UI object to load new working directories for ipyrun.runshell # TODO: move to ipyrun</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.fdir_display">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fdir_display</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.fdir_display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.fdir_display" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.fn_onload">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fn_onload</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.fn_onload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.fn_onload" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.fix_attributes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fix_attributes</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.fix_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.fix_attributes" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.value">
+<span class="sig-name descname"><span class="pre">value</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.value" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.setup" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.load">
+<span class="sig-name descname"><span class="pre">load</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.load" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.project_number">
+<span class="sig-name descname"><span class="pre">project_number</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.project_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.project_number" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.projects">
+<span class="sig-name descname"><span class="pre">projects</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.projects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.projects" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.process_type">
+<span class="sig-name descname"><span class="pre">process_type</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.process_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.process_type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.process_subtype">
+<span class="sig-name descname"><span class="pre">process_subtype</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.process_subtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.process_subtype" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.riba_stage">
+<span class="sig-name descname"><span class="pre">riba_stage</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.riba_stage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.riba_stage" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.key">
+<span class="sig-name descname"><span class="pre">key</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.key" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.fdir_win">
+<span class="sig-name descname"><span class="pre">fdir_win</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.fdir_win"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.fdir_win" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.fdir_win_proposed">
+<span class="sig-name descname"><span class="pre">fdir_win_proposed</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.fdir_win_proposed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.fdir_win_proposed" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi._projects">
+<span class="sig-name descname"><span class="pre">_projects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi._projects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi._projects" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi._observe_value_key">
+<span class="sig-name descname"><span class="pre">_observe_value_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi._observe_value_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi._observe_value_key" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi._observe_value_fdir_win_proposed">
+<span class="sig-name descname"><span class="pre">_observe_value_fdir_win_proposed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi._observe_value_fdir_win_proposed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi._observe_value_fdir_win_proposed" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi._update_value">
+<span class="sig-name descname"><span class="pre">_update_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi._update_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi._update_value" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi.update_from_ui">
+<span class="sig-name descname"><span class="pre">update_from_ui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi.update_from_ui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi.update_from_ui" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi._init_controls">
+<span class="sig-name descname"><span class="pre">_init_controls</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi._init_controls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi._init_controls" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi._update_fdir_win">
+<span class="sig-name descname"><span class="pre">_update_fdir_win</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi._update_fdir_win"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi._update_fdir_win" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.WorkingDirsUi._load">
+<span class="sig-name descname"><span class="pre">_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onchange</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#WorkingDirsUi._load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.WorkingDirsUi._load" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ipyautoui.custom.workingdir.fix_attributes">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.workingdir.</span></span><span class="sig-name descname"><span class="pre">fix_attributes</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/workingdir.html#fix_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.workingdir.fix_attributes" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./autoapi/ipyautoui/custom/workingdir"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../widgetcaller_error/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.widgetcaller_error</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../demo_schemas/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By mfcode
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

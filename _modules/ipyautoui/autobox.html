@@ -1,0 +1,657 @@
+
+
+<!DOCTYPE html>
+
+
+<html >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ipyautoui.autobox &#8212; ipyautoui</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/ipyautoui/autobox';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="None"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../intro.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../_static/logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../intro.html">
+                    ipyautoui
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../demo.html">demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autoui.html">AutoUi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autovuetify.html">AutoVjsf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autodisplay.html">AutoDisplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../custom-renderers.html">Custom Renderers</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API documentation</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/ipyautoui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/ipyautoui/custom/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/autogrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.autogrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/buttonbars/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.buttonbars</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/date_string/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.date_string</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/decision_branch/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.decision_branch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/editgrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.editgrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/filechooser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.filechooser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/filesindir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.filesindir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/fileupload/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.fileupload</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/halo_decorator/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.halo_decorator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/iterable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.iterable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/loadproject/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.loadproject</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/markdown_widget/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.markdown_widget</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/modelrun/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.modelrun</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/multi_toggle_buttons/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.multi_toggle_buttons</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/multiselect_search/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.multiselect_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/outputlogging/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.outputlogging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/selectandclick/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.selectandclick</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/selectdir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.selectdir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/showhide/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.showhide</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/showopenurl/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.showopenurl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/title_description/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.title_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/urlimagelink/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.urlimagelink</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/widgetcaller_error/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.widgetcaller_error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/custom/workingdir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.workingdir</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/array_examples/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.array_examples</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/array_object_dataframe/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.array_object_dataframe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/complex_serialization/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.complex_serialization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/core_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.core_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/editable_datagrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.editable_datagrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/nested/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nested</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/nested_editable_datagrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nested_editable_datagrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/null_and_required/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.null_and_required</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/nullable_core_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nullable_core_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/override_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.override_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/recursive_array/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.recursive_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/recursive_object/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.recursive_object</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/root_array/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/root_array_enum/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_array_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/root_enum/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/root_simple/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_simple</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/ipyautoui/demo_schemas/ruleset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.ruleset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/_dev_sys_path_append/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._dev_sys_path_append</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/_utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._utils</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/_utils_debounce/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._utils_debounce</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/autoanyof/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoanyof</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/autobox/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autobox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/autodisplay/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autodisplay</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/autodisplay_renderers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autodisplay_renderers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/autoform/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoform</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/automapschema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.automapschema</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/autoobject/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoobject</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/autoui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/autovjsf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autovjsf</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/basemodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.basemodel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/constants/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.constants</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/demo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/env/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.env</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/mydocstring_display/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.mydocstring_display</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/ipyautoui/nullable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.nullable</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/jgunstone/ipyautoui" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/jgunstone/ipyautoui/issues/new?title=Issue%20on%20page%20%2F_modules/ipyautoui/autobox.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for ipyautoui.autobox</h1><div class="highlight"><pre>
+<span></span><span class="c1"># ---</span>
+<span class="c1"># jupyter:</span>
+<span class="c1">#   jupytext:</span>
+<span class="c1">#     formats: py:light</span>
+<span class="c1">#     text_representation:</span>
+<span class="c1">#       extension: .py</span>
+<span class="c1">#       format_name: light</span>
+<span class="c1">#       format_version: &#39;1.5&#39;</span>
+<span class="c1">#       jupytext_version: 1.15.0</span>
+<span class="c1">#   kernelspec:</span>
+<span class="c1">#     display_name: Python 3 (ipykernel)</span>
+<span class="c1">#     language: python</span>
+<span class="c1">#     name: python3</span>
+<span class="c1"># ---</span>
+
+<span class="sd">&quot;&quot;&quot;create a simple row item for a form. contains some simple automated layout features</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># %run _dev_sys_path_append.py</span>
+<span class="c1"># %load_ext lab_black</span>
+
+<span class="c1"># +</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">ipywidgets</span> <span class="k">as</span> <span class="nn">w</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
+<span class="kn">import</span> <span class="nn">traitlets</span> <span class="k">as</span> <span class="nn">tr</span>
+<span class="kn">from</span> <span class="nn">ipyautoui.custom.title_description</span> <span class="kn">import</span> <span class="n">TitleDescription</span>
+
+<div class="viewcode-block" id="logger"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.logger">[docs]</a><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<span class="c1"># +</span>
+<span class="c1"># functions to format the box based on traits</span>
+<div class="viewcode-block" id="SPACER"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.SPACER">[docs]</a><span class="n">SPACER</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;48px&quot;</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="f1"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.f1">[docs]</a><span class="n">f1</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="p">[</span>
+    <span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">SPACER</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_tgl</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">html_title</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">),</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">,</span>
+<span class="p">]</span></div>
+<div class="viewcode-block" id="f2"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.f2">[docs]</a><span class="n">f2</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="p">[</span>
+    <span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_tgl</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">html_title</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">),</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="f3"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.f3">[docs]</a><span class="n">f3</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="p">[</span>
+    <span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">([</span><span class="n">SPACER</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">]),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">html_title</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">]</span></div>
+<div class="viewcode-block" id="f4"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.f4">[docs]</a><span class="n">f4</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="p">[</span>
+    <span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">html_title</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">]</span></div>
+<div class="viewcode-block" id="f5"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.f5">[docs]</a><span class="n">f5</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="p">[</span>
+    <span class="n">w</span><span class="o">.</span><span class="n">VBox</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">([</span><span class="n">SPACER</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tgl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">html_title</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">])</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="f6"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.f6">[docs]</a><span class="n">f6</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="p">[</span><span class="n">w</span><span class="o">.</span><span class="n">VBox</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tgl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">html_title</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">])]</span></div>
+
+<div class="viewcode-block" id="f7"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.f7">[docs]</a><span class="n">f7</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="p">[</span>
+    <span class="n">w</span><span class="o">.</span><span class="n">VBox</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">html_title</span><span class="p">,</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">SPACER</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="f8"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.f8">[docs]</a><span class="n">f8</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">html_title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">]</span></div>
+
+<span class="c1"># (align_horizontal, nested, indent)</span>
+<div class="viewcode-block" id="map_format"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.map_format">[docs]</a><span class="n">map_format</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span> <span class="n">f1</span><span class="p">,</span>
+    <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span> <span class="n">f2</span><span class="p">,</span>
+    <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span> <span class="n">f3</span><span class="p">,</span>
+    <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span> <span class="n">f4</span><span class="p">,</span>
+    <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span> <span class="n">f5</span><span class="p">,</span>
+    <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span> <span class="n">f6</span><span class="p">,</span>
+    <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span> <span class="n">f7</span><span class="p">,</span>
+    <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span> <span class="n">f8</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+
+<span class="c1"># -</span>
+
+
+<div class="viewcode-block" id="Nest"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.Nest">[docs]</a><span class="k">class</span> <span class="nc">Nest</span><span class="p">:</span>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Nest.get_tgl"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.Nest.get_tgl">[docs]</a>    <span class="k">def</span> <span class="nf">get_tgl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;tgl&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tgl</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">ToggleButton</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;show&quot;</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;300px&quot;</span><span class="p">})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_controls_Nest</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tgl</span></div>
+
+<div class="viewcode-block" id="Nest._init_controls_Nest"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.Nest._init_controls_Nest">[docs]</a>    <span class="k">def</span> <span class="nf">_init_controls_Nest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tgl</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tgl</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nest._tgl"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.Nest._tgl">[docs]</a>    <span class="k">def</span> <span class="nf">_tgl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_change</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tgl</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span></div></div>
+
+
+<div class="viewcode-block" id="AutoBox"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox">[docs]</a><span class="k">class</span> <span class="nc">AutoBox</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">VBox</span><span class="p">,</span> <span class="n">Nest</span><span class="p">,</span> <span class="n">TitleDescription</span><span class="p">):</span>
+<div class="viewcode-block" id="AutoBox.nested"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox.nested">[docs]</a>    <span class="n">nested</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Bool</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+<div class="viewcode-block" id="AutoBox.align_horizontal"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox.align_horizontal">[docs]</a>    <span class="n">align_horizontal</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Bool</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">sync</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="AutoBox.hide"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox.hide">[docs]</a>    <span class="n">hide</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Bool</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">sync</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="AutoBox.widget"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox.widget">[docs]</a>    <span class="n">widget</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Any</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="n">w</span><span class="o">.</span><span class="n">ToggleButton</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;600px&quot;</span><span class="p">}))</span></div>
+<div class="viewcode-block" id="AutoBox.indent"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox.indent">[docs]</a>    <span class="n">indent</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Bool</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="nd">@tr</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="s2">&quot;nested&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="AutoBox._nested"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox._nested">[docs]</a>    <span class="k">def</span> <span class="nf">_nested</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_change</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_tgl</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">format_box</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">nested</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tgl</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tgl</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+    <span class="nd">@tr</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="s2">&quot;align_horizontal&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="AutoBox._align_horizontal"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox._align_horizontal">[docs]</a>    <span class="k">def</span> <span class="nf">_align_horizontal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_change</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">format_box</span><span class="p">()</span></div>
+
+    <span class="nd">@tr</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="s2">&quot;indent&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="AutoBox._indent"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox._indent">[docs]</a>    <span class="k">def</span> <span class="nf">_indent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_change</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">format_box</span><span class="p">()</span></div>
+
+    <span class="nd">@tr</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="s2">&quot;widget&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="AutoBox._widget"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox._widget">[docs]</a>    <span class="k">def</span> <span class="nf">_widget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_change</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">format_box</span><span class="p">()</span></div>
+
+    <span class="nd">@tr</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="s2">&quot;hide&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="AutoBox._hide"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox._hide">[docs]</a>    <span class="k">def</span> <span class="nf">_hide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_change</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hide</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_title_description</span><span class="p">()</span>
+        <span class="c1"># with self.hold_trait_notifications():</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">format_box</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="AutoBox.format_tuple"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox.format_tuple">[docs]</a>    <span class="k">def</span> <span class="nf">format_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">align_horizontal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nested</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AutoBox.format_box"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.AutoBox.format_box">[docs]</a>    <span class="k">def</span> <span class="nf">format_box</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="n">map_format</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">format_tuple</span><span class="p">](</span><span class="bp">self</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="bx"><a class="viewcode-back" href="../../autoapi/ipyautoui/autobox/index.html#ipyautoui.autobox.bx">[docs]</a>    <span class="n">bx</span> <span class="o">=</span> <span class="n">AutoBox</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;asdfasdf&quot;</span><span class="p">,</span> <span class="n">nested</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+    <span class="n">display</span><span class="p">(</span><span class="n">bx</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">bx</span><span class="o">.</span><span class="n">align_horizontal</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">nested</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">indent</span><span class="p">)</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span>  <span class="c1"># f1</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">bx</span><span class="o">.</span><span class="n">align_horizontal</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">nested</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">indent</span><span class="p">)</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span>  <span class="c1"># f2</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">bx</span><span class="o">.</span><span class="n">align_horizontal</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">nested</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">indent</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>  <span class="c1"># f3</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">bx</span><span class="o">.</span><span class="n">align_horizontal</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">nested</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">indent</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>  <span class="c1"># f4</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">bx</span><span class="o">.</span><span class="n">align_horizontal</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">nested</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">indent</span><span class="p">)</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span>  <span class="c1"># f5</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">bx</span><span class="o">.</span><span class="n">align_horizontal</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">nested</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">indent</span><span class="p">)</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span>  <span class="c1"># f6</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">bx</span><span class="o">.</span><span class="n">align_horizontal</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">nested</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">indent</span><span class="p">)</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span>  <span class="c1"># f7</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">bx</span><span class="o">.</span><span class="n">align_horizontal</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">nested</span><span class="p">,</span> <span class="n">bx</span><span class="o">.</span><span class="n">indent</span><span class="p">)</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>  <span class="c1"># f8</span>
+
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By mfcode
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

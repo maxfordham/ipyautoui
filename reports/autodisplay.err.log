@@ -1,0 +1,78 @@
+Traceback (most recent call last):
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+    executenb(
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/site-packages/nbclient/client.py", line 1204, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/site-packages/nbclient/util.py", line 84, in wrapped
+    return just_run(coro(*args, **kwargs))
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/site-packages/nbclient/util.py", line 62, in just_run
+    return loop.run_until_complete(coro)
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/asyncio/base_events.py", line 647, in run_until_complete
+    return future.result()
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/site-packages/nbclient/client.py", line 663, in async_execute
+    await self.async_execute_cell(
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/site-packages/nbclient/client.py", line 965, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/site-packages/nbclient/client.py", line 862, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+import maplocal
+
+if maplocal.maplocal_openlocal_exists():
+    from maplocal import openlocal as open_path
+    from maplocal import maplocal as make_new_path
+else:
+    print("adsf")
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mPydanticImportError[0m                       Traceback (most recent call last)
+Cell [0;32mIn[4], line 1[0m
+[0;32m----> 1[0m [38;5;28;01mimport[39;00m [38;5;21;01mmaplocal[39;00m
+[1;32m      3[0m [38;5;28;01mif[39;00m maplocal[38;5;241m.[39mmaplocal_openlocal_exists():
+[1;32m      4[0m     [38;5;28;01mfrom[39;00m [38;5;21;01mmaplocal[39;00m [38;5;28;01mimport[39;00m openlocal [38;5;28;01mas[39;00m open_path
+
+File [0;32m/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/site-packages/maplocal/__init__.py:5[0m
+[1;32m      1[0m [38;5;66;03m# SPDX-FileCopyrightText: 2022-present John <J.gunstone@maxfordham.com>[39;00m
+[1;32m      2[0m [38;5;66;03m#[39;00m
+[1;32m      3[0m [38;5;66;03m# SPDX-License-Identifier: 0BSD[39;00m
+[0;32m----> 5[0m [38;5;28;01mfrom[39;00m [38;5;21;01mmaplocal[39;00m[38;5;21;01m.[39;00m[38;5;21;01mmaplocal[39;00m [38;5;28;01mimport[39;00m maplocal, openlocal, runlocal, maplocal_openlocal_exists, maplocal_runlocal_exists
+
+File [0;32m/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/site-packages/maplocal/maplocal.py:4[0m
+[1;32m      2[0m [38;5;28;01mimport[39;00m [38;5;21;01mtyping[39;00m [38;5;28;01mas[39;00m [38;5;21;01mty[39;00m
+[1;32m      3[0m [38;5;28;01mimport[39;00m [38;5;21;01mlogging[39;00m
+[0;32m----> 4[0m [38;5;28;01mfrom[39;00m [38;5;21;01mmaplocal[39;00m[38;5;21;01m.[39;00m[38;5;21;01menv[39;00m [38;5;28;01mimport[39;00m MapLocalEnv
+[1;32m      6[0m logger [38;5;241m=[39m logging[38;5;241m.[39mgetLogger([38;5;18m__name__[39m)
+[1;32m      7[0m MAPENV [38;5;241m=[39m MapLocalEnv()
+
+File [0;32m/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/site-packages/maplocal/env.py:1[0m
+[0;32m----> 1[0m [38;5;28;01mfrom[39;00m [38;5;21;01mpydantic[39;00m [38;5;28;01mimport[39;00m BaseModel, BaseSettings, Field, validator
+[1;32m      2[0m [38;5;28;01mimport[39;00m [38;5;21;01mpathlib[39;00m
+[1;32m      3[0m [38;5;28;01mimport[39;00m [38;5;21;01mimportlib[39;00m[38;5;21;01m.[39;00m[38;5;21;01mutil[39;00m
+
+File [0;32m/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/site-packages/pydantic/__init__.py:218[0m, in [0;36m__getattr__[0;34m(attr_name)[0m
+[1;32m    216[0m dynamic_attr [38;5;241m=[39m _dynamic_imports[38;5;241m.[39mget(attr_name)
+[1;32m    217[0m [38;5;28;01mif[39;00m dynamic_attr [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m:
+[0;32m--> 218[0m     [38;5;28;01mreturn[39;00m [43m_getattr_migration[49m[43m([49m[43mattr_name[49m[43m)[49m
+[1;32m    220[0m package, module_name [38;5;241m=[39m dynamic_attr
+[1;32m    222[0m [38;5;28;01mfrom[39;00m [38;5;21;01mimportlib[39;00m [38;5;28;01mimport[39;00m import_module
+
+File [0;32m/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.9/site-packages/pydantic/_migration.py:294[0m, in [0;36mgetattr_migration.<locals>.wrapper[0;34m(name)[0m
+[1;32m    292[0m     [38;5;28;01mreturn[39;00m import_string(REDIRECT_TO_V1[import_path])
+[1;32m    293[0m [38;5;28;01mif[39;00m import_path [38;5;241m==[39m [38;5;124m'[39m[38;5;124mpydantic:BaseSettings[39m[38;5;124m'[39m:
+[0;32m--> 294[0m     [38;5;28;01mraise[39;00m PydanticImportError(
+[1;32m    295[0m         [38;5;124m'[39m[38;5;124m`BaseSettings` has been moved to the `pydantic-settings` package. [39m[38;5;124m'[39m
+[1;32m    296[0m         [38;5;124mf[39m[38;5;124m'[39m[38;5;124mSee https://docs.pydantic.dev/[39m[38;5;132;01m{[39;00mversion_short()[38;5;132;01m}[39;00m[38;5;124m/migration/#basesettings-has-moved-to-pydantic-settings [39m[38;5;124m'[39m
+[1;32m    297[0m         [38;5;124m'[39m[38;5;124mfor more details.[39m[38;5;124m'[39m
+[1;32m    298[0m     )
+[1;32m    299[0m [38;5;28;01mif[39;00m import_path [38;5;129;01min[39;00m REMOVED_IN_V2:
+[1;32m    300[0m     [38;5;28;01mraise[39;00m PydanticImportError([38;5;124mf[39m[38;5;124m'[39m[38;5;124m`[39m[38;5;132;01m{[39;00mimport_path[38;5;132;01m}[39;00m[38;5;124m` has been removed in V2.[39m[38;5;124m'[39m)
+
+[0;31mPydanticImportError[0m: `BaseSettings` has been moved to the `pydantic-settings` package. See https://docs.pydantic.dev/2.4/migration/#basesettings-has-moved-to-pydantic-settings for more details.
+
+For further information visit https://errors.pydantic.dev/2.4/u/import-error
+PydanticImportError: `BaseSettings` has been moved to the `pydantic-settings` package. See https://docs.pydantic.dev/2.4/migration/#basesettings-has-moved-to-pydantic-settings for more details.
+
+For further information visit https://errors.pydantic.dev/2.4/u/import-error
+

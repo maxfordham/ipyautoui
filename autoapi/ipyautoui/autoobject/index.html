@@ -1,0 +1,1030 @@
+
+
+<!DOCTYPE html>
+
+
+<html >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>ipyautoui.autoobject &#8212; ipyautoui</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/ipyautoui/autoobject/index';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="ipyautoui.autoui" href="../autoui/index.html" />
+    <link rel="prev" title="ipyautoui.automapschema" href="../automapschema/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="None"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../intro.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../_static/logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../intro.html">
+                    ipyautoui
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../demo.html">demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoui.html">AutoUi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autovuetify.html">AutoVjsf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodisplay.html">AutoDisplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../custom-renderers.html">Custom Renderers</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../../api.html">API documentation</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../custom/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../custom/autogrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.autogrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/buttonbars/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.buttonbars</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/date_string/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.date_string</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/decision_branch/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.decision_branch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/editgrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.editgrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/filechooser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.filechooser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/filesindir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.filesindir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/fileupload/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.fileupload</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/halo_decorator/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.halo_decorator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/iterable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.iterable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/loadproject/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.loadproject</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/markdown_widget/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.markdown_widget</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/modelrun/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.modelrun</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/multi_toggle_buttons/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.multi_toggle_buttons</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/multiselect_search/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.multiselect_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/outputlogging/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.outputlogging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/selectandclick/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.selectandclick</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/selectdir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.selectdir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/showhide/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.showhide</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/showopenurl/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.showopenurl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/title_description/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.title_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/urlimagelink/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.urlimagelink</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/widgetcaller_error/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.widgetcaller_error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../custom/workingdir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.workingdir</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../demo_schemas/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/array_examples/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.array_examples</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/array_object_dataframe/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.array_object_dataframe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/complex_serialization/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.complex_serialization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/core_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.core_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/editable_datagrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.editable_datagrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/nested/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nested</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/nested_editable_datagrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nested_editable_datagrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/null_and_required/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.null_and_required</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/nullable_core_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nullable_core_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/override_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.override_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/recursive_array/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.recursive_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/recursive_object/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.recursive_object</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/root_array/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/root_array_enum/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_array_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/root_enum/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/root_simple/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_simple</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../demo_schemas/ruleset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.ruleset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../_dev_sys_path_append/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._dev_sys_path_append</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../_utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._utils</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../_utils_debounce/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._utils_debounce</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoanyof/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoanyof</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autobox/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autobox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autodisplay/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autodisplay</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autodisplay_renderers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autodisplay_renderers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoform/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoform</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../automapschema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.automapschema</span></code></a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoobject</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autovjsf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autovjsf</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../basemodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.basemodel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../constants/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.constants</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../demo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../env/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.env</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../mydocstring_display/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.mydocstring_display</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../nullable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.nullable</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/jgunstone/ipyautoui" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/jgunstone/ipyautoui/issues/new?title=Issue%20on%20page%20%2Fautoapi/ipyautoui/autoobject/index.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/autoapi/ipyautoui/autoobject/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>ipyautoui.autoobject</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="module-ipyautoui.autoobject">
+<span id="ipyautoui-autoobject"></span><h1><a class="reference internal" href="#module-ipyautoui.autoobject" title="ipyautoui.autoobject"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoobject</span></code></a><a class="headerlink" href="#module-ipyautoui.autoobject" title="Permalink to this headline">#</a></h1>
+<p>AutoObject - create a</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.autoobject.AutoObject" title="ipyautoui.autoobject.AutoObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AutoObject</span></code></a></p></td>
+<td><p>creates an ipywidgets form from a json-schema or pydantic model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.autoobject.AutoObjectForm" title="ipyautoui.autoobject.AutoObjectForm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AutoObjectForm</span></code></a></p></td>
+<td><p>creates an ipywidgets form from a json-schema or pydantic model.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.autoobject._get_value_trait" title="ipyautoui.autoobject._get_value_trait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_value_trait</span></code></a>(obj_with_traits)</p></td>
+<td><p>gets the trait type for a given object (looks for &quot;_value&quot; and</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.autoobject.logger" title="ipyautoui.autoobject.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id1" title="ipyautoui.autoobject.v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="ipyautoui.autoobject.s"><code class="xref py py-obj docutils literal notranslate"><span class="pre">s</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id0" title="ipyautoui.autoobject.s"><code class="xref py py-obj docutils literal notranslate"><span class="pre">s</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id1" title="ipyautoui.autoobject.v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id2" title="ipyautoui.autoobject.ui"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ui</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id2" title="ipyautoui.autoobject.ui"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ui</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.logger">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.autoobject.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.logger" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.autoobject._get_value_trait">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.autoobject.</span></span><span class="sig-name descname"><span class="pre">_get_value_trait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_with_traits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#_get_value_trait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject._get_value_trait" title="Permalink to this definition">#</a></dt>
+<dd><p>gets the trait type for a given object (looks for “_value” and
+“value” allowing use of setters and getters)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>obj_with_traits</strong> (<em>tr.Type</em>) – obj with traits</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if “_value” or “value” traits don’t exist</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>trait type of traitlet</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ty.Type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.autoobject.</span></span><span class="sig-name descname"><span class="pre">AutoObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ipywidgets.VBox</span></code></p>
+<p>creates an ipywidgets form from a json-schema or pydantic model.
+datatype must be “object”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>AutoObjectFormLayout</strong> (<em>#</em>) – </p></li>
+<li><p><strong>-------------------------</strong> (<em>#</em>) – </p></li>
+<li><p><strong>title</strong> (<em>str</em>) – form title</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – form description</p></li>
+<li><p><strong>show_description</strong> (<em>bool</em><em>, </em><em>optional</em>) – show the description. Defaults to True.</p></li>
+<li><p><strong>show_title</strong> (<em>bool</em><em>, </em><em>optional</em>) – show the title. Defaults to True.</p></li>
+<li><p><strong>show_savebuttonbar</strong> (<em>bool</em><em>, </em><em>optional</em>) – show the savebuttonbar. Defaults to True.</p></li>
+<li><p><strong>show_raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – show the raw json. Defaults to False.</p></li>
+<li><p><strong>fn_onshowraw</strong> (<em>callable</em>) – do not edit</p></li>
+<li><p><strong>fn_onhideraw</strong> (<em>callable</em>) – do not edit</p></li>
+<li><p><strong>fns_onsave</strong> (<em>callable</em>) – additional functions to be called on save</p></li>
+<li><p><strong>fns_onrevert</strong> (<em>callable</em>) – additional functions to be called on revert</p></li>
+<li><p><strong>AutoObject</strong> (<em>#</em>) – </p></li>
+<li><p><strong>-------------------------</strong> – </p></li>
+<li><p><strong>_value</strong> (<em>dict</em>) – use <cite>value</cite> to set and get. the value of the form. this is a dict of the form {key: value}</p></li>
+<li><p><strong>fdir</strong> (<em>path</em><em>, </em><em>optional</em>) – fdir to work from. useful for widgets that link to files. Defaults to None.</p></li>
+<li><p><strong>align_horizontal</strong> (<em>bool</em><em>, </em><em>optional</em>) – aligns widgets horizontally. Defaults to True.</p></li>
+<li><p><strong>nested_widgets</strong> (<em>list</em><em>, </em><em>optional</em>) – allows user to indicate widgets that should be show / hide type. Defaults to [].</p></li>
+<li><p><strong>order</strong> (<em>list</em>) – allows user to re-specify the order for widget rows to appear by key name in self.di_widgets</p></li>
+<li><p><strong>order_can_hide_rows</strong> (<em>bool</em>) – allows user to hide rows by removing them from the order list.</p></li>
+<li><p><strong>insert_rows</strong> (<em>dict</em>) – e.g. {3:w.Button()}. allows user to insert a widget into the rows. its presence
+is ignored by the widget otherwise.</p></li>
+<li><p><strong>disabled</strong> (<em>bool</em><em>, </em><em>optional</em>) – disables all widgets. If widgets are disabled
+using schema kwargs this is remembered when re-enabled. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.default_order">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_order</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.default_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.default_order" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.value">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.value" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.json">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">json</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.json" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.di_widgets_value">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">di_widgets_value</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.di_widgets_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.di_widgets_value" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.update_map_widgets">
+<span class="sig-name descname"><span class="pre">update_map_widgets</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.update_map_widgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.update_map_widgets" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.widgets_map">
+<span class="sig-name descname"><span class="pre">widgets_map</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.widgets_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.widgets_map" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.type">
+<span class="sig-name descname"><span class="pre">type</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.allOf">
+<span class="sig-name descname"><span class="pre">allOf</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.allOf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.allOf" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.properties">
+<span class="sig-name descname"><span class="pre">properties</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.properties" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._value">
+<span class="sig-name descname"><span class="pre">_value</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._value" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.fdir">
+<span class="sig-name descname"><span class="pre">fdir</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.fdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.fdir" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.align_horizontal">
+<span class="sig-name descname"><span class="pre">align_horizontal</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.align_horizontal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.align_horizontal" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.nested_widgets">
+<span class="sig-name descname"><span class="pre">nested_widgets</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.nested_widgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.nested_widgets" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.order">
+<span class="sig-name descname"><span class="pre">order</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.order" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.order_can_hide_rows">
+<span class="sig-name descname"><span class="pre">order_can_hide_rows</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.order_can_hide_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.order_can_hide_rows" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.insert_rows">
+<span class="sig-name descname"><span class="pre">insert_rows</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.insert_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.insert_rows" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.disabled">
+<span class="sig-name descname"><span class="pre">disabled</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.disabled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.disabled" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.open_nested">
+<span class="sig-name descname"><span class="pre">open_nested</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.open_nested"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.open_nested" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._default_update_map_widgets">
+<span class="sig-name descname"><span class="pre">_default_update_map_widgets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._default_update_map_widgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._default_update_map_widgets" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._update_map_widgets">
+<span class="sig-name descname"><span class="pre">_update_map_widgets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._update_map_widgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._update_map_widgets" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._widgets_map">
+<span class="sig-name descname"><span class="pre">_widgets_map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._widgets_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._widgets_map" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._valid_type">
+<span class="sig-name descname"><span class="pre">_valid_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proposal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._valid_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._valid_type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._allOf">
+<span class="sig-name descname"><span class="pre">_allOf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._allOf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._allOf" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._properties">
+<span class="sig-name descname"><span class="pre">_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._properties" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._align_horizontal">
+<span class="sig-name descname"><span class="pre">_align_horizontal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._align_horizontal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._align_horizontal" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._fdir">
+<span class="sig-name descname"><span class="pre">_fdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._fdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._fdir" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.validate_insert_rows">
+<span class="sig-name descname"><span class="pre">validate_insert_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proposal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.validate_insert_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.validate_insert_rows" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.observe_disabled">
+<span class="sig-name descname"><span class="pre">observe_disabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.observe_disabled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.observe_disabled" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._order">
+<span class="sig-name descname"><span class="pre">_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proposal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._order" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._obs_order">
+<span class="sig-name descname"><span class="pre">_obs_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._obs_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._obs_order" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._order_can_hide_rows">
+<span class="sig-name descname"><span class="pre">_order_can_hide_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proposal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._order_can_hide_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._order_can_hide_rows" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._default_nested_widgets">
+<span class="sig-name descname"><span class="pre">_default_nested_widgets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._default_nested_widgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._default_nested_widgets" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._valid_nested_widgets">
+<span class="sig-name descname"><span class="pre">_valid_nested_widgets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proposal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._valid_nested_widgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._valid_nested_widgets" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.observe_open_nested">
+<span class="sig-name descname"><span class="pre">observe_open_nested</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.observe_open_nested"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.observe_open_nested" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._valid_value">
+<span class="sig-name descname"><span class="pre">_valid_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proposal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._valid_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._valid_value" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.trait_order">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trait_order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.trait_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.trait_order" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.get_ordered_kwargs">
+<span class="sig-name descname"><span class="pre">get_ordered_kwargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.get_ordered_kwargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.get_ordered_kwargs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.from_schema">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">pydantic.BaseModel</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.from_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.from_schema" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._open_nested">
+<span class="sig-name descname"><span class="pre">_open_nested</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._open_nested"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._open_nested" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._close_nested">
+<span class="sig-name descname"><span class="pre">_close_nested</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._close_nested"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._close_nested" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._init_ui">
+<span class="sig-name descname"><span class="pre">_init_ui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._init_ui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._init_ui" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._init_widgets">
+<span class="sig-name descname"><span class="pre">_init_widgets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._init_widgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._init_widgets" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.indent_non_nullable">
+<span class="sig-name descname"><span class="pre">indent_non_nullable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.indent_non_nullable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.indent_non_nullable" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._insert_rows">
+<span class="sig-name descname"><span class="pre">_insert_rows</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._insert_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._insert_rows" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._init_controls">
+<span class="sig-name descname"><span class="pre">_init_controls</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._init_controls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._init_controls" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject.set_watcher">
+<span class="sig-name descname"><span class="pre">set_watcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widget</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">watch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject.set_watcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject.set_watcher" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._init_watch_widgets">
+<span class="sig-name descname"><span class="pre">_init_watch_widgets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._init_watch_widgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._init_watch_widgets" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._watch_change">
+<span class="sig-name descname"><span class="pre">_watch_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">watch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'value'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._watch_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._watch_change" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObject._update_widgets_from_value">
+<span class="sig-name descname"><span class="pre">_update_widgets_from_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObject._update_widgets_from_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObject._update_widgets_from_value" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObjectForm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.autoobject.</span></span><span class="sig-name descname"><span class="pre">AutoObjectForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObjectForm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObjectForm" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ipyautoui.autoobject.AutoObject" title="ipyautoui.autoobject.AutoObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AutoObject</span></code></a>, <a class="reference internal" href="../autoform/index.html#ipyautoui.autoform.AutoObjectFormLayout" title="ipyautoui.autoform.AutoObjectFormLayout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ipyautoui.autoform.AutoObjectFormLayout</span></code></a></p>
+<p>creates an ipywidgets form from a json-schema or pydantic model.
+datatype must be “object”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>AutoObjectFormLayout</strong> (<em>#</em>) – </p></li>
+<li><p><strong>-------------------------</strong> (<em>#</em>) – </p></li>
+<li><p><strong>title</strong> (<em>str</em>) – form title</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – form description</p></li>
+<li><p><strong>show_description</strong> (<em>bool</em><em>, </em><em>optional</em>) – show the description. Defaults to True.</p></li>
+<li><p><strong>show_title</strong> (<em>bool</em><em>, </em><em>optional</em>) – show the title. Defaults to True.</p></li>
+<li><p><strong>show_savebuttonbar</strong> (<em>bool</em><em>, </em><em>optional</em>) – show the savebuttonbar. Defaults to True.</p></li>
+<li><p><strong>show_raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – show the raw json. Defaults to False.</p></li>
+<li><p><strong>fn_onshowraw</strong> (<em>callable</em>) – do not edit</p></li>
+<li><p><strong>fn_onhideraw</strong> (<em>callable</em>) – do not edit</p></li>
+<li><p><strong>fns_onsave</strong> (<em>callable</em>) – additional functions to be called on save</p></li>
+<li><p><strong>fns_onrevert</strong> (<em>callable</em>) – additional functions to be called on revert</p></li>
+<li><p><strong>AutoObject</strong> (<em>#</em>) – </p></li>
+<li><p><strong>-------------------------</strong> – </p></li>
+<li><p><strong>_value</strong> (<em>dict</em>) – use <cite>value</cite> to set and get. the value of the form. this is a dict of the form {key: value}</p></li>
+<li><p><strong>fdir</strong> (<em>path</em><em>, </em><em>optional</em>) – fdir to work from. useful for widgets that link to files. Defaults to None.</p></li>
+<li><p><strong>align_horizontal</strong> (<em>bool</em><em>, </em><em>optional</em>) – aligns widgets horizontally. Defaults to True.</p></li>
+<li><p><strong>nested_widgets</strong> (<em>list</em><em>, </em><em>optional</em>) – allows user to indicate widgets that should be show / hide type. Defaults to [].</p></li>
+<li><p><strong>order</strong> (<em>list</em>) – allows user to re-specify the order for widget rows to appear by key name in self.di_widgets</p></li>
+<li><p><strong>order_can_hide_rows</strong> (<em>bool</em>) – allows user to hide rows by removing them from the order list.</p></li>
+<li><p><strong>insert_rows</strong> (<em>dict</em>) – e.g. {3:w.Button()}. allows user to insert a widget into the rows. its presence
+is ignored by the widget otherwise.</p></li>
+<li><p><strong>disabled</strong> (<em>bool</em><em>, </em><em>optional</em>) – disables all widgets. If widgets are disabled
+using schema kwargs this is remembered when re-enabled. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObjectForm.display_ui">
+<span class="sig-name descname"><span class="pre">display_ui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObjectForm.display_ui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObjectForm.display_ui" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.AutoObjectForm.display_showraw">
+<span class="sig-name descname"><span class="pre">display_showraw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#AutoObjectForm.display_showraw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.AutoObjectForm.display_showraw" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.v">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.autoobject.</span></span><span class="sig-name descname"><span class="pre">v</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#v"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.v" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.s">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.autoobject.</span></span><span class="sig-name descname"><span class="pre">s</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#s"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.s" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.autoobject.</span></span><span class="sig-name descname"><span class="pre">s</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#s"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.autoobject.</span></span><span class="sig-name descname"><span class="pre">v</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#v"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ipyautoui.autoobject.ui">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.autoobject.</span></span><span class="sig-name descname"><span class="pre">ui</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#ui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.autoobject.ui" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.autoobject.</span></span><span class="sig-name descname"><span class="pre">ui</span></span><a class="reference internal" href="../../../_modules/ipyautoui/autoobject.html#ui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./autoapi/ipyautoui/autoobject"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../automapschema/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.automapschema</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../autoui/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoui</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By mfcode
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

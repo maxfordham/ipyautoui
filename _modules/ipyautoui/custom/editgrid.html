@@ -1,0 +1,1199 @@
+
+
+<!DOCTYPE html>
+
+
+<html >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ipyautoui.custom.editgrid &#8212; ipyautoui</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/ipyautoui/custom/editgrid';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="None"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../intro.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../_static/logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../intro.html">
+                    ipyautoui
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../demo.html">demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoui.html">AutoUi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autovuetify.html">AutoVjsf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodisplay.html">AutoDisplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../custom-renderers.html">Custom Renderers</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api.html">API documentation</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/ipyautoui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/autogrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.autogrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/buttonbars/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.buttonbars</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/date_string/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.date_string</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/decision_branch/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.decision_branch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/editgrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.editgrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/filechooser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.filechooser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/filesindir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.filesindir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/fileupload/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.fileupload</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/halo_decorator/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.halo_decorator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/iterable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.iterable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/loadproject/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.loadproject</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/markdown_widget/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.markdown_widget</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/modelrun/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.modelrun</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/multi_toggle_buttons/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.multi_toggle_buttons</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/multiselect_search/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.multiselect_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/outputlogging/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.outputlogging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/selectandclick/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.selectandclick</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/selectdir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.selectdir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/showhide/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.showhide</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/showopenurl/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.showopenurl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/title_description/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.title_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/urlimagelink/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.urlimagelink</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/widgetcaller_error/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.widgetcaller_error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/workingdir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.workingdir</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/array_examples/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.array_examples</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/array_object_dataframe/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.array_object_dataframe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/complex_serialization/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.complex_serialization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/core_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.core_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/editable_datagrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.editable_datagrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/nested/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nested</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/nested_editable_datagrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nested_editable_datagrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/null_and_required/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.null_and_required</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/nullable_core_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nullable_core_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/override_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.override_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/recursive_array/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.recursive_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/recursive_object/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.recursive_object</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/root_array/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/root_array_enum/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_array_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/root_enum/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/root_simple/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_simple</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/ruleset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.ruleset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/_dev_sys_path_append/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._dev_sys_path_append</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/_utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._utils</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/_utils_debounce/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._utils_debounce</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autoanyof/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoanyof</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autobox/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autobox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autodisplay/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autodisplay</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autodisplay_renderers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autodisplay_renderers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autoform/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoform</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/automapschema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.automapschema</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autoobject/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoobject</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autoui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autovjsf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autovjsf</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/basemodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.basemodel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/constants/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.constants</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/demo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/env/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.env</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/mydocstring_display/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.mydocstring_display</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/nullable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.nullable</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/jgunstone/ipyautoui" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/jgunstone/ipyautoui/issues/new?title=Issue%20on%20page%20%2F_modules/ipyautoui/custom/editgrid.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for ipyautoui.custom.editgrid</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># ---</span>
+<span class="c1"># jupyter:</span>
+<span class="c1">#   jupytext:</span>
+<span class="c1">#     cell_metadata_filter: -all</span>
+<span class="c1">#     formats: py:light</span>
+<span class="c1">#     text_representation:</span>
+<span class="c1">#       extension: .py</span>
+<span class="c1">#       format_name: light</span>
+<span class="c1">#       format_version: &#39;1.5&#39;</span>
+<span class="c1">#       jupytext_version: 1.15.0</span>
+<span class="c1">#   kernelspec:</span>
+<span class="c1">#     display_name: Python 3 (ipykernel)</span>
+<span class="c1">#     language: python</span>
+<span class="c1">#     name: python3</span>
+<span class="c1"># ---</span>
+
+<span class="c1"># +</span>
+<span class="sd">&quot;&quot;&quot;General widget for editing data&quot;&quot;&quot;</span>
+<span class="c1"># %run ../_dev_sys_path_append.py</span>
+<span class="c1"># %load_ext lab_black</span>
+<span class="c1"># TODO: move editgrid.py to root ?</span>
+
+<span class="kn">import</span> <span class="nn">traitlets</span> <span class="k">as</span> <span class="nn">tr</span>
+<span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">ty</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">ipywidgets</span> <span class="k">as</span> <span class="nn">w</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">clear_output</span><span class="p">,</span> <span class="n">display</span>
+<span class="kn">from</span> <span class="nn">markdown</span> <span class="kn">import</span> <span class="n">markdown</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+
+<span class="kn">from</span> <span class="nn">ipyautoui.autoobject</span> <span class="kn">import</span> <span class="n">AutoObjectForm</span>
+<span class="kn">from</span> <span class="nn">ipyautoui.custom.buttonbars</span> <span class="kn">import</span> <span class="n">CrudButtonBar</span>
+<span class="kn">from</span> <span class="nn">ipyautoui._utils</span> <span class="kn">import</span> <span class="n">frozenmap</span>
+<span class="kn">from</span> <span class="nn">ipyautoui.constants</span> <span class="kn">import</span> <span class="n">BUTTON_WIDTH_MIN</span>
+<span class="kn">from</span> <span class="nn">ipyautoui.custom.autogrid</span> <span class="kn">import</span> <span class="n">AutoGrid</span>
+<span class="kn">from</span> <span class="nn">ipyautoui.custom.title_description</span> <span class="kn">import</span> <span class="n">TitleDescription</span>
+
+<div class="viewcode-block" id="MAP_TRANSPOSED_SELECTION_MODE"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.MAP_TRANSPOSED_SELECTION_MODE">[docs]</a><span class="n">MAP_TRANSPOSED_SELECTION_MODE</span> <span class="o">=</span> <span class="n">frozenmap</span><span class="p">({</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;column&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;row&quot;</span><span class="p">})</span></div>
+<span class="c1"># TODO: rename &quot;add&quot; to &quot;fn_add&quot; so not ambiguous...</span>
+<span class="c1"># -</span>
+
+
+<div class="viewcode-block" id="DataHandler"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.DataHandler">[docs]</a><span class="k">class</span> <span class="nc">DataHandler</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CRUD operations for a for EditGrid.</span>
+<span class="sd">    Can be used to connect to a database or other data source.</span>
+<span class="sd">    note - the TypeHints below are hints only. The functions can be any callable.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fn_get_all_data (Callable): Function to get all data.</span>
+<span class="sd">        fn_post (Callable): Function to post data. is passed a dict of a single row/col to post.</span>
+<span class="sd">            Following the post, fn_get_all_data is called</span>
+<span class="sd">        fn_patch (Callable): Function to patch data. is passed a dict of a single row/col to patch.</span>
+<span class="sd">        fn_delete (callable): Function to delete data. is passed the index of the row/col to delete.</span>
+<span class="sd">        fn_copy (Callable): Function to copy data. is passed a list of dicts with values of rows/cols to copy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># REVIEW... MAYBE SHOULD USE *ARGS AND **KWARGS</span>
+<div class="viewcode-block" id="DataHandler.fn_get_all_data"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.DataHandler.fn_get_all_data">[docs]</a>    <span class="n">fn_get_all_data</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span>  <span class="c1"># TODO: rename to fn_get</span></div>
+<div class="viewcode-block" id="DataHandler.fn_post"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.DataHandler.fn_post">[docs]</a>    <span class="n">fn_post</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span></div>
+<div class="viewcode-block" id="DataHandler.fn_patch"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.DataHandler.fn_patch">[docs]</a>    <span class="n">fn_patch</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ty</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="nb">dict</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>  <span class="c1"># TODO: need to add index</span></div>
+<div class="viewcode-block" id="DataHandler.fn_delete"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.DataHandler.fn_delete">[docs]</a>    <span class="n">fn_delete</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="kc">None</span><span class="p">]</span></div>
+<div class="viewcode-block" id="DataHandler.fn_copy"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.DataHandler.fn_copy">[docs]</a>    <span class="n">fn_copy</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="kc">None</span><span class="p">]</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="TestModel"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.TestModel">[docs]</a>    <span class="k">class</span> <span class="nc">TestModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="TestModel.string"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.TestModel.string">[docs]</a>        <span class="n">string</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Important String&quot;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="TestModel.integer"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.TestModel.integer">[docs]</a>        <span class="n">integer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Integer of somesort&quot;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="TestModel.floater"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.TestModel.floater">[docs]</a>        <span class="n">floater</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">1.33</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;floater&quot;</span><span class="p">)</span></div></div>
+
+    <span class="k">def</span> <span class="nf">test_save</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_revert</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reverted.&quot;</span><span class="p">)</span>
+
+    <span class="n">ui</span> <span class="o">=</span> <span class="n">AutoObjectForm</span><span class="o">.</span><span class="n">from_schema</span><span class="p">(</span><span class="n">TestModel</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">ui</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">ui</span><span class="o">.</span><span class="n">show_savebuttonbar</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">ui</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">ui</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="s2">&quot;adfs&quot;</span><span class="p">,</span> <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;floater&quot;</span><span class="p">:</span> <span class="mf">1.22</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="RowEditor"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.RowEditor">[docs]</a><span class="k">class</span> <span class="nc">RowEditor</span><span class="p">:</span>
+<div class="viewcode-block" id="RowEditor.fn_add"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.RowEditor.fn_add">[docs]</a>    <span class="n">fn_add</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ty</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="nb">dict</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span>  <span class="c1"># post</span></div>
+<div class="viewcode-block" id="RowEditor.fn_edit"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.RowEditor.fn_edit">[docs]</a>    <span class="n">fn_edit</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ty</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="nb">dict</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span>  <span class="c1"># patch</span></div>
+<div class="viewcode-block" id="RowEditor.fn_move"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.RowEditor.fn_move">[docs]</a>    <span class="n">fn_move</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span></div>
+<div class="viewcode-block" id="RowEditor.fn_copy"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.RowEditor.fn_copy">[docs]</a>    <span class="n">fn_copy</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span></div>
+<div class="viewcode-block" id="RowEditor.fn_delete"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.RowEditor.fn_delete">[docs]</a>    <span class="n">fn_delete</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span></div></div>
+
+
+<span class="c1"># +</span>
+<div class="viewcode-block" id="UiDelete"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiDelete">[docs]</a><span class="k">class</span> <span class="nc">UiDelete</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">):</span>
+<div class="viewcode-block" id="UiDelete.value"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiDelete.value">[docs]</a>    <span class="n">value</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Dict</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="p">{})</span></div>
+<div class="viewcode-block" id="UiDelete.columns"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiDelete.columns">[docs]</a>    <span class="n">columns</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+    <span class="nd">@tr</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="UiDelete.observe_value"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiDelete.observe_value">[docs]</a>    <span class="k">def</span> <span class="nf">observe_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_change</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_display</span><span class="p">()</span></div>
+
+    <span class="nd">@tr</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="UiDelete.observe_columns"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiDelete.observe_columns">[docs]</a>    <span class="k">def</span> <span class="nf">observe_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_change</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message_columns</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;columns shown: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message_columns</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;---&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_display</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="UiDelete.value_summary"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiDelete.value_summary">[docs]</a>    <span class="k">def</span> <span class="nf">value_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="n">k</span><span class="p">:</span> <span class="p">{</span><span class="n">k_</span><span class="p">:</span> <span class="n">v_</span> <span class="k">for</span> <span class="n">k_</span><span class="p">,</span> <span class="n">v_</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">}</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span></div>
+
+<div class="viewcode-block" id="UiDelete._update_display"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiDelete._update_display">[docs]</a>    <span class="k">def</span> <span class="nf">_update_display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_delete</span><span class="p">:</span>
+            <span class="n">clear_output</span><span class="p">()</span>
+            <span class="n">display</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value_summary</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn_delete</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;delete&quot;</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fn_delete</span> <span class="o">=</span> <span class="n">fn_delete</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_delete</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn_delete</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;exclamation-triangle&quot;</span><span class="p">,</span>
+            <span class="n">button_style</span><span class="o">=</span><span class="s2">&quot;danger&quot;</span><span class="p">,</span>
+            <span class="n">layout</span><span class="o">=</span><span class="n">w</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">BUTTON_WIDTH_MIN</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbx_messages</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">VBox</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">HTML</span><span class="p">(</span>
+            <span class="s2">&quot;⚠️&lt;b&gt;Are you sure you want to delete?&lt;/b&gt;⚠️ - &lt;i&gt;pressing the button will&quot;</span>
+            <span class="s2">&quot; permanently delete the selected data from the datagrid&lt;/i&gt;&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_columns</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">HTML</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbx_messages</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message_columns</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_delete</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bn_delete</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vbx_messages</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_controls</span><span class="p">()</span>
+
+<div class="viewcode-block" id="UiDelete._init_controls"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiDelete._init_controls">[docs]</a>    <span class="k">def</span> <span class="nf">_init_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn_delete</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bn_delete</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UiDelete._bn_delete"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiDelete._bn_delete">[docs]</a>    <span class="k">def</span> <span class="nf">_bn_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onclick</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fn_delete</span><span class="p">()</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="delete"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.delete">[docs]</a>    <span class="n">delete</span> <span class="o">=</span> <span class="n">UiDelete</span><span class="p">()</span></div>
+    <span class="n">display</span><span class="p">(</span><span class="n">delete</span><span class="p">)</span>
+<span class="c1"># -</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">delete</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;col1&quot;</span><span class="p">:</span> <span class="s2">&quot;value1&quot;</span><span class="p">,</span> <span class="s2">&quot;col2&quot;</span><span class="p">:</span> <span class="s2">&quot;value2&quot;</span><span class="p">}}</span>
+
+
+<span class="c1"># +</span>
+<span class="c1"># NOTE: UiCopy not in use</span>
+
+
+<div class="viewcode-block" id="UiCopy"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiCopy">[docs]</a><span class="k">class</span> <span class="nc">UiCopy</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">):</span>
+<div class="viewcode-block" id="UiCopy.index"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiCopy.index">[docs]</a>    <span class="n">index</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Integer</span><span class="p">()</span>  <span class="c1"># row index copying from... improve user reporting</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fn_copy_beginning</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;duplicate selection to beginning&quot;</span>
+        <span class="p">),</span>
+        <span class="n">fn_copy_inplace</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;duplicate selection to below current&quot;</span>
+        <span class="p">),</span>
+        <span class="n">fn_copy_end</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duplicate selection to end&quot;</span><span class="p">),</span>
+        <span class="n">fn_copy_to_selection</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;select new row/col to copy to&quot;</span>
+        <span class="p">),</span>
+        <span class="n">transposed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fn_copy_beginning</span> <span class="o">=</span> <span class="n">fn_copy_beginning</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fn_copy_inplace</span> <span class="o">=</span> <span class="n">fn_copy_inplace</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fn_copy_end</span> <span class="o">=</span> <span class="n">fn_copy_end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fn_copy_to_selection</span> <span class="o">=</span> <span class="n">fn_copy_to_selection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_action</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;duplicate selection to beginning&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_copy_beginning</span><span class="p">,</span>
+            <span class="s2">&quot;duplicate selection to below current&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_copy_inplace</span><span class="p">,</span>
+            <span class="s2">&quot;duplicate selection to end&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_copy_end</span><span class="p">,</span>
+            <span class="s2">&quot;select new row/col to copy to&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_copy_to_selection</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_copytype</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">RadioButtons</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">map_action</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+            <span class="n">value</span><span class="o">=</span><span class="s2">&quot;duplicate selection to end&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn_copy</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;copy&quot;</span><span class="p">,</span>
+            <span class="n">button_style</span><span class="o">=</span><span class="s2">&quot;success&quot;</span><span class="p">,</span>
+            <span class="n">layout</span><span class="o">=</span><span class="n">w</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">BUTTON_WIDTH_MIN</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbx_messages</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">VBox</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">HTML</span><span class="p">(</span><span class="s2">&quot;ℹ️ &lt;b&gt;Note&lt;/b&gt; ℹ️ - &lt;i&gt;copy data from selected row&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_columns</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">HTML</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbx_messages</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message_columns</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_copytype</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bn_copy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vbx_messages</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_controls</span><span class="p">()</span>
+
+<div class="viewcode-block" id="UiCopy._init_controls"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiCopy._init_controls">[docs]</a>    <span class="k">def</span> <span class="nf">_init_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn_copy</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bn_copy</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UiCopy._bn_copy"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.UiCopy._bn_copy">[docs]</a>    <span class="k">def</span> <span class="nf">_bn_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onclick</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_action</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ui_copytype</span><span class="o">.</span><span class="n">value</span><span class="p">]()</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">UiCopy</span><span class="p">())</span>
+
+
+<span class="c1"># +</span>
+<span class="c1"># TODO: refactor how the datahandler works...</span>
+<span class="c1"># TODO: add a test for the datahandler...</span>
+
+
+<div class="viewcode-block" id="EditGrid"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid">[docs]</a><span class="k">class</span> <span class="nc">EditGrid</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">VBox</span><span class="p">,</span> <span class="n">TitleDescription</span><span class="p">):</span>
+<div class="viewcode-block" id="EditGrid._value"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._value">[docs]</a>    <span class="n">_value</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Tuple</span><span class="p">()</span>  <span class="c1"># using a tuple to guarantee no accidental mutation</span></div>
+<div class="viewcode-block" id="EditGrid.warn_on_delete"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid.warn_on_delete">[docs]</a>    <span class="n">warn_on_delete</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Bool</span><span class="p">()</span></div>
+<div class="viewcode-block" id="EditGrid.show_copy_dialogue"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid.show_copy_dialogue">[docs]</a>    <span class="n">show_copy_dialogue</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Bool</span><span class="p">()</span></div>
+<div class="viewcode-block" id="EditGrid.close_crud_dialogue_on_action"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid.close_crud_dialogue_on_action">[docs]</a>    <span class="n">close_crud_dialogue_on_action</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Bool</span><span class="p">()</span></div>
+
+    <span class="nd">@tr</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="s2">&quot;warn_on_delete&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="EditGrid.observe_warn_on_delete"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid.observe_warn_on_delete">[docs]</a>    <span class="k">def</span> <span class="nf">observe_warn_on_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_change</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn_on_delete</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_delete</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_delete</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span></div>
+
+    <span class="nd">@tr</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="s2">&quot;show_copy_dialogue&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="EditGrid.observe_show_copy_dialogue"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid.observe_show_copy_dialogue">[docs]</a>    <span class="k">def</span> <span class="nf">observe_show_copy_dialogue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_change</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_copy_dialogue</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_copy</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_copy</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span></div>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="EditGrid.value"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span></div>
+
+    <span class="nd">@value</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="p">[]</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">get_default_data</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">_init_data</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+        <span class="c1"># HOTFIX: Setting data creates bugs out transforms currently so reset transform applied</span>
+        <span class="n">_transforms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">_transforms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">transform</span><span class="p">([])</span>  <span class="c1"># Set to no transforms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">_transforms</span><span class="p">)</span>  <span class="c1"># Set to previous transforms</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="EditGrid.transposed"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid.transposed">[docs]</a>    <span class="k">def</span> <span class="nf">transposed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">transposed</span></div>
+
+    <span class="nd">@transposed</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">transposed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">transposed</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="EditGrid._update_value_from_grid"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._update_value_from_grid">[docs]</a>    <span class="k">def</span> <span class="nf">_update_value_from_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">records</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">schema</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">ty</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]],</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ty</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">by_alias</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">by_title</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">datahandler</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">DataHandler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ui_add</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ui_edit</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ui_delete</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ui_copy</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">warn_on_delete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">show_copy_dialogue</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">close_crud_dialogue_on_action</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">show_title</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">html_title</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">HTML</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_title</span> <span class="o">=</span> <span class="n">show_title</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">by_title</span> <span class="o">=</span> <span class="n">by_title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">by_alias</span> <span class="o">=</span> <span class="n">by_alias</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span> <span class="o">=</span> <span class="n">datahandler</span>
+        <span class="n">getvalue</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="p">(</span>
+            <span class="kc">None</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">==</span> <span class="p">[{}]</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">AutoGrid</span><span class="p">(</span>
+            <span class="n">schema</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">getvalue</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">by_alias</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">by_alias</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_form</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ui_add</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span> <span class="o">=</span> <span class="n">AutoObjectForm</span><span class="o">.</span><span class="n">from_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row_schema</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span> <span class="o">=</span> <span class="n">ui_add</span><span class="o">.</span><span class="n">from_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row_schema</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ui_edit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_edit</span> <span class="o">=</span> <span class="n">AutoObjectForm</span><span class="o">.</span><span class="n">from_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row_schema</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_edit</span> <span class="o">=</span> <span class="n">ui_edit</span><span class="o">.</span><span class="n">from_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row_schema</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ui_delete</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_delete</span> <span class="o">=</span> <span class="n">UiDelete</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_delete</span> <span class="o">=</span> <span class="n">ui_delete</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_delete</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+        <span class="k">if</span> <span class="n">ui_copy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_copy</span> <span class="o">=</span> <span class="n">UiCopy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_copy</span> <span class="o">=</span> <span class="n">ui_copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_copy</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warn_on_delete</span> <span class="o">=</span> <span class="n">warn_on_delete</span>
+        <span class="c1"># self.show_copy_dialogue = show_copy_dialogue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_copy_dialogue</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># ^ TODO: delete this when that functionality is added</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close_crud_dialogue_on_action</span> <span class="o">=</span> <span class="n">close_crud_dialogue_on_action</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_delete</span><span class="o">.</span><span class="n">fn_delete</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete_selected</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_value_from_grid</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_row_controls</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stk_crud</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">Stack</span><span class="p">(</span>
+            <span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui_edit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui_copy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui_delete</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">html_title</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stk_crud</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_controls</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">fn_reload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_datahandler</span>
+
+<div class="viewcode-block" id="EditGrid._init_row_controls"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._init_row_controls">[docs]</a>    <span class="k">def</span> <span class="nf">_init_row_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_edit</span><span class="o">.</span><span class="n">show_savebuttonbar</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_edit</span><span class="o">.</span><span class="n">savebuttonbar</span><span class="o">.</span><span class="n">fns_onsave</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_patch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_edit_to_grid</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_edit</span><span class="o">.</span><span class="n">savebuttonbar</span><span class="o">.</span><span class="n">fns_onrevert</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_set_ui_edit_to_selected_row</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span><span class="o">.</span><span class="n">show_savebuttonbar</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span><span class="o">.</span><span class="n">savebuttonbar</span><span class="o">.</span><span class="n">fns_onsave</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_add_to_grid</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span><span class="o">.</span><span class="n">savebuttonbar</span><span class="o">.</span><span class="n">fns_onrevert</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_set_ui_add_to_default_row</span><span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="EditGrid.schema"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid.schema">[docs]</a>    <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">schema</span></div>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="EditGrid.row_schema"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid.row_schema">[docs]</a>    <span class="k">def</span> <span class="nf">row_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="EditGrid.model"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid.model">[docs]</a>    <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">model</span></div>
+
+<div class="viewcode-block" id="EditGrid._init_form"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._init_form">[docs]</a>    <span class="k">def</span> <span class="nf">_init_form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">get_reload</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span>
+            <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_datahandler</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span> <span class="o">=</span> <span class="n">CrudButtonBar</span><span class="p">(</span>
+            <span class="n">fn_add</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">,</span>
+            <span class="n">fn_edit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_edit</span><span class="p">,</span>
+            <span class="n">fn_copy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_copy</span><span class="p">,</span>
+            <span class="n">fn_delete</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete</span><span class="p">,</span>
+            <span class="n">fn_reload</span><span class="o">=</span><span class="n">get_reload</span><span class="p">(),</span>
+            <span class="c1"># backward=self.setview_default,</span>
+            <span class="n">show_message</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addrow</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">VBox</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editrow</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">VBox</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EditGrid._init_controls"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._init_controls">[docs]</a>    <span class="k">def</span> <span class="nf">_init_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_observe_selections</span><span class="p">,</span> <span class="s2">&quot;selections&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_grid_changed</span><span class="p">,</span> <span class="s2">&quot;count_changes&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_setview</span><span class="p">,</span> <span class="s2">&quot;active&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_observe_order</span><span class="p">,</span> <span class="s2">&quot;order&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_observe_order</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># prompts order if it is set in by grid setter above</span></div>
+
+<div class="viewcode-block" id="EditGrid._observe_order"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._observe_order">[docs]</a>    <span class="k">def</span> <span class="nf">_observe_order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_change</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;order&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span><span class="o">.</span><span class="n">traits</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">order</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">order</span>
+        <span class="k">if</span> <span class="s2">&quot;order&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui_edit</span><span class="o">.</span><span class="n">traits</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">order</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_edit</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">order</span></div>
+
+<div class="viewcode-block" id="EditGrid._observe_selections"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._observe_selections">[docs]</a>    <span class="k">def</span> <span class="nf">_observe_selections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onchange</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selections</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">edit</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_ui_edit_to_selected_row</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">delete</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_ui_delete_to_selected_row</span><span class="p">()</span></div>
+
+    <span class="c1"># @debounce(0.1)  # TODO: make debounce work if too slow...</span>
+<div class="viewcode-block" id="EditGrid._grid_changed"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._grid_changed">[docs]</a>    <span class="k">def</span> <span class="nf">_grid_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onchange</span><span class="p">):</span>
+        <span class="c1"># debouncer used to allow editing whole rows in 1 go</span>
+        <span class="c1"># without updating the `value` on every cell edit.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_value_from_grid</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EditGrid._setview"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._setview">[docs]</a>    <span class="k">def</span> <span class="nf">_setview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onchange</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">active</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stk_crud</span><span class="o">.</span><span class="n">selected_index</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stk_crud</span><span class="o">.</span><span class="n">selected_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">active</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EditGrid._check_one_row_selected"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._check_one_row_selected">[docs]</a>    <span class="k">def</span> <span class="nf">_check_one_row_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected_indexes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;  👇 _Please only select ONLY one row from the table!_&quot;</span><span class="p">)</span>
+            <span class="p">)</span></div>
+
+    <span class="c1"># edit row</span>
+    <span class="c1"># --------------------------------------------------------------------------</span>
+<div class="viewcode-block" id="EditGrid._validate_edit_click"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._validate_edit_click">[docs]</a>    <span class="k">def</span> <span class="nf">_validate_edit_click</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected_indexes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;you must select an index (row if transposed==True, col if&quot;</span>
+                <span class="s2">&quot; transposed==True)&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_one_row_selected</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EditGrid._save_edit_to_grid"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._save_edit_to_grid">[docs]</a>    <span class="k">def</span> <span class="nf">_save_edit_to_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">selections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selections</span>  <span class="c1"># Store current selection</span>
+        <span class="n">selected_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selections</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># ^ HOTFIX: Have to set empty to reselect later on</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reload_all_data</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">set_item_value</span><span class="p">(</span><span class="n">selected_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui_edit</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">close_crud_dialogue_on_action</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">edit</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Reselect previous selection after reload.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selections</span> <span class="o">=</span> <span class="n">selections</span></div>
+
+<div class="viewcode-block" id="EditGrid._set_ui_edit_to_selected_row"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._set_ui_edit_to_selected_row">[docs]</a>    <span class="k">def</span> <span class="nf">_set_ui_edit_to_selected_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_edit</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_edit</span><span class="o">.</span><span class="n">savebuttonbar</span><span class="o">.</span><span class="n">unsaved_changes</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="EditGrid._patch"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._patch">[docs]</a>    <span class="k">def</span> <span class="nf">_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span><span class="o">.</span><span class="n">fn_patch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ui_edit</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># TODO: add index</span></div>
+
+<div class="viewcode-block" id="EditGrid._edit"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._edit">[docs]</a>    <span class="k">def</span> <span class="nf">_edit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_edit_click</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_ui_edit_to_selected_row</span><span class="p">()</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">edit</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">markdown</span><span class="p">(</span>
+                <span class="s2">&quot;  👇 _Please select one row from the table!_ &quot;</span>
+            <span class="p">)</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span></div>
+
+    <span class="c1"># --------------------------------------------------------------------------</span>
+
+    <span class="c1"># add row</span>
+    <span class="c1"># --------------------------------------------------------------------------</span>
+<div class="viewcode-block" id="EditGrid._save_add_to_grid"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._save_add_to_grid">[docs]</a>    <span class="k">def</span> <span class="nf">_save_add_to_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]:</span>  <span class="c1"># If no data in grid</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Append new row onto data frame and set to grid&#39;s data.</span>
+                <span class="c1"># Call setter. syntax below required to avoid editing in place.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reload_all_data</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">close_crud_dialogue_on_action</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="EditGrid._set_ui_add_to_default_row"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._set_ui_add_to_default_row">[docs]</a>    <span class="k">def</span> <span class="nf">_set_ui_add_to_default_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">default_row</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span><span class="o">.</span><span class="n">savebuttonbar</span><span class="o">.</span><span class="n">unsaved_changes</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span><span class="o">.</span><span class="n">savebuttonbar</span><span class="o">.</span><span class="n">unsaved_changes</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="EditGrid._post"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._post">[docs]</a>    <span class="k">def</span> <span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span><span class="o">.</span><span class="n">fn_post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ui_add</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EditGrid._add"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._add">[docs]</a>    <span class="k">def</span> <span class="nf">_add</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_ui_add_to_default_row</span><span class="p">()</span></div>
+
+    <span class="c1"># --------------------------------------------------------------------------</span>
+
+    <span class="c1"># copy</span>
+    <span class="c1"># --------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="EditGrid._get_selected_data"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._get_selected_data">[docs]</a>    <span class="k">def</span> <span class="nf">_get_selected_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># TODO: is this required? is it dupe from DataGrid?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">li_values_selected</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected_indexes</span><span class="p">])</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">li_values_selected</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">li_values_selected</span></div>
+
+<div class="viewcode-block" id="EditGrid._copy_selected_inplace"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._copy_selected_inplace">[docs]</a>    <span class="k">def</span> <span class="nf">_copy_selected_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="EditGrid._copy_selected_to_beginning"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._copy_selected_to_beginning">[docs]</a>    <span class="k">def</span> <span class="nf">_copy_selected_to_beginning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="EditGrid._copy_selected_to_end"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._copy_selected_to_end">[docs]</a>    <span class="k">def</span> <span class="nf">_copy_selected_to_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_selected_data</span><span class="p">())</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">close_crud_dialogue_on_action</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">copy</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="EditGrid._copy"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._copy">[docs]</a>    <span class="k">def</span> <span class="nf">_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected_indexes</span> <span class="o">==</span> <span class="p">[]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">markdown</span><span class="p">(</span>
+                    <span class="s2">&quot;  👇 _Please select a row from the table!_ &quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_copy_dialogue</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_selected_data</span><span class="p">():</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span><span class="o">.</span><span class="n">fn_copy</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_reload_all_data</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_copy_selected_to_end</span><span class="p">()</span>
+                        <span class="c1"># ^ add copied values. note. above syntax required to avoid editing in place.</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;  📝 _Copied Data_ &quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">copy</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;need to implement show copy dialogue&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">markdown</span><span class="p">(</span>
+                <span class="s2">&quot;  👇 _Please select a row from the table!_ &quot;</span>
+            <span class="p">)</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span></div>
+
+    <span class="c1"># --------------------------------------------------------------------------</span>
+
+    <span class="c1"># delete</span>
+    <span class="c1"># --------------------------------------------------------------------------</span>
+<div class="viewcode-block" id="EditGrid._reload_datahandler"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._reload_datahandler">[docs]</a>    <span class="k">def</span> <span class="nf">_reload_datahandler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reload_all_data</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;  🔄 _Reloaded Data_ &quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EditGrid._reload_all_data"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._reload_all_data">[docs]</a>    <span class="k">def</span> <span class="nf">_reload_all_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span><span class="o">.</span><span class="n">fn_get_all_data</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EditGrid._delete_selected"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._delete_selected">[docs]</a>    <span class="k">def</span> <span class="nf">_delete_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected_indexes</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">datahandler</span><span class="o">.</span><span class="n">fn_delete</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reload_all_data</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">value</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected_indexes</span>
+            <span class="p">]</span>
+            <span class="c1"># ^ Only set for values NOT in self.grid.selected_indexes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;  🗑️ _Deleted Row_ &quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">close_crud_dialogue_on_action</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">delete</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="EditGrid._set_ui_delete_to_selected_row"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._set_ui_delete_to_selected_row">[docs]</a>    <span class="k">def</span> <span class="nf">_set_ui_delete_to_selected_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;delete: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected_dict</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui_delete</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected_dict</span></div>
+
+<div class="viewcode-block" id="EditGrid._delete"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.EditGrid._delete">[docs]</a>    <span class="k">def</span> <span class="nf">_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected_indexes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn_on_delete</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">delete</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_delete_selected</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ui_delete</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">selected_dict</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">delete</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buttonbar_grid</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">markdown</span><span class="p">(</span>
+                    <span class="s2">&quot;  👇 _Please select at least one row from the table!_&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;delete error&quot;</span><span class="p">)</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span></div></div>
+
+
+<span class="c1"># -</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">RootModel</span>
+
+    <span class="c1"># Test: EditGrid instance with multi-indexing.</span>
+<div class="viewcode-block" id="AUTO_GRID_DEFAULT_VALUE"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.AUTO_GRID_DEFAULT_VALUE">[docs]</a>    <span class="n">AUTO_GRID_DEFAULT_VALUE</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="s2">&quot;important string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;floater&quot;</span><span class="p">:</span> <span class="mf">3.14</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">]</span></div>
+    <span class="n">AUTO_GRID_DEFAULT_VALUE</span> <span class="o">=</span> <span class="n">AUTO_GRID_DEFAULT_VALUE</span> <span class="o">*</span> <span class="mi">4</span>
+
+    <span class="k">class</span> <span class="nc">DataFrameCols</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+        <span class="n">string</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="n">json_schema_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">column_width</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">))</span>
+        <span class="n">integer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">json_schema_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">column_width</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">))</span>
+        <span class="n">floater</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">json_schema_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">column_width</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">))</span>
+
+    <span class="k">class</span> <span class="nc">TestDataFrame</span><span class="p">(</span><span class="n">RootModel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;a description of TestDataFrame&quot;&quot;&quot;</span>
+
+        <span class="n">root</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DataFrameCols</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">AUTO_GRID_DEFAULT_VALUE</span><span class="p">,</span>
+            <span class="n">json_schema_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">,</span>
+                <span class="n">datagrid_index_name</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;section&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">)),</span>
+        <span class="p">)</span>
+
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;The Wonderful Edit Grid Application&quot;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;Useful for all editing purposes whatever they may be 👍&quot;</span><span class="p">)</span>
+    <span class="n">editgrid</span> <span class="o">=</span> <span class="n">EditGrid</span><span class="p">(</span>
+        <span class="n">schema</span><span class="o">=</span><span class="n">TestDataFrame</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+        <span class="n">ui_add</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ui_edit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">warn_on_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_copy_dialogue</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">close_crud_dialogue_on_action</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">global_decimal_places</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">column_width</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;String&quot;</span><span class="p">:</span> <span class="mi">400</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">editgrid</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;_value changed&quot;</span><span class="p">),</span> <span class="s2">&quot;_value&quot;</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">editgrid</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">editgrid</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;floater&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">)</span>
+    <span class="c1"># ^ NOTE: this will result in a value change in the grid</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># list column</span>
+<div class="viewcode-block" id="TestListCol"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.TestListCol">[docs]</a>    <span class="k">class</span> <span class="nc">TestListCol</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="TestListCol.li_col"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.TestListCol.li_col">[docs]</a>        <span class="n">li_col</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span></div>
+<div class="viewcode-block" id="TestListCol.stringy"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.TestListCol.stringy">[docs]</a>        <span class="n">stringy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;as&quot;</span></div>
+<div class="viewcode-block" id="TestListCol.num"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.TestListCol.num">[docs]</a>        <span class="n">num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span></div></div>
+
+    <span class="k">class</span> <span class="nc">Test</span><span class="p">(</span><span class="n">RootModel</span><span class="p">):</span>
+        <span class="n">root</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TestListCol</span><span class="p">]</span>
+
+    <span class="n">gr</span> <span class="o">=</span> <span class="n">EditGrid</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;li_col&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">],</span> <span class="s2">&quot;stringy&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;num&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">}])</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">gr</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">random</span>
+
+<div class="viewcode-block" id="datahandler"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.datahandler">[docs]</a>    <span class="n">datahandler</span> <span class="o">=</span> <span class="n">DataHandler</span><span class="p">(</span>
+        <span class="n">fn_get_all_data</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">AUTO_GRID_DEFAULT_VALUE</span> <span class="o">*</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+        <span class="n">fn_post</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+        <span class="n">fn_patch</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="p">,</span>
+        <span class="n">fn_delete</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+        <span class="n">fn_copy</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+    <span class="p">)</span></div>
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;The Wonderful Edit Grid Application&quot;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;Useful for all editing purposes whatever they may be 👍&quot;</span><span class="p">)</span>
+    <span class="n">editgrid</span> <span class="o">=</span> <span class="n">EditGrid</span><span class="p">(</span>
+        <span class="n">schema</span><span class="o">=</span><span class="n">TestDataFrame</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+        <span class="n">datahandler</span><span class="o">=</span><span class="n">datahandler</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">editgrid</span><span class="p">)</span>
+
+<span class="c1"># +</span>
+<span class="c1"># editgrid._reload_datahandler()</span>
+<span class="c1"># -</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DataFrameCols"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.DataFrameCols">[docs]</a>    <span class="k">class</span> <span class="nc">DataFrameCols</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="DataFrameCols.string"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.DataFrameCols.string">[docs]</a>        <span class="n">string</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="n">json_schema_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">column_width</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+        <span class="p">)</span></div>
+<div class="viewcode-block" id="DataFrameCols.integer"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.DataFrameCols.integer">[docs]</a>        <span class="n">integer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">json_schema_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">column_width</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">))</span></div>
+<div class="viewcode-block" id="DataFrameCols.floater"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/editgrid/index.html#ipyautoui.custom.editgrid.DataFrameCols.floater">[docs]</a>        <span class="n">floater</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="kc">None</span><span class="p">,</span> <span class="n">json_schema_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">column_width</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">)</span>
+        <span class="p">)</span></div></div>
+
+    <span class="k">class</span> <span class="nc">TestDataFrame</span><span class="p">(</span><span class="n">RootModel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;a description of TestDataFrame&quot;&quot;&quot;</span>
+
+        <span class="n">root</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DataFrameCols</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">DataFrameCols</span><span class="p">(</span>
+                    <span class="n">string</span><span class="o">=</span><span class="s2">&quot;String&quot;</span><span class="p">,</span>
+                    <span class="n">integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">floater</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+            <span class="p">],</span>
+            <span class="n">json_schema_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">),</span>
+            <span class="c1"># datagrid_index_name=(&quot;section&quot;, &quot;title&quot;),</span>
+        <span class="p">)</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="n">markdown</span><span class="p">(</span>
+        <span class="s2">&quot;&lt;b&gt;The Wonderful Edit Grid Application&lt;/b&gt;&lt;br&gt;Useful for all editing purposes&quot;</span>
+        <span class="s2">&quot; whatever they may be 👍&quot;</span>
+    <span class="p">)</span>
+    <span class="n">editgrid</span> <span class="o">=</span> <span class="n">EditGrid</span><span class="p">(</span>
+        <span class="n">schema</span><span class="o">=</span><span class="n">TestDataFrame</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+        <span class="n">ui_add</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ui_edit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">warn_on_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">editgrid</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;_value changed&quot;</span><span class="p">),</span> <span class="s2">&quot;_value&quot;</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">editgrid</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">editgrid</span><span class="o">.</span><span class="n">transposed</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By mfcode
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,920 @@
+
+
+<!DOCTYPE html>
+
+
+<html >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ipyautoui.custom.workingdir &#8212; ipyautoui</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/ipyautoui/custom/workingdir';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="None"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../intro.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../_static/logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../intro.html">
+                    ipyautoui
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../demo.html">demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoui.html">AutoUi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autovuetify.html">AutoVjsf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodisplay.html">AutoDisplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../custom-renderers.html">Custom Renderers</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api.html">API documentation</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/ipyautoui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/autogrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.autogrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/buttonbars/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.buttonbars</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/date_string/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.date_string</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/decision_branch/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.decision_branch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/editgrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.editgrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/filechooser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.filechooser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/filesindir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.filesindir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/fileupload/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.fileupload</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/halo_decorator/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.halo_decorator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/iterable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.iterable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/loadproject/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.loadproject</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/markdown_widget/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.markdown_widget</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/modelrun/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.modelrun</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/multi_toggle_buttons/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.multi_toggle_buttons</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/multiselect_search/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.multiselect_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/outputlogging/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.outputlogging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/selectandclick/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.selectandclick</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/selectdir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.selectdir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/showhide/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.showhide</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/showopenurl/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.showopenurl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/title_description/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.title_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/urlimagelink/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.urlimagelink</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/widgetcaller_error/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.widgetcaller_error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/custom/workingdir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.workingdir</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/array_examples/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.array_examples</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/array_object_dataframe/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.array_object_dataframe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/complex_serialization/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.complex_serialization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/core_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.core_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/editable_datagrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.editable_datagrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/nested/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nested</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/nested_editable_datagrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nested_editable_datagrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/null_and_required/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.null_and_required</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/nullable_core_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nullable_core_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/override_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.override_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/recursive_array/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.recursive_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/recursive_object/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.recursive_object</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/root_array/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/root_array_enum/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_array_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/root_enum/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/root_simple/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_simple</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/ipyautoui/demo_schemas/ruleset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.ruleset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/_dev_sys_path_append/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._dev_sys_path_append</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/_utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._utils</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/_utils_debounce/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._utils_debounce</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autoanyof/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoanyof</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autobox/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autobox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autodisplay/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autodisplay</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autodisplay_renderers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autodisplay_renderers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autoform/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoform</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/automapschema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.automapschema</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autoobject/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoobject</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autoui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/autovjsf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autovjsf</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/basemodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.basemodel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/constants/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.constants</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/demo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/env/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.env</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/mydocstring_display/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.mydocstring_display</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/ipyautoui/nullable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.nullable</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/jgunstone/ipyautoui" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/jgunstone/ipyautoui/issues/new?title=Issue%20on%20page%20%2F_modules/ipyautoui/custom/workingdir.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for ipyautoui.custom.workingdir</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># ---</span>
+<span class="c1"># jupyter:</span>
+<span class="c1">#   jupytext:</span>
+<span class="c1">#     text_representation:</span>
+<span class="c1">#       extension: .py</span>
+<span class="c1">#       format_name: light</span>
+<span class="c1">#       format_version: &#39;1.5&#39;</span>
+<span class="c1">#       jupytext_version: 1.14.0</span>
+<span class="c1">#   kernelspec:</span>
+<span class="c1">#     display_name: Python 3 (ipykernel)</span>
+<span class="c1">#     language: python</span>
+<span class="c1">#     name: python3</span>
+<span class="c1"># ---</span>
+
+<span class="c1"># +</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">a UI element that loads a folder for data caching, whilst storing a record of folders in use</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># %run ../_dev_sys_path_append.py</span>
+<span class="c1"># %load_ext lab_black</span>
+
+<span class="c1"># +</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">ipywidgets</span> <span class="k">as</span> <span class="nn">w</span>
+<span class="kn">import</span> <span class="nn">traitlets</span> <span class="k">as</span> <span class="nn">tr</span>
+<span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">ty</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">halo</span> <span class="kn">import</span> <span class="n">HaloNotebook</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">validator</span><span class="p">,</span> <span class="n">Field</span>
+<span class="kn">from</span> <span class="nn">ipyautoui.constants</span> <span class="kn">import</span> <span class="n">LOAD_BUTTON_KWARGS</span><span class="p">,</span> <span class="n">BUTTON_WIDTH_MIN</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">clear_output</span><span class="p">,</span> <span class="n">Markdown</span><span class="p">,</span> <span class="n">display</span>
+<span class="kn">from</span> <span class="nn">ipyautoui._utils</span> <span class="kn">import</span> <span class="n">file</span><span class="p">,</span> <span class="n">get_user</span><span class="p">,</span> <span class="n">obj_to_importstr</span>
+
+
+<div class="viewcode-block" id="get_fpth_win"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.get_fpth_win">[docs]</a><span class="n">get_fpth_win</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span></div>
+
+<span class="c1"># +</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>
+<span class="p">)</span>  <span class="c1"># All events at or above debug level will get logged</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;This will get logged&quot;</span><span class="p">)</span>  <span class="c1"># Sent to the console</span>
+
+<span class="c1"># +</span>
+<div class="viewcode-block" id="FDIR_PROJECTS_ROOT"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.FDIR_PROJECTS_ROOT">[docs]</a><span class="n">FDIR_PROJECTS_ROOT</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/home/jovyan/jobs&quot;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="FPTH_WORKING_DIRS"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.FPTH_WORKING_DIRS">[docs]</a><span class="n">FPTH_WORKING_DIRS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">FDIR_PROJECTS_ROOT</span> <span class="o">/</span> <span class="s2">&quot;J4321&quot;</span> <span class="o">/</span> <span class="s2">&quot;Data&quot;</span> <span class="o">/</span> <span class="s2">&quot;working_dirs&quot;</span> <span class="o">/</span> <span class="s2">&quot;working_dirs.json&quot;</span>
+<span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_projects"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.get_projects">[docs]</a><span class="k">def</span> <span class="nf">get_projects</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">stem</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">FDIR_PROJECTS_ROOT</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">))]</span></div>
+
+
+<span class="c1"># PROJECTS = get_projects()</span>
+
+
+<span class="c1"># +</span>
+<div class="viewcode-block" id="RibaStages"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.RibaStages">[docs]</a><span class="k">class</span> <span class="nc">RibaStages</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="RibaStages.stage1"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.RibaStages.stage1">[docs]</a>    <span class="n">stage1</span> <span class="o">=</span> <span class="s2">&quot;Stage1&quot;</span></div>
+<div class="viewcode-block" id="RibaStages.stage2"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.RibaStages.stage2">[docs]</a>    <span class="n">stage2</span> <span class="o">=</span> <span class="s2">&quot;Stage2&quot;</span></div>
+<div class="viewcode-block" id="RibaStages.stage3"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.RibaStages.stage3">[docs]</a>    <span class="n">stage3</span> <span class="o">=</span> <span class="s2">&quot;Stage3&quot;</span></div>
+<div class="viewcode-block" id="RibaStages.stage4"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.RibaStages.stage4">[docs]</a>    <span class="n">stage4</span> <span class="o">=</span> <span class="s2">&quot;Stage4&quot;</span></div>
+<div class="viewcode-block" id="RibaStages.stage5"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.RibaStages.stage5">[docs]</a>    <span class="n">stage5</span> <span class="o">=</span> <span class="s2">&quot;Stage5&quot;</span></div>
+<div class="viewcode-block" id="RibaStages.stage6"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.RibaStages.stage6">[docs]</a>    <span class="n">stage6</span> <span class="o">=</span> <span class="s2">&quot;Stage6&quot;</span></div>
+<div class="viewcode-block" id="RibaStages.stage7"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.RibaStages.stage7">[docs]</a>    <span class="n">stage7</span> <span class="o">=</span> <span class="s2">&quot;Stage7&quot;</span></div></div>
+
+
+<div class="viewcode-block" id="ProcessSubType"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.ProcessSubType">[docs]</a><span class="k">class</span> <span class="nc">ProcessSubType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessSubType.wufi"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.ProcessSubType.wufi">[docs]</a>    <span class="n">wufi</span> <span class="o">=</span> <span class="s2">&quot;WUFI&quot;</span></div>
+<div class="viewcode-block" id="ProcessSubType.tm52"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.ProcessSubType.tm52">[docs]</a>    <span class="n">tm52</span> <span class="o">=</span> <span class="s2">&quot;TM52&quot;</span></div>
+<div class="viewcode-block" id="ProcessSubType.tm54"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.ProcessSubType.tm54">[docs]</a>    <span class="n">tm54</span> <span class="o">=</span> <span class="s2">&quot;TM54&quot;</span></div>
+<div class="viewcode-block" id="ProcessSubType.tm59"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.ProcessSubType.tm59">[docs]</a>    <span class="n">tm59</span> <span class="o">=</span> <span class="s2">&quot;TM59&quot;</span></div>
+<div class="viewcode-block" id="ProcessSubType.compliance"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.ProcessSubType.compliance">[docs]</a>    <span class="n">compliance</span> <span class="o">=</span> <span class="s2">&quot;compliance&quot;</span></div>
+<div class="viewcode-block" id="ProcessSubType.compliance_london_plan"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.ProcessSubType.compliance_london_plan">[docs]</a>    <span class="n">compliance_london_plan</span> <span class="o">=</span> <span class="s2">&quot;compliance_london_plan&quot;</span></div></div>
+
+
+<div class="viewcode-block" id="Usage"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.Usage">[docs]</a><span class="k">class</span> <span class="nc">Usage</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="Usage.user"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.Usage.user">[docs]</a>    <span class="n">user</span><span class="p">:</span> <span class="nb">str</span></div>
+<div class="viewcode-block" id="Usage.timestamp"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.Usage.timestamp">[docs]</a>    <span class="n">timestamp</span><span class="p">:</span> <span class="n">datetime</span></div></div>
+
+
+<div class="viewcode-block" id="WorkingDir"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDir">[docs]</a><span class="k">class</span> <span class="nc">WorkingDir</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkingDir.process_type"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDir.process_type">[docs]</a>    <span class="n">process_type</span><span class="p">:</span> <span class="nb">str</span></div>
+<div class="viewcode-block" id="WorkingDir.process_subtype"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDir.process_subtype">[docs]</a>    <span class="n">process_subtype</span><span class="p">:</span> <span class="nb">str</span></div>
+<div class="viewcode-block" id="WorkingDir.project_number"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDir.project_number">[docs]</a>    <span class="n">project_number</span><span class="p">:</span> <span class="nb">str</span></div>
+<div class="viewcode-block" id="WorkingDir.riba_stage"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDir.riba_stage">[docs]</a>    <span class="n">riba_stage</span><span class="p">:</span> <span class="n">RibaStages</span></div>
+<div class="viewcode-block" id="WorkingDir.fdir"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDir.fdir">[docs]</a>    <span class="n">fdir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span></div>
+<div class="viewcode-block" id="WorkingDir.key"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDir.key">[docs]</a>    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span></div>
+<div class="viewcode-block" id="WorkingDir.usage"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDir.usage">[docs]</a>    <span class="n">usage</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Usage</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[])</span></div>
+<div class="viewcode-block" id="WorkingDir.dir_model"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDir.dir_model">[docs]</a>    <span class="n">dir_model</span><span class="p">:</span> <span class="nb">str</span></div>
+
+    <span class="c1"># TODO[pydantic]: We couldn&#39;t refactor the `validator`, please replace it by `field_validator` manually.</span>
+    <span class="c1"># Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.</span>
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;fdir&quot;</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="WorkingDir._fdir"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDir._fdir">[docs]</a>    <span class="k">def</span> <span class="nf">_fdir</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">FDIR_PROJECTS_ROOT</span>
+            <span class="o">/</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;project_number&quot;</span><span class="p">]</span>
+            <span class="o">/</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;process_type&quot;</span><span class="p">]</span>
+            <span class="o">/</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;process_subtype&quot;</span><span class="p">]</span>
+            <span class="o">/</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;riba_stage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">)</span></div>
+
+    <span class="c1"># TODO[pydantic]: We couldn&#39;t refactor the `validator`, please replace it by `field_validator` manually.</span>
+    <span class="c1"># Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.</span>
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="WorkingDir._key"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDir._key">[docs]</a>    <span class="k">def</span> <span class="nf">_key</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">values</span><span class="p">[</span><span class="s2">&quot;project_number&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="s2">&quot;-&quot;</span>
+            <span class="o">+</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;process_type&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="s2">&quot;-&quot;</span>
+            <span class="o">+</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;process_subtype&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="s2">&quot;-&quot;</span>
+            <span class="o">+</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;riba_stage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="description"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.description">[docs]</a><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">a list of all the active working directories used for jupyter / ipyrun based analyses / processes / workflows</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="WorkingDirs"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirs">[docs]</a><span class="k">class</span> <span class="nc">WorkingDirs</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkingDirs.name"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirs.name">[docs]</a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;working dirs&quot;</span></div>
+<div class="viewcode-block" id="WorkingDirs.description"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirs.description">[docs]</a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">description</span></div>
+<div class="viewcode-block" id="WorkingDirs.dirs"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirs.dirs">[docs]</a>    <span class="n">dirs</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkingDir</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{})</span></div></div>
+
+
+<span class="c1"># + tags=[]</span>
+
+
+<div class="viewcode-block" id="get_working_dirs"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.get_working_dirs">[docs]</a><span class="k">def</span> <span class="nf">get_working_dirs</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">FPTH_WORKING_DIRS</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;loads working dir from folder&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">wdirs</span> <span class="o">=</span> <span class="n">WorkingDirs</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">wdirs</span> <span class="o">=</span> <span class="n">WorkingDirs</span><span class="p">()</span>
+        <span class="n">wdirs</span><span class="o">.</span><span class="n">file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wdirs</span></div>
+
+
+<span class="c1"># get_working_dirs()</span>
+
+
+<span class="c1"># + tags=[]</span>
+<div class="viewcode-block" id="AnalysisDir"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir">[docs]</a><span class="k">class</span> <span class="nc">AnalysisDir</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="AnalysisDir.fdir"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir.fdir">[docs]</a>    <span class="n">fdir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span></div>
+<div class="viewcode-block" id="AnalysisDir.reference"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir.reference">[docs]</a>    <span class="n">reference</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span></div>
+<div class="viewcode-block" id="AnalysisDir.incoming"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir.incoming">[docs]</a>    <span class="n">incoming</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span></div>
+<div class="viewcode-block" id="AnalysisDir.input_data"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir.input_data">[docs]</a>    <span class="n">input_data</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span></div>
+<div class="viewcode-block" id="AnalysisDir.cad"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir.cad">[docs]</a>    <span class="n">cad</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span></div>
+<div class="viewcode-block" id="AnalysisDir.images"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir.images">[docs]</a>    <span class="n">images</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span></div>
+<div class="viewcode-block" id="AnalysisDir.calcs"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir.calcs">[docs]</a>    <span class="n">calcs</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span></div>
+<div class="viewcode-block" id="AnalysisDir.models"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir.models">[docs]</a>    <span class="n">models</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span></div>
+<div class="viewcode-block" id="AnalysisDir.outputs"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir.outputs">[docs]</a>    <span class="n">outputs</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    <span class="c1"># TODO[pydantic]: We couldn&#39;t refactor the `validator`, please replace it by `field_validator` manually.</span>
+    <span class="c1"># Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.</span>
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;reference&quot;</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="AnalysisDir._reference"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir._reference">[docs]</a>    <span class="k">def</span> <span class="nf">_reference</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;fdir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;00_Reference&quot;</span></div>
+
+    <span class="c1"># TODO[pydantic]: We couldn&#39;t refactor the `validator`, please replace it by `field_validator` manually.</span>
+    <span class="c1"># Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.</span>
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;incoming&quot;</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="AnalysisDir._incoming"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir._incoming">[docs]</a>    <span class="k">def</span> <span class="nf">_incoming</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;fdir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;01_Incoming&quot;</span></div>
+
+    <span class="c1"># TODO[pydantic]: We couldn&#39;t refactor the `validator`, please replace it by `field_validator` manually.</span>
+    <span class="c1"># Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.</span>
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;input_data&quot;</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="AnalysisDir._input_data"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir._input_data">[docs]</a>    <span class="k">def</span> <span class="nf">_input_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;fdir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;02_InputData&quot;</span></div>
+
+    <span class="c1"># TODO[pydantic]: We couldn&#39;t refactor the `validator`, please replace it by `field_validator` manually.</span>
+    <span class="c1"># Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.</span>
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;cad&quot;</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="AnalysisDir._cad"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir._cad">[docs]</a>    <span class="k">def</span> <span class="nf">_cad</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;fdir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;03_CAD&quot;</span></div>
+
+    <span class="c1"># TODO[pydantic]: We couldn&#39;t refactor the `validator`, please replace it by `field_validator` manually.</span>
+    <span class="c1"># Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.</span>
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;images&quot;</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="AnalysisDir._images"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir._images">[docs]</a>    <span class="k">def</span> <span class="nf">_images</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;fdir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;04_Images&quot;</span></div>
+
+    <span class="c1"># TODO[pydantic]: We couldn&#39;t refactor the `validator`, please replace it by `field_validator` manually.</span>
+    <span class="c1"># Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.</span>
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;calcs&quot;</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="AnalysisDir._calcs"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir._calcs">[docs]</a>    <span class="k">def</span> <span class="nf">_calcs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;fdir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;05_Calcs&quot;</span></div>
+
+    <span class="c1"># TODO[pydantic]: We couldn&#39;t refactor the `validator`, please replace it by `field_validator` manually.</span>
+    <span class="c1"># Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.</span>
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;models&quot;</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="AnalysisDir._models"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir._models">[docs]</a>    <span class="k">def</span> <span class="nf">_models</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;fdir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;06_Models&quot;</span></div>
+
+    <span class="c1"># TODO[pydantic]: We couldn&#39;t refactor the `validator`, please replace it by `field_validator` manually.</span>
+    <span class="c1"># Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.</span>
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;outputs&quot;</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="AnalysisDir._outputs"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.AnalysisDir._outputs">[docs]</a>    <span class="k">def</span> <span class="nf">_outputs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;fdir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;99_Outputs&quot;</span></div></div>
+
+
+<div class="viewcode-block" id="add_working_dir"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.add_working_dir">[docs]</a><span class="k">def</span> <span class="nf">add_working_dir</span><span class="p">(</span>
+    <span class="n">wdir</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">WorkingDir</span><span class="p">],</span>
+    <span class="c1"># dir_model=AnalysisDir,</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="n">FPTH_WORKING_DIRS</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;add a working directory to global json log&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wdir</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">wdir</span> <span class="o">=</span> <span class="n">WorkingDir</span><span class="p">(</span><span class="o">**</span><span class="n">wdir</span><span class="p">)</span>
+    <span class="n">wdirs</span> <span class="o">=</span> <span class="n">get_working_dirs</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">dict</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">now_usage</span> <span class="o">=</span> <span class="p">[</span><span class="n">Usage</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">get_user</span><span class="p">(),</span> <span class="n">timestamp</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="n">wdir</span><span class="o">.</span><span class="n">key</span> <span class="ow">in</span> <span class="n">wdirs</span><span class="p">[</span><span class="s2">&quot;dirs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">past_usage</span> <span class="o">=</span> <span class="n">wdirs</span><span class="p">[</span><span class="s2">&quot;dirs&quot;</span><span class="p">][</span><span class="n">wdir</span><span class="o">.</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;usage&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">wdirs</span><span class="p">[</span><span class="s2">&quot;dirs&quot;</span><span class="p">][</span><span class="n">wdir</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">wdir</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+        <span class="n">past_usage</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">usage</span> <span class="o">=</span> <span class="n">past_usage</span> <span class="o">+</span> <span class="n">now_usage</span>
+    <span class="n">wdirs</span><span class="p">[</span><span class="s2">&quot;dirs&quot;</span><span class="p">][</span><span class="n">wdir</span><span class="o">.</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;usage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">usage</span>
+    <span class="n">WorkingDirs</span><span class="p">(</span><span class="o">**</span><span class="n">wdirs</span><span class="p">)</span><span class="o">.</span><span class="n">file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="is_templated_dir"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.is_templated_dir">[docs]</a><span class="k">def</span> <span class="nf">is_templated_dir</span><span class="p">(</span><span class="n">adir</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">adir</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="make_dirs"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.make_dirs">[docs]</a><span class="k">def</span> <span class="nf">make_dirs</span><span class="p">(</span><span class="n">adir</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">adir</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">adir</span></div>
+
+
+<div class="viewcode-block" id="return_fdir_status"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.return_fdir_status">[docs]</a><span class="k">def</span> <span class="nf">return_fdir_status</span><span class="p">(</span><span class="n">adir</span><span class="p">,</span> <span class="n">display_message</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">map_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;checks if a dir is already an analysis dir or not&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">map_dir</span><span class="p">:</span>
+        <span class="n">fdir</span> <span class="o">=</span> <span class="n">get_fpth_win</span><span class="p">(</span><span class="n">adir</span><span class="o">.</span><span class="n">fdir</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fdir</span> <span class="o">=</span> <span class="n">adir</span><span class="o">.</span><span class="n">fdir</span>
+    <span class="k">if</span> <span class="n">is_templated_dir</span><span class="p">(</span><span class="n">adir</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">display_message</span><span class="p">:</span>
+            <span class="n">display</span><span class="p">(</span>
+                <span class="n">Markdown</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;&quot;&quot;👍 analysis dir already exists here:  </span>
+<span class="s2">`</span><span class="si">{</span><span class="n">fdir</span><span class="si">}</span><span class="s2">`  </span>
+<span class="s2">it will launch on load.&quot;&quot;&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;analysis_dir_exists&quot;</span>
+    <span class="k">elif</span> <span class="n">adir</span><span class="o">.</span><span class="n">fdir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">display_message</span><span class="p">:</span>
+            <span class="n">display</span><span class="p">(</span>
+                <span class="n">Markdown</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;&quot;&quot;⚠️ dir that doensn&#39;t match the template already exists here:  </span>
+<span class="s2">`</span><span class="si">{</span><span class="n">fdir</span><span class="si">}</span><span class="s2">`  </span>
+<span class="s2">check if you want to add analysis here.&quot;&quot;&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;dir_exists&quot;</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">adir</span><span class="o">.</span><span class="n">fdir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">display_message</span><span class="p">:</span>
+            <span class="n">display</span><span class="p">(</span>
+                <span class="n">Markdown</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;&quot;&quot;👍 dir does not currently exist here:  </span>
+<span class="s2">`</span><span class="si">{</span><span class="n">fdir</span><span class="si">}</span><span class="s2">`  </span>
+<span class="s2">it will be created on load.&quot;&quot;&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;dir_not_exists&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;return_fdir_status </span><span class="si">{</span><span class="n">fdir</span><span class="si">}</span><span class="s2"> error&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_folder_structure"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.create_folder_structure">[docs]</a><span class="k">def</span> <span class="nf">create_folder_structure</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">model_dirs</span><span class="o">=</span><span class="n">AnalysisDir</span><span class="p">):</span>
+    <span class="n">fdir</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;fdir&quot;</span><span class="p">]</span>
+    <span class="n">adir</span> <span class="o">=</span> <span class="n">model_dirs</span><span class="p">(</span><span class="n">fdir</span><span class="o">=</span><span class="n">fdir</span><span class="p">)</span>
+    <span class="n">status_fdir</span> <span class="o">=</span> <span class="n">return_fdir_status</span><span class="p">(</span><span class="n">adir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">status_fdir</span> <span class="o">==</span> <span class="s2">&quot;analysis_dir_exists&quot;</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">status_fdir</span> <span class="o">==</span> <span class="s2">&quot;dir_exists&quot;</span><span class="p">:</span>
+        <span class="n">make_dirs</span><span class="p">(</span><span class="n">adir</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">status_fdir</span> <span class="o">==</span> <span class="s2">&quot;dir_not_exists&quot;</span><span class="p">:</span>
+        <span class="n">make_dirs</span><span class="p">(</span><span class="n">adir</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;create_folder_structure </span><span class="si">{</span><span class="n">wdir</span><span class="o">.</span><span class="n">fdir</span><span class="si">}</span><span class="s2"> error&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># +</span>
+<div class="viewcode-block" id="WorkingDirsUi"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi">[docs]</a><span class="k">class</span> <span class="nc">WorkingDirsUi</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    a programmable UI object to load new working directories for ipyrun.runshell # TODO: move to ipyrun</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="WorkingDirsUi.value"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.value">[docs]</a>    <span class="n">value</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Dict</span><span class="p">()</span></div>
+<div class="viewcode-block" id="WorkingDirsUi.setup"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.setup">[docs]</a>    <span class="n">setup</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">ToggleButton</span><span class="p">(</span><span class="n">icon</span><span class="o">=</span><span class="s2">&quot;ellipsis-v&quot;</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">BUTTON_WIDTH_MIN</span><span class="p">})</span></div>
+<div class="viewcode-block" id="WorkingDirsUi.load"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.load">[docs]</a>    <span class="n">load</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="o">**</span><span class="n">LOAD_BUTTON_KWARGS</span><span class="p">)</span></div>
+<div class="viewcode-block" id="WorkingDirsUi.project_number"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.project_number">[docs]</a>    <span class="n">project_number</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">Combobox</span><span class="p">(</span>
+        <span class="n">value</span><span class="o">=</span><span class="s2">&quot;J5001&quot;</span><span class="p">,</span> <span class="n">ensure_option</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;80px&quot;</span><span class="p">}</span>
+    <span class="p">)</span></div>
+<div class="viewcode-block" id="WorkingDirsUi.projects"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.projects">[docs]</a>    <span class="n">projects</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="p">[])</span></div>
+<div class="viewcode-block" id="WorkingDirsUi.process_type"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.process_type">[docs]</a>    <span class="n">process_type</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+        <span class="n">value</span><span class="o">=</span><span class="s2">&quot;Calcs&quot;</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Calcs&quot;</span><span class="p">,</span> <span class="s2">&quot;Schedule&quot;</span><span class="p">],</span>
+        <span class="c1"># disabled=True,</span>
+        <span class="n">layout</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;80px&quot;</span><span class="p">},</span>
+    <span class="p">)</span></div>
+<div class="viewcode-block" id="WorkingDirsUi.process_subtype"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.process_subtype">[docs]</a>    <span class="n">process_subtype</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+        <span class="n">value</span><span class="o">=</span><span class="s2">&quot;WUFI&quot;</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ProcessSubType</span><span class="o">.</span><span class="n">_value2member_map_</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+        <span class="c1"># disabled=True,</span>
+        <span class="n">layout</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;80px&quot;</span><span class="p">},</span>
+    <span class="p">)</span></div>
+<div class="viewcode-block" id="WorkingDirsUi.riba_stage"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.riba_stage">[docs]</a>    <span class="n">riba_stage</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+        <span class="n">value</span><span class="o">=</span><span class="s2">&quot;Stage1&quot;</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">RibaStages</span><span class="o">.</span><span class="n">_value2member_map_</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+        <span class="n">layout</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;80px&quot;</span><span class="p">},</span>
+    <span class="p">)</span></div>
+<div class="viewcode-block" id="WorkingDirsUi.key"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.key">[docs]</a>    <span class="n">key</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">HTML</span><span class="p">()</span></div>
+<div class="viewcode-block" id="WorkingDirsUi.fdir_win"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.fdir_win">[docs]</a>    <span class="n">fdir_win</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">HTML</span><span class="p">()</span></div>
+<div class="viewcode-block" id="WorkingDirsUi.fdir_win_proposed"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.fdir_win_proposed">[docs]</a>    <span class="n">fdir_win_proposed</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">HTML</span><span class="p">()</span></div>
+
+    <span class="nd">@tr</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="s2">&quot;projects&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="WorkingDirsUi._projects"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi._projects">[docs]</a>    <span class="k">def</span> <span class="nf">_projects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_number</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">projects</span></div>
+
+    <span class="nd">@tr</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="WorkingDirsUi._observe_value_key"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi._observe_value_key">[docs]</a>    <span class="k">def</span> <span class="nf">_observe_value_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">]</span></div>
+
+    <span class="nd">@tr</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="WorkingDirsUi._observe_value_fdir_win_proposed"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi._observe_value_fdir_win_proposed">[docs]</a>    <span class="k">def</span> <span class="nf">_observe_value_fdir_win_proposed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fdir_win_proposed</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&lt;i&gt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fdir_display</span><span class="si">}</span><span class="s2">&lt;/i&gt;&quot;</span></div>
+
+<div class="viewcode-block" id="WorkingDirsUi._update_value"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi._update_value">[docs]</a>    <span class="k">def</span> <span class="nf">_update_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">WorkingDir</span><span class="p">(</span>
+            <span class="n">project_number</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">project_number</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">process_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">process_type</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">process_subtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">process_subtype</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">riba_stage</span><span class="o">=</span><span class="n">RibaStages</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">riba_stage</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">dir_model</span><span class="o">=</span><span class="n">obj_to_importstr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dirs</span><span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">dict</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="WorkingDirsUi.fdir_display"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.fdir_display">[docs]</a>    <span class="k">def</span> <span class="nf">fdir_display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">get_fpth_win</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;fdir&quot;</span><span class="p">])</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fn_onload</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">,</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;fn_onload&quot;</span><span class="p">),</span>
+        <span class="n">model_dirs</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">AnalysisDir</span><span class="p">,</span>
+        <span class="n">fix_attributes</span><span class="o">=</span><span class="p">{},</span>
+        <span class="n">projects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">fdir_projects_root</span><span class="o">=</span><span class="n">FDIR_PROJECTS_ROOT</span><span class="p">,</span>
+        <span class="n">fpth_working_dirs</span><span class="o">=</span><span class="n">FPTH_WORKING_DIRS</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">projects</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">projects</span> <span class="o">=</span> <span class="n">get_projects</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">projects</span> <span class="o">=</span> <span class="n">projects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fdir_projects_root</span> <span class="o">=</span> <span class="n">fdir_projects_root</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fpth_working_dirs</span> <span class="o">=</span> <span class="n">fpth_working_dirs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_dirs</span> <span class="o">=</span> <span class="n">model_dirs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fn_onload</span> <span class="o">=</span> <span class="n">fn_onload</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="n">w</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="n">justify_content</span><span class="o">=</span><span class="s2">&quot;flex-end&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbx_main</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">VBox</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span>
+            <span class="n">layout</span><span class="o">=</span><span class="n">w</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="n">justify_content</span><span class="o">=</span><span class="s2">&quot;flex-end&quot;</span><span class="p">,</span> <span class="n">align_content</span><span class="o">=</span><span class="s2">&quot;flex-end&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbx_select</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">HBox</span><span class="p">(</span>
+            <span class="n">layout</span><span class="o">=</span><span class="n">w</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="n">justify_content</span><span class="o">=</span><span class="s2">&quot;flex-end&quot;</span><span class="p">,</span> <span class="n">align_content</span><span class="o">=</span><span class="s2">&quot;flex-end&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbx_select</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_number</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_type</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_subtype</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">riba_stage</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fdir_win_proposed</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbx_main</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hbx_select</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vbx_main</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_controls</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_from_ui</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_fdir_win</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_attributes</span> <span class="o">=</span> <span class="n">fix_attributes</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="WorkingDirsUi.fn_onload"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.fn_onload">[docs]</a>    <span class="k">def</span> <span class="nf">fn_onload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fn_onload</span></div>
+
+    <span class="nd">@fn_onload</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">fn_onload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ty</span><span class="o">.</span><span class="n">Callable</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;fn_onload must be a Callable or list of Callables&quot;</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;fn_onload must be a Callable or list of Callables&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fn_onload</span> <span class="o">=</span> <span class="p">[</span><span class="n">add_working_dir</span><span class="p">,</span> <span class="n">create_folder_structure</span><span class="p">]</span> <span class="o">+</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="WorkingDirsUi.fix_attributes"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.fix_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">fix_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_attributes</span></div>
+
+    <span class="nd">@fix_attributes</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">fix_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="s2">&quot;disabled&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix_attributes</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="WorkingDirsUi.update_from_ui"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi.update_from_ui">[docs]</a>    <span class="k">def</span> <span class="nf">update_from_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_value</span><span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">:</span>
+            <span class="n">clear_output</span><span class="p">()</span>
+            <span class="n">return_fdir_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dirs</span><span class="p">(</span><span class="n">fdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;fdir&quot;</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="WorkingDirsUi._init_controls"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi._init_controls">[docs]</a>    <span class="k">def</span> <span class="nf">_init_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_number</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_from_ui</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_type</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_from_ui</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_subtype</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_from_ui</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">riba_stage</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_from_ui</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WorkingDirsUi._update_fdir_win"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi._update_fdir_win">[docs]</a>    <span class="k">def</span> <span class="nf">_update_fdir_win</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fdir_win</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&lt;b&gt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fdir_display</span><span class="si">}</span><span class="s2">&lt;/b&gt;&quot;</span></div>
+
+<div class="viewcode-block" id="WorkingDirsUi._load"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.WorkingDirsUi._load">[docs]</a>    <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onchange</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbx_select</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">:</span>
+            <span class="n">clear_output</span><span class="p">()</span>
+            <span class="n">spinner</span> <span class="o">=</span> <span class="n">HaloNotebook</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Loading&quot;</span><span class="p">,</span> <span class="n">spinner</span><span class="o">=</span><span class="s2">&quot;dots&quot;</span><span class="p">)</span>
+            <span class="n">spinner</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">li</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_onload</span><span class="p">]</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;this is a loggging message&quot;</span><span class="p">)</span>
+            <span class="n">spinner</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">clear_output</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_fdir_win</span><span class="p">()</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="fix_attributes"><a class="viewcode-back" href="../../../autoapi/ipyautoui/custom/workingdir/index.html#ipyautoui.custom.workingdir.fix_attributes">[docs]</a>    <span class="n">fix_attributes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;process_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Calcs&quot;</span><span class="p">,</span> <span class="s2">&quot;process_subtype&quot;</span><span class="p">:</span> <span class="s2">&quot;WUFI&quot;</span><span class="p">}</span></div>
+    <span class="n">wdir</span> <span class="o">=</span> <span class="n">WorkingDirsUi</span><span class="p">(</span><span class="n">fix_attributes</span><span class="o">=</span><span class="n">fix_attributes</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">wdir</span><span class="p">)</span>
+<span class="c1"># -</span>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By mfcode
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

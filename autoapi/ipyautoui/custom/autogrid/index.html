@@ -1,0 +1,1655 @@
+
+
+<!DOCTYPE html>
+
+
+<html >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>ipyautoui.custom.autogrid &#8212; ipyautoui</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/ipyautoui/custom/autogrid/index';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="ipyautoui.custom.buttonbars" href="../buttonbars/index.html" />
+    <link rel="prev" title="ipyautoui.custom" href="../index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="None"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../../intro.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../../_static/logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../intro.html">
+                    ipyautoui
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../demo.html">demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autoui.html">AutoUi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autovuetify.html">AutoVjsf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autodisplay.html">AutoDisplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../custom-renderers.html">Custom Renderers</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../../../api.html">API documentation</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.autogrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../buttonbars/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.buttonbars</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../date_string/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.date_string</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../decision_branch/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.decision_branch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../editgrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.editgrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../filechooser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.filechooser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../filesindir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.filesindir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fileupload/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.fileupload</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../halo_decorator/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.halo_decorator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../iterable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.iterable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../loadproject/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.loadproject</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../markdown_widget/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.markdown_widget</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modelrun/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.modelrun</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../multi_toggle_buttons/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.multi_toggle_buttons</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../multiselect_search/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.multiselect_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outputlogging/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.outputlogging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../selectandclick/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.selectandclick</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../selectdir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.selectdir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../showhide/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.showhide</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../showopenurl/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.showopenurl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../title_description/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.title_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../urlimagelink/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.urlimagelink</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../widgetcaller_error/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.widgetcaller_error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../workingdir/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.workingdir</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../demo_schemas/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/array_examples/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.array_examples</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/array_object_dataframe/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.array_object_dataframe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/complex_serialization/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.complex_serialization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/core_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.core_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/editable_datagrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.editable_datagrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/nested/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nested</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/nested_editable_datagrid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nested_editable_datagrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/null_and_required/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.null_and_required</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/nullable_core_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.nullable_core_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/override_ipywidgets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.override_ipywidgets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/recursive_array/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.recursive_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/recursive_object/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.recursive_object</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/root_array/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/root_array_enum/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_array_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/root_enum/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/root_simple/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.root_simple</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../demo_schemas/ruleset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo_schemas.ruleset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../_dev_sys_path_append/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._dev_sys_path_append</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._utils</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_utils_debounce/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui._utils_debounce</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoanyof/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoanyof</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autobox/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autobox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autodisplay/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autodisplay</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autodisplay_renderers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autodisplay_renderers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoform/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoform</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../automapschema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.automapschema</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoobject/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoobject</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autoui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autovjsf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.autovjsf</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../basemodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.basemodel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../constants/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.constants</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../demo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.demo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../env/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.env</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../mydocstring_display/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.mydocstring_display</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../nullable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.nullable</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/jgunstone/ipyautoui" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/jgunstone/ipyautoui/issues/new?title=Issue%20on%20page%20%2Fautoapi/ipyautoui/custom/autogrid/index.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../../_sources/autoapi/ipyautoui/custom/autogrid/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>ipyautoui.custom.autogrid</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="module-ipyautoui.custom.autogrid">
+<span id="ipyautoui-custom-autogrid"></span><h1><a class="reference internal" href="#module-ipyautoui.custom.autogrid" title="ipyautoui.custom.autogrid"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.autogrid</span></code></a><a class="headerlink" href="#module-ipyautoui.custom.autogrid" title="Permalink to this headline">#</a></h1>
+<p>defines a schema for a datagrid. this is used to build the datagrid and
+contains methods for validation, coercion, and default values.</p>
+<p>defines AutoGrid, a datagrid generated from a jsonschema.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.GridSchema" title="ipyautoui.custom.autogrid.GridSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GridSchema</span></code></a></p></td>
+<td><p>this is inherited by AutoDataGrid. schema attributes are therefore set on the</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id20" title="ipyautoui.custom.autogrid.DataFrameCols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrameCols</span></code></a></p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.DataGrid" title="ipyautoui.custom.autogrid.DataGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataGrid</span></code></a></p></td>
+<td><p>extends DataGrid with useful generic functions</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.AutoGrid" title="ipyautoui.custom.autogrid.AutoGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AutoGrid</span></code></a></p></td>
+<td><p>a thin wrapper around DataGrid that makes makes it possible to initiate the</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id20" title="ipyautoui.custom.autogrid.DataFrameCols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrameCols</span></code></a></p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id20" title="ipyautoui.custom.autogrid.DataFrameCols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrameCols</span></code></a></p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id20" title="ipyautoui.custom.autogrid.DataFrameCols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrameCols</span></code></a></p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id20" title="ipyautoui.custom.autogrid.DataFrameCols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrameCols</span></code></a></p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id20" title="ipyautoui.custom.autogrid.DataFrameCols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrameCols</span></code></a></p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id20" title="ipyautoui.custom.autogrid.DataFrameCols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrameCols</span></code></a></p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.get_property_types" title="ipyautoui.custom.autogrid.get_property_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_property_types</span></code></a>(properties)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.get_default_row_data_from_schema_properties" title="ipyautoui.custom.autogrid.get_default_row_data_from_schema_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_default_row_data_from_schema_properties</span></code></a>(...)</p></td>
+<td><p>pulls default value from schema. intended for a dataframe (i.e. rows</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.get_column_widths_from_schema" title="ipyautoui.custom.autogrid.get_column_widths_from_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_column_widths_from_schema</span></code></a>(schema, ...)</p></td>
+<td><p>Set the column widths of the data grid based on column_width given in the schema.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.build_renderer" title="ipyautoui.custom.autogrid.build_renderer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_renderer</span></code></a>(→ ipydatagrid.CellRenderer)</p></td>
+<td><p>builds a renderer for datagrid. if the input is a dict, the function assumes</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.get_column_renderers_from_schema" title="ipyautoui.custom.autogrid.get_column_renderers_from_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_column_renderers_from_schema</span></code></a>(→ dict)</p></td>
+<td><p>when saved to schema the renderer is a PyObject callable...</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.get_global_renderer_from_schema" title="ipyautoui.custom.autogrid.get_global_renderer_from_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_renderer_from_schema</span></code></a>(→ Union[None, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.get_global_renderers_from_schema" title="ipyautoui.custom.autogrid.get_global_renderers_from_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_renderers_from_schema</span></code></a>(→ dict)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.is_incremental" title="ipyautoui.custom.autogrid.is_incremental"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_incremental</span></code></a>(li)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.MAP_TRANSPOSED_SELECTION_MODE" title="ipyautoui.custom.autogrid.MAP_TRANSPOSED_SELECTION_MODE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAP_TRANSPOSED_SELECTION_MODE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ipyautoui.custom.autogrid.df" title="ipyautoui.custom.autogrid.df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">df</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.MAP_TRANSPOSED_SELECTION_MODE">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">MAP_TRANSPOSED_SELECTION_MODE</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#MAP_TRANSPOSED_SELECTION_MODE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.MAP_TRANSPOSED_SELECTION_MODE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.get_property_types">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">get_property_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#get_property_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.get_property_types" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.get_default_row_data_from_schema_properties">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">get_default_row_data_from_schema_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">property_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#get_default_row_data_from_schema_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.get_default_row_data_from_schema_properties" title="Permalink to this definition">#</a></dt>
+<dd><p>pulls default value from schema. intended for a dataframe (i.e. rows
+of known columns only). assumes all fields have a ‘title’ (true when using
+pydantic)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>properties</strong> (<em>dict</em>) – schema[“items”][“properties”]</p></li>
+<li><p><strong>property_types</strong> (<em>dict</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dictionary column values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.get_column_widths_from_schema">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">get_column_widths_from_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_properties</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_name_index</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#get_column_widths_from_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.get_column_widths_from_schema" title="Permalink to this definition">#</a></dt>
+<dd><p>Set the column widths of the data grid based on column_width given in the schema.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.build_renderer">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">build_renderer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ipydatagrid.CellRenderer</span></span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#build_renderer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.build_renderer" title="Permalink to this definition">#</a></dt>
+<dd><p>builds a renderer for datagrid. if the input is a dict, the function assumes
+the renderer to use is <cite>ipydatagrid.TextRenderer</cite> and initiates it with the dict.
+This is appropriate for simple renderers only. If it is a string, it assumes that
+the renderer must be built by a zero-arg callable function that is referenced by an
+object string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>var</strong> (<em>ty.Union</em><em>[</em><em>str</em><em>, </em><em>dict</em><em>]</em>) – _description_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.get_column_renderers_from_schema">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">get_column_renderers_from_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_properties</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_name_index</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#get_column_renderers_from_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.get_column_renderers_from_schema" title="Permalink to this definition">#</a></dt>
+<dd><p>when saved to schema the renderer is a PyObject callable…</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.get_global_renderer_from_schema">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">get_global_renderer_from_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">renderer_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ipydatagrid.CellRenderer</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#get_global_renderer_from_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.get_global_renderer_from_schema" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.get_global_renderers_from_schema">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">get_global_renderers_from_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#get_global_renderers_from_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.get_global_renderers_from_schema" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.is_incremental">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">is_incremental</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">li</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#is_incremental"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.is_incremental" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">GridSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_traits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema" title="Permalink to this definition">#</a></dt>
+<dd><p>this is inherited by AutoDataGrid. schema attributes are therefore set on the
+base class to ensure that when they are called the traits get set.</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>this schema is valid only for an array (i.e. integer index) of objects</dt><dd><p>the object names are the column names and the object values are the rows</p>
+</dd>
+</dl>
+</li>
+<li><p>data has 1no name based index (multi or otherwise) and 1no. integer index</p></li>
+<li><dl class="simple">
+<dt>the methods support “transposed” data. transposed is used to flip the</dt><dd><p>dataframe to flip the view. the schema remains the same.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Gridschema handles converting between the user facing column names and the</dt><dd><p>backend column names. this is done using <cite>map_name_index</cite> and <cite>map_index_name</cite>
+“index” is used for the front-end pandas dataframe column names
+“name” is used for the back-end keys</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>NOTE: index below can be either column index or row index. it can be swapped using</dt><dd><p>transposed=True / False. the other index is always a range.</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.types">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">types</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.types" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.index_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index_name</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.index_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.index_name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.is_multiindex">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_multiindex</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.is_multiindex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.is_multiindex" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.datagrid_traits">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">datagrid_traits</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.datagrid_traits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.datagrid_traits" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.properties">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">properties</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.properties" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.property_keys">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">property_keys</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.property_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.property_keys" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.default_order">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_order</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.default_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.default_order" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.property_titles">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">property_titles</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.property_titles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.property_titles" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.set_renderers">
+<span class="sig-name descname"><span class="pre">set_renderers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.set_renderers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.set_renderers" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.validate_editable_grid_schema">
+<span class="sig-name descname"><span class="pre">validate_editable_grid_schema</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.validate_editable_grid_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.validate_editable_grid_schema" title="Permalink to this definition">#</a></dt>
+<dd><p>Check if the schema is valid for an editable grid</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.get_map_name_index">
+<span class="sig-name descname"><span class="pre">get_map_name_index</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.get_map_name_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.get_map_name_index" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.get_index">
+<span class="sig-name descname"><span class="pre">get_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.MultiIndex</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.Index</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.get_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.get_index" title="Permalink to this definition">#</a></dt>
+<dd><p>Get pandas Index based on the data passed. The data index
+must be a subset of the gridschema index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>order</strong> (<em>list</em>) – ordered columns</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>pandas index</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[pd.MultiIndex, pd.Index]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema._get_default_data">
+<span class="sig-name descname"><span class="pre">_get_default_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema._get_default_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema._get_default_data" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema._get_default_row">
+<span class="sig-name descname"><span class="pre">_get_default_row</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema._get_default_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema._get_default_row" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.get_default_dataframe">
+<span class="sig-name descname"><span class="pre">get_default_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transposed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.get_default_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.get_default_dataframe" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.get_order_titles">
+<span class="sig-name descname"><span class="pre">get_order_titles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.get_order_titles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.get_order_titles" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.get_field_names_from_properties">
+<span class="sig-name descname"><span class="pre">get_field_names_from_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.get_field_names_from_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.get_field_names_from_properties" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.GridSchema.coerce_data">
+<span class="sig-name descname"><span class="pre">coerce_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transposed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#GridSchema.coerce_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.GridSchema.coerce_data" title="Permalink to this definition">#</a></dt>
+<dd><p>data must be passed with an integer index and columns matching the schema.
+Column names can be either the outward facing index names or the schema property keys.
+if transposed is True, the data will be transposed before getting passed to the grid</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – data to coerce</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>coerced data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataFrameCols">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">DataFrameCols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataFrameCols" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p>
+<p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p>
+<p>A base class for creating Pydantic models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__class_vars__</strong> – The names of classvars defined on the model.</p></li>
+<li><p><strong>__private_attributes__</strong> – Metadata about the private attributes of the model.</p></li>
+<li><p><strong>__signature__</strong> – The signature for instantiating the model.</p></li>
+<li><p><strong>__pydantic_complete__</strong> – Whether model building is completed, or if there are still undefined fields.</p></li>
+<li><p><strong>__pydantic_core_schema__</strong> – The pydantic-core schema used to build the SchemaValidator and SchemaSerializer.</p></li>
+<li><p><strong>__pydantic_custom_init__</strong> – Whether the model has a custom <cite>__init__</cite> function.</p></li>
+<li><p><strong>__pydantic_decorators__</strong> – Metadata containing the decorators defined on the model.
+This replaces <cite>Model.__validators__</cite> and <cite>Model.__root_validators__</cite> from Pydantic V1.</p></li>
+<li><p><strong>__pydantic_generic_metadata__</strong> – Metadata for generic models; contains data used for a similar purpose to
+__args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.</p></li>
+<li><p><strong>__pydantic_parent_namespace__</strong> – Parent namespace of the model, used for automatic rebuilding of models.</p></li>
+<li><p><strong>__pydantic_post_init__</strong> – The name of the post-init method for the model, if defined.</p></li>
+<li><p><strong>__pydantic_root_model__</strong> – Whether the model is a <cite>RootModel</cite>.</p></li>
+<li><p><strong>__pydantic_serializer__</strong> – The pydantic-core SchemaSerializer used to dump instances of the model.</p></li>
+<li><p><strong>__pydantic_validator__</strong> – The pydantic-core SchemaValidator used to validate instances of the model.</p></li>
+<li><p><strong>__pydantic_extra__</strong> – An instance attribute with the values of extra fields from validation when
+<cite>model_config[‘extra’] == ‘allow’</cite>.</p></li>
+<li><p><strong>__pydantic_fields_set__</strong> – An instance attribute with the names of fields explicitly specified during validation.</p></li>
+<li><p><strong>__pydantic_private__</strong> – Instance attribute with the values of private attributes set on the model instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataFrameCols.string">
+<span class="sig-name descname"><span class="pre">string</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataFrameCols.string" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataFrameCols.integer">
+<span class="sig-name descname"><span class="pre">integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.integer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataFrameCols.integer" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataFrameCols.floater">
+<span class="sig-name descname"><span class="pre">floater</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.floater"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataFrameCols.floater" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">DataGrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataframe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ipydatagrid.DataGrid</span></code></p>
+<p>extends DataGrid with useful generic functions</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid.map_index_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">map_index_name</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid.map_index_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid.map_index_name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid.datagrid_schema_fields">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">datagrid_schema_fields</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid.datagrid_schema_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid.datagrid_schema_fields" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid.selected_visible_cell_iterator">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_visible_cell_iterator</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid.selected_visible_cell_iterator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid.selected_visible_cell_iterator" title="Permalink to this definition">#</a></dt>
+<dd><p>An iterator to traverse selected cells one by one.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid.global_decimal_places">
+<span class="sig-name descname"><span class="pre">global_decimal_places</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid.global_decimal_places"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid.global_decimal_places" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid.hide_nan">
+<span class="sig-name descname"><span class="pre">hide_nan</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid.hide_nan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid.hide_nan" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid.count_changes">
+<span class="sig-name descname"><span class="pre">count_changes</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid.count_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid.count_changes" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid.map_name_index">
+<span class="sig-name descname"><span class="pre">map_name_index</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid.map_name_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid.map_name_index" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid._default_count_changes">
+<span class="sig-name descname"><span class="pre">_default_count_changes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid._default_count_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid._default_count_changes" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid._set_text_value">
+<span class="sig-name descname"><span class="pre">_set_text_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid._set_text_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid._set_text_value" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid._observe_changes">
+<span class="sig-name descname"><span class="pre">_observe_changes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid._observe_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid._observe_changes" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid._count_cell_changes">
+<span class="sig-name descname"><span class="pre">_count_cell_changes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid._count_cell_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid._count_cell_changes" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid._count_data_change">
+<span class="sig-name descname"><span class="pre">_count_data_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid._count_data_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid._count_data_change" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataGrid.get_dataframe_index">
+<span class="sig-name descname"><span class="pre">get_dataframe_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataframe</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataGrid.get_dataframe_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataGrid.get_dataframe_index" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns a primary key to be used in ipydatagrid’s
+view of the passed DataFrame.</p>
+<p>OVERRIDES get_dataframe_index in ipydatagrid. addes support for multi-index.
+TODO: add support for multi-index in ipydatagrid</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">AutoGrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">pydantic.BaseModel</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by_alias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ipyautoui.custom.autogrid.DataGrid" title="ipyautoui.custom.autogrid.DataGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataGrid</span></code></a></p>
+<p>a thin wrapper around DataGrid that makes makes it possible to initiate the
+grid from a json-schema / pydantic model.</p>
+<p>Traits that can be set in a DataGrid instance can be reviewed using gr.traits().
+Note that of these traits, <cite>column_widths</cite> and <cite>renderers</cite> have the format
+{‘column_name’: &lt;setting&gt;}.</p>
+<p>NOTE:
+- Currently only supports a range index (or transposed therefore range columns)</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.is_transposed">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_transposed</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.is_transposed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.is_transposed" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.default_row">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_row</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.default_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.default_row" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.default_row_title_keys">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_row_title_keys</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.default_row_title_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.default_row_title_keys" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.datagrid_trait_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">datagrid_trait_names</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.datagrid_trait_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.datagrid_trait_names" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.properties">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">properties</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.properties" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.map_name_index">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">map_name_index</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.map_name_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.map_name_index" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.map_index_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">map_index_name</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.map_index_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.map_index_name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.index_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index_names</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.index_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.index_names" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.column_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">column_names</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.column_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.column_names" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected_items">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_items</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected_items" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected_index">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_index</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected_index" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected_indexes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_indexes</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected_indexes" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected_row">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_row</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected_row" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the data selected in the table which is returned as a dataframe.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected_rows">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_rows</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected_rows" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the data selected in the table which is returned as a dataframe.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected_col">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_col</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected_col"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected_col" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the data selected in the table which is returned as a dataframe.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected_cols">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_cols</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected_cols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected_cols" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the data selected in the table which is returned as a dataframe.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected_row_index">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_row_index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected_row_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected_row_index" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected_row_indexes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_row_indexes</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected_row_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected_row_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the indexes of the selected rows. still works if transform applied.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected_col_index">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_col_index</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected_col_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected_col_index" title="Permalink to this definition">#</a></dt>
+<dd><p>returns the first.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected_col_indexes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_col_indexes</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected_col_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected_col_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the indexes of the selected rows. still works if transform applied.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.selected_dict">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selected_dict</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.selected_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.selected_dict" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the dictionary of selected rows where index is row index. still works if transform applied.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.schema">
+<span class="sig-name descname"><span class="pre">schema</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.schema" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.transposed">
+<span class="sig-name descname"><span class="pre">transposed</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.transposed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.transposed" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.order">
+<span class="sig-name descname"><span class="pre">order</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.order" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.datagrid_index_name">
+<span class="sig-name descname"><span class="pre">datagrid_index_name</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.datagrid_index_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.datagrid_index_name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid._update_from_schema">
+<span class="sig-name descname"><span class="pre">_update_from_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid._update_from_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid._update_from_schema" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid._valid_schema">
+<span class="sig-name descname"><span class="pre">_valid_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proposal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid._valid_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid._valid_schema" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid._observe_order">
+<span class="sig-name descname"><span class="pre">_observe_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid._observe_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid._observe_order" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid._transposed">
+<span class="sig-name descname"><span class="pre">_transposed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid._transposed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid._transposed" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.records">
+<span class="sig-name descname"><span class="pre">records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys_as_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.records" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.get_col_name_from_index">
+<span class="sig-name descname"><span class="pre">get_col_name_from_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.get_col_name_from_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.get_col_name_from_index" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.get_default_data">
+<span class="sig-name descname"><span class="pre">get_default_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.get_default_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.get_default_data" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid._init_data">
+<span class="sig-name descname"><span class="pre">_init_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid._init_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid._init_data" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.set_cell_value_if_different">
+<span class="sig-name descname"><span class="pre">set_cell_value_if_different</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_key_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.set_cell_value_if_different"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.set_cell_value_if_different" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.set_item_value">
+<span class="sig-name descname"><span class="pre">set_item_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.set_item_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.set_item_value" title="Permalink to this definition">#</a></dt>
+<dd><p>set row (transposed==False) or col (transposed==True) value</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid._check_indexes">
+<span class="sig-name descname"><span class="pre">_check_indexes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid._check_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid._check_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>Check whether indexes of value are a subset of the schema</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>dict</em>) – The data we want to input into the row.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.set_row_value">
+<span class="sig-name descname"><span class="pre">set_row_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.set_row_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.set_row_value" title="Permalink to this definition">#</a></dt>
+<dd><p>Set a chosen row using the index and a value given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<em>int</em>) – The key of the row. # TODO: is this defo an int?</p></li>
+<li><p><strong>value</strong> (<em>dict</em>) – The data we want to input into the row.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.apply_map_name_title">
+<span class="sig-name descname"><span class="pre">apply_map_name_title</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.apply_map_name_title"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.apply_map_name_title" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.set_col_value">
+<span class="sig-name descname"><span class="pre">set_col_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.set_col_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.set_col_value" title="Permalink to this definition">#</a></dt>
+<dd><p>Set a chosen col using the index and a value given.</p>
+<p>Note: We do not call value setter to apply values as it resets the datagrid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<em>int</em>) – The index of the col</p></li>
+<li><p><strong>value</strong> (<em>dict</em>) – The data we want to input into the col.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.filter_by_column_name">
+<span class="sig-name descname"><span class="pre">filter_by_column_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">li_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.filter_by_column_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.filter_by_column_name" title="Permalink to this definition">#</a></dt>
+<dd><p>Filter rows to display based on a column name and a list of objects belonging to that column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_name</strong> (<em>str</em>) – column name we want to apply the transform to.</p></li>
+<li><p><strong>li_filter</strong> (<em>list</em>) – Values within the column we want to display in the grid.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid.map_value_keys_index_name">
+<span class="sig-name descname"><span class="pre">map_value_keys_index_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid.map_value_keys_index_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid.map_value_keys_index_name" title="Permalink to this definition">#</a></dt>
+<dd><p>Checks if the keys of the dictionary are using the original field
+names and, if not, returns a new dict using the original field names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>dict</em>) – dictionary (potentially) using index names</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New dictionary of same values but using original field names</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid._swap_indexes">
+<span class="sig-name descname"><span class="pre">_swap_indexes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid._swap_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid._swap_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>Swap two indexes by giving their indexes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index_a</strong> (<em>int</em>) – index of a index.</p></li>
+<li><p><strong>index_b</strong> (<em>int</em>) – index of another index.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid._move_index_down">
+<span class="sig-name descname"><span class="pre">_move_index_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid._move_index_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid._move_index_down" title="Permalink to this definition">#</a></dt>
+<dd><p>Move an index down numerically e.g. 1 -&gt; 0</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – index of the index</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid._move_index_up">
+<span class="sig-name descname"><span class="pre">_move_index_up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid._move_index_up"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid._move_index_up" title="Permalink to this definition">#</a></dt>
+<dd><p>Move an index up numerically e.g. 1 -&gt; 2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – index of the index</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid._move_indexes_up">
+<span class="sig-name descname"><span class="pre">_move_indexes_up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">li_indexes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid._move_indexes_up"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid._move_indexes_up" title="Permalink to this definition">#</a></dt>
+<dd><p>Move multiple indexes up numerically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>li_indexes</strong> (<em>ty.List</em><em>[</em><em>int</em><em>]</em>) – ty.List of index indexes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.AutoGrid._move_indexes_down">
+<span class="sig-name descname"><span class="pre">_move_indexes_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">li_indexes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#AutoGrid._move_indexes_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.AutoGrid._move_indexes_down" title="Permalink to this definition">#</a></dt>
+<dd><p>Move multiple indexes down numerically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>li_indexes</strong> (<em>ty.List</em><em>[</em><em>int</em><em>]</em>) – ty.List of index indexes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">DataFrameCols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p>
+<p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p>
+<p>A base class for creating Pydantic models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__class_vars__</strong> – The names of classvars defined on the model.</p></li>
+<li><p><strong>__private_attributes__</strong> – Metadata about the private attributes of the model.</p></li>
+<li><p><strong>__signature__</strong> – The signature for instantiating the model.</p></li>
+<li><p><strong>__pydantic_complete__</strong> – Whether model building is completed, or if there are still undefined fields.</p></li>
+<li><p><strong>__pydantic_core_schema__</strong> – The pydantic-core schema used to build the SchemaValidator and SchemaSerializer.</p></li>
+<li><p><strong>__pydantic_custom_init__</strong> – Whether the model has a custom <cite>__init__</cite> function.</p></li>
+<li><p><strong>__pydantic_decorators__</strong> – Metadata containing the decorators defined on the model.
+This replaces <cite>Model.__validators__</cite> and <cite>Model.__root_validators__</cite> from Pydantic V1.</p></li>
+<li><p><strong>__pydantic_generic_metadata__</strong> – Metadata for generic models; contains data used for a similar purpose to
+__args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.</p></li>
+<li><p><strong>__pydantic_parent_namespace__</strong> – Parent namespace of the model, used for automatic rebuilding of models.</p></li>
+<li><p><strong>__pydantic_post_init__</strong> – The name of the post-init method for the model, if defined.</p></li>
+<li><p><strong>__pydantic_root_model__</strong> – Whether the model is a <cite>RootModel</cite>.</p></li>
+<li><p><strong>__pydantic_serializer__</strong> – The pydantic-core SchemaSerializer used to dump instances of the model.</p></li>
+<li><p><strong>__pydantic_validator__</strong> – The pydantic-core SchemaValidator used to validate instances of the model.</p></li>
+<li><p><strong>__pydantic_extra__</strong> – An instance attribute with the values of extra fields from validation when
+<cite>model_config[‘extra’] == ‘allow’</cite>.</p></li>
+<li><p><strong>__pydantic_fields_set__</strong> – An instance attribute with the names of fields explicitly specified during validation.</p></li>
+<li><p><strong>__pydantic_private__</strong> – Instance attribute with the values of private attributes set on the model instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">string</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.integer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">floater</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.floater"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id3" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="id4">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">DataFrameCols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p>
+<p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p>
+<p>A base class for creating Pydantic models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__class_vars__</strong> – The names of classvars defined on the model.</p></li>
+<li><p><strong>__private_attributes__</strong> – Metadata about the private attributes of the model.</p></li>
+<li><p><strong>__signature__</strong> – The signature for instantiating the model.</p></li>
+<li><p><strong>__pydantic_complete__</strong> – Whether model building is completed, or if there are still undefined fields.</p></li>
+<li><p><strong>__pydantic_core_schema__</strong> – The pydantic-core schema used to build the SchemaValidator and SchemaSerializer.</p></li>
+<li><p><strong>__pydantic_custom_init__</strong> – Whether the model has a custom <cite>__init__</cite> function.</p></li>
+<li><p><strong>__pydantic_decorators__</strong> – Metadata containing the decorators defined on the model.
+This replaces <cite>Model.__validators__</cite> and <cite>Model.__root_validators__</cite> from Pydantic V1.</p></li>
+<li><p><strong>__pydantic_generic_metadata__</strong> – Metadata for generic models; contains data used for a similar purpose to
+__args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.</p></li>
+<li><p><strong>__pydantic_parent_namespace__</strong> – Parent namespace of the model, used for automatic rebuilding of models.</p></li>
+<li><p><strong>__pydantic_post_init__</strong> – The name of the post-init method for the model, if defined.</p></li>
+<li><p><strong>__pydantic_root_model__</strong> – Whether the model is a <cite>RootModel</cite>.</p></li>
+<li><p><strong>__pydantic_serializer__</strong> – The pydantic-core SchemaSerializer used to dump instances of the model.</p></li>
+<li><p><strong>__pydantic_validator__</strong> – The pydantic-core SchemaValidator used to validate instances of the model.</p></li>
+<li><p><strong>__pydantic_extra__</strong> – An instance attribute with the values of extra fields from validation when
+<cite>model_config[‘extra’] == ‘allow’</cite>.</p></li>
+<li><p><strong>__pydantic_fields_set__</strong> – An instance attribute with the names of fields explicitly specified during validation.</p></li>
+<li><p><strong>__pydantic_private__</strong> – Instance attribute with the values of private attributes set on the model instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">string</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.integer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id6" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">floater</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.floater"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="id8">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">DataFrameCols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id8" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p>
+<p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p>
+<p>A base class for creating Pydantic models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__class_vars__</strong> – The names of classvars defined on the model.</p></li>
+<li><p><strong>__private_attributes__</strong> – Metadata about the private attributes of the model.</p></li>
+<li><p><strong>__signature__</strong> – The signature for instantiating the model.</p></li>
+<li><p><strong>__pydantic_complete__</strong> – Whether model building is completed, or if there are still undefined fields.</p></li>
+<li><p><strong>__pydantic_core_schema__</strong> – The pydantic-core schema used to build the SchemaValidator and SchemaSerializer.</p></li>
+<li><p><strong>__pydantic_custom_init__</strong> – Whether the model has a custom <cite>__init__</cite> function.</p></li>
+<li><p><strong>__pydantic_decorators__</strong> – Metadata containing the decorators defined on the model.
+This replaces <cite>Model.__validators__</cite> and <cite>Model.__root_validators__</cite> from Pydantic V1.</p></li>
+<li><p><strong>__pydantic_generic_metadata__</strong> – Metadata for generic models; contains data used for a similar purpose to
+__args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.</p></li>
+<li><p><strong>__pydantic_parent_namespace__</strong> – Parent namespace of the model, used for automatic rebuilding of models.</p></li>
+<li><p><strong>__pydantic_post_init__</strong> – The name of the post-init method for the model, if defined.</p></li>
+<li><p><strong>__pydantic_root_model__</strong> – Whether the model is a <cite>RootModel</cite>.</p></li>
+<li><p><strong>__pydantic_serializer__</strong> – The pydantic-core SchemaSerializer used to dump instances of the model.</p></li>
+<li><p><strong>__pydantic_validator__</strong> – The pydantic-core SchemaValidator used to validate instances of the model.</p></li>
+<li><p><strong>__pydantic_extra__</strong> – An instance attribute with the values of extra fields from validation when
+<cite>model_config[‘extra’] == ‘allow’</cite>.</p></li>
+<li><p><strong>__pydantic_fields_set__</strong> – An instance attribute with the names of fields explicitly specified during validation.</p></li>
+<li><p><strong>__pydantic_private__</strong> – Instance attribute with the values of private attributes set on the model instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">string</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id9" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id10">
+<span class="sig-name descname"><span class="pre">integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.integer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id10" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id11">
+<span class="sig-name descname"><span class="pre">floater</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.floater"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id11" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="id12">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">DataFrameCols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id12" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p>
+<p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p>
+<p>A base class for creating Pydantic models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__class_vars__</strong> – The names of classvars defined on the model.</p></li>
+<li><p><strong>__private_attributes__</strong> – Metadata about the private attributes of the model.</p></li>
+<li><p><strong>__signature__</strong> – The signature for instantiating the model.</p></li>
+<li><p><strong>__pydantic_complete__</strong> – Whether model building is completed, or if there are still undefined fields.</p></li>
+<li><p><strong>__pydantic_core_schema__</strong> – The pydantic-core schema used to build the SchemaValidator and SchemaSerializer.</p></li>
+<li><p><strong>__pydantic_custom_init__</strong> – Whether the model has a custom <cite>__init__</cite> function.</p></li>
+<li><p><strong>__pydantic_decorators__</strong> – Metadata containing the decorators defined on the model.
+This replaces <cite>Model.__validators__</cite> and <cite>Model.__root_validators__</cite> from Pydantic V1.</p></li>
+<li><p><strong>__pydantic_generic_metadata__</strong> – Metadata for generic models; contains data used for a similar purpose to
+__args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.</p></li>
+<li><p><strong>__pydantic_parent_namespace__</strong> – Parent namespace of the model, used for automatic rebuilding of models.</p></li>
+<li><p><strong>__pydantic_post_init__</strong> – The name of the post-init method for the model, if defined.</p></li>
+<li><p><strong>__pydantic_root_model__</strong> – Whether the model is a <cite>RootModel</cite>.</p></li>
+<li><p><strong>__pydantic_serializer__</strong> – The pydantic-core SchemaSerializer used to dump instances of the model.</p></li>
+<li><p><strong>__pydantic_validator__</strong> – The pydantic-core SchemaValidator used to validate instances of the model.</p></li>
+<li><p><strong>__pydantic_extra__</strong> – An instance attribute with the values of extra fields from validation when
+<cite>model_config[‘extra’] == ‘allow’</cite>.</p></li>
+<li><p><strong>__pydantic_fields_set__</strong> – An instance attribute with the names of fields explicitly specified during validation.</p></li>
+<li><p><strong>__pydantic_private__</strong> – Instance attribute with the values of private attributes set on the model instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id13">
+<span class="sig-name descname"><span class="pre">string</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id13" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id14">
+<span class="sig-name descname"><span class="pre">integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.integer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id14" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id15">
+<span class="sig-name descname"><span class="pre">floater</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.floater"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id15" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.df">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">df</span></span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.df" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="id16">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">DataFrameCols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id16" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p>
+<p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p>
+<p>A base class for creating Pydantic models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__class_vars__</strong> – The names of classvars defined on the model.</p></li>
+<li><p><strong>__private_attributes__</strong> – Metadata about the private attributes of the model.</p></li>
+<li><p><strong>__signature__</strong> – The signature for instantiating the model.</p></li>
+<li><p><strong>__pydantic_complete__</strong> – Whether model building is completed, or if there are still undefined fields.</p></li>
+<li><p><strong>__pydantic_core_schema__</strong> – The pydantic-core schema used to build the SchemaValidator and SchemaSerializer.</p></li>
+<li><p><strong>__pydantic_custom_init__</strong> – Whether the model has a custom <cite>__init__</cite> function.</p></li>
+<li><p><strong>__pydantic_decorators__</strong> – Metadata containing the decorators defined on the model.
+This replaces <cite>Model.__validators__</cite> and <cite>Model.__root_validators__</cite> from Pydantic V1.</p></li>
+<li><p><strong>__pydantic_generic_metadata__</strong> – Metadata for generic models; contains data used for a similar purpose to
+__args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.</p></li>
+<li><p><strong>__pydantic_parent_namespace__</strong> – Parent namespace of the model, used for automatic rebuilding of models.</p></li>
+<li><p><strong>__pydantic_post_init__</strong> – The name of the post-init method for the model, if defined.</p></li>
+<li><p><strong>__pydantic_root_model__</strong> – Whether the model is a <cite>RootModel</cite>.</p></li>
+<li><p><strong>__pydantic_serializer__</strong> – The pydantic-core SchemaSerializer used to dump instances of the model.</p></li>
+<li><p><strong>__pydantic_validator__</strong> – The pydantic-core SchemaValidator used to validate instances of the model.</p></li>
+<li><p><strong>__pydantic_extra__</strong> – An instance attribute with the values of extra fields from validation when
+<cite>model_config[‘extra’] == ‘allow’</cite>.</p></li>
+<li><p><strong>__pydantic_fields_set__</strong> – An instance attribute with the names of fields explicitly specified during validation.</p></li>
+<li><p><strong>__pydantic_private__</strong> – Instance attribute with the values of private attributes set on the model instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id17">
+<span class="sig-name descname"><span class="pre">string</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id17" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id18">
+<span class="sig-name descname"><span class="pre">integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.integer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id18" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id19">
+<span class="sig-name descname"><span class="pre">floater</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.floater"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id19" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="id20">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ipyautoui.custom.autogrid.</span></span><span class="sig-name descname"><span class="pre">DataFrameCols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id20" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p>
+<p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.4/concepts/models/">https://docs.pydantic.dev/2.4/concepts/models/</a></p>
+<p>A base class for creating Pydantic models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__class_vars__</strong> – The names of classvars defined on the model.</p></li>
+<li><p><strong>__private_attributes__</strong> – Metadata about the private attributes of the model.</p></li>
+<li><p><strong>__signature__</strong> – The signature for instantiating the model.</p></li>
+<li><p><strong>__pydantic_complete__</strong> – Whether model building is completed, or if there are still undefined fields.</p></li>
+<li><p><strong>__pydantic_core_schema__</strong> – The pydantic-core schema used to build the SchemaValidator and SchemaSerializer.</p></li>
+<li><p><strong>__pydantic_custom_init__</strong> – Whether the model has a custom <cite>__init__</cite> function.</p></li>
+<li><p><strong>__pydantic_decorators__</strong> – Metadata containing the decorators defined on the model.
+This replaces <cite>Model.__validators__</cite> and <cite>Model.__root_validators__</cite> from Pydantic V1.</p></li>
+<li><p><strong>__pydantic_generic_metadata__</strong> – Metadata for generic models; contains data used for a similar purpose to
+__args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.</p></li>
+<li><p><strong>__pydantic_parent_namespace__</strong> – Parent namespace of the model, used for automatic rebuilding of models.</p></li>
+<li><p><strong>__pydantic_post_init__</strong> – The name of the post-init method for the model, if defined.</p></li>
+<li><p><strong>__pydantic_root_model__</strong> – Whether the model is a <cite>RootModel</cite>.</p></li>
+<li><p><strong>__pydantic_serializer__</strong> – The pydantic-core SchemaSerializer used to dump instances of the model.</p></li>
+<li><p><strong>__pydantic_validator__</strong> – The pydantic-core SchemaValidator used to validate instances of the model.</p></li>
+<li><p><strong>__pydantic_extra__</strong> – An instance attribute with the values of extra fields from validation when
+<cite>model_config[‘extra’] == ‘allow’</cite>.</p></li>
+<li><p><strong>__pydantic_fields_set__</strong> – An instance attribute with the names of fields explicitly specified during validation.</p></li>
+<li><p><strong>__pydantic_private__</strong> – Instance attribute with the values of private attributes set on the model instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id21">
+<span class="sig-name descname"><span class="pre">floater</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.floater"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id21" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataFrameCols.inty">
+<span class="sig-name descname"><span class="pre">inty</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.inty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataFrameCols.inty" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ipyautoui.custom.autogrid.DataFrameCols.stringy">
+<span class="sig-name descname"><span class="pre">stringy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../../_modules/ipyautoui/custom/autogrid.html#DataFrameCols.stringy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.custom.autogrid.DataFrameCols.stringy" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./autoapi/ipyautoui/custom/autogrid"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../buttonbars/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ipyautoui.custom.buttonbars</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By mfcode
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
