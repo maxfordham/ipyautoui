@@ -15,7 +15,7 @@ class ComplexSerialisation(BaseModel):
     ] = (
         date.today()
     )  # TODO: serialisation / parsing round trip not working... # TODO: fix this!
-    datetime_picker_string: ty.Optional[
+    naive_datetime_picker_string: ty.Optional[
         datetime
     ] = datetime.now()  # TODO: update with ipywidgets-v8 # TODO: fix this!
     color_picker_ipywidgets: Color = "#f5f595"
