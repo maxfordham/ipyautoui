@@ -1,13 +1,12 @@
 name: Tests
 
 on:
-  push:
-    branches:
-      - '*'
-
   pull_request:
     branches:
-      - '*'
+      - main
+    paths:
+     - src/**
+     - tests/**
 
   schedule:
     - cron: '0 0 * * *'
