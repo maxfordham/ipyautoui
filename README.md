@@ -108,6 +108,7 @@ The main benefit of AutoUi (and main the reason for continuing to develop it), i
 ### maplocal
 
 `ipyautoui` inherits the `openpath` command from [maplocal](https://github.com/maxfordham/maplocal) when it is in use. Refer to [maplocal](https://github.com/maxfordham/maplocal) for how to use.
+`maplocal` is not a requirement for `ipautoui`, but if it is installed the `openfile` and `runcmd` functions will be taken from their.
 
 ## How it works
 
