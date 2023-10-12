@@ -85,7 +85,7 @@ AutoUi.parse_file #  init ui with data from .json file
 
 #### AutoVjsf
 
-The excellent documentation for [**vuetify-jsonschema-form**](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/) can be used to create your schema. Anything possible in vjsf is therefore possible using AutoVjsf (TODO: implement markdown editor). This has a much more complete coverage of the json-schema specification, as well as the added benefit of out-the-box support of mobile applications. It falls down if you want to specify custom renderer objects.
+The excellent documentation for [**vuetify-jsonschema-form**](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/) can be used to create your schema. Anything possible in vjsf is therefore possible using AutoVjsf. This has a much more complete coverage of the json-schema specification, as well as the added benefit of out-the-box support of mobile applications. It falls down if you want to specify custom renderer objects.
 
 ```{note}
 when you're using pydantic to make the schema, "-" cannot be used field names, 
