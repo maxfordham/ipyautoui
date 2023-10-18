@@ -391,7 +391,7 @@ document.write(`
 
 <span class="kn">from</span> <span class="nn">ipyautoui</span> <span class="kn">import</span> <span class="n">demo_schemas</span> <span class="k">as</span> <span class="n">demo_schemas</span>
 <span class="kn">from</span> <span class="nn">ipyautoui.demo_schemas</span> <span class="kn">import</span> <span class="n">CoreIpywidgets</span>
-<span class="kn">from</span> <span class="nn">ipyautoui._utils</span> <span class="kn">import</span> <span class="n">display_python_file</span>
+<span class="kn">from</span> <span class="nn">ipyautoui._utils</span> <span class="kn">import</span> <span class="n">display_python_file</span><span class="p">,</span> <span class="n">display_python_string</span>
 <span class="kn">from</span> <span class="nn">ipyautoui</span> <span class="kn">import</span> <span class="n">AutoUi</span>
 
 <span class="c1"># TODO: add AutoRenderer functionality to demo</span>
@@ -408,6 +408,12 @@ document.write(`
     <span class="n">li</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">li</span> <span class="k">if</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;#&quot;</span><span class="p">]</span>
     <span class="n">li</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;import &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">li</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">li</span></div>
+
+<div class="viewcode-block" id="pycall"><a class="viewcode-back" href="../../autoapi/ipyautoui/demo/index.html#ipyautoui.demo.pycall">[docs]</a><span class="n">pycall</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;# copy code below into your notebook to try demo</span>
+<span class="s2">from ipyautoui import AutoUi</span>
+<span class="s2">from ipyautoui.demo_schemas import </span><span class="si">{name}</span>
+<span class="s2">AutoUi(</span><span class="si">{name}</span><span class="s2">)</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="Demo"><a class="viewcode-back" href="../../autoapi/ipyautoui/demo/index.html#ipyautoui.demo.Demo">[docs]</a><span class="k">class</span> <span class="nc">Demo</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">Tab</span><span class="p">,</span> <span class="n">tr</span><span class="o">.</span><span class="n">HasTraits</span><span class="p">):</span>
@@ -456,6 +462,8 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">vbx_value</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">titles</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_pycall</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbx_pycall</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">VBox</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">out_pycall</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">out_pydantic</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vbx_pydantic</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">out_pydantic</span><span class="p">]</span>
 
@@ -469,9 +477,15 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">vbx_value</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">out_value</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pydantic_model</span> <span class="o">=</span> <span class="n">pydantic_model</span>
 
+<div class="viewcode-block" id="Demo._update_pycall"><a class="viewcode-back" href="../../autoapi/ipyautoui/demo/index.html#ipyautoui.demo.Demo._update_pycall">[docs]</a>    <span class="k">def</span> <span class="nf">_update_pycall</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_pycall</span><span class="p">:</span>
+            <span class="n">clear_output</span><span class="p">()</span>
+            <span class="n">display_python_string</span><span class="p">(</span><span class="n">pycall</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pydantic_model</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span></div>
+
 <div class="viewcode-block" id="Demo._update_autoui"><a class="viewcode-back" href="../../autoapi/ipyautoui/demo/index.html#ipyautoui.demo.Demo._update_autoui">[docs]</a>    <span class="k">def</span> <span class="nf">_update_autoui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">autoui</span> <span class="o">=</span> <span class="n">AutoUi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pydantic_model</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vbx_autoui</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">autoui</span><span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_pycall</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbx_autoui</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vbx_pycall</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">autoui</span> <span class="p">]</span></div>
 
 <div class="viewcode-block" id="Demo._update_pydantic"><a class="viewcode-back" href="../../autoapi/ipyautoui/demo/index.html#ipyautoui.demo.Demo._update_pydantic">[docs]</a>    <span class="k">def</span> <span class="nf">_update_pydantic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_pydantic</span><span class="p">:</span>

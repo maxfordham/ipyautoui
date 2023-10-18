@@ -429,6 +429,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
 </ul>
 </li>
 </ul>
@@ -482,6 +483,20 @@ document.write(`
 </tr>
 </tbody>
 </table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ipyautoui.demo.pycall" title="ipyautoui.demo.pycall"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pycall</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
 <dl class="py function">
 <dt class="sig sig-object py" id="ipyautoui.demo.get_classes">
 <span class="sig-prename descclassname"><span class="pre">ipyautoui.demo.</span></span><span class="sig-name descname"><span class="pre">get_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">member</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">demo_schemas</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">pydantic.BaseModel</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/ipyautoui/demo.html#get_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.demo.get_classes" title="Permalink to this definition">#</a></dt>
@@ -491,6 +506,20 @@ document.write(`
 <dt class="sig sig-object py" id="ipyautoui.demo.get_order">
 <span class="sig-prename descclassname"><span class="pre">ipyautoui.demo.</span></span><span class="sig-name descname"><span class="pre">get_order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/demo.html#get_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.demo.get_order" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ipyautoui.demo.pycall">
+<span class="sig-prename descclassname"><span class="pre">ipyautoui.demo.</span></span><span class="sig-name descname"><span class="pre">pycall</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Multiline-String</span></em><a class="reference internal" href="../../../_modules/ipyautoui/demo.html#pycall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.demo.pycall" title="Permalink to this definition">#</a></dt>
+<dd><blockquote>
+<div><details><summary>Show Value</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;# copy code below into your notebook to try demo</span>
+<span class="sd">from ipyautoui import AutoUi</span>
+<span class="sd">from ipyautoui.demo_schemas import {name}</span>
+<span class="sd">AutoUi({name})</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</details></div></blockquote>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ipyautoui.demo.Demo">
@@ -515,6 +544,11 @@ document.write(`
 <dl class="py method">
 <dt class="sig sig-object py" id="ipyautoui.demo.Demo._observe_selected_index">
 <span class="sig-name descname"><span class="pre">_observe_selected_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/demo.html#Demo._observe_selected_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.demo.Demo._observe_selected_index" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ipyautoui.demo.Demo._update_pycall">
+<span class="sig-name descname"><span class="pre">_update_pycall</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/ipyautoui/demo.html#Demo._update_pycall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ipyautoui.demo.Demo._update_pycall" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -657,6 +691,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
 </ul>
 </li>
 </ul>

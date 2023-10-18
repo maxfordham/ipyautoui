@@ -28,11 +28,40 @@ Functions
 
 
 
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   ipyautoui.demo.pycall
+
+
 .. py:function:: get_classes(member=demo_schemas) -> List[Type[pydantic.BaseModel]]
 
 
 .. py:function:: get_order()
 
+
+.. py:data:: pycall
+   :value: Multiline-String
+
+    .. raw:: html
+
+        <details><summary>Show Value</summary>
+
+    .. code-block:: python
+
+        """# copy code below into your notebook to try demo
+        from ipyautoui import AutoUi
+        from ipyautoui.demo_schemas import {name}
+        AutoUi({name})
+        """
+
+    .. raw:: html
+
+        </details>
+
+   
 
 .. py:class:: Demo(pydantic_model=CoreIpywidgets)
 
@@ -52,6 +81,9 @@ Functions
 
 
    .. py:method:: _observe_selected_index(change)
+
+
+   .. py:method:: _update_pycall()
 
 
    .. py:method:: _update_autoui()
