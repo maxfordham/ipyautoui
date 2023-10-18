@@ -9,7 +9,7 @@ import pathlib
 
 from ipyautoui import demo_schemas as demo_schemas
 from ipyautoui.demo_schemas import CoreIpywidgets
-from ipyautoui._utils import display_python_file
+from ipyautoui._utils import display_python_file, display_python_string
 from ipyautoui import AutoUi
 
 # TODO: add AutoRenderer functionality to demo
@@ -26,6 +26,12 @@ def get_order():
     li = [l for l in li if l[0] != "#"]
     li = [l.split("import ")[1] for l in li]
     return li
+
+pycall = """# copy code below into your notebook to try demo
+from ipyautoui import AutoUi
+from ipyautoui.demo_schemas import {name}
+AutoUi({name})
+"""
 
 
 class Demo(w.Tab, tr.HasTraits):
@@ -74,6 +80,8 @@ class Demo(w.Tab, tr.HasTraits):
             self.vbx_value,
         ]
         [self.set_title(k, v) for k, v in titles.items()]
+        self.out_pycall = w.Output()
+        self.vbx_pycall = w.VBox([self.out_pycall])
         self.out_pydantic = w.Output()
         self.vbx_pydantic.children = [self.out_pydantic]
 
@@ -87,9 +95,15 @@ class Demo(w.Tab, tr.HasTraits):
         self.vbx_value.children = [self.out_value]
         self.pydantic_model = pydantic_model
 
+    def _update_pycall(self):
+        with self.out_pycall:
+            clear_output()
+            display_python_string(pycall.format(name=self.pydantic_model.__name__))
+
     def _update_autoui(self):
         self.autoui = AutoUi(self.pydantic_model)
-        self.vbx_autoui.children = [self.autoui]
+        self._update_pycall()
+        self.vbx_autoui.children = [self.vbx_pycall, self.autoui ]
 
     def _update_pydantic(self):
         with self.out_pydantic:
