@@ -36,16 +36,28 @@ from ipydatagrid.datagrid import SelectionHelper
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 
 # +
-def get_property_types(properties):
-    def fn(t):
-        if t == "number":
-            t = "float"
-        try:
-            return eval(t)
-        except:
-            return str
-
-    return {k: fn(v["type"])() for k, v in properties.items()}
+def get_property_types(properties):  #  TODO: THIS SHOULD BE REQUIRED
+    def fn(v):
+        if "type" in v:
+            t = v["type"]
+            if t == "number":
+                t = "float"
+            try:
+                return eval(t)
+            except:
+                return str
+        elif "anyOf" in v:
+            types = [_.get("type") for _ in v["anyOf"] if _.get("type") != "null"]
+            if len(types) == 1:
+                t = types[0]
+                if t == "string":
+                    t = "str"
+                return eval(t)
+            else:
+                return lambda: None
+        else:
+            return lambda: None
+    return {k: fn(v)() for k, v in properties.items()}
 
 
 # ui.schema
@@ -358,10 +370,10 @@ class GridSchema:
             order = self.default_order
 
         if isinstance(field_names, str):
-            return [self.properties[_][field_names] for _ in order]
+            return [self.properties[_].get(field_names) for _ in order]
         else:
             return [
-                tuple(self.properties[_][field_name] for field_name in field_names)
+                tuple(self.properties[_].get(field_name) for field_name in field_names)
                 for _ in list(order)
             ]
 
