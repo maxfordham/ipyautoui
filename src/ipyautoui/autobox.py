@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.0
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -69,10 +69,10 @@ f4 = lambda self: [
     )
 ]
 f5 = lambda self: [
-    w.VBox([w.HBox([SPACER, self.get_tgl, self.html_title]), self.widget])
+    w.VBox([self.html_title, w.HBox([SPACER, self.get_tgl]), self.widget])
 ]
 
-f6 = lambda self: [w.VBox([w.HBox([self.get_tgl, self.html_title]), self.widget])]
+f6 = lambda self: [w.VBox([self.html_title,w.HBox([self.get_tgl ]), self.widget])]
 
 f7 = lambda self: [
     w.VBox(
