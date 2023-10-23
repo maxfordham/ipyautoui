@@ -149,7 +149,7 @@ class Array(w.VBox):
                 "add test "
                 + "".join(random.choices(string.ascii_uppercase + string.digits, k=4))
             )
-        )
+        ),
     )
     fn_remove = tr.Callable(
         default_value=lambda box: print(f"on remove {str(box.index)}")
@@ -168,12 +168,28 @@ class Array(w.VBox):
 
     @value.setter
     def value(self, value: ty.List):
-        self.boxes = []
-        self.bx_boxes.children = []
-        [self.add_row() for v in value]
-        for n, v in enumerate(value):
-            self.boxes[n].widget.value = v
-        self._update_value("onchange")
+        # self.boxes = []
+        # self.bx_boxes.children = []
+        diff = len(value) - len(self.boxes)
+        if diff <0:
+            self.boxes = self.boxes[0:diff]
+        elif diff > 0: 
+            with self.hold_trait_notifications():
+                for v in value[-diff:]:
+                    self.add_row(add_kwargs={"value": v})
+        else:
+            pass
+                
+        # self.bx_boxes.children = []
+            
+        # [self.add_row(add_kwargs={"value": v}) for v in value]
+        # # for n, v in enumerate(value):
+        # #     self.boxes[n].widget.value = v
+        with self.hold_trait_notifications():
+            # self._value = value
+            self._update_widgets_from_value()
+            # self._update_value("onchange")
+        self._update_boxes()
 
     @tr.validate("type")
     def _type(self, proposal):
@@ -278,6 +294,11 @@ class Array(w.VBox):
             s.index = n
         self.boxes = sort
 
+    def _update_widgets_from_value(self):
+        for n, v in enumerate(self.value):
+            self.li_widgets[n].value = v
+            
+    
     def _update_value(self, on_change):
         self._value = [bx.widget.value for bx in self.boxes]
 
@@ -372,16 +393,43 @@ class AutoArray(Array):
     def value(self):
         return self._value
 
+    # @value.setter
+    # def value(
+    #     self, value: ty.List
+    # ):  # TODO: should be able to have this in parent `Array` ?
+    #     self.boxes = []
+    #     self.bx_boxes.children = []
+    #     [self.add_row(add_kwargs={"value": v}) for v in value]
+    #     # for n, v in enumerate(value):
+    #     #     self.boxes[n].widget.value = v
+    #     with self.hold_trait_notifications():
+    #         self._update_value("onchange")
+    
     @value.setter
-    def value(
-        self, value: ty.List
-    ):  # TODO: should be able to have this in parent `Array` ?
-        self.boxes = []
-        self.bx_boxes.children = []
-        [self.add_row() for v in value]
-        for n, v in enumerate(value):
-            self.boxes[n].widget.value = v
+    def value(self, value: ty.List):
+        # self.boxes = []
+        # self.bx_boxes.children = []
+        diff = len(value) - len(self.boxes)
+        if diff <0:
+            with self.hold_trait_notifications():
+                for n, v in enumerate(value):
+                    self.li_widgets[n].value = v
+                self.boxes = self.boxes[0:diff]
+        elif diff > 0: 
+            with self.hold_trait_notifications():
+                for n, v in enumerate(value[0:diff-1]):
+                    self.li_widgets[n].value = v
+                for v in value[-diff:]:
+                    self.add_row(add_kwargs={"value": v})
+                
+        # self.bx_boxes.children = []
+            
+        # [self.add_row(add_kwargs={"value": v}) for v in value]
+        # # for n, v in enumerate(value):
+        # #     self.boxes[n].widget.value = v
+        #with self.hold_trait_notifications():
         self._update_value("onchange")
+        self._update_boxes()
 
     @tr.observe("allOf")
     def _allOf(self, on_change):
