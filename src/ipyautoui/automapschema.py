@@ -51,6 +51,9 @@ def _init_model_schema(
     schema = {k: v for k, v in schema.items() if k != "$defs"}
     return model, schema
 
+def pydantic_validate(model, value):
+    return model.model_validate(value).model_dump(mode="json")
+
 
 # def is_Nullable(di: dict) -> bool:
 #     """
@@ -1235,7 +1238,8 @@ def map_widget(
             return WidgetCaller(schema_=di, autoui=wi, allow_none=allow_none)
 
 
-def get_widget(di):
+def get_widget(di, **kwargs):
+    di = di | kwargs
     caller = map_widget(di)
     return widgetcaller(caller)  # TODO: add passing of value
 
