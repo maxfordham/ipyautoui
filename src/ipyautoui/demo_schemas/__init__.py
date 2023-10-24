@@ -16,3 +16,5 @@ from ipyautoui.demo_schemas.array_examples import ArrayWithUnionType
 from ipyautoui.demo_schemas.recursive_array import RecursiveArray
 from ipyautoui.demo_schemas.recursive_object import RecursiveObject
 from ipyautoui.demo_schemas.ruleset import ScheduleRuleSet
+from ipyautoui.demo_schemas.pydantic_validation import PydanticValidation
+from ipyautoui.demo_schemas.pydantic_validation_list import PydanticValidationList
