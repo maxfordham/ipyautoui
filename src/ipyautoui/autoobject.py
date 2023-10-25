@@ -34,7 +34,7 @@ from ipyautoui.autobox import AutoBox
 from ipyautoui.autoform import AutoObjectFormLayout
 from jsonref import replace_refs
 from pydantic import BaseModel
-
+import contextlib
 logger = logging.getLogger(__name__)
 
 
@@ -61,7 +61,7 @@ def _get_value_trait(obj_with_traits):
             f"{str(type(obj_with_traits))}: has no '_value' or 'value' trait"
         )
 
-import contextlib
+
 
 class AutoObject(w.VBox):
     """creates an ipywidgets form from a json-schema or pydantic model.
