@@ -10,21 +10,21 @@ class TestAutoObject:
     def test_root(self):
         with pytest.raises(ValueError) as e:
             ExampleRoot = RootModel[str]
-            ui = AutoObject.from_schema(ExampleRoot)
+            ui = AutoObject.from_pydantic_model(ExampleRoot)
             assert e == "properties must be in kwargs"
 
     def test_simple(self):
         class ExampleSchema(BaseModel):
             text: str = Field(default="Test", description="This test is important")
 
-        ui = AutoObject.from_schema(ExampleSchema)
+        ui = AutoObject.from_pydantic_model(ExampleSchema)
         assert ui.value == {"text": "Test"}
         print("done")
 
 
 class TestAutoObjectRowOrder:
     def test_order(self):
-        ui = AutoObject.from_schema(CoreIpywidgets)
+        ui = AutoObject.from_pydantic_model(CoreIpywidgets)
 
         ui.order_can_hide_rows = False
         # ui.order =
@@ -61,6 +61,6 @@ class TestAnyOf:
             op_type: RuleSetType
             obj_set: list[ty.Union[Obj, ObjSet]]
 
-        ui = AutoObject.from_schema(ObjSet)
+        ui = AutoObject.from_pydantic_model(ObjSet)
         assert "anyOf" in ui.di_callers['obj_set'].kwargs["items"]
 
