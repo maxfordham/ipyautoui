@@ -61,6 +61,7 @@ def _get_value_trait(obj_with_traits):
             f"{str(type(obj_with_traits))}: has no '_value' or 'value' trait"
         )
 
+import contextlib
 
 class AutoObject(w.VBox):
     """creates an ipywidgets form from a json-schema or pydantic model.
@@ -110,6 +111,7 @@ class AutoObject(w.VBox):
     insert_rows = tr.Dict(default_value=None, allow_none=True)
     disabled = tr.Bool(default_value=False)
     open_nested = tr.Bool(default_value=None, allow_none=True)
+    _silent = tr.Bool(default_value=False)
 
     @tr.default("update_map_widgets")
     def _default_update_map_widgets(self):
@@ -359,10 +361,10 @@ class AutoObject(w.VBox):
         if value is None:
             pass
         else:
-            with self.hold_trait_notifications():
-                self._value = value
-                if hasattr(self, "di_widgets"):
-                    self._update_widgets_from_value()
+            #with self.hold_trait_notifications():
+            self._value = value
+            if hasattr(self, "di_widgets"):
+                self._update_widgets_from_value()
 
     @property
     def json(self):
@@ -415,25 +417,33 @@ class AutoObject(w.VBox):
                     break  # if `_value` is found don't look for `value`
 
     def _watch_change(self, change, key=None, watch="value"):
-        self._value = self.di_widgets_value
-        if hasattr(self, "savebuttonbar"):
-            self.savebuttonbar.unsaved_changes = True
-        # NOTE: it is required to set the whole "_value" otherwise
-        #       traitlets doesn't register the change.
+        if not self._silent:
+            self._value = self.di_widgets_value
+            if hasattr(self, "savebuttonbar"):
+                self.savebuttonbar.unsaved_changes = True
+            # NOTE: it is required to set the whole "_value" otherwise
+            #       traitlets doesn't register the change.
+        
+    @contextlib.contextmanager
+    def silence_autoui_traits(self):
+        self._silent = True
+        yield
+        self._silent = False
 
     def _update_widgets_from_value(self):
-        for k, v in self.value.items():
-            if k in self.di_widgets.keys():
-                if v is None and not isinstance(self.di_widgets[k], Nullable):
-                    v = _get_value_trait(self.di_widgets[k]).default()
-                try:
-                    self.di_widgets[k].value = v
-                except tr.TraitError as err:
-                    logging.warning(err)
-            else:
-                logging.critical(
-                    f"no widget created for {k}, with value {str(v)}. fix this in the schema!"
-                )
+        with self.silence_autoui_traits():
+            for k, v in self.value.items():
+                if k in self.di_widgets.keys():
+                    if v is None and not isinstance(self.di_widgets[k], Nullable):
+                        v = _get_value_trait(self.di_widgets[k]).default()
+                    try:
+                        self.di_widgets[k].value = v
+                    except tr.TraitError as err:
+                        logging.warning(err)
+                else:
+                    logging.critical(
+                        f"no widget created for {k}, with value {str(v)}. fix this in the schema!"
+                    )
 
     @property
     def di_widgets_value(self):  # used to set _value

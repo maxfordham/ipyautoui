@@ -44,7 +44,7 @@ from ipyautoui.automapschema import map_widget, widgetcaller, _init_model_schema
 import ipywidgets as w
 from pydantic import BaseModel
 from ipyautoui.automapschema import pydantic_validate
-
+from IPython.display import clear_output
 
 logger = logging.getLogger(__name__)
 
@@ -193,7 +193,7 @@ class AutoRenderMethods:
         AutoRenderer = cls.create_autoui_renderer(schema, **kwargs)
         return {ext: AutoRenderer}
 
-from IPython.display import clear_output
+
 # +
 # TODO: should autoui be a function that returns the appropriate widget?
 #       this would solve the nested traits issue...
@@ -342,9 +342,8 @@ class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods)
                     self.error = str(e)
                     v_ = v
                 if v_ != v:
-                    with self.autowidget.hold_trait_notifications():
+                    with self.autowidget.silence_autoui_traits():
                         self.value = v_
-                        self._value = v_
                 else:
                     self._value = v_
             else:

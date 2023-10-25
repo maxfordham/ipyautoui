@@ -1,3 +1,5 @@
+# %run _dev_sys_path_append.py
+
 # +
 import ipywidgets as w
 import traitlets as tr

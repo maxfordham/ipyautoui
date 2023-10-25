@@ -72,7 +72,7 @@ f5 = lambda self: [
     w.VBox([self.html_title, w.HBox([SPACER, self.get_tgl]), self.widget])
 ]
 
-f6 = lambda self: [w.VBox([self.html_title,w.HBox([self.get_tgl ]), self.widget])]
+f6 = lambda self: [w.VBox([self.html_title, w.HBox([self.get_tgl]), self.widget])]
 
 f7 = lambda self: [
     w.VBox(
@@ -199,5 +199,7 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     (bx.align_horizontal, bx.nested, bx.indent) = False, False, False  # f8
+
+
 
 

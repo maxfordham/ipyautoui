@@ -48,7 +48,7 @@ import random
 import inspect
 from ipyautoui.automapschema import from_schema_method, get_widget
 from jsonref import replace_refs
-
+import contextlib
 
 logger = logging.getLogger(__name__)
 BOX = frozenmap({True: w.HBox, False: w.VBox})
@@ -161,34 +161,68 @@ class Array(w.VBox):
     min_items = tr.Int(default_value=0)
     max_items = tr.Int(default_value=None, allow_none=True)
     type = tr.Unicode(default_value="array")
+    _silent = tr.Bool(default_value=False)
 
+    # @property
+    # def value(self):
+    #     return self._value
+
+    # @value.setter
+    # def value(self, value: ty.List):
+    #     # self.boxes = []
+    #     # self.bx_boxes.children = []
+    #     diff = len(value) - len(self.boxes)
+    #     if diff <0:
+    #         self.boxes = self.boxes[0:diff]
+    #     elif diff > 0: 
+    #         with self.hold_trait_notifications():
+    #             for v in value[-diff:]:
+    #                 self.add_row(add_kwargs={"value": v})
+    #     else:
+    #         pass
+                
+    #     # self.bx_boxes.children = []
+            
+    #     # [self.add_row(add_kwargs={"value": v}) for v in value]
+    #     # # for n, v in enumerate(value):
+    #     # #     self.boxes[n].widget.value = v
+    #     with self.hold_trait_notifications():
+    #         # self._value = value
+    #         self._update_widgets_from_value()
+    #         # self._update_value("onchange")
+    #     self._update_boxes()
+    
     @property
     def value(self):
         return self._value
 
+    
+    @contextlib.contextmanager
+    def silence_autoui_traits(self):
+        self._silent = True
+        yield
+        self._silent = False
+
+                
+    def _update_widgets_from_value(self):
+        with self.silence_autoui_traits():
+            diff = len(self.value) - len(self.boxes)
+            if diff < 0:
+                self.boxes = self.boxes[0:len(self.value)]
+            elif diff > 0: 
+                    for n in range(0, diff):
+                        self.add_row()
+            for n, v in enumerate(self.value):
+                try:
+                    self.li_widgets[n].value = v
+                except:
+                    raise ValueError(
+                        f"value (len={len(self.value)} and li_widgets (len={len(self.li_widgets)}) must be same length")     
+    
     @value.setter
     def value(self, value: ty.List):
-        # self.boxes = []
-        # self.bx_boxes.children = []
-        diff = len(value) - len(self.boxes)
-        if diff <0:
-            self.boxes = self.boxes[0:diff]
-        elif diff > 0: 
-            with self.hold_trait_notifications():
-                for v in value[-diff:]:
-                    self.add_row(add_kwargs={"value": v})
-        else:
-            pass
-                
-        # self.bx_boxes.children = []
-            
-        # [self.add_row(add_kwargs={"value": v}) for v in value]
-        # # for n, v in enumerate(value):
-        # #     self.boxes[n].widget.value = v
-        with self.hold_trait_notifications():
-            # self._value = value
-            self._update_widgets_from_value()
-            # self._update_value("onchange")
+        self._value = value
+        self._update_widgets_from_value()
         self._update_boxes()
 
     @tr.validate("type")
@@ -293,14 +327,18 @@ class Array(w.VBox):
         for n, s in enumerate(sort):
             s.index = n
         self.boxes = sort
+        self.li_widgets = [bx.widget for bx in self.boxes]
 
-    def _update_widgets_from_value(self):
-        for n, v in enumerate(self.value):
-            self.li_widgets[n].value = v
-            
+    # def _update_widgets_from_value(self):
+    #     for n, v in enumerate(self.value):
+    #         try:
+    #             self.li_widgets[n].value = v
+    #         except:
+    #             raise ValueError(f"value (len={len(self.value)} and li_widgets (len={len(self.li_widgets)}) must be same length")            
     
     def _update_value(self, on_change):
-        self._value = [bx.widget.value for bx in self.boxes]
+        if not self._silent:
+            self._value = [bx.widget.value for bx in self.boxes]
 
     def _update_boxes(self):
         self.bx_boxes.children = self.boxes
@@ -381,6 +419,7 @@ class Array(w.VBox):
         self._update_value("")
 
 
+
 class AutoArray(Array):
     allOf = tr.List(allow_none=True, default_value=None)
     items = tr.Dict(allow_none=True, default_value=None)
@@ -389,47 +428,40 @@ class AutoArray(Array):
     #       : adds tuple functionality
     #       : maybe this should be a different widget all together?
 
-    @property
-    def value(self):
-        return self._value
+    # @property
+    # def value(self):
+    #     return self._value
 
-    # @value.setter
-    # def value(
-    #     self, value: ty.List
-    # ):  # TODO: should be able to have this in parent `Array` ?
-    #     self.boxes = []
-    #     self.bx_boxes.children = []
-    #     [self.add_row(add_kwargs={"value": v}) for v in value]
-    #     # for n, v in enumerate(value):
-    #     #     self.boxes[n].widget.value = v
-    #     with self.hold_trait_notifications():
-    #         self._update_value("onchange")
     
-    @value.setter
-    def value(self, value: ty.List):
-        # self.boxes = []
-        # self.bx_boxes.children = []
-        diff = len(value) - len(self.boxes)
-        if diff <0:
-            with self.hold_trait_notifications():
-                for n, v in enumerate(value):
-                    self.li_widgets[n].value = v
-                self.boxes = self.boxes[0:diff]
-        elif diff > 0: 
-            with self.hold_trait_notifications():
-                for n, v in enumerate(value[0:diff-1]):
-                    self.li_widgets[n].value = v
-                for v in value[-diff:]:
-                    self.add_row(add_kwargs={"value": v})
+    # @contextlib.contextmanager
+    # def silence_autoui_traits(self):
+    #     self._silent = True
+    #     yield
+    #     self._silent = False
+
                 
-        # self.bx_boxes.children = []
+    # def _update_widgets_from_value(self):
+    #     with self.silence_autoui_traits():
+    #         diff = len(self.value) - len(self.boxes)
+    #         if diff <0:
+    #             self.boxes = self.boxes[0:len(self.value)]
+    #         elif diff > 0: 
+    #                 for n in range(0, diff):
+    #                     self.add_row()
+    #         for n, v in enumerate(self.value):
+    #             try:
+    #                 self.li_widgets[n].value = v
+    #             except:
+    #                 print(len(self.li_widgets))
+    #                 print(len(self.value))
+    
+    # @value.setter
+    # def value(self, value: ty.List):
+    #     self._value = value
+    #     self._update_widgets_from_value()
+    #     self._update_boxes()
+
             
-        # [self.add_row(add_kwargs={"value": v}) for v in value]
-        # # for n, v in enumerate(value):
-        # #     self.boxes[n].widget.value = v
-        #with self.hold_trait_notifications():
-        self._update_value("onchange")
-        self._update_boxes()
 
     @tr.observe("allOf")
     def _allOf(self, on_change):
@@ -458,6 +490,8 @@ class AutoArray(Array):
 class AutoArrayForm(AutoArray, TitleDescription):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        if "value" in kwargs.keys():
+            self.value = kwargs["value"]
         self._update_title_description()
         self.children = [self.html_title, self.bn_add_from_zero, self.bx_boxes]
 
