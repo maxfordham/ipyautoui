@@ -72,9 +72,12 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
                 self.error = str(e)
                 v_ = v
             if v_ != v:
-                with self.silence_autoui_traits():
-                    # silence trait notications to avoid infinite loop
-                    # and push validated value back to widgets
+                try:
+                    with self.silence_autoui_traits():
+                        # silence trait notications to avoid infinite loop
+                        # and push validated value back to widgets
+                        self.value = v_
+                except Exception as e:
                     self.value = v_
             else:
                 self._value = v_
@@ -90,7 +93,7 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
         if not self._silent:  
             # NOTE: this code only run when triggered by a change in a UI
             #       when value is forced in by the value setter it does not run
-            v = self._get_value(on_change=on_change)
+            v = self._get_value()
             if v != self._value:
                 self._validate_value(v)
                 if hasattr(self, "savebuttonbar"):
