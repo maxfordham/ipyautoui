@@ -13,10 +13,13 @@ logger = logging.getLogger(__name__)
 def pydantic_validate(model, value):
     return model.model_validate(value).model_dump(mode="json")
 
-class WatchSilent(tr.HasTraits):
+class _WatchSilent(tr.HasTraits):  # TODO: contains context manager for silencing traits
     pass
 
-class WatchValidate(tr.HasTraits):
+# class _ErrorUi(tr.HasTraits): 
+    
+
+class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
     error = tr.Unicode(default_value=None, allow_none=True)
     schema = tr.Dict(default_value=None, allow_none=True)
     model = tr.Type(klass=BaseModel, default_value=None, allow_none=True)
@@ -55,7 +58,10 @@ class WatchValidate(tr.HasTraits):
                 # these means that change events will be squashed
                 # and trigger after all widgets have changed
                 self._value = value
-                self._update_widgets_from_value()
+                # NOTE: it is required to set the whole "_value" otherwise
+                #       traitlets doesn't register the change.
+                with self.silence_autoui_traits():
+                    self._update_widgets_from_value()
         
     def _validate_value(self, v):
         if self.model is not None:
@@ -81,13 +87,15 @@ class WatchValidate(tr.HasTraits):
         #       method required. it gets the value from all child widgets.
         
         # TODO: add log of on_change...
-        v = self._get_value()
-        if v != self._value:
-            self._validate_value(v)
-            if hasattr(self, "savebuttonbar"):
-                self.savebuttonbar.unsaved_changes = True
-            # NOTE: it is required to set the whole "_value" otherwise
-            #       traitlets doesn't register the change.
+        if not self._silent:  
+            # NOTE: this code only run when triggered by a change in a UI
+            #       when value is forced in by the value setter it does not run
+            v = self._get_value(on_change=on_change)
+            if v != self._value:
+                self._validate_value(v)
+                if hasattr(self, "savebuttonbar"):
+                    self.savebuttonbar.unsaved_changes = True
+
             
 
     @classmethod
@@ -142,12 +150,13 @@ class WatchValidate(tr.HasTraits):
         with self.silence_autoui_traits():
             pass # NOTE: implement this method in your class
         
-    def _get_value(self):
+    def _get_value(self, **kwargs):
         # NOTE: fn name requried by WatchValidate base class
         pass # NOTE: implement this method in your class
 
     def _init_watcher(self):
-        # NOTE: implement this method in your class
+        # NOTE: implement a method in your class
         #       it must call `_watch_validate_change` on change
-        #       of any child widget.
+        #       of any child widget. `_init_watcher` name is not
+        #       required by this base class.
         pass 

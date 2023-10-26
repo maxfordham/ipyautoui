@@ -27,10 +27,12 @@ def get_order():
     li = [l.split("import ")[1] for l in li]
     return li
 
-pycall = """# copy code below into your notebook to try demo
+pycall = """# copy the code below into your notebook to try the demo
+
 from ipyautoui import AutoUi
 from ipyautoui.demo_schemas import {name}
-AutoUi({name})
+ui = AutoUi({name})
+ui
 """
 
 

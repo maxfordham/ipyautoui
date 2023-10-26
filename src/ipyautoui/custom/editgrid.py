@@ -77,7 +77,7 @@ if __name__ == "__main__":
     def test_revert():
         print("Reverted.")
 
-    ui = AutoObjectForm.from_schema(TestModel)
+    ui = AutoObjectForm.from_jsonschema(TestModel)
     display(ui)
 
 if __name__ == "__main__":
@@ -300,7 +300,7 @@ class EditGrid(w.VBox, TitleDescription):
         description: str = None,
         show_title: bool = True,
         **kwargs,
-    ):
+    ):  # TODO: use **kwargs to pass attributes to EditGrid as in AutoObject and AutoArray
         self.html_title = w.HTML()
         self.description = description
         self.title = title
@@ -318,13 +318,13 @@ class EditGrid(w.VBox, TitleDescription):
 
         self._init_form()
         if ui_add is None:
-            self.ui_add = AutoObjectForm.from_schema(self.row_schema)
+            self.ui_add = AutoObjectForm.from_jsonschema(self.row_schema)
         else:
-            self.ui_add = ui_add.from_schema(self.row_schema)
+            self.ui_add = ui_add.from_jsonschema(self.row_schema)
         if ui_edit is None:
-            self.ui_edit = AutoObjectForm.from_schema(self.row_schema)
+            self.ui_edit = AutoObjectForm.from_jsonschema(self.row_schema)
         else:
-            self.ui_edit = ui_edit.from_schema(self.row_schema)
+            self.ui_edit = ui_edit.from_jsonschema(self.row_schema)
         if ui_delete is None:
             self.ui_delete = UiDelete()
         else:
