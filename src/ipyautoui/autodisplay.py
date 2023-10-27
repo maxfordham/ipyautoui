@@ -38,12 +38,6 @@ Example:
 """
 # # %run _dev_maplocal_params.py
 # %load_ext lab_black
-
-# %%
-import os
-
-os.environ
-
 # %%
 import pathlib
 import functools
@@ -549,10 +543,6 @@ if __name__ == "__main__":
     d = DisplayFromPath(path="__init__.py")
     do = DisplayObject(d)
     display(do)
-
-# %%
-from ipyautoui._utils import open_path
-open_path("__init__.py")
 
 # %%
 if __name__ == "__main__":
