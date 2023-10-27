@@ -6,7 +6,7 @@ Returns:
 """
 
 from PIL import Image
-
+import shutil
 
 def convertImage(img):
     img = img.convert("RGBA")
@@ -21,8 +21,17 @@ def convertImage(img):
     return img
 
 
-img = Image.open("logo.png")
+img = Image.open("images/logo.png")
 img = convertImage(img)
 img.getbbox()
 im2 = img.crop(img.getbbox())
-im2.save("logo.png")
+im2.save("images/logo.png")
+shutil.copyfile("images/logo.png", "../images/logo.png")
+
+img = Image.open("images/favicon.png")
+img = convertImage(img)
+img.getbbox()
+im2 = img.crop(img.getbbox())
+im2.save("images/favicon.png")
+
+
