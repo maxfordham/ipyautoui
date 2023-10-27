@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.0
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -16,7 +16,7 @@
 # +
 """AutoObject - create a 
 """
-# %run _dev_sys_path_append.py
+# %run _dev_maplocal_params.py
 # %load_ext lab_black
 
 import logging
@@ -36,6 +36,7 @@ from jsonref import replace_refs
 from pydantic import BaseModel
 from ipyautoui.watch_validate import WatchValidate
 import contextlib
+
 logger = logging.getLogger(__name__)
 
 
@@ -61,7 +62,6 @@ def _get_value_trait(obj_with_traits):
         raise ValueError(
             f"{str(type(obj_with_traits))}: has no '_value' or 'value' trait"
         )
-
 
 
 class AutoObject(w.VBox, WatchValidate):
@@ -402,7 +402,6 @@ class AutoObject(w.VBox, WatchValidate):
         return {k: get_value(v) for k, v in self.di_widgets.items()}
 
 
-# +
 class AutoObjectForm(AutoObject, AutoObjectFormLayout):
     def __init__(self, **kwargs):
         super().__init__(
@@ -423,8 +422,6 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout):
         self.vbx_main.layout.display = "None"
         return self.json
 
-
-# -
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets

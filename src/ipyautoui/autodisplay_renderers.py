@@ -18,7 +18,7 @@
 displayfile is used to display certain types of files.
 The module lets us preview a data retrieved from: file, request or callable (< TODO)
 """
-# %run _dev_sys_path_append.py
+# %run _dev_maplocal_params.py
 # %load_ext lab_black
 # +
 import os

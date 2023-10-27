@@ -36,8 +36,13 @@ Example:
         display(d)
 
 """
-# %run _dev_sys_path_append.py
+# # %run _dev_maplocal_params.py
 # %load_ext lab_black
+
+# %%
+import os
+
+os.environ
 
 # %%
 import pathlib
@@ -546,6 +551,10 @@ if __name__ == "__main__":
     display(do)
 
 # %%
+from ipyautoui._utils import open_path
+open_path("__init__.py")
+
+# %%
 if __name__ == "__main__":
     DisplayPath(value="__init__.py")
 
@@ -574,7 +583,7 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
-    # FIXME: 
+    # FIXME:
     ext = ".json"
     dobj = DisplayCallable(value=get_catfact, ext=ext)
     display(dobj)

@@ -1,4 +1,4 @@
-# %run _dev_sys_path_append.py
+# %run _dev_maplocal_params.py
 
 # +
 import ipywidgets as w
