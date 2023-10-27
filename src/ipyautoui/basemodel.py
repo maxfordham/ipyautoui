@@ -21,12 +21,4 @@ def file(self: Type[BaseModel], path: pathlib.Path, **json_kwargs):
     path.write_text(self.model_dump_json(**json_kwargs), encoding="utf-8")
 
 
-class BaseModel(BaseModel):
-    # TODO[pydantic]: The following keys were removed: `json_encoders`.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config for more information.
-    model_config = ConfigDict(
-        json_encoders={pathlib.PurePosixPath: str}, arbitrary_types_allowed=True
-    )
-
-
 setattr(BaseModel, "file", file)
