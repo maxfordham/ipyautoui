@@ -67,9 +67,15 @@ def getbytes(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]) -> ty.ByteStrin
     """common function for read bytes from: a request, file or callable
     NOTE: if a callable the data must be returned as bytes
     """
+    def is_url(p):
+        try: 
+            HttpUrl(p)
+            return True
+        except:
+            return False
     if isinstance(path, pathlib.Path):
         return path.read_bytes()
-    elif isinstance(path, HttpUrl):
+    elif is_url(path):
         return requests.get(path).content
     elif isinstance(path, ty.Callable):
         return path()

@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -108,7 +108,7 @@ def get_renderers(
         return dict(DEFAULT_FILE_RENDERERS)
 
 
-from pydantic import field_validator, FieldValidationInfo
+from pydantic import field_validator, FieldValidationInfo, Field
 
 
 # %%
@@ -117,11 +117,11 @@ class DisplayObjectActions(BaseModel):
 
     renderers: dict[str, ty.Callable] = dict(DEFAULT_FILE_RENDERERS)
     path: ty.Union[str, pathlib.Path, HttpUrl, ty.Callable]
-    ext: ty.Optional[str] = None
-    name: ty.Optional[str] = None
-    check_exists: ty.Optional[ty.Callable] = None
-    renderer: ty.Optional[ty.Callable] = None
-    check_date_modified: ty.Optional[ty.Callable] = None
+    ext: ty.Optional[str] = Field(None, validate_default=True)
+    name: ty.Optional[str] = Field(None, validate_default=True)
+    check_exists: ty.Optional[ty.Callable] = Field(None, validate_default=True)
+    renderer: ty.Optional[ty.Callable] = Field(None, validate_default=True)
+    check_date_modified: ty.Optional[ty.Callable] = Field(None, validate_default=True)
 
     @field_validator("renderer")
     @classmethod
@@ -574,6 +574,7 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
+    # FIXME: 
     ext = ".json"
     dobj = DisplayCallable(value=get_catfact, ext=ext)
     display(dobj)
@@ -644,7 +645,7 @@ class AutoDisplay(tr.HasTraits):
 
     @tr.observe("order")
     def _observe_order(self, change):
-        self._update_bx_bar(change["new"])
+        [d._update_bx_bar(change["new"]) for d in self.display_objects]
 
     """
     displays the contents of a file in the notebook.
@@ -1008,6 +1009,7 @@ if __name__ == "__main__":
     display(ad)
 # %%
 if __name__ == "__main__":
+    # FIXME
     ad.order = ORDER_DEFAULT
 
 # %%
@@ -1041,7 +1043,7 @@ if __name__ == "__main__":
 
     display(test_ui)
 
-# %%
+# %% editable=true slideshow={"slide_type": ""}
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
     from pydantic import parse_obj_as
