@@ -10,6 +10,7 @@ dependencies:
   - numpy
   - pandas
   - jupyterlab>=4.0.0,<5.0.0a0
+  - jupyterlab-unfold
   - jupyterlab-lsp
   - python-lsp-server
   - ipywidgets>8
@@ -40,3 +41,4 @@ dependencies:
     - pydantic-extra-types
     - pytest-examples
     - jsonref
+    - -e .
