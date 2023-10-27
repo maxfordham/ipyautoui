@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.0
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -66,6 +66,7 @@ class DataHandler(BaseModel):
 
 
 if __name__ == "__main__":
+
     class TestModel(BaseModel):
         string: str = Field("string", title="Important String")
         integer: int = Field(40, title="Integer of somesort")
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     def test_revert():
         print("Reverted.")
 
-    ui = AutoObjectForm.from_jsonschema(TestModel)
+    ui = AutoObjectForm.from_pydantic_model(TestModel)
     display(ui)
 
 if __name__ == "__main__":
@@ -229,12 +230,12 @@ class UiCopy(w.HBox):
 if __name__ == "__main__":
     display(UiCopy())
 
-
 # +
 # TODO: refactor how the datahandler works...
 # TODO: add a test for the datahandler...
 
 
+# from ipyautoui.watch_validate import WatchValidate
 class EditGrid(w.VBox, TitleDescription):
     _value = tr.Tuple()  # using a tuple to guarantee no accidental mutation
     warn_on_delete = tr.Bool()
@@ -628,17 +629,22 @@ if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
 
     class DataFrameCols(BaseModel):
-        string: str = Field("string", json_schema_extra=dict(column_width=400, section="a"))
+        string: str = Field(
+            "string", json_schema_extra=dict(column_width=400, section="a")
+        )
         integer: int = Field(1, json_schema_extra=dict(column_width=80, section="a"))
-        floater: float = Field(None, json_schema_extra=dict(column_width=70, section="b"))
+        floater: float = Field(
+            None, json_schema_extra=dict(column_width=70, section="b")
+        )
 
     class TestDataFrame(RootModel):
         """a description of TestDataFrame"""
 
         root: ty.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE,
-            json_schema_extra=dict(format="dataframe",
-                datagrid_index_name=("section", "title")),
+            json_schema_extra=dict(
+                format="dataframe", datagrid_index_name=("section", "title")
+            ),
         )
 
     title = "The Wonderful Edit Grid Application"
@@ -743,3 +749,5 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     editgrid.transposed = True
+
+
