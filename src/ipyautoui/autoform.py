@@ -1,5 +1,6 @@
 # %run _dev_maplocal_params.py
-
+"""layout attributes of a form box
+"""
 # +
 import ipywidgets as w
 import traitlets as tr
