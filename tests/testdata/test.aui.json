@@ -1,72 +1,33 @@
 {
-    "string": "adsf",
+    "int_slider_req": 2,
+    "int_slider_nullable": null,
     "int_slider": 2,
-    "int_text": 1,
+    "int_text_req": 3,
+    "int_text_nullable": null,
     "int_range_slider": [
+        0,
+        3
+    ],
+    "int_range_slider_disabled": [
         0,
         3
     ],
     "float_slider": 2.2,
     "float_text": 2.2,
+    "float_text_locked": 2.2,
     "float_range_slider": [
-        0,
+        0.0,
         2.2
     ],
     "checkbox": true,
     "dropdown": null,
+    "dropdown_int": 1,
+    "dropdown_int_optional": 1,
+    "combobox": "apple",
+    "combobox1": "apple",
+    "dropdown_edge_case": "apple",
     "dropdown_simple": "asd",
-    "combobox": "asd",
-    "text": "short text",
-    "text_area": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ",
-    "markdown": "\nSee details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. \n",
-    "complex_serialisation": null,
-    "select_multiple_non_constrained": [
-        "male",
-        "female"
-    ],
-    "select_multiple_from_list": [
-        "male",
-        "female"
-    ],
-    "select_multiple_search": [
-        "male",
-        "female"
-    ],
-    "array": [],
-    "objects_array": [],
-    "run_name": "000-lean-description",
-    "datagrid": [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-            "something_else": 324
-        },
-        {
-            "string": "update",
-            "integer": 4,
-            "floater": 3.12344,
-            "something_else": 123
-        },
-        {
-            "string": "evening",
-            "integer": 5,
-            "floater": 3.14,
-            "something_else": 235
-        },
-        {
-            "string": "morning",
-            "integer": 5,
-            "floater": 3.14,
-            "something_else": 12
-        },
-        {
-            "string": "number",
-            "integer": 3,
-            "floater": 3.14,
-            "something_else": 123
-        }
-    ],
-    "nested": null,
-    "recursive_nest": null
+    "text": "adsf",
+    "text_short": "short text",
+    "textarea": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text "
 }
