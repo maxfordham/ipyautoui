@@ -7,15 +7,13 @@ name: ipyautoui-docs
 # -
 # - needs everything that ipyautoui needs + everything for docs
 # - in future when packaged could make ipyautoui a dependency
+#   - in CI just make sure packaging happens first
 channels:
-  - defaults
   - conda-forge
 dependencies:
   - python>=3.7
-  - numpy
   - pandas
   - jupyterlab>4
-  - xeus-python
   - ipywidgets
   - ipyfilechooser
   - ipydatagrid
@@ -28,6 +26,7 @@ dependencies:
   - nodejs
   - altair
   - pydantic>2
+  - pydantic-settings
   - stringcase
   - pyyaml
   - pillow
@@ -47,11 +46,7 @@ dependencies:
   - pytest
   - pip
   - pip:
-      - maplocal==0.1.1
-      - pytest-sphinx
-      - jsonref
-      - pydantic-extra-types
-#  - xlsxwriter
-#  - xlsxtemplater
-#  - mf_file_utilities
-#  - mfom
+    - maplocal==0.1.1
+    - pytest-sphinx
+    - jsonref
+    - pydantic-extra-types

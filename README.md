@@ -2,9 +2,9 @@
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![PyPI version](https://badge.fury.io/py/ipyautoui.svg)](https://badge.fury.io/py/ipyautoui) [![Test Python Package](https://github.com/maxfordham/ipyautoui/actions/workflows/test-python-package.yml/badge.svg)](https://github.com/maxfordham/ipyautoui/actions/workflows/test-python-package.yml)
 
-![](docs/logo.png)
+![](images/logo.png)
 
-## Try in online
+## Try it online!
 
 launch [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD).
 
@@ -25,7 +25,7 @@ from ipyautoui import AutoUi, AutoVjsf, AutoDisplay, demo
 
 demo()
 ```
-
+![demo](images/demo.png)
 ipyautoui aims to give you as much as possible out-the-box, whilst also supporting a simple workflow to extend and customise the interface to specific user requirements.
 
 ## Summary of main features
@@ -155,9 +155,10 @@ using VS Code then install the Jupytext extension. In the `.vscode/settings.json
 `"jupyter.notebookFileRoot": "${fileDirname}"` matching with the jupyterlab default. 
 ```
 
-## Packaging (restricted to core-maintainers)
+## Packaging
 
 ```sh
+#  NOTE: restricted to core-maintainers only
 mamba activate hatcher # or conda env with hatch installed
 hatch build  # builds to local folder
 hatch publish  # publishes to pypi
@@ -167,3 +168,4 @@ hatch publish  # publishes to pypi
 
 AutoVjsf is a very thin wrapper where ipyvuetify and vuetify-jsonschema-form are doing all the work.
 Many thanks to @mariobuikhuizen for providing me with the [boiler-plate code](https://github.com/widgetti/ipyvuetify/issues/182).
+Contributions welcome.
