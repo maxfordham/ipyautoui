@@ -37,7 +37,7 @@ dependencies:
   - stringcase
   - pip
   - pip:
-    - maplocal==0.1.1
+    - maplocal==0.2
     - pydantic-extra-types
     - pytest-examples
     - jsonref
