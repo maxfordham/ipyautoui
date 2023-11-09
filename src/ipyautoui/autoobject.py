@@ -309,6 +309,10 @@ class AutoObject(w.VBox, WatchValidate):
             self.value = kwargs["value"]
         else:
             self._value = self.di_widgets_value
+        self._post_init(**kwargs)
+            
+    def _post_init(self, **kwargs):
+        pass
 
     def _open_nested(self):
         for r in self.di_boxes.values():
