@@ -11,7 +11,8 @@ class DatePickerString(w.DatePicker):
 
     @tr.observe("value")
     def _update_value_string(self, on_change):
-        self._value = self.value.strftime(self.strftime_format)
+        if self.value is not None:
+            self._value = self.value.strftime(self.strftime_format)
 
     @tr.validate("value")
     def _validate_value(self, proposal):
@@ -39,4 +40,5 @@ class NaiveDatetimePickerString(w.NaiveDatetimePicker):
 
     @tr.observe("value")  # convert datetime to string
     def _update_value_string(self, on_change):
-        self._value = self.value.strftime(self.strftime_format)
+        if self.value is not None:
+            self._value = self.value.strftime(self.strftime_format)
