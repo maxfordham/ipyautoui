@@ -107,7 +107,7 @@ def get_renderers(
         return dict(DEFAULT_FILE_RENDERERS)
 
 
-from pydantic import field_validator, FieldValidationInfo, Field
+from pydantic import field_validator, ValidationInfo, Field
 
 
 # %%
@@ -124,7 +124,7 @@ class DisplayObjectActions(BaseModel):
 
     @field_validator("renderer")
     @classmethod
-    def _renderer(cls, v: ty.Callable, info: FieldValidationInfo):
+    def _renderer(cls, v: ty.Callable, info: ValidationInfo):
         if v is None:
             ext = info.data["ext"]
             map_ = info.data["renderers"]
@@ -158,19 +158,19 @@ class DisplayFromPath(DisplayObjectActions):
 
     @field_validator("path_new")
     @classmethod
-    def _path_new(cls, v, info: FieldValidationInfo):
+    def _path_new(cls, v, info: ValidationInfo):
         return make_new_path(info.data["path"].absolute())
 
     @field_validator("name")
     @classmethod
-    def _name(cls, v, info: FieldValidationInfo):
+    def _name(cls, v, info: ValidationInfo):
         if info.data["path"] is not None:
             v = info.data["path"].name
         return v
 
     @field_validator("ext")
     @classmethod
-    def _ext(cls, v, info: FieldValidationInfo):
+    def _ext(cls, v, info: ValidationInfo):
         p = info.data["path"]
         rs = info.data["renderers"]
         if p is not None:
@@ -182,13 +182,13 @@ class DisplayFromPath(DisplayObjectActions):
 
     @field_validator("check_exists")
     @classmethod
-    def _check_exists(cls, v, info: FieldValidationInfo):
+    def _check_exists(cls, v, info: ValidationInfo):
         fn = functools.partial(check_exists, info.data["path"])
         return fn
 
     @field_validator("check_date_modified")
     @classmethod
-    def _check_date_modified(cls, v, info: FieldValidationInfo):
+    def _check_date_modified(cls, v, info: ValidationInfo):
         p = info.data["path"]
         if p is not None:
             return functools.partial(st_mtime_string, p)
@@ -197,7 +197,7 @@ class DisplayFromPath(DisplayObjectActions):
 
     @field_validator("open_file")
     @classmethod
-    def _open_file(cls, v, info: FieldValidationInfo):
+    def _open_file(cls, v, info: ValidationInfo):
         p = info.data["path"]
         if p is not None:
             return functools.partial(open_path, p)
@@ -206,7 +206,7 @@ class DisplayFromPath(DisplayObjectActions):
 
     @field_validator("open_folder")
     @classmethod
-    def _open_folder(cls, v, info: FieldValidationInfo):
+    def _open_folder(cls, v, info: ValidationInfo):
         p = info.data["path"]
         if not p.is_dir():
             p = p.parent
@@ -244,13 +244,13 @@ class DisplayFromRequest(DisplayObjectActions):
 
     @field_validator("check_exists")
     @classmethod
-    def _check_exists(cls, v, info: FieldValidationInfo):
+    def _check_exists(cls, v, info: ValidationInfo):
         fn = functools.partial(url_ok, info.data["path"])
         return fn
 
     @field_validator("name")
     @classmethod
-    def _name(cls, v, info: FieldValidationInfo):
+    def _name(cls, v, info: ValidationInfo):
         return info.data["path"].path
 
 
@@ -273,13 +273,13 @@ class DisplayFromCallable(DisplayObjectActions):
 
     @field_validator("check_exists")
     @classmethod
-    def _check_exists(cls, v, info: FieldValidationInfo):
+    def _check_exists(cls, v, info: ValidationInfo):
         fn = functools.partial(check_callable, info.data["path"])
         return fn
 
     @field_validator("name")
     @classmethod
-    def _name(cls, v, info: FieldValidationInfo):
+    def _name(cls, v, info: ValidationInfo):
         return info.data["path"].__name__
 
 

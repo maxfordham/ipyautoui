@@ -9,7 +9,7 @@ from math import log10, floor
 import ipywidgets as w
 from IPython.display import display, Markdown
 import codecs
-from pydantic import BaseModel, field_validator, Field, FieldValidationInfo
+from pydantic import BaseModel, field_validator, Field, ValidationInfo
 import typing as ty
 import importlib.util
 import inspect
@@ -282,7 +282,7 @@ class PyObj(BaseModel):
 
     @field_validator("module_name")
     @classmethod
-    def _module_name(cls, v, info: FieldValidationInfo):
+    def _module_name(cls, v, info: ValidationInfo):
         return info.data["path"].stem
 
 
@@ -422,3 +422,43 @@ def get_user():
         from getpass import getuser
 
         return getuser()
+
+def type_as_json(value):
+    if isinstance(value, str):
+        return "string"
+    elif isinstance(value, int):
+        return "integer"
+    elif isinstance(value, float):
+        return "number"
+    elif isinstance(value, bool):
+        return "number"
+    elif isinstance(value, list):
+        return "array"
+    elif isinstance(value, dict):
+        return "object" + "-" + "".join(value.keys())
+    elif isinstance(value, None):
+        return "null"
+    else:
+        raise ValueError(
+            "value must be: string, integer, number, array, object or None"
+        )
+        
+def json_as_type(s):
+    if s == "string":
+        return str
+    elif s == "integer":
+        return int
+    elif s == "number":
+        return float
+    elif s == "boolean":
+        return bool
+    elif s == "array":
+        return list
+    elif s == "object":
+        return dict
+    elif s == "null":
+        return None
+    else:
+        raise ValueError(
+            "value must be: string, integer, number, array, object or None"
+        )
