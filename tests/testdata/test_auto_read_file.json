@@ -29,5 +29,15 @@
     "dropdown_simple": "asd",
     "text": "adsf",
     "text_short": "short text",
-    "textarea": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text "
+    "textarea": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ",
+    "select_multiple": [
+        "apple"
+    ],
+    "select_multiple_nullable": null,
+    "tags_input": [
+        "a"
+    ],
+    "tags_input_nullable": [
+        "a"
+    ]
 }

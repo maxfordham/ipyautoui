@@ -8,6 +8,7 @@ from ipyautoui.demo_schemas import (
     ArrayObjectDataframe,
     CoreIpywidgets,
     ComplexSerialisation,
+    RootEnum
 )
 import typing as ty
 from typing_extensions import Annotated

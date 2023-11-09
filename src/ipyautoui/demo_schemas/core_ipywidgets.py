@@ -25,6 +25,24 @@ class Number(IntEnum):
     ONE = 1
     TWO = 2
     THREE = 3
+    
+class LongEnum(str, Enum):
+    a = "a"
+    b = "b"
+    c = "c"
+    d = "d"
+    e = "e"
+    f = "f"
+    g = "g"
+    h = "h"
+    i = "i"
+    j = "j"
+    k = "k"
+    l = "l"
+    m = "m"
+    n = "n"
+    o = "o"
+    p = "p"
 
 
 class CoreIpywidgets(BaseModel):
@@ -70,5 +88,9 @@ class CoreIpywidgets(BaseModel):
     textarea: Annotated[str, StringConstraints(min_length=0, max_length=800)] = Field(
         "long text " * 50, description="long text field"
     )
+    select_multiple: ty.List[FruitEnum] = Field((FruitEnum.apple,), description="a short select multiple list")
+    select_multiple_nullable: ty.Optional[ty.List[FruitEnum]] = Field(None, description="a short nullable select multiple list")
+    tags_input: ty.List[LongEnum] = Field((LongEnum.a,), description="a long select multiple list")
+    tags_input_nullable: ty.Optional[ty.List[LongEnum]] = Field((LongEnum.a,), description="a long nullable select multiple list")
 
     model_config = ConfigDict(json_schema_extra=dict(show_raw=True))
