@@ -342,8 +342,11 @@ class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods)
                     self.error = str(e)
                     v_ = v
                 if v_ != v:
-                    with self.autowidget.silence_autoui_traits():
-                        self.value = v_
+                    try:
+                        with self.autowidget.silence_autoui_traits():
+                            self.value = v_
+                    except:
+                        pass
                 else:
                     self._value = v_
             else:
