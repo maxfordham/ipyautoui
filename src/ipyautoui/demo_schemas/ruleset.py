@@ -26,6 +26,7 @@ from ipyautoui.autoobject import AutoObject
 from ipyautoui._utils import html_link
 import typing as ty
 from enum import Enum
+from jsonref import replace_refs
 
 
 # %%
@@ -89,9 +90,10 @@ class CategoriesEnum(RootModel):
 
 
 class Rule(BaseModel):
-    categories: list[CategoriesEnum] = Field(  # RevitCategoriesEnum
+    categories: list[CategoriesEnum] = Field(  # BUG: this doesn't work if it is ty.Optional ... 
         title="Categories",  # TODO: this is pydantic bug (should generate title from field name)
         description="Revit MEP categories to filter by (i.e. revit object must belong to categories defined here). If empty, all categories are included.",
+        json_schema_extra=dict(allow_duplicates=False),
     )
     parameter: str = Field(
         description="name of schedule parameter against which to apply filter rule",
@@ -109,7 +111,9 @@ class Rule(BaseModel):
             "ab",
         ],  # get_uniclass_product_codes() + get_uniclass_system_codes(),
     )
-    model_config = ConfigDict(json_schema_extra=dict(autoui="ipyautoui.demo_schemas.ruleset.rule_ui"))
+    model_config = ConfigDict(
+        json_schema_extra=dict(autoui="ipyautoui.demo_schemas.ruleset.rule_ui")
+    )
     # NOTE: can use "__main__.rule_ui" if you import it into the location you want to use it
 
 
@@ -154,7 +158,9 @@ def get_value_kwargs(property_name):
 
 class RuleUi(AutoObject):  # RuleUi extends AutoObject allowing customisation
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(**replace_refs(Rule.model_json_schema()))
+        if "value" in kwargs:
+            self.value = kwargs["value"]
         self.di_widgets["parameter"].options = get_property_names()
         self._init_RuleUi_controls()
 
@@ -174,7 +180,7 @@ class RuleUi(AutoObject):  # RuleUi extends AutoObject allowing customisation
 
 
 def rule_ui(value=None, **kwargs):
-    ui = RuleUi.from_schema(Rule)
+    ui = RuleUi.from_pydantic_model(Rule)
     ui.open_nested = True
     if value is not None:
         ui.value = value
@@ -185,7 +191,9 @@ ScheduleRuleSet = ty.ForwardRef("ScheduleRuleSet")
 
 
 class ScheduleRuleSet(BaseModel):
-    set_type: RuleSetType = Field(default=RuleSetType.AND, disabled=True)
+    set_type: RuleSetType = Field(
+        default=RuleSetType.AND, autoui="ipywidgets.ToggleButtons"
+    )
     rule_sets: ty.List[ty.Union[Rule, ScheduleRuleSet]] = Field(
         description="""
 rules return a boolean for the logical evaluation defined below for every item within the categories defined
@@ -210,7 +218,11 @@ if __name__ == "__main__":
     from IPython.display import display
 
     # m, s = _init_model_schema(ObjSet)
-    ui = AutoObject.from_schema(ScheduleRuleSet)
+    ui = AutoObject.from_pydantic_model(ScheduleRuleSet)
     display(ui)
+
+# %%
+if __name__ == "__main__":
+    display(ui.value)
 
 # %%

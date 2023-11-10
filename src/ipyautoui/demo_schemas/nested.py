@@ -1,6 +1,25 @@
 from pydantic import Field, constr
 from ipyautoui.basemodel import BaseModel
 from typing_extensions import Annotated
+from enum import Enum
+
+class LongEnum(str, Enum):
+    a = "a"
+    b = "b"
+    c = "c"
+    d = "d"
+    e = "e"
+    f = "f"
+    g = "g"
+    h = "h"
+    i = "i"
+    j = "j"
+    k = "k"
+    l = "l"
+    m = "m"
+    n = "n"
+    o = "o"
+    p = "p"
 
 
 class NestedObject(BaseModel):
@@ -9,6 +28,7 @@ class NestedObject(BaseModel):
     string1: str = Field(default="adsf", description="a description about my string")
     int_slider1: Annotated[int, Field(ge=0, le=3)] = 2
     int_text1: int = 1
+    tags: list[LongEnum] = (LongEnum.a, )
 
 
 class RecursiveNest(BaseModel):

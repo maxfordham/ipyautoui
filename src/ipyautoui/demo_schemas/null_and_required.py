@@ -6,8 +6,6 @@ import annotated_types
 from enum import Enum
 from pydantic import StringConstraints, Field, conint, confloat, ConfigDict
 from ipyautoui.basemodel import BaseModel
-import pandas as pd
-from pathlib import PurePosixPath
 from typing_extensions import Annotated
 
 
@@ -20,10 +18,10 @@ class NullAndRequired(BaseModel):
     # https://docs.pydantic.dev/latest/migration/#required-optional-and-nullable-fields
     f1: str = Field(description="Required, cannot be None")
     f2: ty.Optional[ty.Union[TestEnum, str]] = Field(
-        "a", description="Not required, can be None, is 'abc' by default"
+        "a", description="Not required, can be None, is 'a' by default"
     )
     f3: ty.Union[TestEnum, str] = Field(
-        "a", description="Not required, cannot be None, is 'abc' by default"
+        "a", description="Not required, cannot be None, is 'a' by default"
     )
     f4: ty.Optional[str] = Field(description="Required, can be None")  #
     f5: ty.Optional[str] = Field(
