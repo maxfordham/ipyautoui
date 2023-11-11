@@ -33,7 +33,7 @@ dependencies = [
     "PyYAML",
     "stringcase",
     "wcmatch",
-    "maplocal==0.2",
+    "maplocal==0.2.1",
 ]
 
 [project.urls]
