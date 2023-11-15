@@ -7,6 +7,7 @@ from ipyautoui.demo_schemas.complex_serialization import ComplexSerialisation
 from ipyautoui.demo_schemas.nested import Nested
 from ipyautoui.demo_schemas.null_and_required import NullAndRequired
 from ipyautoui.demo_schemas.editable_datagrid import EditableGrid
+from ipyautoui.demo_schemas.multiindex_editable_grid import MultiIndexEditableGrid
 from ipyautoui.demo_schemas.nested_editable_datagrid import NestedEditableGrid
 from ipyautoui.demo_schemas.root_array import RootArray
 from ipyautoui.demo_schemas.root_simple import RootSimple

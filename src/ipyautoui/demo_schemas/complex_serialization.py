@@ -10,14 +10,17 @@ class ComplexSerialisation(BaseModel):
     """all of these types need to be serialised to json and parsed back to objects upon reading..."""
 
     file_chooser: pathlib.Path = pathlib.Path(".")
+    file_upload_to_dir: pathlib.Path = Field(
+        description="uploaded files automatically get dumped in cwd or fdir if defined for the AutoUi",
+        json_schema_extra=dict(autoui="ipyautoui.custom.FileUploadToDir"))
     date_picker_string: ty.Optional[
         date
     ] = (
         date.today()
-    )  # TODO: serialisation / parsing round trip not working... # TODO: fix this!
+    )
     naive_datetime_picker_string: ty.Optional[
         datetime
-    ] = datetime.now()  # TODO: update with ipywidgets-v8 # TODO: fix this!
+    ] = datetime.now()
     color_picker_ipywidgets: Color = "#f5f595"
     markdown_widget: str = Field(json_schema_extra=dict(format="markdown"))
     any_of: ty.Union[conint(ge=0, le=3), str] = Field(
