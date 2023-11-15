@@ -124,6 +124,48 @@ class TestGridSchema:
                 ),
             )
         )
+        
+    def test_nullable_multiindex(self):
+        class TestProperties(BaseModel):
+            string: ty.Optional[str] = Field(column_width=100, section="a")
+            floater: ty.Optional[float] = Field(
+                1.5, column_width=70, global_decimal_places=3, section="b"
+            )
+            inty: int = Field(1, section="b")
+
+        class TestGridSchema(RootModel):
+            """no default"""
+
+            root: ty.List[TestProperties] = Field(
+                [TestProperties(string="string").model_dump()],
+                format="dataframe",
+                datagrid_index_name=("section", "title"),
+            )
+
+        model, schema = _init_model_schema(TestGridSchema)
+        gridschema = GridSchema(schema)
+
+        assert gridschema.is_multiindex == True
+        assert gridschema.index.equals(
+            pd.MultiIndex.from_tuples(
+                [("a", "String"), ("b", "Floater"), ("b", "Inty")],
+                names=("section", "title"),
+            )
+        )
+        assert gridschema._get_default_data() == [
+            {"string": "string", "floater": 1.5, "inty": 1}
+        ]
+        assert gridschema.default_row == {"floater": 1.5, "inty": 1, "string": None}
+        # TODO: this doesn't make that much sense ans string=None is not allowed...
+        assert gridschema.get_default_dataframe().equals(
+            pd.DataFrame(
+                [{("a", "String"): "string", ("b", "Floater"): 1.5, ("b", "Inty"): 1}],
+                columns=pd.MultiIndex.from_tuples(
+                    [("a", "String"), ("b", "Floater"), ("b", "Inty")],
+                    names=("section", "title"),
+                ),
+            )
+        )
 
     def test_get_field_names_from_properties(self):
         class TestProperties(BaseModel):
