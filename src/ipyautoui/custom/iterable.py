@@ -188,7 +188,10 @@ class Array(w.VBox, WatchValidate):
     @tr.observe("length")
     def _length(self, on_change):
         if self.length == 0:
-            self.display_bn_add_from_zero(True)
+            if self.add_remove_controls == ItemControl.append_only or self.add_remove_controls == ItemControl.append_only:
+                self.display_bn_add_from_zero(True)
+            else:
+                pass
         else:
             if self.add_remove_controls == ItemControl.append_only:
                 self.display_bn_add_from_zero(True)
@@ -201,6 +204,7 @@ class Array(w.VBox, WatchValidate):
             raise ValueError(
                 "fn_remove must have 1no arg == item box. the item box that is being deleted. i.e. `self.fn_remove(bx)"
             )
+        return proposal["value"]
 
     @tr.observe("add_remove_controls")
     def _add_remove_controls(self, on_change):
@@ -218,6 +222,10 @@ class Array(w.VBox, WatchValidate):
     @tr.observe("align_horizontal")
     def _align_horizontal(self, on_change):
         flip(self.bx_boxes, self.align_horizontal)
+
+    @property 
+    def map_key_value(self):
+        return {b.key: (lambda w: w.value if hasattr(w, "value") or hasattr(w, "_value") else None)(b.widget.value) for b in self.boxes}
 
     def display_bn_add_from_zero(self, display: bool):
         if display:
@@ -243,6 +251,10 @@ class Array(w.VBox, WatchValidate):
         self._update_boxes()
         self._align_horizontal("on_change")
         self.layout.border = "1px solid #00a3e0"
+        self._post_init(**kwargs)
+
+    def _post_init(self, **kwargs):
+        pass # NOTE: this can be overwritten to provide customisation
 
     def _init_controls(self):
         [self._init_row_controls(key=i.key) for i in self.boxes]

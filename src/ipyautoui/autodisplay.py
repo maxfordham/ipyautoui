@@ -115,7 +115,7 @@ class DisplayObjectActions(BaseModel):
     """base object with callables for creating a display object"""
 
     renderers: dict[str, ty.Callable] = dict(DEFAULT_FILE_RENDERERS)
-    path: ty.Union[str, pathlib.Path, HttpUrl, ty.Callable]
+    path: ty.Optional[ty.Union[str, pathlib.Path, HttpUrl, ty.Callable]]
     ext: ty.Optional[str] = Field(None, validate_default=True)
     name: ty.Optional[str] = Field(None, validate_default=True)
     check_exists: ty.Optional[ty.Callable] = Field(None, validate_default=True)
@@ -128,7 +128,7 @@ class DisplayObjectActions(BaseModel):
         if v is None:
             ext = info.data["ext"]
             map_ = info.data["renderers"]
-            if ext in map_.keys():
+            if ext is not None and ext in map_.keys():
                 fn = functools.partial(map_[ext], info.data["path"])
             else:
                 fn = lambda: w.HTML("File renderer not found")
@@ -154,12 +154,19 @@ class DisplayFromPath(DisplayObjectActions):
     @field_validator("path")
     @classmethod
     def _path(cls, v):
-        return pathlib.Path(v)
+        if v is not None:
+            return pathlib.Path(v)
+        else:
+            return v
 
     @field_validator("path_new")
     @classmethod
     def _path_new(cls, v, info: ValidationInfo):
-        return make_new_path(info.data["path"].absolute())
+        p = info.data["path"]
+        if p is not None:
+            return make_new_path(p.absolute())
+        else:
+            return p
 
     @field_validator("name")
     @classmethod
@@ -183,7 +190,10 @@ class DisplayFromPath(DisplayObjectActions):
     @field_validator("check_exists")
     @classmethod
     def _check_exists(cls, v, info: ValidationInfo):
-        fn = functools.partial(check_exists, info.data["path"])
+        p = info.data["path"]
+        fn = lambda: None
+        if p is not None:
+            fn = functools.partial(check_exists, p)
         return fn
 
     @field_validator("check_date_modified")
