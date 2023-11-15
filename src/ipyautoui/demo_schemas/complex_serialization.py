@@ -10,6 +10,9 @@ class ComplexSerialisation(BaseModel):
     """all of these types need to be serialised to json and parsed back to objects upon reading..."""
 
     file_chooser: pathlib.Path = pathlib.Path(".")
+    file_upload: pathlib.Path = Field(
+        description="uploaded files automatically get dumped in cwd or fdir if defined for the AutoUi",
+        json_schema_extra=dict(autoui="ipyautoui.custom.FileUploadToDir"))
     date_picker_string: ty.Optional[
         date
     ] = (
