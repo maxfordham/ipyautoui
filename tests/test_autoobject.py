@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, RootModel
+from pydantic import BaseModel, Field, RootModel, ConfigDict
 from ipyautoui.autoobject import AutoObject
 import pytest
 import stringcase
@@ -42,6 +42,19 @@ class TestAutoObjectRowOrder:
         ui.order_can_hide_rows = False
         assert ui.order == ui.default_order
         assert len(ui.vbx_main.children) == len(ui.default_order)
+        
+
+    def test_order_on_init(self):
+        class ExampleSchema(BaseModel):
+            a: str = Field(default="Test", description="This test is important")
+            b: str = Field(default="Test1", description="This test is important too")
+            model_config = ConfigDict(json_schema_extra=dict(order=["a"]))
+            
+        ui = AutoObject.from_pydantic_model(ExampleSchema)
+        assert ui.value == {"a": "Test", "b": "Test1"}
+        assert len(ui.vbx_main.children) == 1
+
+        
 
 class TestAnyOf:
     def test_recursive_anyof(self):
