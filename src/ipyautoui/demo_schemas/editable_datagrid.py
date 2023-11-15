@@ -9,10 +9,6 @@ DATAGRID_TEST_VALUE = [
         "floater": 3.14,
         "something_else": 324,
     },
-    # {"string": "update", "integer": 4, "floater": 3.12344, "something_else": 123},
-    # {"string": "evening", "integer": 5, "floater": 3.14, "something_else": 235},
-    # {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
-    # {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
 ]
 
 
