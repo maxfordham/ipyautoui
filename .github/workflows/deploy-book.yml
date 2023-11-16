@@ -59,10 +59,12 @@ jobs:
            
       - name: setup jb config
         shell: bash -l {0}
+        working-directory: ./docs
         run: jupyter-book config sphinx .
 
       - name: Build the book
         shell: bash -l {0}
+        working-directory: ./docs
         run: sphinx-build . _build/html -b html
           
       # Push the book's HTML to github-pages
