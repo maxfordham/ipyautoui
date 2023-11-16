@@ -28,7 +28,7 @@ sphinx:
   # - 'sphinx.ext.napoleon'
   # - 'sphinx.ext.viewcode'
   - 'sphinx.ext.todo'
-  - 'sphinx.ext.autosummary'
+  # - 'sphinx.ext.autosummary'
   # - 'autoapi.extension'
   - 'sphinxcontrib.mermaid'
   #- 'jupyter_sphinx'
