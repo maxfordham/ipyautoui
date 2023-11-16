@@ -21,7 +21,7 @@ that trait is automatically watched / observed for changes.
 This item is used for the AutoObject `array`. 
 """
 # TODO: move iterable.py to root
-# %run ../_dev_sys_path_append.py
+# %run ../_dev_maplocal_params.py
 # %load_ext lab_black
 
 # +
@@ -48,7 +48,7 @@ import random
 import inspect
 from ipyautoui.automapschema import from_schema_method, get_widget
 from jsonref import replace_refs
-
+from ipyautoui.watch_validate import WatchValidate
 
 logger = logging.getLogger(__name__)
 BOX = frozenmap({True: w.HBox, False: w.VBox})
@@ -141,15 +141,15 @@ class ItemBox(w.Box):
 # -
 
 
-class Array(w.VBox):
-    _value = tr.List()
+class Array(w.VBox, WatchValidate):
+    _value = tr.List()  # NOTE: value setter and getter in `WatchValidate`
     fn_add = tr.Callable(
         default_value=lambda **kwargs: w.ToggleButton(
             description=(
                 "add test "
                 + "".join(random.choices(string.ascii_uppercase + string.digits, k=4))
             )
-        )
+        ),
     )
     fn_remove = tr.Callable(
         default_value=lambda box: print(f"on remove {str(box.index)}")
@@ -162,18 +162,21 @@ class Array(w.VBox):
     max_items = tr.Int(default_value=None, allow_none=True)
     type = tr.Unicode(default_value="array")
 
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value: ty.List):
-        self.boxes = []
-        self.bx_boxes.children = []
-        [self.add_row() for v in value]
-        for n, v in enumerate(value):
-            self.boxes[n].widget.value = v
-        self._update_value("onchange")
+    def _update_widgets_from_value(self):
+        diff = len(self.value) - len(self.boxes)
+        if diff < 0:
+            self.boxes = self.boxes[0 : len(self.value)]
+        elif diff > 0:
+            for n in range(0, diff):
+                self.add_row()
+        for n, v in enumerate(self.value):
+            try:
+                self.li_widgets[n].value = v
+            except:
+                raise ValueError(
+                    f"value (len={len(self.value)} and li_widgets (len={len(self.li_widgets)}) must be same length"
+                )
+        self._update_boxes()
 
     @tr.validate("type")
     def _type(self, proposal):
@@ -185,7 +188,10 @@ class Array(w.VBox):
     @tr.observe("length")
     def _length(self, on_change):
         if self.length == 0:
-            self.display_bn_add_from_zero(True)
+            if self.add_remove_controls == ItemControl.append_only or self.add_remove_controls == ItemControl.append_only:
+                self.display_bn_add_from_zero(True)
+            else:
+                pass
         else:
             if self.add_remove_controls == ItemControl.append_only:
                 self.display_bn_add_from_zero(True)
@@ -198,6 +204,7 @@ class Array(w.VBox):
             raise ValueError(
                 "fn_remove must have 1no arg == item box. the item box that is being deleted. i.e. `self.fn_remove(bx)"
             )
+        return proposal["value"]
 
     @tr.observe("add_remove_controls")
     def _add_remove_controls(self, on_change):
@@ -215,6 +222,10 @@ class Array(w.VBox):
     @tr.observe("align_horizontal")
     def _align_horizontal(self, on_change):
         flip(self.bx_boxes, self.align_horizontal)
+
+    @property 
+    def map_key_value(self):
+        return {b.key: (lambda w: w.value if hasattr(w, "value") or hasattr(w, "_value") else None)(b.widget.value) for b in self.boxes}
 
     def display_bn_add_from_zero(self, display: bool):
         if display:
@@ -240,6 +251,10 @@ class Array(w.VBox):
         self._update_boxes()
         self._align_horizontal("on_change")
         self.layout.border = "1px solid #00a3e0"
+        self._post_init(**kwargs)
+
+    def _post_init(self, **kwargs):
+        pass # NOTE: this can be overwritten to provide customisation
 
     def _init_controls(self):
         [self._init_row_controls(key=i.key) for i in self.boxes]
@@ -262,7 +277,8 @@ class Array(w.VBox):
         widget = self._get_attribute(key, "widget")
         for watch in ["_value", "value"]:
             if widget.has_trait(watch):
-                widget.observe(self._update_value, names=watch)
+                # widget.observe(self._update_value, names=watch)
+                widget.observe(self._watch_validate_change, names=watch)
                 break  # if `_value` is found don't look for `value`
             else:
                 logging.info(
@@ -277,9 +293,14 @@ class Array(w.VBox):
         for n, s in enumerate(sort):
             s.index = n
         self.boxes = sort
+        self.li_widgets = [bx.widget for bx in self.boxes]
 
-    def _update_value(self, on_change):
-        self._value = [bx.widget.value for bx in self.boxes]
+    def _get_value(self):
+        return [bx.widget.value for bx in self.boxes]
+
+    # def _update_value(self, on_change):
+    #     if not self._silent:
+    #         self._value = [bx.widget.value for bx in self.boxes]
 
     def _update_boxes(self):
         self.bx_boxes.children = self.boxes
@@ -335,7 +356,8 @@ class Array(w.VBox):
         self._sort_boxes()  # update map
         self._init_row_controls(bx.key)  # init controls
         self._update_boxes()
-        self._update_value("")
+        # self._update_value("")
+        self._watch_validate_change("")
 
     def _remove_rows(self, onclick, key=None):
         self.remove_row(key=key)
@@ -357,7 +379,9 @@ class Array(w.VBox):
         self.boxes.pop(n)
         self._sort_boxes()
         self._update_boxes()
-        self._update_value("")
+        # self._update_value("")
+        self._watch_validate_change("")
+
 
 
 class AutoArray(Array):
@@ -367,21 +391,6 @@ class AutoArray(Array):
     # ^ TODO: add functionality: https://json-schema.org/understanding-json-schema/reference/array.html#id7
     #       : adds tuple functionality
     #       : maybe this should be a different widget all together?
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(
-        self, value: ty.List
-    ):  # TODO: should be able to have this in parent `Array` ?
-        self.boxes = []
-        self.bx_boxes.children = []
-        [self.add_row() for v in value]
-        for n, v in enumerate(value):
-            self.boxes[n].widget.value = v
-        self._update_value("onchange")
 
     @tr.observe("allOf")
     def _allOf(self, on_change):
@@ -410,6 +419,8 @@ class AutoArray(Array):
 class AutoArrayForm(AutoArray, TitleDescription):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        if "value" in kwargs.keys():
+            self.value = kwargs["value"]
         self._update_title_description()
         self.children = [self.html_title, self.bn_add_from_zero, self.bx_boxes]
 

@@ -13,34 +13,13 @@
 #     name: python3
 # ---
 
-# %run _dev_sys_path_append.py
+# %run _dev_maplocal_params.py
 # %load_ext lab_black
 
 import ipywidgets as w
 import traitlets as tr
 import typing as ty
-
-
-# +
-def value_type_as_json(value):
-    if isinstance(value, str):
-        return "string"
-    elif isinstance(value, int):
-        return "integer"
-    elif isinstance(value, float):
-        return "number"
-    elif isinstance(value, bool):
-        return "number"
-    elif isinstance(value, list):
-        return "array"
-    elif isinstance(value, dict):
-        return "object" + "-" + "".join(value.keys())
-    elif isinstance(value, None):
-        return "null"
-    else:
-        raise ValueError(
-            "value must be: string, integer, number, array, object or None"
-        )
+from ipyautoui._utils import type_as_json
 
 
 def get_anyOf_type(l):
@@ -53,8 +32,6 @@ def get_anyOf_type(l):
     else:
         raise ValueError(f"could not find widget type:\n{l}")
 
-
-# -
 
 class AnyOf(w.HBox):
     allOf = tr.List(allow_none=True, default_value=None)
@@ -72,7 +49,7 @@ class AnyOf(w.HBox):
 
     @value.setter
     def value(self, value):
-        t_in = value_type_as_json(value)
+        t_in = type_as_json(value)
         ti = None
         try:
             ti = self.map_type_title[t_in]
@@ -211,3 +188,5 @@ if __name__ == "__main__":
     ui = AnyOf(**sch)
     display(sch)
     display(ui)
+
+

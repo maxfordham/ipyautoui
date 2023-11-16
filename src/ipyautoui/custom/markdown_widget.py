@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -14,8 +14,7 @@
 # ---
 
 """simple markdown widget"""
-# %run ../_dev_sys_path_append.py
-#
+# %run ../_dev_maplocal_params.py
 # %load_ext lab_black
 
 # +
@@ -149,13 +148,13 @@ class MarkdownWidget(w.VBox):
 
     _value = tr.Unicode(allow_none=True)  # default=""
 
-    def __init__(self, value=None):
-        self._init_form()
+    def __init__(self, **kwargs):
+        self._init_form( **kwargs)
         self._init_controls()
-        if value is None:
-            pass
-        else:
-            self.value = value
+        v = kwargs.get("value")
+        if v is None:
+            v=""
+        self.value = v
 
     @property
     def value(self):
@@ -166,8 +165,8 @@ class MarkdownWidget(w.VBox):
         self._value = value
         self.text.value = value
 
-    def _init_form(self):
-        super().__init__()
+    def _init_form(self,  **kwargs):
+        super().__init__( **{k:v for k, v in kwargs.items() if k != "tooltip"})
         self.text = w.Textarea(layout={"width": "400px", "height": "300px"})
         self.rendered = w.Output()
         self.example_text = w.Textarea(

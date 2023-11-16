@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.0
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -16,7 +16,7 @@
 # +
 """AutoObject - create a 
 """
-# %run _dev_sys_path_append.py
+# %run _dev_maplocal_params.py
 # %load_ext lab_black
 
 import logging
@@ -34,6 +34,8 @@ from ipyautoui.autobox import AutoBox
 from ipyautoui.autoform import AutoObjectFormLayout
 from jsonref import replace_refs
 from pydantic import BaseModel
+from ipyautoui.watch_validate import WatchValidate
+import contextlib
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +64,7 @@ def _get_value_trait(obj_with_traits):
         )
 
 
-class AutoObject(w.VBox):
+class AutoObject(w.VBox, WatchValidate):
     """creates an ipywidgets form from a json-schema or pydantic model.
     datatype must be "object"
 
@@ -101,7 +103,7 @@ class AutoObject(w.VBox):
     type = tr.Unicode(default_value="object")
     allOf = tr.List(allow_none=True, default_value=None)
     properties = tr.Dict()
-    _value = tr.Dict(allow_none=True)
+    _value = tr.Dict(allow_none=True)  # NOTE: value setter and getter in `WatchValidate`
     fdir = tr.Instance(klass=pathlib.PurePath, default_value=None, allow_none=True)
     align_horizontal = tr.Bool(default_value=True)
     nested_widgets = tr.List()
@@ -307,30 +309,10 @@ class AutoObject(w.VBox):
             self.value = kwargs["value"]
         else:
             self._value = self.di_widgets_value
-
-    @classmethod
-    def from_schema(
-        cls, schema: ty.Union[ty.Type[BaseModel], dict], value: dict = None
-    ):
-        if isinstance(schema, type):
-            if issubclass(schema, BaseModel):
-                model = schema
-                schema = replace_refs(schema.model_json_schema())
-        elif isinstance(schema, dict):
-            model = None
-            if "$defs" in schema.keys():
-                try:
-                    schema = replace_refs(schema)
-                except ValueError as e:
-                    logger.warning(f"replace_refs error: \n{e}")
-                    pass
-        else:
-            raise ValueError("schema must be a jsonschema or pydantic model")
-        if value is not None:
-            schema["value"] = value
-        ui = cls(**schema)
-        ui.model = model
-        return ui
+        self._post_init(**kwargs)
+            
+    def _post_init(self, **kwargs):
+        pass
 
     def _open_nested(self):
         for r in self.di_boxes.values():
@@ -348,21 +330,6 @@ class AutoObject(w.VBox):
             return list(self.di_widgets.keys())
         except:
             None
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        """this is for setting the value via the API"""
-        if value is None:
-            pass
-        else:
-            with self.hold_trait_notifications():
-                self._value = value
-                if hasattr(self, "di_widgets"):
-                    self._update_widgets_from_value()
 
     @property
     def json(self):
@@ -404,7 +371,7 @@ class AutoObject(w.VBox):
     def set_watcher(self, key, widget, watch):
         logger.debug(f"{watch} trait found for: {key}")
         widget.observe(
-            functools.partial(self._watch_change, key=key, watch=watch), watch
+            self._watch_validate_change, watch  # NOTE: `_watch_validate_change` in WatchValidate
         )
 
     def _init_watch_widgets(self):
@@ -414,26 +381,24 @@ class AutoObject(w.VBox):
                     self.set_watcher(k, v, watch)
                     break  # if `_value` is found don't look for `value`
 
-    def _watch_change(self, change, key=None, watch="value"):
-        self._value = self.di_widgets_value
-        if hasattr(self, "savebuttonbar"):
-            self.savebuttonbar.unsaved_changes = True
-        # NOTE: it is required to set the whole "_value" otherwise
-        #       traitlets doesn't register the change.
 
     def _update_widgets_from_value(self):
-        for k, v in self.value.items():
-            if k in self.di_widgets.keys():
-                if v is None and not isinstance(self.di_widgets[k], Nullable):
-                    v = _get_value_trait(self.di_widgets[k]).default()
-                try:
-                    self.di_widgets[k].value = v
-                except tr.TraitError as err:
-                    logging.warning(err)
-            else:
-                logging.critical(
-                    f"no widget created for {k}, with value {str(v)}. fix this in the schema!"
-                )
+        with self.silence_autoui_traits():
+            for k, v in self.value.items():
+                if k in self.di_widgets.keys():
+                    if v is None and not isinstance(self.di_widgets[k], Nullable):
+                        v = _get_value_trait(self.di_widgets[k]).default()
+                    try:
+                        self.di_widgets[k].value = v
+                    except tr.TraitError as err:
+                        logging.warning(err)
+                else:
+                    logging.critical(
+                        f"no widget created for {k}, with value {str(v)}. fix this in the schema!"
+                    )
+                    
+    def _get_value(self):
+        return self.di_widgets_value
 
     @property
     def di_widgets_value(self):  # used to set _value
@@ -441,7 +406,6 @@ class AutoObject(w.VBox):
         return {k: get_value(v) for k, v in self.di_widgets.items()}
 
 
-# +
 class AutoObjectForm(AutoObject, AutoObjectFormLayout):
     def __init__(self, **kwargs):
         super().__init__(
@@ -462,8 +426,6 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout):
         self.vbx_main.layout.display = "None"
         return self.json
 
-
-# -
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets

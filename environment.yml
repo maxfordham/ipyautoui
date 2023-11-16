@@ -10,6 +10,7 @@ dependencies:
   - numpy
   - pandas
   - jupyterlab>=4.0.0,<5.0.0a0
+  - jupyterlab-unfold
   - jupyterlab-lsp
   - python-lsp-server
   - ipywidgets>8
@@ -36,7 +37,8 @@ dependencies:
   - stringcase
   - pip
   - pip:
-    - maplocal==0.1.1
+    - maplocal==0.2.1
     - pydantic-extra-types
     - pytest-examples
     - jsonref
+    - -e .

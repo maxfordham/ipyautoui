@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.0
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -27,12 +27,12 @@ Example:
         from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
         DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
 """
-# %run _dev_sys_path_append.py
+# %run _dev_maplocal_params.py
 # %load_ext lab_black
 
 import pathlib
 from IPython.display import display
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 import json
 import traitlets as tr
 import typing as ty
@@ -43,6 +43,8 @@ import logging
 from ipyautoui.automapschema import map_widget, widgetcaller, _init_model_schema
 import ipywidgets as w
 from pydantic import BaseModel
+from ipyautoui.automapschema import pydantic_validate
+from IPython.display import clear_output
 
 logger = logging.getLogger(__name__)
 
@@ -193,6 +195,8 @@ class AutoRenderMethods:
 
 
 # +
+# TODO: should autoui be a function that returns the appropriate widget?
+#       this would solve the nested traits issue...
 class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
 
     """extends AutoObject and AutoUiCommonMethods to create an
@@ -233,11 +237,24 @@ class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods)
             using schema kwargs this is remembered when re-enabled. Defaults to False.
 
     """
-
+    error = tr.Unicode(default_value=None, allow_none=True)
     schema = tr.Dict()
     model = tr.Type(klass=BaseModel, default_value=None, allow_none=True)
     _value = tr.Any()  # TODO: update trait type on schema change
-
+    
+    @tr.observe("error")
+    def _error(self, on_change):
+        if self.error is None:
+            with self.out_error:
+                clear_output()
+            self.out_error.layout.display = "None"
+            
+        else:
+            self.out_error.layout.display = ""
+            with self.out_error:
+                clear_output()
+                print(self.error)
+            
     @property
     def value(self):
         return self._value
@@ -276,7 +293,7 @@ class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods)
             **kwargs: passed to AutoObject. see attributes for details.
         """
         kwargs["model"], kwargs["schema"] = _init_model_schema(schema)
-
+        self.out_error = w.Output()
         super().__init__(
             **kwargs,
         )
@@ -288,6 +305,7 @@ class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods)
             self.savebuttonbar,
             self.hbx_title,
             self.html_description,
+            self.out_error,
             self.autowidget,
             self.vbx_showraw,
         ]
@@ -315,7 +333,24 @@ class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods)
 
     def _watch_change(self, on_change):
         if on_change["new"] != self._value:
-            self._value = self.autowidget.value
+            v = self.autowidget.value
+            if self.model is not None:
+                try:
+                    v_ = pydantic_validate(self.model, v)
+                    self.error = None
+                except ValidationError as e:
+                    self.error = str(e)
+                    v_ = v
+                if v_ != v:
+                    try:
+                        with self.autowidget.silence_autoui_traits():
+                            self.value = v_
+                    except:
+                        pass
+                else:
+                    self._value = v_
+            else:
+                self._value = v
             if hasattr(self, "savebuttonbar"):
                 self.savebuttonbar.unsaved_changes = True
             # NOTE: it is required to set the whole "_value" otherwise
@@ -370,8 +405,6 @@ if __name__ == "__main__":
     )
     # aui.show_savebuttonbar = False
     display(aui)
-
-# +
 
 # -
 

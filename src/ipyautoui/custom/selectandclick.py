@@ -6,14 +6,14 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.7
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
 
-# %run ../_dev_sys_path_append.py
+# %run ../_dev_maplocal_params.py
 # %load_ext lab_black
 
 # +
@@ -310,20 +310,3 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     ui.align_horizontal = False
     ui.align_left = False
-
-# # +
-# import random
-# import string
-
-
-# def get_random_string(length):
-#     # choose from all lowercase letter
-#     letters = string.ascii_lowercase
-#     return "".join(random.choice(letters) for i in range(length))
-
-
-# li = [get_random_string(8) for l in range(0, 10)]
-# w.TagsInput(allowed_tags=li)
-# # -
-
-# w.ToggleButtons(options=li)

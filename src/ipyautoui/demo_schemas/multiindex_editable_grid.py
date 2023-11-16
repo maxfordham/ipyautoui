@@ -13,13 +13,13 @@ DATAGRID_TEST_VALUE = [
 
 
 class DataFrameCols(BaseModel):
-    string: str = Field("string", json_schema_extra=dict(column_width=200))
-    integer: int = Field(1)
-    floater: float = Field(3.1415, json_schema_extra=dict(column_width=70))
-    something_else: float = Field(324, json_schema_extra=dict(column_width=100))
+    string: str = Field("string", title=("string", "string"), json_schema_extra=dict(column_width=200))
+    integer: int = Field(1, title=("number", "integer"))
+    floater: float = Field(3.1415,title=("number", "integer"), json_schema_extra=dict(column_width=70))
+    something_else: float = Field(324,title=("number", "something_else"), json_schema_extra=dict(column_width=100))
 
 
-class EditableGrid(RootModel):
+class MultiIndexEditableGrid(RootModel):
     root: ty.List[DataFrameCols]
     model_config = ConfigDict(
         json_schema_extra=dict(

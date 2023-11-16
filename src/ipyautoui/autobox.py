@@ -15,7 +15,7 @@
 
 """create a simple row item for a form. contains some simple automated layout features
 """
-# %run _dev_sys_path_append.py
+# %run _dev_maplocal_params.py
 # %load_ext lab_black
 
 # +
@@ -72,7 +72,7 @@ f5 = lambda self: [
     w.VBox([self.html_title, w.HBox([SPACER, self.get_tgl]), self.widget])
 ]
 
-f6 = lambda self: [w.VBox([self.html_title,w.HBox([self.get_tgl ]), self.widget])]
+f6 = lambda self: [w.VBox([self.html_title, w.HBox([self.get_tgl]), self.widget])]
 
 f7 = lambda self: [
     w.VBox(
@@ -110,7 +110,9 @@ class Nest:
     @property
     def get_tgl(self):
         if not hasattr(self, "tgl"):
-            self.tgl = w.ToggleButton(description="show", layout={"width": "300px"})
+            self.tgl = w.ToggleButton(
+                description="show", layout={"width": "300px"}, tooltip="open/close"
+            )
             self._init_controls_Nest()
         return self.tgl
 
@@ -128,7 +130,11 @@ class AutoBox(w.VBox, Nest, TitleDescription):
     nested = tr.Bool(default_value=False)
     align_horizontal = tr.Bool(default_value=True).tag(sync=True)
     hide = tr.Bool(default_value=True).tag(sync=True)
-    widget = tr.Any(default_value=w.ToggleButton(layout={"width": "600px"}))
+    widget = tr.Any(
+        default_value=w.ToggleButton(
+            tooltip="placeholder...", layout={"width": "600px"}
+        )
+    )
     indent = tr.Bool(default_value=False)
 
     @tr.observe("nested")
@@ -160,8 +166,8 @@ class AutoBox(w.VBox, Nest, TitleDescription):
 
     def __init__(self, **kwargs):
         self._update_title_description()
-        # with self.hold_trait_notifications():
-        super().__init__(**kwargs)
+        super().__init__(**{k: v for k, v in kwargs.items() if k != "tooltip"})
+        #  ^ tooltip issue: https://github.com/jupyter-widgets/ipywidgets/issues/3860
         self.format_box()
 
     @property
@@ -200,4 +206,20 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     (bx.align_horizontal, bx.nested, bx.indent) = False, False, False  # f8
 
+if __name__ == "__main__":
+    di = {
+        "title": "Uniclass System Description",
+        "description": "System Description that matches a code within the Uniclass Ss tables. https://uniclass.thenbs.com/taxon/ss",
+        "tooltip": "Created and used by the Autodesk Classification Manager for Revit",
+    }
+    bx1 = AutoBox(**di)
+    display(bx1)
 
+if __name__ == "__main__":
+    di = {
+        "title": "title",
+        "description": "Description ...",
+        "tooltip": "tooltip ...",
+    }
+    display(w.VBox(**di))
+    #  ^ tooltip issue: https://github.com/jupyter-widgets/ipywidgets/issues/3860

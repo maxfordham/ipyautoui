@@ -4,10 +4,12 @@ from ipyautoui.demo_schemas import (
     CoreIpywidgets,
     ArrayObjectDataframe,
     OverrideIpywidgets,
+    EditableGrid,
+    ScheduleRuleSet,
+    RootEnum
     # ScheduleRuleSet,
 )
 from ipyautoui import AutoUi
-
 
 # NOTE: refer also to test_automapschema.py to ensure mappings are correct
 def assert_no_error_widget_in_autoui(autoui):
@@ -38,7 +40,19 @@ def test_OverrideIpywidgets():
 
 
 def test_ScheduleRuleSet():
-    from ipyautoui.demo_schemas.ruleset import ScheduleRuleSet
 
     autoui = AutoUi(ScheduleRuleSet)
     assert_no_error_widget_in_autoui(autoui)
+    
+def test_EditableGrid():
+    
+    autoui = AutoUi(EditableGrid)
+    assert "EditGrid" in str(autoui.autowidget)
+    
+def test_RootEnum():
+    from ipyautoui.demo_schemas import RootEnum
+    
+    autoui = AutoUi(RootEnum)
+    assert "SelectMultiple" in str(autoui.autowidget)
+    # autoui.add_row()
+    # assert "SelectMultiple" in str(autoui.li_widgets[0])

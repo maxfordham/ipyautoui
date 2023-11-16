@@ -14,7 +14,7 @@
 # ---
 
 # +
-# %run _dev_sys_path_append.py
+# %run _dev_maplocal_params.py
 # %load_ext lab_black
 
 import typing as ty
@@ -50,6 +50,9 @@ def _init_model_schema(
     schema = replace_refs(schema)
     schema = {k: v for k, v in schema.items() if k != "$defs"}
     return model, schema
+
+def pydantic_validate(model, value):
+    return model.model_validate(value).model_dump(mode="json")
 
 
 # def is_Nullable(di: dict) -> bool:
@@ -113,12 +116,9 @@ def is_allowed_type(di: dict) -> bool:
 
 def flatten_allOf(di: dict) -> dict:
     if "allOf" in di.keys():
-        kw = "allOf"
-        types = di[kw]
-        for _ in types:
+        for _ in di["allOf"]:
             di = {**di, **_}
-        del di[kw]
-        return di
+        return {k:v for k,v in di.items() if k != "allOf"}
     else:
         return di
 
@@ -127,7 +127,7 @@ def handle_null_or_unknown_types(fn, di: dict) -> tuple[bool, bool]:
     if "anyOf" in di:
         return is_Nullable(fn, di)
     elif "allOf" in di:  # do something...
-        logger.info(
+        logger.debug(
             f"allOf not properly implemented. it is flattened and re-evaluated.\nGiven : {str(di)}"
         )
         return fn(flatten_allOf(di))
@@ -740,7 +740,35 @@ def is_Textarea(
         return True, allow_none
     else:
         return False, allow_none
+    
+def is_enum_array(di: dict) -> (bool, int):
+    is_enum = lambda di: True if "enum" in di.keys() else False
+    
+    if not "items" in di.keys():
+        return False, 0
+    if is_enum(di["items"]):
+        return True, len(di["items"]["enum"])
+    else:
+        if "allOf" in di["items"]:
+            di["items"] = flatten_allOf(di["items"])
+            if is_enum(di["items"]):
+                return True, len(di["items"]["enum"])
+            else:
+                return False, 0
+        else:
+            return False, 0
+        
+def is_select_multiple(di:dict) ->( bool, int):
+    t = di["type"]
+    if "autoui" in di.keys():
+        return False, 0
+    if t != "array":
+        return False, 0
+    if not "items" in di.keys():
+        return False, 0
+    return is_enum_array(di)
 
+SELECT_MULTIPLE_MAX_ITEMS = 10
 
 def is_SelectMultiple(
     di: dict, allow_none=False, checked_nullable=False
@@ -748,21 +776,52 @@ def is_SelectMultiple(
     """
     ```py
     from ipyautoui.automapschema import is_SelectMultiple
-    di = {"title": "Dropdown", "enum": [1,2], "type": "array"}
+    di = {"title": "SelectMultiple", "items": {"enum": [1,2]}, "type": "array"}
+    print(is_SelectMultiple(di))
+    #> (True, False)
+    di = {"title": "SelectMultiple", "items": {"allOf":[{"enum": [1,2]}]}, "type": "array"}
     print(is_SelectMultiple(di))
     #> (True, False)
     ```
     """
     if "type" not in di.keys() and not checked_nullable:
         return handle_null_or_unknown_types(is_SelectMultiple, di)
-    t = di["type"]
-    if "autoui" in di.keys():
+    is_enum, enum_len = is_select_multiple(di)
+    if not is_enum:
         return False, allow_none
-    if not "enum" in di.keys():
+    else:
+        if enum_len < SELECT_MULTIPLE_MAX_ITEMS:
+            return True, allow_none
+        else:
+            return False, allow_none
+    
+def is_TagsInput(
+    di: dict, allow_none=False, checked_nullable=False
+) -> tuple[bool, bool]:
+    """
+    ```py
+    from ipyautoui.automapschema import is_TagsInput
+    di = {"title": "TagsInput", "items": {"enum": [1,2]}, "type": "array"}
+    print(is_TagsInput(di))
+    #> (False, False)
+    di = {"title": "TagsInput", "items": {"enum": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]}, "type": "array"}
+    print(is_TagsInput(di))
+    #> (True, False)
+    di = {"title": "TagsInput", "items": {"allOf":[{"enum": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]}]}, "type": "array"}
+    print(is_TagsInput(di))
+    #> (True, False)
+    ```
+    """
+    if "type" not in di.keys() and not checked_nullable:
+        return handle_null_or_unknown_types(is_TagsInput, di)
+    is_enum, enum_len = is_select_multiple(di)
+    if not is_enum:
         return False, allow_none
-    if t != "array":
-        return False, allow_none
-    return True, allow_none
+    else:
+        if enum_len >= SELECT_MULTIPLE_MAX_ITEMS:
+            return True, allow_none
+        else:
+            return False, allow_none
 
 
 def is_Checkbox(
@@ -858,23 +917,23 @@ def is_Array(di: dict, allow_none=False, checked_nullable=False) -> tuple[bool, 
         return False, allow_none
     if is_range(di):
         return False, allow_none
-    if "enum" in di.keys():
+    if is_enum_array(di)[0]:
         return False, allow_none  # as this is picked up from SelectMultiple
     if is_DataFrame(di, checked_nullable=checked_nullable)[0]:
         return False, allow_none
     return True, allow_none
 
 
-def update_keys(di, di_map=MAP_JSONSCHEMA_TO_IPYWIDGET):
-    update_key = lambda key, di_map: di_map[key] if key in di_map.keys() else key
-    return {update_key(k, di_map): v for k, v in di.items()}
+def update_keys(di, map_keys=MAP_JSONSCHEMA_TO_IPYWIDGET):
+    update_key = lambda key, map_keys: map_keys[key] if key in map_keys.keys() else key
+    return {update_key(k, map_keys): v for k, v in di.items()}
 
 
 def remove_title_and_description(di):
     return {k: v for k, v in di.items() if k != "description" and k != "title"}
 
 
-def create_widget_caller(schema, calling=None, remove_title=True):
+def create_widget_caller(schema, calling=None, remove_title=True, map_keys=MAP_JSONSCHEMA_TO_IPYWIDGET):
     """
     creates a "caller" object from the schema.
     this renames schema keys as follows to match ipywidgets:
@@ -900,13 +959,20 @@ def create_widget_caller(schema, calling=None, remove_title=True):
             initialised like ```calling(**caller)```
 
     """
-    caller = update_keys(schema)
+    caller = update_keys(schema, map_keys=map_keys)
     if remove_title:
         caller = remove_title_and_description(caller)
     if calling is not None:
         caller = remove_non_present_kwargs(calling, caller)
     return caller
 
+def tags_widget_caller(schema, calling=None, remove_title=True):
+    map_keys = dict(MAP_JSONSCHEMA_TO_IPYWIDGET) | {"enum": "allowed_tags"}
+    return create_widget_caller(schema, calling=calling, remove_title=remove_title, map_keys=map_keys)
+
+def flatten_items(di: dict, fn=None) -> dict:
+    di = {**di, **{k:v for k, v in di["items"].items() if k!="type"}}
+    return {k:v for k,v in di.items() if k!="items"}
 
 def flatten_type_and_nullable(di: dict, fn=None) -> dict:
     if "type" in di.keys():
@@ -919,23 +985,23 @@ def flatten_type_and_nullable(di: dict, fn=None) -> dict:
         else:
             raise ValueError("currently must have anyOf or allOf or type in schema")
         types = di[kw]
-        n = "null" in [l.get("type") for l in types]
-        t = [l for l in types if l.get("type") != "null"]  # [0]  # get non-null type
+        is_nullable = "null" in [l.get("type") for l in types]
+        types_non_null = [l for l in types if l.get("type") != "null"]  # get non-null types
 
-        def get_enum(t):
-            li = [_["enum"] for _ in t if "enum" in _.keys()]
+        def get_enum(types_non_null):
+            li = [_["enum"] for _ in types_non_null if "enum" in _.keys()]
             if len(li) == 0:
                 return None
             else:
                 return li[0]
 
-        e = get_enum(t)
-        if len(t) > 1 and e is not None:
-            di["examples"] = e
-        for _ in t:
+        enum = get_enum(types_non_null)
+        if len(types_non_null) > 1 and enum is not None:
+            di["examples"] = enum
+        for _ in types_non_null:
             di = {**di, **_}
         del di[kw]
-        return {**di, **{"nullable": n}}
+        return {**di, **{"nullable": is_nullable}}
 
 
 def add_schema_key(di: dict, wi=None) -> dict:
@@ -1117,6 +1183,22 @@ def get_widgets_map(di_update=None):
             "SelectMultiple": WidgetMapper(
                 fn_filt=is_SelectMultiple,
                 widget=w.SelectMultiple,
+                li_fn_modify=[
+                    flatten_type_and_nullable,
+                    flatten_items,
+                    create_widget_caller,
+                    dropdown_drop_null_value,
+                ],
+            ),
+            "TagsInput": WidgetMapper(
+                fn_filt=is_TagsInput,
+                widget=w.TagsInput,
+                li_fn_modify=[
+                    flatten_type_and_nullable,
+                    flatten_items,
+                    tags_widget_caller,
+                    dropdown_drop_null_value,
+                ],
             ),
             "Color": WidgetMapper(
                 fn_filt=is_Color,
@@ -1235,7 +1317,8 @@ def map_widget(
             return WidgetCaller(schema_=di, autoui=wi, allow_none=allow_none)
 
 
-def get_widget(di):
+def get_widget(di, **kwargs):
+    di = di | kwargs
     caller = map_widget(di)
     return widgetcaller(caller)  # TODO: add passing of value
 

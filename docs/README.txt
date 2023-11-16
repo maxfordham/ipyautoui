@@ -4,6 +4,7 @@ To build, do the following:
 
 1. create conda environment for docs
 >>> mamba env create -f environment.yml
+>>> mamba activate ipyautoui-docs
 
 2. generate conf.py file from jupyterbook _config.yml
 >>> jupyter-book config sphinx .

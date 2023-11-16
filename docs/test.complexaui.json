@@ -1,24 +1,3 @@
 {
-    "text": "adsf",
-    "int_slider": 2,
-    "int_text": 1,
-    "int_range_slider": [
-        0,
-        3
-    ],
-    "float_slider": 2.2,
-    "float_text": 2.2,
-    "float_text_locked": 2.2,
-    "float_range_slider": [
-        0.0,
-        2.2
-    ],
-    "checkbox": true,
-    "dropdown": "male",
-    "dropdown_edge_case": "female",
-    "dropdown_simple": "asd",
-    "combobox": "asd",
-    "text_short": "short text",
-    "text_area": "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ",
-    "auto_markdown": "\nSee details here: [__commonmark__](https://commonmark.org/help/)\n\nor press the question mark button. \n"
+    "text": "this is a value"
 }
