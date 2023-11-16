@@ -56,11 +56,14 @@ jobs:
       - name: Update environment
         run: mamba env update -n ipyautoui-dev -f docs/environment.yml
         if: steps.cache.outputs.cache-hit != 'true'
-          
-      # Build the book
+           
+      - name: setup jb config
+        shell: bash -l {0}
+        run: jupyter-book config sphinx .
+
       - name: Build the book
         shell: bash -l {0}
-        run: jupyter-book build docs
+        run: sphinx-build . _build/html -b html
           
       # Push the book's HTML to github-pages
       - name: GitHub Pages action
