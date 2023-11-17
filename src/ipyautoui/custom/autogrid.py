@@ -34,25 +34,21 @@ from ipydatagrid import CellRenderer, DataGrid, TextRenderer, VegaExpr
 from ipydatagrid.datagrid import SelectionHelper
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
-
+from ipyautoui._utils import json_as_type
 # +
-def get_property_types(properties):  #  TODO: THIS SHOULD BE REQUIRED
+def get_property_types(properties):  #  TODO: THIS SHOULD NOT BE REQUIRED
     def fn(v):
         if "type" in v:
             t = v["type"]
-            if t == "number":
-                t = "float"
             try:
-                return eval(t)
+                return json_as_type(t)
             except:
                 return str
         elif "anyOf" in v:
             types = [_.get("type") for _ in v["anyOf"] if _.get("type") != "null"]
             if len(types) == 1:
                 t = types[0]
-                if t == "string":
-                    t = "str"
-                return eval(t)
+                return json_as_type(t)
             else:
                 return lambda: None
         else:
