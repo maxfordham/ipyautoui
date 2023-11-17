@@ -17,6 +17,7 @@ import immutables
 import getpass
 import logging
 
+
 logger = logging.getLogger(__name__)
 frozenmap = immutables.Map
 
@@ -442,8 +443,8 @@ def type_as_json(value):
         raise ValueError(
             "value must be: string, integer, number, array, object or None"
         )
-        
-def json_as_type(s):
+
+def json_as_type(s)->ty.Type:
     if s == "string":
         return str
     elif s == "integer":

@@ -125,9 +125,6 @@ class TestGridSchema:
             )
         )
         
-    @pytest.mark.skip(
-        reason="TODO: fix this. issue about retrieving title from anyOf schema"
-    )
     def test_nullable_multiindex(self):
         class TestProperties(BaseModel):
             string: ty.Optional[str] = Field(column_width=100, section="a")
