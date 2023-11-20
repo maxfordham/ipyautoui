@@ -23,8 +23,9 @@ dependencies = [
     "ipyfilechooser",       # make optional
     "ipyvuetify",           # make optional
     "Markdown",
+    "jsonref",
     "numpy",
-    "openpyxl",             # for excel fiel viewer
+    "openpyxl",
     "pandas",
     "pydantic>2",
     "pydantic-settings",
