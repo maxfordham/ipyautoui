@@ -369,7 +369,7 @@ class Array(w.VBox, WatchValidate):
             )
             return None
         if len(self.boxes) <= 1:
-            pass
+            self.display_bn_add_from_zero(display=True)
         if key is None:
             print("key is None")
             key = self.iterable[-1].key
