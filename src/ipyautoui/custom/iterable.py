@@ -188,7 +188,10 @@ class Array(w.VBox, WatchValidate):
     @tr.observe("length")
     def _length(self, on_change):
         if self.length == 0:
-            if self.add_remove_controls == ItemControl.append_only or self.add_remove_controls == ItemControl.append_only:
+            if (
+                self.add_remove_controls == ItemControl.append_only
+                or self.add_remove_controls == ItemControl.append_only
+            ):
                 self.display_bn_add_from_zero(True)
             else:
                 pass
@@ -223,9 +226,16 @@ class Array(w.VBox, WatchValidate):
     def _align_horizontal(self, on_change):
         flip(self.bx_boxes, self.align_horizontal)
 
-    @property 
+    @property
     def map_key_value(self):
-        return {b.key: (lambda w: w.value if hasattr(w, "value") or hasattr(w, "_value") else None)(b.widget.value) for b in self.boxes}
+        return {
+            b.key: (
+                lambda w: w.value
+                if hasattr(w, "value") or hasattr(w, "_value")
+                else None
+            )(b.widget.value)
+            for b in self.boxes
+        }
 
     def display_bn_add_from_zero(self, display: bool):
         if display:
@@ -254,7 +264,7 @@ class Array(w.VBox, WatchValidate):
         self._post_init(**kwargs)
 
     def _post_init(self, **kwargs):
-        pass # NOTE: this can be overwritten to provide customisation
+        pass  # NOTE: this can be overwritten to provide customisation
 
     def _init_controls(self):
         [self._init_row_controls(key=i.key) for i in self.boxes]
@@ -381,7 +391,6 @@ class Array(w.VBox, WatchValidate):
         self._update_boxes()
         # self._update_value("")
         self._watch_validate_change("")
-
 
 
 class AutoArray(Array):
