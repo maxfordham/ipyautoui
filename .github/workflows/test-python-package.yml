@@ -55,13 +55,13 @@ jobs:
       - name: Update environment
         run: |
           if [ "${{ steps.cache.outputs.cache-hit }}" != 'true' ]; then
-            conda activate my-env
+            mamba activate my-env
             pip install .
           fi
 
       - name: Install flake8
         run: |
-          conda install -n my-env flake8
+          mamba install -n my-env flake8
 
       - name: Lint with flake8
         shell: bash -l {0}
@@ -74,7 +74,7 @@ jobs:
 
       - name: Install pytest
         run: |
-          conda install -n my-env pytest
+          mamba install -n my-env pytest
 
       - name: Run tests
         shell: bash -l {0}
