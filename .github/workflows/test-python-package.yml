@@ -53,11 +53,8 @@ jobs:
         id: cache
 
       - name: Update environment
-        run: |
-          if [ "${{ steps.cache.outputs.cache-hit }}" != 'true' ]; then
-            mamba activate my-env
-            pip install .
-          fi
+        run: mamba env update -n my-env -f environment.yml
+        if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Install flake8
         run: |

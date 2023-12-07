@@ -7,34 +7,17 @@ channels:
   - conda-forge
 dependencies:
   - python
-  - numpy
-  - pandas
   - jupyterlab>=4.0.0,<5.0.0a0
   - jupyterlab-unfold
   - jupyterlab-lsp
   - python-lsp-server
-  - ipywidgets>8
-  - ipyfilechooser
-  - ipydatagrid
-  - ipyvuetify
-  - voila
-  - plotly
-  - halo
   - jupytext
-  - markdown
-  - nodejs
-  - altair
-  - pydantic>2
-  - pydantic-settings
-  - python-dotenv
-  - pyyaml
-  - openpyxl
   - black
   - nb_black
-  - immutables
-  - wcmatch
   - pytest
-  - stringcase
+  - altair # optional
+  - halo # optional
+  - plotly # optional
   - pip
   - pip:
     - maplocal==0.2.1
