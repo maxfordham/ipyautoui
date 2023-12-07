@@ -9,7 +9,7 @@ on:
     - cron: '0 0 * * *'
 
 env:
-  CACHE_NUMBER: 0  # increase to reset cache manually
+  CACHE_NUMBER: 1  # increase to reset cache manually
 
 jobs:
   build:
@@ -53,7 +53,7 @@ jobs:
         id: cache
 
       - name: Update environment
-        run: mamba env update -n my-env -f environment.yml
+        run: pip install .
         if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Install flake8
