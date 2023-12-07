@@ -53,8 +53,11 @@ jobs:
         id: cache
 
       - name: Update environment
-        run: pip install .
-        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          if [ "${{ steps.cache.outputs.cache-hit }}" != 'true' ]; then
+            conda activate my-env
+            pip install .
+          fi
 
       - name: Install flake8
         run: |
