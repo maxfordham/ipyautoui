@@ -30,11 +30,14 @@ dependencies = [
     "pydantic>2",
     "pydantic-settings",
     "pydantic-extra-types",
-    "pytest",
     "PyYAML",
     "stringcase",
     "wcmatch",
-    "maplocal==0.2.1",
+]
+[project.optional-dependencies]
+tests = [
+  "pytest",
+  "maplocal==0.2.1"
 ]
 
 [project.urls]
