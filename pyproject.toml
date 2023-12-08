@@ -22,6 +22,7 @@ dependencies = [
     "ipydatagrid>=1.1.14",
     "ipyfilechooser",       # make optional
     "ipyvuetify",           # make optional
+    "markdown",
     "Markdown",
     "jsonref",
     "numpy",

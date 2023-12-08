@@ -10,7 +10,9 @@ dependencies:
   - jupyterlab>=4.0.0,<5.0.0a0
   - jupyterlab-unfold
   - jupyterlab-lsp
+  - jupyterlab-myst
   - python-lsp-server
+  - voila
   - jupytext
   - black
   - nb_black
@@ -23,5 +25,4 @@ dependencies:
     - maplocal==0.2.1
     - pydantic-extra-types
     - pytest-examples
-    - jsonref
     - -e .
