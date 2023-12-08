@@ -4,6 +4,10 @@
 
 ![](images/logo.png)
 
+## Documentation
+
+[https://maxfordham.github.io/ipyautoui/](https://maxfordham.github.io/ipyautoui/)
+
 ## Try it online!
 
 launch [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD?urlpath=voila%2Frender%2Fdocs%2Fdemo.ipynb).
