@@ -11,6 +11,10 @@ on:
     #
     # paths:
     # - some-subfolder/**
+    
+env:
+  CACHE_NUMBER: 1  # increase to reset cache manually
+    
 
 # This job installs dependencies, builds the book, and pushes it to `gh-pages`
 jobs:
