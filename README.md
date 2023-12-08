@@ -169,3 +169,6 @@ hatch publish  # publishes to pypi
 AutoVjsf is a very thin wrapper where ipyvuetify and vuetify-jsonschema-form are doing all the work.
 Many thanks to @mariobuikhuizen for providing me with the [boiler-plate code](https://github.com/widgetti/ipyvuetify/issues/182).
 Contributions welcome.
+
+**Note**: this is a 3rd party that is developed independently of the pydantic.dev company; other than relying
+heavily on their excellent package (pydantic), it is not affiliated with pydantic.dev in any way.  
