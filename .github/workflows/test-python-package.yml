@@ -69,9 +69,10 @@ jobs:
       #     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
       #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-      - name: Install pytest
-        run: |
-          mamba install -n my-env pytest
+      # - name: Install pytest
+      #   run: |
+      #     mamba install -n my-env pytest
+      # ^ REMOVED AS `pytest` IN `environment.yml`
 
       - name: Run tests
         shell: bash -l {0}
