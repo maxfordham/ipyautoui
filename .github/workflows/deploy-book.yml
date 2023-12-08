@@ -70,10 +70,15 @@ jobs:
         shell: bash -l {0}
         working-directory: ./docs
         run: sphinx-build . _build/html -b html
-          
+
+      - name: add .nojekyll file
+        working-directory: ./docs/_build/html
+        run: touch .nojekyll
+        
       # Push the book's HTML to github-pages
       - name: GitHub Pages action
         uses: peaceiris/actions-gh-pages@v3.6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html
+
