@@ -2,39 +2,25 @@ name: ipyautoui-docs
 # channels priority
 # see https://bioconda.github.io/
 # conda-forge has highest prioriy
-# -
-# jg notes
-# -
-# - needs everything that ipyautoui needs + everything for docs
-# - in future when packaged could make ipyautoui a dependency
-#   - in CI just make sure packaging happens first
 channels:
+  - defaults
   - conda-forge
 dependencies:
-  - python>=3.7
-  - pandas
-  - jupyterlab>4
-  - ipywidgets
-  - ipyfilechooser
-  - ipydatagrid
-  - ipyvuetify
+  - python
+  - jupyterlab>=4.0.0,<5.0.0a0
+  - jupyterlab-unfold
+  - jupyterlab-lsp
+  - jupyterlab-myst
+  - python-lsp-server
   - voila
-  - plotly
-  - halo
+  - voici
   - jupytext
-  - markdown
-  - nodejs
-  - altair
-  - pydantic>2
-  - pydantic-settings
-  - stringcase
-  - pyyaml
-  - pillow
-  - openpyxl
   - black
   - nb_black
-  - immutables
-  - wcmatch
+  - pytest
+  - altair # optional
+  - halo # optional
+  - plotly # optional
   - jupyter-book # for docs
   - sphinx # for docs
   - sphinx-book-theme # for docs
@@ -43,10 +29,9 @@ dependencies:
   - nbsphinx-link
   - sphinxcontrib-mermaid
   - sphinx-panels
-  - pytest
   - pip
   - pip:
-    - maplocal==0.1.1
-    - pytest-sphinx
-    - jsonref
+    - maplocal==0.2.1
     - pydantic-extra-types
+    - pytest-examples
+    - -e ..
