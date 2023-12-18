@@ -18,7 +18,7 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
     error = tr.Unicode(default_value=None, allow_none=True)
     schema = tr.Dict(default_value=None, allow_none=True)
     model = tr.Type(klass=BaseModel, default_value=None, allow_none=True)
-    # show_validation = tr.Bool(default_value=True)
+    show_validation = tr.Bool(default_value=True)
     _value = tr.Any()  # TODO: update trait type on schema change
     _silent = tr.Bool(default_value=False)
 
@@ -31,16 +31,26 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
     @tr.observe("error")
     def _error(self, on_change):
         if self.error is None:
-            with self.out_error:
-                clear_output()
-            self.out_error.layout = w.Layout(border=None, display="None")
+            if self.show_validation:
+                with self.out_error:
+                    clear_output()
+                self.out_error.layout = w.Layout(border=None, display="None")
             self.is_valid.value = True
         else:
-            self.out_error.layout = w.Layout(border='2px solid red', display="")
-            with self.out_error:
-                clear_output()
-                print(self.error)
+            if self.show_validation:
+                self.out_error.layout = w.Layout(border='2px solid red', display="")
+                with self.out_error:
+                    clear_output()
+                    logging.error(self.error)
             self.is_valid.value = False
+
+    @tr.observe("show_validation")
+    def _show_validation(self, on_change):
+        if hasattr(self, "out_error"):
+            if self.show_validation:
+                self.out_error.layout.display = ""
+            else:
+                self.out_error.layout.display = "none"
 
     @property
     def value(self):
