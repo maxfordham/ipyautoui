@@ -765,7 +765,7 @@ class AutoGrid(DataGrid):
         return self.column_names[index]
 
     def get_default_data(self):
-        data = pd.DataFrame(self.gridschema._get_default_data())
+        data = pd.DataFrame(self.gridschema._get_default_data(), columns=self.map_index_name)
         if self.by_title:
             data = data.rename(columns=self.map_name_index)
         return data

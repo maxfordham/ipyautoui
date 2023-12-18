@@ -262,7 +262,7 @@ class EditGrid(w.VBox, TitleDescription):
 
     @value.setter
     def value(self, value):
-        if value == [] or value is None:
+        if not value:
             self.grid.data = self.grid.get_default_data()
         else:
             self.grid.data = self.grid._init_data(pd.DataFrame(value))
