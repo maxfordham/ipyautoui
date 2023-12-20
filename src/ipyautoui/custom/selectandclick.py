@@ -93,6 +93,7 @@ class SelectAndClick(w.Box):
 
     @tr.observe("options")
     def _observe_options(self, change):
+        self.select.value = [] # HOTFIX: Bugs out setting options if ALL values selected: https://github.com/jupyter-widgets/ipywidgets/issues/3876
         self.select.options = change["new"]
 
     @tr.observe("title")
