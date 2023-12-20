@@ -88,8 +88,6 @@ class SelectAndClick(w.Box):
                 self.select,
                 self.bn,
             ]
-            # self.hbx_text.children = [self.hbx_message]
-            # self.hbx_bbar.children = [self.hbx_text, self.bn]
 
     @tr.observe("options")
     def _observe_options(self, change):
@@ -108,7 +106,6 @@ class SelectAndClick(w.Box):
         self._init_form()
         super().__init__(**kwargs)
         self._init_controls()
-
         self.update_options()
         self._observe_align_horizontal("")
         self._observe_align_left("")
@@ -119,22 +116,20 @@ class SelectAndClick(w.Box):
         self.html_title = w.HTML()
         self.html_message = w.HTML()
         self.out_message = w.Output()
-        #
         self.hbx_text = w.HBox()
         self.hbx_bbar = w.HBox()
 
     def _init_controls(self):
         self.bn.on_click(self.onclick)
         self.select.observe(self._update_message, "value")
-        self.select.observe(self._update_value, "value")
 
     def update_options(self):
         options = self.fn_get_options()
         if isinstance(options, dict):
-            self.map_options = options
-            self.options = list(options.keys())
+            self.index_to_key = {idx: key for idx, key in enumerate(options.keys())}
+            self.options = list(options.values())
         elif isinstance(options, list):
-            self.map_options = None
+            self.index_to_key = None
             self.options = options
         else:
             raise ValueError("options must be a list or dict")
@@ -148,9 +143,6 @@ class SelectAndClick(w.Box):
         else:
             self.html_message.value = ", ".join(self.select.value)
 
-    def _update_value(self, on_change):
-        self.value = self.select.value
-
     def onclick(self, on_click):
         @halo_decorator(
             self.out_message,
@@ -159,10 +151,10 @@ class SelectAndClick(w.Box):
             failed_msg=self.fn_failed_msg(self.select.value),
         )
         def fn(*args, **kwargs):
-            if self.map_options is None:
+            if self.index_to_key is None:
                 self.fn_onclick(self.select.value)
             else:
-                self.fn_onclick(self.map_options[self.select.value])
+                self.fn_onclick(self.index_to_key[self.select.value])
 
         fn()
 
@@ -252,12 +244,14 @@ if __name__ == "__main__":
 
 class SelectMultipleAndClick(SelectAndClick):
     value = tr.List(allow_none=True)
+    fn_reload = tr.Callable(lambda: print("reload"))
 
     def onclick(self, on_click):
-        if self.map_options is None:
+        if self.index_to_key is None:
             [self.fn_onclick(v) for v in self.select.value]
         else:
-            [self.fn_onclick(self.map_options[v]) for v in self.select.value]
+            [self.fn_onclick(self.index_to_key[idx]) for idx in self.select.index]
+        self.fn_reload()
 
     @tr.default("align_horizontal")
     def default_align_horizontal(self):
