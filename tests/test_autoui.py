@@ -92,7 +92,7 @@ class TestAutoUi:
         ui.autowidget.di_widgets["a"].value = []
         v = ui.value
         assert v == {"a": ["asdf"], "b":""}
-        ui.autowidget.di_widgets["a"].li_widgets[0].value = "a"
+        ui.autowidget.di_widgets["a"].widgets[0].value = "a"
         v = ui.value
         assert v == {"a": ["asdf","a"], "b":""}
         ui.autowidget.di_widgets["b"].value = "my val"

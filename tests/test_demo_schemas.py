@@ -54,5 +54,3 @@ def test_RootEnum():
     
     autoui = AutoUi(RootEnum)
     assert "SelectMultiple" in str(autoui.autowidget)
-    # autoui.add_row()
-    # assert "SelectMultiple" in str(autoui.li_widgets[0])

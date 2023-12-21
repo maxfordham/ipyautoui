@@ -59,11 +59,11 @@ class CoreIpywidgets(BaseModel):
         default=(0, 3)
     )
     int_range_slider_disabled: tuple[conint(ge=0, le=4), conint(ge=0, le=4)] = Field(
-        default=(0, 3), disabled=True
+        default=(0, 3), json_schema_extra=dict(json_schema_extra=dict(disabled=True))
     )
     float_slider: float = Field(default=2.2, ge=1, le=3)
     float_text: float = 2.2
-    float_text_locked: float = Field(default=2.2, disabled=True)
+    float_text_locked: float = Field(default=2.2, json_schema_extra=dict(disabled=True))
     float_range_slider: tuple[confloat(ge=0, le=4), confloat(ge=0, le=4)] = Field(
         default=(0, 2.2)
     )
@@ -80,7 +80,7 @@ class CoreIpywidgets(BaseModel):
         default=FruitEnum.apple,
         description="updated description",
     )
-    dropdown_simple: str = Field(default="asd", enum=["asd", "asdf"])
+    dropdown_simple: str = Field(default="asd", json_schema_extra=dict(enum=["asd", "asdf"]))
     text: str = Field(default="adsf", description="a description about my string")
     text_short: Annotated[
         str, StringConstraints(min_length=0, max_length=20)
