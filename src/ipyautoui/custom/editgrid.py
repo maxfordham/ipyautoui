@@ -262,10 +262,7 @@ class EditGrid(w.VBox, TitleDescription):
 
     @value.setter
     def value(self, value):
-        if not value:
-            self.grid.data = self.grid.get_default_data()
-        else:
-            self.grid.data = self.grid._init_data(pd.DataFrame(value))
+        self.grid.data = self.grid._init_data(pd.DataFrame(value))
 
         # HOTFIX: Setting data creates bugs out transforms currently so reset transform applied
         _transforms = self.grid._transforms
@@ -743,11 +740,12 @@ if __name__ == "__main__":
         ui_add=None,
         ui_edit=None,
         warn_on_delete=True,
+        by_title=False,
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
 
 if __name__ == "__main__":
-    editgrid.transposed = True
+    editgrid.transposed = False
 
 
