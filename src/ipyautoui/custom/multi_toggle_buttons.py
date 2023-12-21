@@ -34,6 +34,7 @@ import traitlets as tr
 
 # Local imports
 DICT_LAYOUT_VBOX_ANY = dict(
+    flex_flow="column wrap",
     width="100%",
     justify_content="center",
     align_self="center",
@@ -52,18 +53,28 @@ DICT_LAYOUT_HBOX_ANY = dict(
 LOGGER = logging.getLogger(__name__)
 
 
-class BaseToggleButtons(w.VBox):
+class BaseToggleButtons(w.Box):
     """Abstract class for all toggle buttons
 
     Values are stored in self.widget_parent when displayed is self.widget
     Which is updated in the moment when display() is launched
     """
 
+    align_horizontal = tr.Bool(default_value=True)
+
+    @tr.observe("align_horizontal")
+    def _align_horizontal(self, on_change):
+        if self.align_horizontal:
+            self.layout = DICT_LAYOUT_HBOX_ANY
+        else:
+            self.layout = DICT_LAYOUT_VBOX_ANY
+
     def __init__(self, widget_parent, **kwargs):
         """Initialize object"""
         self.widget_parent = widget_parent
         self.observe = self.widget_parent.observe
         super().__init__(layout=DICT_LAYOUT_VBOX_ANY)
+        self._align_horizontal("")
         self._tuple_value_types = (str, list, tuple)
         #####
         # self._get_button_width = self._get_buttons_min_width_needed
@@ -217,17 +228,23 @@ class MultiToggleButtons(BaseToggleButtons):
             but.observe(self._on_click_button_to_choose_option, "value")
             self._dict_but_by_option[str_option] = but
             list_buttons.append(but)
-        hbox_tmp = w.HBox(list_buttons, layout=DICT_LAYOUT_HBOX_ANY)
-        self.children = [hbox_tmp]
+        self.children = list_buttons
 
 
 if __name__ == "__main__":
     from IPython.display import display
-    
+
     wid = MultiToggleButtons(
-        options=[str(i) for i in range(10)],
+        options=[
+            str(i)
+            + "asdfas;ldfkjas; ldfk;a lksjf;aslfkd asdfa;sldkfjas;ldfk ;LKH ;LKJAS"
+            for i in range(20)
+        ],
         # max_chosen_values=2,
     )
     display(wid)
 # -
+if __name__ == "__main__":
+    wid.align_horizontal = False
+
 
