@@ -8,8 +8,6 @@ from ipyautoui.automapschema import _init_model_schema
 
 from .constants import DIR_TESTS
 
-# from ipyautoui.demo_schemas.editable_datagrid import DATAGRID_TEST_VALUE
-
 DIR_TEST_DATA = DIR_TESTS / "test_data"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
 
@@ -308,7 +306,7 @@ class TestAutoGrid:
         class DataFrameSchema(RootModel):
             """no default"""
 
-            root: ty.List[Cols] = Field(format="dataframe")
+            root: ty.List[Cols] = Field(json_schema_extra=dict(format="dataframe"))
 
         # initiate empty grid
         grid = AutoGrid(schema=DataFrameSchema)
@@ -331,7 +329,7 @@ class TestAutoGrid:
             """default."""
 
             root: ty.List[Cols] = Field(
-                [Cols(string="test", floater=1.5).model_dump()], format="dataframe"
+                [Cols(string="test", floater=1.5).model_dump()], json_schema_extra=dict(format="dataframe")
             )
 
         grid = AutoGrid(schema=DataFrameSchema)
@@ -449,7 +447,7 @@ class TestAutoGrid:
         class DataFrameSchema(RootModel):
             """no default"""
 
-            root: ty.List[Cols] = Field(format="dataframe")
+            root: ty.List[Cols] = Field(json_schema_extra=dict(format="dataframe"))
 
         order = (
             "floater",
@@ -502,8 +500,8 @@ class TestAutoGrid:
             """no default"""
 
             root: ty.List[Cols] = Field(
-                format="dataframe",
-                datagrid_index_name=("section", "title"),
+                json_schema_extra=dict(format="dataframe",
+                    datagrid_index_name=("section", "title")),
             )
 
         order = (
@@ -541,13 +539,13 @@ class TestAutoGrid:
         """Test that the order is applied to the data even if the order is a strict subset of the data columns"""
 
         class Cols(BaseModel):
-            string: str = Field(column_width=100)
-            floater: float = Field(column_width=70, global_decimal_places=3)
+            string: str = Field(json_schema_extra=dict(column_width=100))
+            floater: float = Field(json_schema_extra=dict(column_width=70, global_decimal_places=3))
 
         class DataFrameSchema(RootModel):
             """no default"""
 
-            root: ty.List[Cols] = Field(format="dataframe")
+            root: ty.List[Cols] = Field(json_schema_extra=dict(format="dataframe"))
 
         order = ("floater",)
         # Test without data passed
@@ -589,20 +587,17 @@ class TestAutoGrid:
         """Test that order works with multi-index and strict subset of columns"""
 
         class Cols(BaseModel):
-            string: str = Field(column_width=100, title="String", section="a")
-            floater: float = Field(
-                column_width=70,
-                global_decimal_places=3,
-                title="Floater",
-                section="a",
+            string: str = Field(json_schema_extra=dict(column_width=100, title="String", section="a"))
+            floater: float = Field(title="Floater",
+                json_schema_extra=dict(column_width=70,global_decimal_places=3,section="a")
             )
 
         class DataFrameSchema(RootModel):
             """no default"""
 
             root: ty.List[Cols] = Field(
-                format="dataframe",
-                datagrid_index_name=("section", "title"),
+                json_schema_extra=dict(format="dataframe",
+                    datagrid_index_name=("section", "title"))
             )
 
         order = ("floater",)
