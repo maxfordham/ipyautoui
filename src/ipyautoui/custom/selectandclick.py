@@ -29,17 +29,27 @@ from IPython.display import clear_output, display
 
 
 class SelectAndClick(w.Box):
-    value = tr.Unicode(allow_none=True, default_value=None)
+    _value = tr.Unicode(allow_none=True, default_value=None)
     fn_onclick = tr.Callable(lambda v: print(f"do something: {str(v)}"))
-    fn_get_options = tr.Callable(lambda: [])
+    fn_get_options = tr.Callable(None, allow_none=True)
     fn_loading_msg = tr.Callable(lambda v: f"loading {v}")
     fn_succeed_msg = tr.Callable(lambda v: f"successfully loaded {v}")
     fn_failed_msg = tr.Callable(lambda v: f"failed to load {v}")
-    options = tr.List(default_value=[])  # allow dict ?
+    options = tr.Any(
+        default_value=[]
+    )  # allow whatever ipywidgets allows (list, list of tuples, dict)
     title = tr.Unicode(default_value="")
     message = tr.Unicode(default_value="")
     align_horizontal = tr.Bool(default_value=True)
     align_left = tr.Bool(default_value=True)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self.select.value = value
 
     @tr.observe("value")
     def _observe_value(self, change):
@@ -101,16 +111,20 @@ class SelectAndClick(w.Box):
     def _observe_message(self, change):
         self.html_message.value = change["new"]
 
-    def __init__(self, **kwargs):
-        self._init_form()
+    def __init__(self, selector_widget=w.Dropdown, **kwargs):
+        self._init_form(selector_widget=selector_widget)
         super().__init__(**kwargs)
+
         self._init_controls()
-        self.update_options()
+        if self.fn_get_options is not None:
+            self.update_options()
         self._observe_align_horizontal("")
         self._observe_align_left("")
+        if "value" in kwargs:
+            self.value = kwargs["value"]
 
-    def _init_form(self):
-        self.select = self.get_selector_widget()
+    def _init_form(self, selector_widget=w.Dropdown):
+        self.select = selector_widget()
         self.bn = w.Button()
         self.html_title = w.HTML()
         self.html_message = w.HTML()
@@ -121,20 +135,16 @@ class SelectAndClick(w.Box):
     def _init_controls(self):
         self.bn.on_click(self.onclick)
         self.select.observe(self._update_message, "value")
+        self.select.observe(self._update_value, "value")
 
     def update_options(self):
-        options = self.fn_get_options()
-        if isinstance(options, dict):
-            self.index_to_key = {idx: key for idx, key in enumerate(options.keys())}
-            self.options = list(options.values())
-        elif isinstance(options, list):
-            self.index_to_key = None
-            self.options = options
-        else:
-            raise ValueError("options must be a list or dict")
+        self.options = self.fn_get_options()
 
     def _update_message(self, on_change):
         self.fn_update_message()
+
+    def _update_value(self, on_change):
+        self._value = self.select.value
 
     def fn_update_message(self):
         if isinstance(self.select.value, str):
@@ -150,10 +160,7 @@ class SelectAndClick(w.Box):
             failed_msg=self.fn_failed_msg(self.select.value),
         )
         def fn(*args, **kwargs):
-            if self.index_to_key is None:
-                self.fn_onclick(self.select.value)
-            else:
-                self.fn_onclick(self.index_to_key[self.select.value])
+            self.fn_onclick(self.value)
 
         fn()
 
@@ -173,9 +180,20 @@ class SelectAndClick(w.Box):
     def default_align_left(self):
         return True
 
-    @staticmethod
-    def get_selector_widget():
-        return w.Combobox(ensure_option=True)
+
+# -
+
+if __name__ == "__main__":
+    get_fruit_dict = lambda: {"apple": "a", "berry": "b"}
+    get_fruit_list = lambda: ["apple", "berry"]
+    get_fruit_tuples = lambda: [("apple", "a"), ("berry", "b"), ("berry", "c")]
+
+if __name__ == "__main__":
+    import functools
+
+    cls = functools.partial(w.Combobox, ensure_options=True)
+    ui = SelectAndClick(options=get_fruit_list(), selector_widget=cls)
+    display(ui)
 
 
 # +
@@ -190,6 +208,13 @@ class Remove(SelectAndClick):
         super().__init__(**kwargs)
         {setattr(self.bn, k, v) for k, v in DELETE_BUTTON_KWARGS.items()}
 
+
+if __name__ == "__main__":
+    add = Add(fn_get_options=get_fruit_tuples, value="a")
+    display(add)
+
+
+# -
 
 class Load(SelectAndClick):
     loaded = tr.Unicode()
@@ -224,8 +249,6 @@ class Load(SelectAndClick):
         self._update_loaded("")
 
 
-# -
-
 if __name__ == "__main__":
     from time import sleep
 
@@ -242,7 +265,7 @@ if __name__ == "__main__":
 
 
 class SelectMultipleAndClick(SelectAndClick):
-    value = tr.List(allow_none=True)
+    _value = tr.List(allow_none=True)
     fn_reload = tr.Callable(lambda: print("reload"))
 
     @tr.observe("options")
@@ -253,10 +276,7 @@ class SelectMultipleAndClick(SelectAndClick):
         self.select.options = change["new"]
 
     def onclick(self, on_click):
-        if self.index_to_key is None:
-            [self.fn_onclick(v) for v in self.select.value]
-        else:
-            [self.fn_onclick(self.index_to_key[idx]) for idx in self.select.index]
+        self.fn_onclick(self.value)
         self.fn_reload()
 
     @tr.default("align_horizontal")
@@ -267,29 +287,10 @@ class SelectMultipleAndClick(SelectAndClick):
     def default_align_left(self):
         return True
 
-    @staticmethod
-    def get_selector_widget():
-        return w.SelectMultiple()
-
-
-# +
-class AddMultiple(SelectMultipleAndClick):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        {setattr(self.bn, k, v) for k, v in ADD_BUTTON_KWARGS.items()}
-
-
-class RemoveMultiple(SelectMultipleAndClick):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        {setattr(self.bn, k, v) for k, v in DELETE_BUTTON_KWARGS.items()}
-
-
-# -
 
 if __name__ == "__main__":
     ui = Add(
-        fn_get_options=lambda: ["a", "b", "c"],
+        fn_get_options=get_fruit_list,
         fn_onclick=lambda v: print(f"loading project {v}"),
         fn_message_onclick=lambda v: print("aasdf"),
         title="load project:",
@@ -297,17 +298,42 @@ if __name__ == "__main__":
     )
     display(ui)
 
+
+# +
+class AddMultiple(SelectMultipleAndClick):
+    def __init__(self, **kwargs):
+        kwargs["selector_widget"] = w.SelectMultiple
+        super().__init__(**kwargs)
+        {setattr(self.bn, k, v) for k, v in ADD_BUTTON_KWARGS.items()}
+
+
+class RemoveMultiple(SelectMultipleAndClick):
+    def __init__(self, **kwargs):
+        kwargs["selector_widget"] = w.SelectMultiple
+        super().__init__(**kwargs)
+        {setattr(self.bn, k, v) for k, v in DELETE_BUTTON_KWARGS.items()}
+
+
+# -
+
 if __name__ == "__main__":
     ui = AddMultiple(
-        fn_get_options=lambda: ["a", "b", "c"],
+        fn_get_options=get_fruit_dict,
         align_horizontal=False,
         title="<b>asdf |</b>",
     )
     display(ui)
 
 if __name__ == "__main__":
+    ui.fn_get_options = get_fruit_dict
+
+if __name__ == "__main__":
     ui.align_horizontal = True
 
 if __name__ == "__main__":
     ui.align_horizontal = False
-    ui.align_left = False
+    ui.align_left = True
+
+
+
+
