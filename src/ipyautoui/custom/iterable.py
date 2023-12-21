@@ -143,6 +143,7 @@ class ItemBox(w.Box):
 
 class Array(w.VBox, WatchValidate):
     _value = tr.List()  # NOTE: value setter and getter in `WatchValidate`
+    # _widgets = tr.List() # TODO: list of DOMWidgets ? 
     fn_add = tr.Callable(
         default_value=lambda **kwargs: w.ToggleButton(
             description=(
@@ -161,6 +162,26 @@ class Array(w.VBox, WatchValidate):
     min_items = tr.Int(default_value=0)
     max_items = tr.Int(default_value=None, allow_none=True)
     type = tr.Unicode(default_value="array")
+    
+    def _get_widgets(self):
+        return [bx.widget for bx in self.boxes]
+    
+    @property
+    def widgets(self):
+        return self._get_widgets()
+    
+    @widgets.setter
+    def widgets(self, widgets):
+        self._set_boxes(widgets)
+        [self._init_row_controls(key=i.key) for i in self.boxes]
+        self._update_boxes()
+        self._align_horizontal("")
+        self._add_remove_controls("")
+        
+    def _set_boxes(self, widgets):
+        self.boxes = [
+            ItemBox(index=n, widget=widget) for n, widget in enumerate(widgets)
+        ]
 
     def _update_widgets_from_value(self):
         diff = len(self.value) - len(self.boxes)
@@ -171,10 +192,10 @@ class Array(w.VBox, WatchValidate):
                 self.add_row()
         for n, v in enumerate(self.value):
             try:
-                self.li_widgets[n].value = v
+                self.boxes[n].widget.value = v
             except:
                 raise ValueError(
-                    f"value (len={len(self.value)} and li_widgets (len={len(self.li_widgets)}) must be same length"
+                    f"value (len={len(self.value)} and widgets (len={len(self.widgets)}) must be same length"
                 )
         self._update_boxes()
 
@@ -188,18 +209,12 @@ class Array(w.VBox, WatchValidate):
     @tr.observe("length")
     def _length(self, on_change):
         if self.length == 0:
-            if (
-                self.add_remove_controls == ItemControl.append_only
-                or self.add_remove_controls == ItemControl.append_only
-            ):
-                self.display_bn_add_from_zero(True)
-            else:
-                pass
-        else:
             if self.add_remove_controls == ItemControl.append_only:
                 self.display_bn_add_from_zero(True)
             else:
                 self.display_bn_add_from_zero(False)
+        else:
+            self.display_bn_add_from_zero(False)
 
     @tr.validate("fn_remove")
     def _valid_fn_remove(self, proposal):
@@ -214,13 +229,10 @@ class Array(w.VBox, WatchValidate):
         for bx in self.boxes:
             bx.add_remove_controls = self.add_remove_controls
 
-        if (
-            self.add_remove_controls == ItemControl.remove_only
-            or self.add_remove_controls == ItemControl.none
-        ):
-            self.display_bn_add_from_zero(False)
-        else:
+        if self.add_remove_controls == ItemControl.append_only:
             self.display_bn_add_from_zero(True)
+        else:
+            self.display_bn_add_from_zero(False)
 
     @tr.observe("align_horizontal")
     def _align_horizontal(self, on_change):
@@ -246,28 +258,26 @@ class Array(w.VBox, WatchValidate):
     def __init__(self, **kwargs):
         self.bn_add_from_zero = w.Button(**ADD_BUTTON_KWARGS)
         self.bn_add_from_zero.layout.display = "None"
-        if "li_widgets" not in kwargs:  # TODO: li_widgets -> li_widgets ?
-            self.li_widgets = []
-            self.bn_add_from_zero.layout.display = ""
-        else:
-            self.li_widgets = kwargs["li_widgets"]
         self.bx_boxes = w.Box()
-        self.boxes = [
-            ItemBox(n, widget=widget) for n, widget in enumerate(self.li_widgets)
-        ]
+        self._init_form_controls()
+        self.widgets = self._init_widgets(kwargs)
+        self.bn_add_from_zero.layout.display = ""
         super().__init__(**kwargs)
         self.children = [self.bn_add_from_zero, self.bx_boxes]
-        self._init_controls()
-        self._update_boxes()
-        self._align_horizontal("on_change")
+
         self.layout.border = "1px solid #00a3e0"
         self._post_init(**kwargs)
+        
+    def _init_widgets(self, kwargs):
+        if "widgets" in kwargs:
+            return kwargs["widgets"]
+        else:
+            return []
 
     def _post_init(self, **kwargs):
         pass  # NOTE: this can be overwritten to provide customisation
 
-    def _init_controls(self):
-        [self._init_row_controls(key=i.key) for i in self.boxes]
+    def _init_form_controls(self):
         self.bx_boxes.observe(self.get_length, "children")
         self.bn_add_from_zero.on_click(self._append_row)
 
@@ -303,10 +313,10 @@ class Array(w.VBox, WatchValidate):
         for n, s in enumerate(sort):
             s.index = n
         self.boxes = sort
-        self.li_widgets = [bx.widget for bx in self.boxes]
 
     def _get_value(self):
-        return [bx.widget.value for bx in self.boxes]
+        get = lambda w: w.value if hasattr(w, "value") else None
+        return [get(bx.widget) for bx in self.boxes]
 
     # def _update_value(self, on_change):
     #     if not self._silent:
@@ -392,6 +402,31 @@ class Array(w.VBox, WatchValidate):
         # self._update_value("")
         self._watch_validate_change("")
 
+
+class Dictionary(Array):
+    _value = tr.Dict()  # NOTE: value setter and getter in `WatchValidate`
+
+    @tr.default("sort_on_index")
+    def _sort_on_index(self):
+        return False
+
+    def _get_value(self):
+        get = lambda w: w.value if hasattr(w, "value") else None
+        return {bx.key: get(bx.widget) for bx in self.boxes}
+    
+    def _get_widgets(self):
+        return {bx.key:bx.widget for bx in self.boxes}
+    
+    def _set_boxes(self, widgets):
+        self.boxes = [
+            ItemBox(index=n, key=k, widget=widget) for n, (k, widget) in enumerate(widgets.items())
+        ]
+        
+    def _init_widgets(self, kwargs):
+        if "widgets" in kwargs:
+            return kwargs["widgets"]
+        else:
+            return {}
 
 class AutoArray(Array):
     allOf = tr.List(allow_none=True, default_value=None)
@@ -540,7 +575,6 @@ if __name__ == "__main__":
             self.value = {self._label.value: self._bool.value}
 
     di_arr = {
-        "items": [fn_add()],
         "fn_add": fn_add,
         "maxlen": 10,
         "show_hash": "index",
@@ -552,6 +586,21 @@ if __name__ == "__main__":
     }
 
     arr = Array(**di_arr)
+    display(arr)
+
+if __name__ == "__main__":
+    di_arr = {
+        "fn_add": fn_add,
+        "maxlen": 10,
+        "show_hash": "index",
+        "toggle": True,
+        "title": "Array",
+        "description": "asdf",
+        "add_remove_controls": "append_only",
+        "orient_rows": False,
+    }
+
+    di = Dictionary(**di_arr)
     display(arr)
 
 if __name__ == "__main__":
