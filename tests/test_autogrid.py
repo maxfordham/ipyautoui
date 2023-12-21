@@ -587,11 +587,9 @@ class TestAutoGrid:
         """Test that order works with multi-index and strict subset of columns"""
 
         class Cols(BaseModel):
-            string: str = Field(column_width=100, title="String", section="a")
+            string: str = Field(json_schema_extra=dict(column_width=100, title="String", section="a"))
             floater: float = Field(title="Floater",
-                json_schema_extra=dict(column_width=70,
-                global_decimal_places=3,
-                section="a")
+                json_schema_extra=dict(column_width=70,global_decimal_places=3,section="a")
             )
 
         class DataFrameSchema(RootModel):
