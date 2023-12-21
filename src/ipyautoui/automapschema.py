@@ -45,7 +45,7 @@ def _init_model_schema(
         # https://koxudaxi.github.io/datamodel-code-generator/using_as_module/
     else:
         model = schema  # the "model" passed is a pydantic model
-        schema = model.schema(by_alias=by_alias).copy()
+        schema = model.model_json_schema(by_alias=by_alias).copy()
 
     schema = replace_refs(schema)
     schema = {k: v for k, v in schema.items() if k != "$defs"}
