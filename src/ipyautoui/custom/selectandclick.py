@@ -91,7 +91,6 @@ class SelectAndClick(w.Box):
 
     @tr.observe("options")
     def _observe_options(self, change):
-        self.select.value = [] # HOTFIX: Bugs out setting options if ALL values selected: https://github.com/jupyter-widgets/ipywidgets/issues/3876
         self.select.options = change["new"]
 
     @tr.observe("title")
@@ -245,6 +244,13 @@ if __name__ == "__main__":
 class SelectMultipleAndClick(SelectAndClick):
     value = tr.List(allow_none=True)
     fn_reload = tr.Callable(lambda: print("reload"))
+
+    @tr.observe("options")
+    def _observe_options(self, change):
+        self.select.value = (
+            []
+        )  # HOTFIX: Bugs out setting options if ALL values selected: https://github.com/jupyter-widgets/ipywidgets/issues/3876
+        self.select.options = change["new"]
 
     def onclick(self, on_click):
         if self.index_to_key is None:
