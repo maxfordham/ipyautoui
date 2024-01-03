@@ -100,7 +100,7 @@ class RowEditor:
 # +
 class UiDelete(w.HBox):
     value = tr.Dict(default_value={})
-    columns = tr.List(allow_none=True, default_value=None)
+    columns = tr.List(default_value=[])
 
     @tr.observe("value")
     def observe_value(self, on_change):
@@ -108,15 +108,15 @@ class UiDelete(w.HBox):
 
     @tr.observe("columns")
     def observe_columns(self, on_change):
-        if self.columns is not None:
+        if self.columns:
             self.message_columns.value = f"columns shown: {str(self.columns)}"
         else:
-            self.message_columns.value = "---"
+            self.message_columns.value = ""
         self._update_display()
 
     @property
     def value_summary(self):
-        if self.columns is not None:
+        if self.columns:
             return {
                 k: {k_: v_ for k_, v_ in v.items() if k_ in self.columns}
                 for k, v in self.value.items()
@@ -134,16 +134,16 @@ class UiDelete(w.HBox):
         self.fn_delete = fn_delete
         self.out_delete = w.Output()
         self.bn_delete = w.Button(
-            icon="exclamation-triangle",
+            icon="trash",
             button_style="danger",
             layout=w.Layout(width=BUTTON_WIDTH_MIN),
         )
         self.vbx_messages = w.VBox()
         self.message = w.HTML(
-            "⚠️<b>Are you sure you want to delete?</b>⚠️ - <i>pressing the button will"
-            " permanently delete the selected data from the datagrid</i>"
+            "⚠️<b>Are you sure you want to delete?</b>⚠️ - <i>Pressing the button will"
+            " permanently delete the selected data</i>"
         )
-        self.message_columns = w.HTML(f"---")
+        self.message_columns = w.HTML(f"")
         self.vbx_messages.children = [
             self.message,
             self.message_columns,
