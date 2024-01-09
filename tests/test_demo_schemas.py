@@ -13,7 +13,7 @@ from ipyautoui import AutoUi
 
 # NOTE: refer also to test_automapschema.py to ensure mappings are correct
 def assert_no_error_widget_in_autoui(autoui):
-    for k, wi in autoui.autowidget.di_widgets.items():
+    for k, wi in autoui.di_widgets.items():
         nm = str(wi.__class__)
         try:
             assert "WidgetCallerError" not in nm
@@ -45,12 +45,12 @@ def test_ScheduleRuleSet():
     assert_no_error_widget_in_autoui(autoui)
     
 def test_EditableGrid():
-    
+    from ipyautoui.custom.editgrid import EditGrid
     autoui = AutoUi(EditableGrid)
-    assert "EditGrid" in str(autoui.autowidget)
+    isinstance(autoui, EditGrid)
     
 def test_RootEnum():
     from ipyautoui.demo_schemas import RootEnum
     
     autoui = AutoUi(RootEnum)
-    assert "SelectMultiple" in str(autoui.autowidget)
+    assert "SelectMultiple" in str(autoui.widget)

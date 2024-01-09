@@ -36,7 +36,7 @@ from pydantic import BaseModel, ValidationError
 import json
 import traitlets as tr
 import typing as ty
-from ipyautoui.autoform import AutoObjectFormLayout
+from ipyautoui.autoform import AutoObjectFormLayout, ShowRaw
 from ipyautoui.custom import SaveButtonBar  # removing makes circular import error
 import json
 import logging
@@ -45,16 +45,26 @@ import ipywidgets as w
 from pydantic import BaseModel
 from ipyautoui.automapschema import pydantic_validate
 from IPython.display import clear_output
+from ipyautoui.automapschema import map_widget, widgetcaller, _init_model_schema, get_widgets_map, get_containers_map
+from ipyautoui.autobox import AutoBox
+from ipyautoui.autoform import TitleDescription, WrapSaveButtonBar, ShowRaw
 
 logger = logging.getLogger(__name__)
 
 
 # +
+import functools
+def wrapped_partial(func, *args, **kwargs):
+    # http://louistiao.me/posts/adding-__name__-and-__doc__-attributes-to-functoolspartial-objects/
+    partial_func = functools.partial(func, *args, **kwargs)
+    functools.update_wrapper(partial_func, func)
+    return partial_func
+
 def parse_json_file(path: pathlib.Path, model=None):
     """read json from file"""
     p = pathlib.Path(path)
     if model is not None:
-        return json.loads(model.parse_file(p).json())
+        return model(**json.loads(p.read_text())).model_dump() # json.loads(model.parse_file(p).json())
     else:
         return json.loads(p.read_text())
 
@@ -113,13 +123,15 @@ class AutoUiFileMethods(tr.HasTraits):
         if v is None and p is None:
             # v reverts to schema defaults
             return None
-        elif v is None and p is not None and p.is_file() == True:
+        elif v is None and p is not None and p.is_file():
             # load v from p
             return self.parse_file(path=p)
-        elif v is None and p is not None and p.is_file() == False:
+        elif v is None and p is not None and not p.is_file():
             # v reverts to schema defaults
             return None
         elif v is not None:
+            if p is not None and p.is_file():
+                logger.warning("both a value and a path given. value will be used.")
             # v reverts to given v
             return v
         else:
@@ -192,202 +204,63 @@ class AutoRenderMethods:
     ):
         AutoRenderer = cls.create_autoui_renderer(schema, **kwargs)
         return {ext: AutoRenderer}
-
-
-# +
-# TODO: should autoui be a function that returns the appropriate widget?
-#       this would solve the nested traits issue...
-class AutoUi(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
-
-    """extends AutoObject and AutoUiCommonMethods to create an
-    AutoUi user-input form. The data that can be saved to a json
-    file `path` and loaded from a json file.
-
-    Attributes:
-
-        # AutoFileMethods
-        # ------------------------------
-        path (tr.Instance(klass=pathlib.PurePath, ... ): path to file
-
-        # AutoObjectFormLayout
-        # -------------------------
-        title (str): form title
-        description (str): form description
-        show_description (bool, optional): show the description. Defaults to True.
-        show_title (bool, optional): show the title. Defaults to True.
-        show_savebuttonbar (bool, optional): show the savebuttonbar. Defaults to True.
-        show_raw (bool, optional): show the raw json. Defaults to False.
-        fn_onshowraw (callable): do not edit
-        fn_onhideraw (callable): do not edit
-        fns_onsave (callable): additional functions to be called on save
-        fns_onrevert (callable): additional functions to be called on revert
-
-        # AutoObject
-        # -------------------------
-        _value (dict): use `value` to set and get. the value of the form. this is a dict of the form {key: value}
-        fdir (path, optional): fdir to work from. useful for widgets that link to files. Defaults to None.
-        align_horizontal (bool, optional): aligns widgets horizontally. Defaults to True.
-        nested_widgets (list, optional): allows user to indicate widgets that should be show / hide type. Defaults to [].
-        auto_open (bool, optional): automatically opens the nested_widget. Defaults to True.
-        order (list): allows user to re-specify the order for widget rows to appear by key name in self.di_widgets
-        order_can_hide_rows (bool): allows user to hide rows by removing them from the order list.
-        insert_rows (dict): e.g. {3:w.Button()}. allows user to insert a widget into the rows. its presence
-            is ignored by the widget otherwise.
-        disabled (bool, optional): disables all widgets. If widgets are disabled
-            using schema kwargs this is remembered when re-enabled. Defaults to False.
-
-    """
-    error = tr.Unicode(default_value=None, allow_none=True)
-    schema = tr.Dict()
-    model = tr.Type(klass=BaseModel, default_value=None, allow_none=True)
-    _value = tr.Any()  # TODO: update trait type on schema change
     
-    @tr.observe("error")
-    def _error(self, on_change):
-        if self.error is None:
-            with self.out_error:
-                clear_output()
-            self.out_error.layout.display = "None"
+
+
+
+
+def get_autoui(schema: ty.Union[ty.Type[BaseModel], dict], **kwargs):
+    model, schema = _init_model_schema(schema)
+    schema = {**schema, **kwargs}
+    try: 
+        # assumes the root object is a container so reduces the search space
+        caller = map_widget(schema, widgets_map=get_containers_map(), fail_on_error=True)
+        is_container=True
+        class AutoUi(caller.autoui, ShowRaw, TitleDescription, WrapSaveButtonBar, AutoUiFileMethods):
+                
+            def _set_children(self):
+                self.children = [
+                    self.savebuttonbar,
+                    w.HBox([self.bn_showraw, self.html_title]),
+                    self.html_description,
+                    self.vbx_error,
+                    self.vbx_widget,
+                    self.vbx_showraw,
+                ]
+        if model is not None:
+            return wrapped_partial(AutoUi.from_pydantic_model, model)
+        else:
+            return wrapped_partial(AutoUi.from_jsonschema, schema)
             
-        else:
-            self.out_error.layout.display = ""
-            with self.out_error:
-                clear_output()
-                print(self.error)
-            
-    @property
-    def value(self):
-        return self._value
+    except:
+        # increases the search spaces to include all widgets
+        caller = map_widget(schema, widgets_map=get_widgets_map())
+        is_container=False
+        return wrapped_partial(AutoBox.wrapped_widget, caller.autoui, kwargs_box=caller.kwargs_box, kwargs_fromcaller=caller.kwargs)
+    
+def get_autodisplay_map(schema: ty.Union[ty.Type[BaseModel], dict], ext=".json", **kwargs):
+    ui = get_autoui(schema, **kwargs)
+    
+    def renderer(path: pathlib.Path):  # TODO: this is a hack. better to generalise CRUD operations.
+        _ui = ui(value=None, **kwargs)
+        _ui.path = path
+        print(path)
+        print(path.is_file())
+        _ui.load_file(path)
+        _ui.savebuttonbar.unsaved_changes = False
+        return _ui
+    
+    return {ext: renderer}
 
-    @value.setter
-    def value(self, value):
-        """this is for setting the value via the API"""
-        if value is not None:
-            self.autowidget.value = value
+def autoui(schema: ty.Union[ty.Type[BaseModel], dict], value=None, path=None, **kwargs):
+    ui = get_autoui(schema, **kwargs)  # TODO: resolve how path is handled
+    if value is None:
+        return ui(**kwargs)
+    else:
+        return ui(value=value, **kwargs)
 
-    @tr.observe("schema")
-    def _schema(self, on_change):
-        self.caller = map_widget(self.schema)
-        self.autowidget = widgetcaller(self.caller)
-        self.children = [self.autowidget]
+AutoUi = autoui
 
-    @property
-    def jsonschema_caller(self):
-        return summarize_di_callers(self)
-
-    def __init__(
-        self,
-        schema,
-        **kwargs,
-    ):
-        """initialises the AutoUi. in Jupyter hit "cntrl + I" to load "inspector"
-        and see the attributes.
-
-        Args:
-            schema (ty.Union[ty.Type[BaseModel], dict]): defines the form
-            value (dict, optional): form value. Defaults to None.
-            path (pathlib.Path, optional): read / write file location. Defaults to None.
-            update_map_widgets (dict, optional): allows user to update the map_widgets. Defaults to None.
-            fns_onsave (list, optional): list of functions to run on save. Defaults to None.
-            fns_onrevert (list, optional): list of functions to run on revert. Defaults to None.
-            **kwargs: passed to AutoObject. see attributes for details.
-        """
-        kwargs["model"], kwargs["schema"] = _init_model_schema(schema)
-        self.out_error = w.Output()
-        super().__init__(
-            **kwargs,
-        )
-        # self.path = path
-        if "value" in kwargs:
-            self.value = self._get_value(kwargs["value"], self.path)
-            self.savebuttonbar.unsaved_changes = False
-        self.children = [
-            self.savebuttonbar,
-            self.hbx_title,
-            self.html_description,
-            self.out_error,
-            self.autowidget,
-            self.vbx_showraw,
-        ]
-        self._init_controls()
-        self._watch_change({"new": "bang!!!"})
-        {
-            setattr(self.autowidget, k, v)
-            for k, v in kwargs.items()
-            if k not in self.trait_names() and k in self.autowidget.trait_names()
-        }  # pass traits to autowidget on init.
-
-    def _init_controls(self):
-        self._init_watch_widget()
-
-    def _init_watch_widget(self):
-        v = self.autowidget
-        if v.has_trait("value"):
-            logger.debug(f"value trait found for: {v.value}")
-            v.observe(self._watch_change, "value")
-        elif v.has_trait("_value"):
-            logger.debug(f"_value trait found for: {v.value}")
-            v.observe(self._watch_change, "_value")
-        else:
-            pass
-
-    def _watch_change(self, on_change):
-        if on_change["new"] != self._value:
-            v = self.autowidget.value
-            if self.model is not None:
-                try:
-                    v_ = pydantic_validate(self.model, v)
-                    self.error = None
-                except ValidationError as e:
-                    self.error = str(e)
-                    v_ = v
-                if v_ != v:
-                    try:
-                        with self.autowidget.silence_autoui_traits():
-                            self.value = v_
-                    except:
-                        pass
-                else:
-                    self._value = v_
-            else:
-                self._value = v
-            if hasattr(self, "savebuttonbar"):
-                self.savebuttonbar.unsaved_changes = True
-            # NOTE: it is required to set the whole "_value" otherwise
-            #       traitlets doesn't register the change.
-
-    def get_fdir(self, path=None, fdir=None):
-        if path is not None and fdir is None:
-            return pathlib.Path(path).parent
-        elif path is None and fdir is not None:
-            return fdir
-        elif path is not None and fdir is not None:
-            return fdir
-        else:
-            return None
-
-    @property
-    def json(self):
-        return json.dumps(self.autowidget.value, indent=4)
-
-
-def summarize_di_callers(obj: AutoUi):  # NOTE: mainly used for demo
-    fn_ser = lambda k, v: str(v) if k == "autoui" else v
-    fn_item = lambda v: {
-        k_: fn_ser(k_, v_) for k_, v_ in v.model_dump().items() if k_ != "schema_"
-    }
-    if hasattr(obj.autowidget, "di_callers"):  # AutoObject
-        return {k: fn_item(v) for k, v in obj.autowidget.di_callers.items()}
-    else:  # root item
-        return fn_item(obj.caller)
-
-
-#     @classmethod
-#     def from_json_schema(cls, schema):
-#         schema = replace_refs(schema)
-
-#     def from_pydantic_model(cls, model):
-#         schema = replace_refs(model.model_json_schema())
 
 
 if __name__ == "__main__":

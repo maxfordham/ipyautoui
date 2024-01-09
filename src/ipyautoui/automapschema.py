@@ -1109,12 +1109,30 @@ schema:
 
 from ipyautoui.autoanyof import AnyOf
 
-
-def get_widgets_map(di_update=None):
+def get_containers_map(di_update=None):
     from ipyautoui.custom.iterable import AutoArray
     from ipyautoui.autoobject import AutoObject
     from ipyautoui.custom.editgrid import EditGrid
+    CONTAINERS_MAP = frozenmap(
+        **{
+            "object": WidgetMapper(fn_filt=is_Object, widget=AutoObject),
+            "array": WidgetMapper(
+                fn_filt=is_Array,
+                widget=AutoArray,
+                li_fn_modify=[flatten_type_and_nullable],
+            ),
+            "dataframe": WidgetMapper(
+                fn_filt=is_DataFrame,
+                widget=EditGrid,
+                li_fn_modify=[add_schema_key, add_max_layout],
+            ),
+        }
+    )
+    if di_update is None:
+        di_update = {}
+    return update_widgets_map(CONTAINERS_MAP, di_update=di_update)
 
+def get_widgets_map(di_update=None):
     WIDGETS_MAP = frozenmap(
         **{
             "AutoOveride": WidgetMapper(
@@ -1216,23 +1234,12 @@ def get_widgets_map(di_update=None):
             "Datetime": WidgetMapper(
                 fn_filt=is_Datetime, widget=NaiveDatetimePickerString
             ),
-            "object": WidgetMapper(fn_filt=is_Object, widget=AutoObject),
-            "array": WidgetMapper(
-                fn_filt=is_Array,
-                widget=AutoArray,
-                li_fn_modify=[flatten_type_and_nullable],
-            ),
-            "dataframe": WidgetMapper(
-                fn_filt=is_DataFrame,
-                widget=EditGrid,
-                li_fn_modify=[add_schema_key, add_max_layout],
-            ),
             "anyOf": WidgetMapper(
                 fn_filt=is_AnyOf,
                 widget=AnyOf,
                 li_fn_modify=[create_widget_caller],
             ),
-        }
+        } | dict(get_containers_map())
     )
 
     if di_update is None:
@@ -1323,17 +1330,6 @@ def get_widget(di, **kwargs):
     return widgetcaller(caller)  # TODO: add passing of value
 
 
-if __name__ == "__main__":
-    di = {
-        "title": "int",
-        "default": 3,
-        "anyOf": [{"type": "integer"}, {"type": "null"}],
-    }
-    caller = map_widget(di)
-    assert "IntText" in str(caller.autoui)
-    print(caller)
-
-
 def from_schema_method(
     cls, schema: ty.Union[ty.Type[BaseModel], dict], value: ty.Optional[dict] = None
 ):
@@ -1355,3 +1351,14 @@ def from_model_method(cls, model: ty.Type[BaseModel], value: ty.Optional[dict] =
     ui = cls(**schema)
     ui.model = model
     return ui
+
+
+if __name__ == "__main__":
+    di = {
+        "title": "int",
+        "default": 3,
+        "anyOf": [{"type": "integer"}, {"type": "null"}],
+    }
+    caller = map_widget(di)
+    assert "IntText" in str(caller.autoui)
+    print(caller)

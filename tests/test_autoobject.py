@@ -37,11 +37,11 @@ class TestAutoObjectRowOrder:
         ui.order_can_hide_rows = True
         assert ui.order_can_hide_rows == True
         ui.order = order
-        assert len(ui.vbx_main.children) == 3
+        assert len(ui.vbx_widget.children) == 3
 
         ui.order_can_hide_rows = False
         assert ui.order == ui.default_order
-        assert len(ui.vbx_main.children) == len(ui.default_order)
+        assert len(ui.vbx_widget.children) == len(ui.default_order)
         
 
     def test_order_on_init(self):
@@ -52,7 +52,7 @@ class TestAutoObjectRowOrder:
             
         ui = AutoObject.from_pydantic_model(ExampleSchema)
         assert ui.value == {"a": "Test", "b": "Test1"}
-        assert len(ui.vbx_main.children) == 1
+        assert len(ui.vbx_widget.children) == 1
 
         
 

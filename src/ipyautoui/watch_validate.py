@@ -14,6 +14,16 @@ def pydantic_validate(model, value):
 class _WatchSilent(tr.HasTraits):  # TODO: contains context manager for silencing traits
     pass
 
+def summarize_di_callers(obj): # : AutoObject
+    fn_ser = lambda k, v: str(v) if k == "autoui" else v
+    fn_item = lambda v: {
+        k_: fn_ser(k_, v_) for k_, v_ in v.model_dump().items() if k_ != "schema_"
+    }
+    if hasattr(obj, "di_callers"):  # AutoObject
+        return {k: fn_item(v) for k, v in obj.di_callers.items()}
+    else:  # root item
+        return fn_item(obj.caller)
+
 class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
     error = tr.Unicode(default_value=None, allow_none=True)
     schema = tr.Dict(default_value=None, allow_none=True)
@@ -21,11 +31,16 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
     show_validation = tr.Bool(default_value=True)
     _value = tr.Any()  # TODO: update trait type on schema change
     _silent = tr.Bool(default_value=False)
+    
 
     @contextlib.contextmanager
     def silence_autoui_traits(self):
         self._silent = True
-        yield
+        try:
+            yield
+        except Exception as e:
+            self._silent = False
+            raise e
         self._silent = False
 
     @tr.observe("error")
@@ -58,6 +73,8 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
 
     @value.setter
     def value(self, value: ty.Any):
+        if self.model is not None:
+            value = pydantic_validate(self.model, value)
         if value != self._value:
             with self.hold_trait_notifications():
                 # these means that change events will be squashed
@@ -67,8 +84,9 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
                 #       traitlets doesn't register the change.
                 with self.silence_autoui_traits():
                     self._update_widgets_from_value()
+                pass
 
-    def _validate_value(self, v):
+    def _set_validate_value(self, v):  # this is called on change of the UI
         if self.model is not None:
             try:
                 v_ = pydantic_validate(self.model, v)
@@ -82,12 +100,22 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
                         # silence trait notications to avoid infinite loop
                         # and push validated value back to widgets
                         self.value = v_
+                    pass
                 except Exception as e:
                     self.value = v_
             else:
                 self._value = v_
         else:
             self._value = v
+            
+    def _watch_validate_update_value(self):
+        # NOTE: this code only run when triggered by a change in a UI
+        #       when value is forced in by the value setter it does not run
+        v = self._get_value()
+        if v != self._value:
+            self._set_validate_value(v)
+            if hasattr(self, "savebuttonbar"):
+                self.savebuttonbar.unsaved_changes = True 
 
     def _watch_validate_change(self, on_change):
         # NOTE: this method is intended for container widgets and is called
@@ -95,14 +123,12 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
         #       method required. it gets the value from all child widgets.
 
         # TODO: add log of on_change...
+        message = f'change: {str(on_change["old"])} --> {str(on_change["new"])}'
+        logger.info(message)
         if not self._silent:
-            # NOTE: this code only run when triggered by a change in a UI
-            #       when value is forced in by the value setter it does not run
-            v = self._get_value()
-            if v != self._value:
-                self._validate_value(v)
-                if hasattr(self, "savebuttonbar"):
-                    self.savebuttonbar.unsaved_changes = True
+            self._watch_validate_update_value()
+
+    
 
     @classmethod
     def from_jsonschema(cls, schema: dict, value: ty.Any = None, **kwargs):
@@ -126,7 +152,7 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
 
     @classmethod
     def from_pydantic_model(cls, model: ty.Type[BaseModel], value: ty.Any = None, **kwargs):
-        if not issubclass(model, BaseModel) or issubclass(model, RootModel):
+        if not (issubclass(model, BaseModel) or issubclass(model, RootModel)):
             raise ValueError(f"schema must be a pydantic model, not {type(model)}")
         else:
             schema = replace_refs(model.model_json_schema())
@@ -138,16 +164,21 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
         ui.model = model
         ui.schema = schema
         ui._init_validation_error()
-        ui._validate_value(ui.value)
+        ui._set_validate_value(ui.value)
         return ui
 
     def _init_validation_error(self):
         if self.model is not None:
             self.out_error = w.Output()
             self.is_valid = w.Valid(value=True)
-            self.vbx_error = w.VBox([self.is_valid, self.out_error])
-            self.children = [self.vbx_error] + list(self.children)
-
+            self.vbx_error.children = [self.is_valid, self.out_error]
+            
+    @property
+    def jsonschema_caller(self): 
+        #  NOTE: this is only used for demo
+        #        it will only work from AutoObject
+        #        a better implementation defo possible! ...
+        return summarize_di_callers(self)
     # -----------------------------------------------------------
     # implement these methods in your class that uses validation:
     # i.e. AutoObject, AutoArray, EditGrid, etc.
@@ -155,8 +186,9 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
 
     def _update_widgets_from_value(self):
         # NOTE: fn name requried by WatchValidate base class
-        with self.silence_autoui_traits():
-            pass  # NOTE: implement this method in your class
+        #       `with self.silence_autoui_traits()` applied when
+        #       calling this method
+        pass
 
     def _get_value(self, **kwargs):
         # NOTE: fn name requried by WatchValidate base class
@@ -166,5 +198,7 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
         # NOTE: implement a method in your class
         #       it must call `_watch_validate_change` on change
         #       of any child widget. `_init_watcher` name is not
-        #       required by this base class.
+        #       required by this base class but could be used...
         pass
+
+
