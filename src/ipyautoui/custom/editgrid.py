@@ -279,6 +279,11 @@ class EditGrid(w.VBox, TitleDescription):
 
     def _update_value_from_grid(self):
         self._value = self.grid.records()
+      
+    # TODO: this is a bit of a hack... need to refactor when EditGrid inherits WatchValidate  
+    @classmethod
+    def from_pydantic_model(cls, model: ty.Type[BaseModel], **kwargs):
+        return cls(model, **kwargs)
 
     def __init__(
         self,
@@ -299,7 +304,11 @@ class EditGrid(w.VBox, TitleDescription):
         show_title: bool = True,
         **kwargs,
     ):  # TODO: use **kwargs to pass attributes to EditGrid as in AutoObject and AutoArray
-        self.html_title = w.HTML()
+        
+        self.vbx_error = w.VBox()
+        self.vbx_widget = w.VBox()
+        # TODO: ^ move common container attributes to WatchValidate
+        
         self.description = description
         self.title = title
         self.show_title = show_title
@@ -344,12 +353,8 @@ class EditGrid(w.VBox, TitleDescription):
         self.stk_crud = w.Stack(
             children=[self.ui_add, self.ui_edit, self.ui_copy, self.ui_delete]
         )
-        self.children = [
-            self.html_title,
-            self.buttonbar_grid,
-            self.stk_crud,
-            self.grid,
-        ]
+        self.vbx_widget.children = [self.buttonbar_grid, self.stk_crud, self.grid]
+        self._set_children()
         self._init_controls()
         if self.datahandler is not None:
             self.buttonbar_grid.fn_reload = self._reload_datahandler
@@ -361,6 +366,12 @@ class EditGrid(w.VBox, TitleDescription):
         self.ui_add.show_savebuttonbar = True
         self.ui_add.savebuttonbar.fns_onsave = [self._post, self._save_add_to_grid]
         self.ui_add.savebuttonbar.fns_onrevert = [self._set_ui_add_to_default_row]
+        
+    def _set_children(self):
+        self.children = [
+            self.hbx_title_description,
+            self.vbx_widget
+        ]
 
     @property
     def schema(self):
