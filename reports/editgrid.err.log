@@ -1,0 +1,105 @@
+Traceback (most recent call last):
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.11/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+    executenb(
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.11/site-packages/nbclient/client.py", line 1204, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.11/site-packages/nbclient/util.py", line 84, in wrapped
+    return just_run(coro(*args, **kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.11/site-packages/nbclient/util.py", line 62, in just_run
+    return loop.run_until_complete(coro)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.11/site-packages/nbclient/client.py", line 663, in async_execute
+    await self.async_execute_cell(
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.11/site-packages/nbclient/client.py", line 965, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.11/site-packages/nbclient/client.py", line 862, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from ipyautoui.custom.editgrid import EditGrid
+class TestDataFrame(RootModel):
+    """a description of TestDataFrame"""
+
+    root: ty.List[DataFrameCols] = Field(format="dataframe")
+auto_grid = EditGrid(schema=TestDataFrame)
+auto_grid
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mAttributeError[0m                            Traceback (most recent call last)
+Cell [0;32mIn[4], line 6[0m
+[1;32m      3[0m [38;5;250m    [39m[38;5;124;03m"""a description of TestDataFrame"""[39;00m
+[1;32m      5[0m     root: ty[38;5;241m.[39mList[DataFrameCols] [38;5;241m=[39m Field([38;5;28mformat[39m[38;5;241m=[39m[38;5;124m"[39m[38;5;124mdataframe[39m[38;5;124m"[39m)
+[0;32m----> 6[0m auto_grid [38;5;241m=[39m EditGrid(schema[38;5;241m=[39mTestDataFrame)
+[1;32m      7[0m auto_grid
+
+File [0;32m~/work/ipyautoui/ipyautoui/src/ipyautoui/custom/editgrid.py:328[0m, in [0;36mEditGrid.__init__[0;34m(self, schema, value, by_alias, by_title, datahandler, ui_add, ui_edit, ui_delete, ui_copy, warn_on_delete, show_copy_dialogue, close_crud_dialogue_on_action, title, description, show_title, **kwargs)[0m
+[1;32m    326[0m [38;5;28mself[39m[38;5;241m.[39m_init_form()
+[1;32m    327[0m [38;5;28;01mif[39;00m ui_add [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m:
+[0;32m--> 328[0m     [38;5;28mself[39m[38;5;241m.[39mui_add [38;5;241m=[39m AutoObjectForm[38;5;241m.[39mfrom_jsonschema([38;5;28mself[39m[38;5;241m.[39mrow_schema)
+[1;32m    329[0m [38;5;28;01melse[39;00m:
+[1;32m    330[0m     [38;5;28mself[39m[38;5;241m.[39mui_add [38;5;241m=[39m ui_add[38;5;241m.[39mfrom_jsonschema([38;5;28mself[39m[38;5;241m.[39mrow_schema)
+
+File [0;32m~/work/ipyautoui/ipyautoui/src/ipyautoui/watch_validate.py:123[0m, in [0;36mWatchValidate.from_jsonschema[0;34m(cls, schema, value, **kwargs)[0m
+[1;32m    121[0m     schema[[38;5;124m"[39m[38;5;124mvalue[39m[38;5;124m"[39m] [38;5;241m=[39m value
+[1;32m    122[0m schema [38;5;241m=[39m {[38;5;241m*[39m[38;5;241m*[39mschema, [38;5;241m*[39m[38;5;241m*[39mkwargs}
+[0;32m--> 123[0m ui [38;5;241m=[39m [38;5;28mcls[39m([38;5;241m*[39m[38;5;241m*[39mschema)
+[1;32m    124[0m ui[38;5;241m.[39mschema [38;5;241m=[39m schema
+[1;32m    125[0m [38;5;28;01mreturn[39;00m ui
+
+File [0;32m~/work/ipyautoui/ipyautoui/src/ipyautoui/autoobject.py:424[0m, in [0;36mAutoObjectForm.__init__[0;34m(self, **kwargs)[0m
+[1;32m    423[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, [38;5;241m*[39m[38;5;241m*[39mkwargs):
+[0;32m--> 424[0m     [38;5;28msuper[39m()[38;5;241m.[39m[38;5;21m__init__[39m(
+[1;32m    425[0m         [38;5;241m*[39m[38;5;241m*[39mkwargs,
+[1;32m    426[0m     )
+[1;32m    427[0m     [38;5;28mself[39m[38;5;241m.[39mchildren [38;5;241m=[39m [
+[1;32m    428[0m         [38;5;28mself[39m[38;5;241m.[39msavebuttonbar,
+[1;32m    429[0m         [38;5;28mself[39m[38;5;241m.[39mhtml_title,
+[0;32m   (...)[0m
+[1;32m    432[0m         [38;5;28mself[39m[38;5;241m.[39mvbx_showraw,
+[1;32m    433[0m     ]
+
+File [0;32m~/work/ipyautoui/ipyautoui/src/ipyautoui/autoobject.py:309[0m, in [0;36mAutoObject.__init__[0;34m(self, **kwargs)[0m
+[1;32m    306[0m [38;5;66;03m# TODO: ^ move common container attributes to WatchValidate[39;00m
+[1;32m    308[0m [38;5;28mself[39m[38;5;241m.[39mmodel [38;5;241m=[39m [38;5;28;01mNone[39;00m
+[0;32m--> 309[0m [38;5;28msuper[39m()[38;5;241m.[39m[38;5;21m__init__[39m()
+[1;32m    310[0m kwargs [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39mget_ordered_kwargs(kwargs)
+[1;32m    311[0m {[38;5;28msetattr[39m([38;5;28mself[39m, k, v) [38;5;28;01mfor[39;00m k, v [38;5;129;01min[39;00m kwargs[38;5;241m.[39mitems()}
+
+File [0;32m/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.11/site-packages/ipywidgets/widgets/widget_box.py:64[0m, in [0;36mBox.__init__[0;34m(self, children, **kwargs)[0m
+[1;32m     62[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, children[38;5;241m=[39m(), [38;5;241m*[39m[38;5;241m*[39mkwargs):
+[1;32m     63[0m     kwargs[[38;5;124m'[39m[38;5;124mchildren[39m[38;5;124m'[39m] [38;5;241m=[39m children
+[0;32m---> 64[0m     [38;5;28msuper[39m()[38;5;241m.[39m[38;5;21m__init__[39m([38;5;241m*[39m[38;5;241m*[39mkwargs)
+
+File [0;32m/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.11/site-packages/ipywidgets/widgets/widget.py:503[0m, in [0;36mWidget.__init__[0;34m(self, **kwargs)[0m
+[1;32m    501[0m [38;5;250m[39m[38;5;124;03m"""Public constructor"""[39;00m
+[1;32m    502[0m [38;5;28mself[39m[38;5;241m.[39m_model_id [38;5;241m=[39m kwargs[38;5;241m.[39mpop([38;5;124m'[39m[38;5;124mmodel_id[39m[38;5;124m'[39m, [38;5;28;01mNone[39;00m)
+[0;32m--> 503[0m [38;5;28msuper[39m()[38;5;241m.[39m[38;5;21m__init__[39m([38;5;241m*[39m[38;5;241m*[39mkwargs)
+[1;32m    505[0m Widget[38;5;241m.[39m_call_widget_constructed([38;5;28mself[39m)
+[1;32m    506[0m [38;5;28mself[39m[38;5;241m.[39mopen()
+
+File [0;32m~/work/ipyautoui/ipyautoui/src/ipyautoui/autoform.py:134[0m, in [0;36mAutoObjectFormLayout.__init__[0;34m(self, **kwargs)[0m
+[1;32m    133[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, [38;5;241m*[39m[38;5;241m*[39mkwargs):
+[0;32m--> 134[0m     [38;5;28mself[39m[38;5;241m.[39m_init_autoform([38;5;241m*[39m[38;5;241m*[39mkwargs)
+
+File [0;32m~/work/ipyautoui/ipyautoui/src/ipyautoui/autoform.py:137[0m, in [0;36mAutoObjectFormLayout._init_autoform[0;34m(self, **kwargs)[0m
+[1;32m    136[0m [38;5;28;01mdef[39;00m [38;5;21m_init_autoform[39m([38;5;28mself[39m, [38;5;241m*[39m[38;5;241m*[39mkwargs):
+[0;32m--> 137[0m     [38;5;28mself[39m[38;5;241m.[39m_init_form()
+[1;32m    138[0m     [38;5;28mself[39m[38;5;241m.[39m_init_bn_showraw_controls()
+[1;32m    139[0m     [38;5;28msuper[39m()[38;5;241m.[39m[38;5;21m__init__[39m([38;5;241m*[39m[38;5;241m*[39mkwargs)
+
+File [0;32m~/work/ipyautoui/ipyautoui/src/ipyautoui/autoform.py:144[0m, in [0;36mAutoObjectFormLayout._init_form[0;34m(self)[0m
+[1;32m    142[0m [38;5;28mself[39m[38;5;241m.[39mhbx_title [38;5;241m=[39m w[38;5;241m.[39mHBox()
+[1;32m    143[0m [38;5;28mself[39m[38;5;241m.[39msavebuttonbar [38;5;241m=[39m SaveButtonBar(layout[38;5;241m=[39m{[38;5;124m"[39m[38;5;124mdisplay[39m[38;5;124m"[39m: [38;5;124m"[39m[38;5;124mNone[39m[38;5;124m"[39m})  [38;5;66;03m#[39;00m
+[0;32m--> 144[0m [38;5;28mself[39m[38;5;241m.[39mhtml_title [38;5;241m=[39m w[38;5;241m.[39mHTML()
+[1;32m    145[0m [38;5;28mself[39m[38;5;241m.[39m_init_bn_showraw()
+[1;32m    146[0m [38;5;28mself[39m[38;5;241m.[39mhbx_title[38;5;241m.[39mchildren [38;5;241m=[39m [[38;5;28mself[39m[38;5;241m.[39mbn_showraw, [38;5;28mself[39m[38;5;241m.[39mhtml_title]
+
+[0;31mAttributeError[0m: property 'html_title' of 'AutoObjectForm' object has no setter
+AttributeError: property 'html_title' of 'AutoObjectForm' object has no setter
+
