@@ -35,6 +35,7 @@ from ipyautoui.autoform import AutoObjectFormLayout
 from jsonref import replace_refs
 from pydantic import BaseModel
 from ipyautoui.watch_validate import WatchValidate
+from ipyautoui.custom.title_description import TitleDescription
 import contextlib
 
 logger = logging.getLogger(__name__)
@@ -64,7 +65,7 @@ def _get_value_trait(obj_with_traits):
         )
 
 
-class AutoObject(w.VBox, WatchValidate):
+class AutoObject(w.VBox, WatchValidate, TitleDescription):
     """creates an ipywidgets form from a json-schema or pydantic model.
     datatype must be "object"
 
@@ -148,6 +149,8 @@ class AutoObject(w.VBox, WatchValidate):
         }
         for k, v in self.di_callers.items():
             if v.autoui in self.nested_widgets:
+                v.kwargs = v.kwargs | {"show_title": False, "show_description": False}
+                # NOTE: ^ this avoids nested widgets having title and description both in AutoBox and in themselves
                 v.kwargs_box = v.kwargs_box | {"nested": True}
         self._init_ui()
 
@@ -229,7 +232,7 @@ class AutoObject(w.VBox, WatchValidate):
             )
             self.order = on_change["old"]
         else:
-            self.vbx_main.children = [self.di_boxes[o] for o in self.order]
+            self.vbx_widget.children = [self.di_boxes[o] for o in self.order]
 
     @tr.validate("order_can_hide_rows")
     def _order_can_hide_rows(self, proposal):
@@ -298,18 +301,28 @@ class AutoObject(w.VBox, WatchValidate):
         Returns:
             AutoObject(w.VBox)
         """
-        self.vbx_main = w.VBox()
+        self.vbx_error = w.VBox()
+        self.vbx_widget = w.VBox()
+        # TODO: ^ move common container attributes to WatchValidate
+        
         self.model = None
         super().__init__()
         kwargs = self.get_ordered_kwargs(kwargs)
         {setattr(self, k, v) for k, v in kwargs.items()}
 
-        self.children = [self.vbx_main]
         if "value" in kwargs.keys():
             self.value = kwargs["value"]
         else:
             self._value = self.di_widgets_value
+            
+        self._set_children()  
         self._post_init(**kwargs)
+        
+    def _set_children(self):
+        self.children = [
+            self.hbx_title_description,
+            self.vbx_widget
+        ]
             
     def _post_init(self, **kwargs):
         pass
@@ -350,7 +363,7 @@ class AutoObject(w.VBox, WatchValidate):
             )
             for k in self.di_callers.keys()
         }
-        self.vbx_main.children = list(self.di_boxes.values())
+        self.vbx_widget.children = list(self.di_boxes.values())
         self.indent_non_nullable()
 
     def indent_non_nullable(self):
@@ -413,17 +426,17 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout):
         )
         self.children = [
             self.savebuttonbar,
-            self.hbx_title,
+            self.html_title,
             self.html_description,
-            self.vbx_main,
+            self.vbx_widget,
             self.vbx_showraw,
         ]
 
     def display_ui(self):  # NOTE: this overwritten this in AutoObjectForm
-        self.vbx_main.layout.display = ""
+        self.vbx_widget.layout.display = ""
 
     def display_showraw(self):  # NOTE: this overwritten this in AutoObjectForm
-        self.vbx_main.layout.display = "None"
+        self.vbx_widget.layout.display = "None"
         return self.json
 
 
