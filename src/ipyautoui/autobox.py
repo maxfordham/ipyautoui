@@ -37,7 +37,7 @@ f1 = lambda self: [
         [
             SPACER,
             self.get_tgl,
-            self.html_title,
+            self.hbx_title_description,
         ]
     ),
     self.widget,
@@ -46,7 +46,7 @@ f2 = lambda self: [
     w.HBox(
         [
             self.get_tgl,
-            self.html_title,
+            self.hbx_title_description,
         ]
     ),
     self.widget,
@@ -56,7 +56,7 @@ f3 = lambda self: [
     w.HBox(
         [
             w.HBox([SPACER, self.widget]),
-            self.html_title,
+            self.hbx_title_description,
         ]
     )
 ]
@@ -64,20 +64,22 @@ f4 = lambda self: [
     w.HBox(
         [
             self.widget,
-            self.html_title,
+            self.hbx_title_description,
         ]
     )
 ]
 f5 = lambda self: [
-    w.VBox([self.html_title, w.HBox([SPACER, self.get_tgl]), self.widget])
+    w.VBox([self.hbx_title_description, w.HBox([SPACER, self.get_tgl]), self.widget])
 ]
 
-f6 = lambda self: [w.VBox([self.html_title, w.HBox([self.get_tgl]), self.widget])]
+f6 = lambda self: [
+    w.VBox([self.hbx_title_description, w.HBox([self.get_tgl]), self.widget])
+]
 
 f7 = lambda self: [
     w.VBox(
         [
-            self.html_title,
+            self.hbx_title_description,
             w.HBox(
                 [
                     SPACER,
@@ -88,7 +90,7 @@ f7 = lambda self: [
     )
 ]
 
-f8 = lambda self: [self.html_title, self.widget]
+f8 = lambda self: [self.hbx_title_description, self.widget]
 
 # (align_horizontal, nested, indent)
 map_format = {
@@ -136,6 +138,7 @@ class AutoBox(w.VBox, Nest, TitleDescription):
         )
     )
     indent = tr.Bool(default_value=False)
+    _value = tr.Any()
 
     @tr.observe("nested")
     def _nested(self, on_change):
@@ -157,6 +160,10 @@ class AutoBox(w.VBox, Nest, TitleDescription):
     def _widget(self, on_change):
         self.format_box()
 
+    @tr.observe("widget")
+    def _widget_value(self, on_change):
+        self._value = self.widget.value
+
     @tr.observe("hide")
     def _hide(self, on_change):
         if self.hide:
@@ -164,8 +171,15 @@ class AutoBox(w.VBox, Nest, TitleDescription):
         else:
             self.layout.display = ""
 
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self.widget.value = value
+
     def __init__(self, **kwargs):
-        self._update_title_description()
         super().__init__(**{k: v for k, v in kwargs.items() if k != "tooltip"})
         #  ^ tooltip issue: https://github.com/jupyter-widgets/ipywidgets/issues/3860
         self.format_box()
@@ -176,10 +190,22 @@ class AutoBox(w.VBox, Nest, TitleDescription):
 
     def format_box(self):
         self.children = map_format[self.format_tuple](self)
+        
+    @classmethod
+    def wrapped_widget(cls, widget_type, kwargs_box=None, kwargs_fromcaller=None, **kwargs):
+        if kwargs_fromcaller is None:
+            kwargs_fromcaller = {}
+        widget = widget_type(**{**kwargs_fromcaller, **kwargs})
+        if kwargs_box is None:
+            kwargs_box = {}
+        kwargs_box["widget"] = widget   
+        return cls(**kwargs_box)
+        
+        
 
 
 if __name__ == "__main__":
-    bx = AutoBox(title="asdfasdf", nested=True)
+    bx = AutoBox(title="asdfasdf", description="description", nested=True)
     display(bx)
 
 if __name__ == "__main__":
