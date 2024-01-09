@@ -31,9 +31,13 @@ changed = CoreIpywidgets(
 value_changed = changed.model_dump(mode="json")
 file(changed, PATH_TEST_AUTO_READ_FILE)
 
+from ipyautoui.autoui import autoui
+from ipyautoui.demo_schemas import CoreIpywidgets, RootSimple
+import pathlib
 
-
-    
+def test_autoui():
+    ui = autoui(RootSimple, path=pathlib.Path("test.json"))
+    ui
 
 
 class TestAutoUi:
@@ -54,8 +58,9 @@ class TestAutoUi:
         ui = AutoUi(
             CoreIpywidgets,
             path=PATH_TEST_AUTO_READ_FILE,
-            json_schema_extra=dict(show_savebuttonbar=False),
+            show_savebuttonbar=False,
         )
+        assert ui.show_savebuttonbar == False
         assert ui.savebuttonbar.layout.display == "None"
         print("done")
         
@@ -71,9 +76,9 @@ class TestAutoUi:
                 return "asdf"
             
         ui = AutoUi(Test)
-        ui.autowidget.di_widgets["a"].value = "my val"
+        ui.di_widgets["a"].value = "my val"
         assert ui.value == {"a": "asdf", "b":""}
-        ui.autowidget.di_widgets["b"].value = "my val"
+        ui.di_widgets["b"].value = "my val"
         assert ui.value == {"a": "asdf", "b":"my val"}
         
     def test_pydantic_validation_list(self):
@@ -89,13 +94,16 @@ class TestAutoUi:
                     v = ["asdf"] + v
                 return v
         ui = AutoUi(TestList)
-        ui.autowidget.di_widgets["a"].value = []
-        v = ui.value
-        assert v == {"a": ["asdf"], "b":""}
-        ui.autowidget.di_widgets["a"].widgets[0].value = "a"
+        assert ui.value == {'a': ['asdf'], 'b': ''}
+        # ui.di_widgets["a"].value = [] # NOTE: this won't work. value setting must happen from the top down, or from the ui. 
+        assert ui.di_widgets["a"].widgets[0].value == "asdf"
+        ui.di_widgets["a"].widgets[0].value == ""
+        assert ui.value == {"a": ["asdf"], "b":""}
+        assert ui.di_widgets["a"].widgets[0].value == "asdf"
+        ui.di_widgets["a"].widgets[0].value = "a"
         v = ui.value
         assert v == {"a": ["asdf","a"], "b":""}
-        ui.autowidget.di_widgets["b"].value = "my val"
+        ui.di_widgets["b"].value = "my val"
         v = ui.value
         assert ui.value == {"a": ["asdf","a"], "b":"my val"}
         
@@ -123,9 +131,6 @@ class TestAutoUi:
             
         ui = AutoUi(TestListEnums)
         
-        # ui.autowidget.di_widgets["a"].value = [Obj()]
-        # v = ui.value
-        # assert v == {"a": [{"c": "Director in Charge", "d":0}], "b":""}
         ui.value = {"a": [{"c": "Client Relationship Management (CRM) Lead", "d":0}], "b":""}
         v = ui.value
         assert v["a"][1]["c"] == "Client Relationship Management (CRM) Lead"
