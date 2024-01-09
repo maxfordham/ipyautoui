@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.5
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -143,7 +143,6 @@ class SaveActions(tr.HasTraits):
             to_beginning=to_beginning,
         )
 
-
 # -
 
 if __name__ == "__main__":
@@ -206,14 +205,14 @@ class SaveButtonBar(SaveActions, w.HBox):
 
     def _save(self, click):
         self.fn_save()
-        self.message.value = markdown(
-            f'_changes saved: {datetime.now().strftime("%H:%M:%S")}_'
+        self.message.value = (
+            f'<i>changes saved: {datetime.now().strftime("%H:%M:%S")}</i>'
         )
         self.unsaved_changes = False
 
     def _revert(self, click):
         self.fn_revert()
-        self.message.value = markdown(f"_UI reverted to last save_")
+        self.message.value = f"<i>UI reverted to last save</i>"
         self.unsaved_changes = False
 
     def _observe_unsaved_changes(self, onchange):
@@ -259,25 +258,25 @@ BUTTONBAR_CONFIG = {
         "tooltip": "add item",
         "tooltip_clicked": "Go back to table",
         "button_style": "success",
-        "message": "  ➕ _Adding Value_ ",
+        "message": "  ➕ <i>Adding Value</i>",
     },
     "edit": {
         "tooltip": "edit item",
         "tooltip_clicked": "Go back to table",
         "button_style": "success",
-        "message": "  ✏️ _Editing Value_ ",
+        "message": "  ✏️ <i>Editing Value</i>",
     },
     "copy": {
         "tooltip": "copy item",
         "tooltip_clicked": "Go back to table",
         "button_style": "success",
-        "message": "  📝 _Copying Value_ ",
+        "message": "  📝 <i>Copying Value</i>",
     },
     "delete": {
         "tooltip": "delete item",
         "tooltip_clicked": "Go back to table",
         "button_style": "success",
-        "message": "  🗑️ _Deleting Value_ ",
+        "message": "  🗑️ <i>Deleting Value</i>",
     },
 }
 
@@ -359,7 +358,7 @@ class CrudButtonBar(w.HBox):
             self.active = button_name
             w.tooltip = BUTTONBAR_CONFIG[button_name]["tooltip_clicked"]
             w.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
-            self.message.value = markdown(BUTTONBAR_CONFIG[button_name]["message"])
+            self.message.value = BUTTONBAR_CONFIG[button_name]["message"]
             fn()
         else:
             self.active = None
