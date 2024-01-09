@@ -463,3 +463,12 @@ def json_as_type(s)->ty.Type:
         raise ValueError(
             "value must be: string, integer, number, array, object or None"
         )
+        
+def show_hide_widget(widget, show: bool):
+    try:
+        if show:
+            widget.layout.display = ""
+        else:
+            widget.layout.display = "None"
+    except:
+        ValueError(str(widget) + "failed to change layout.display")
