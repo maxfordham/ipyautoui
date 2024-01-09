@@ -141,9 +141,9 @@ class ItemBox(w.Box):
 # -
 
 
-class Array(w.VBox, WatchValidate):
+class Array(w.VBox, WatchValidate, TitleDescription):  # ,
     _value = tr.List()  # NOTE: value setter and getter in `WatchValidate`
-    # _widgets = tr.List() # TODO: list of DOMWidgets ? 
+    # _widgets = tr.List() # TODO: list of DOMWidgets ?
     fn_add = tr.Callable(
         default_value=lambda **kwargs: w.ToggleButton(
             description=(
@@ -162,14 +162,14 @@ class Array(w.VBox, WatchValidate):
     min_items = tr.Int(default_value=0)
     max_items = tr.Int(default_value=None, allow_none=True)
     type = tr.Unicode(default_value="array")
-    
+
     def _get_widgets(self):
         return [bx.widget for bx in self.boxes]
-    
+
     @property
     def widgets(self):
         return self._get_widgets()
-    
+
     @widgets.setter
     def widgets(self, widgets):
         self._set_boxes(widgets)
@@ -177,7 +177,7 @@ class Array(w.VBox, WatchValidate):
         self._update_boxes()
         self._align_horizontal("")
         self._add_remove_controls("")
-        
+
     def _set_boxes(self, widgets):
         self.boxes = [
             ItemBox(index=n, widget=widget) for n, widget in enumerate(widgets)
@@ -189,14 +189,14 @@ class Array(w.VBox, WatchValidate):
             self.boxes = self.boxes[0 : len(self.value)]
         elif diff > 0:
             for n in range(0, diff):
-                self.add_row()
+                self.add_row(update_value=False)
         for n, v in enumerate(self.value):
             try:
                 self.boxes[n].widget.value = v
-            except:
+            except Exception as e:
                 raise ValueError(
-                    f"value (len={len(self.value)} and widgets (len={len(self.widgets)}) must be same length"
-                )
+                    f"{e}, widget-type={str(type(self.boxes[n].widget))}, value={v}, also, ",
+                    f"\n value (len={len(self.value)} and widgets (len={len(self.widgets)}) must be same length")
         self._update_boxes()
 
     @tr.validate("type")
@@ -216,13 +216,13 @@ class Array(w.VBox, WatchValidate):
         else:
             self.display_bn_add_from_zero(False)
 
-    @tr.validate("fn_remove")
-    def _valid_fn_remove(self, proposal):
-        if not len(inspect.signature(proposal["value"]).parameters) == 1:
-            raise ValueError(
-                "fn_remove must have 1no arg == item box. the item box that is being deleted. i.e. `self.fn_remove(bx)"
-            )
-        return proposal["value"]
+    # @tr.validate("fn_remove")
+    # def _valid_fn_remove(self, proposal):
+    #     if not len(inspect.signature(proposal["value"]).parameters) == 1:
+    #         raise ValueError(
+    #             "fn_remove must have 1no arg == item box. the item box that is being deleted. i.e. `self.fn_remove(bx)"
+    #         )
+    #     return proposal["value"]
 
     @tr.observe("add_remove_controls")
     def _add_remove_controls(self, on_change):
@@ -256,6 +256,9 @@ class Array(w.VBox, WatchValidate):
             self.bn_add_from_zero.layout.display = "None"
 
     def __init__(self, **kwargs):
+        self.vbx_widget = w.VBox()
+        self.vbx_error = w.VBox()
+        
         self.bn_add_from_zero = w.Button(**ADD_BUTTON_KWARGS)
         self.bn_add_from_zero.layout.display = "None"
         self.bx_boxes = w.Box()
@@ -263,11 +266,15 @@ class Array(w.VBox, WatchValidate):
         self.widgets = self._init_widgets(kwargs)
         self.bn_add_from_zero.layout.display = ""
         super().__init__(**kwargs)
-        self.children = [self.bn_add_from_zero, self.bx_boxes]
-
+        self.vbx_widget.children = [self.bn_add_from_zero, self.bx_boxes]
+        
         self.layout.border = "1px solid #00a3e0"
+        self._set_children()
         self._post_init(**kwargs)
         
+    def _set_children(self):
+        self.children = [self.hbx_title_description, self.vbx_widget]
+
     def _init_widgets(self, kwargs):
         if "widgets" in kwargs:
             return kwargs["widgets"]
@@ -332,9 +339,11 @@ class Array(w.VBox, WatchValidate):
         self.add_row(key=key)
 
     def _add_row(self, onclick, key=None):
+        print(f"add row with key = {key}")
+        logger.info(f"add row with key = {key}")
         self.add_row(key=key)
 
-    def add_row(self, key=None, new_key=None, add_kwargs=None, widget=None):
+    def add_row(self, key=None, new_key=None, add_kwargs=None, widget=None, update_value=True):
         """add row to array after key. if key=None then append to end"""
         if self.max_items is not None and len(self.boxes) >= self.max_items:
             logging.warning(
@@ -377,7 +386,8 @@ class Array(w.VBox, WatchValidate):
         self._init_row_controls(bx.key)  # init controls
         self._update_boxes()
         # self._update_value("")
-        self._watch_validate_change("")
+        if update_value:
+            self._watch_validate_update_value()
 
     def _remove_rows(self, onclick, key=None):
         self.remove_row(key=key)
@@ -400,7 +410,7 @@ class Array(w.VBox, WatchValidate):
         self._sort_boxes()
         self._update_boxes()
         # self._update_value("")
-        self._watch_validate_change("")
+        self._watch_validate_update_value()
 
 
 class Dictionary(Array):
@@ -413,20 +423,22 @@ class Dictionary(Array):
     def _get_value(self):
         get = lambda w: w.value if hasattr(w, "value") else None
         return {bx.key: get(bx.widget) for bx in self.boxes}
-    
+
     def _get_widgets(self):
-        return {bx.key:bx.widget for bx in self.boxes}
-    
+        return {bx.key: bx.widget for bx in self.boxes}
+
     def _set_boxes(self, widgets):
         self.boxes = [
-            ItemBox(index=n, key=k, widget=widget) for n, (k, widget) in enumerate(widgets.items())
+            ItemBox(index=n, key=k, widget=widget)
+            for n, (k, widget) in enumerate(widgets.items())
         ]
-        
+
     def _init_widgets(self, kwargs):
         if "widgets" in kwargs:
             return kwargs["widgets"]
         else:
             return {}
+
 
 class AutoArray(Array):
     allOf = tr.List(allow_none=True, default_value=None)
@@ -460,14 +472,97 @@ class AutoArray(Array):
             self.value = kwargs["value"]
 
 
-class AutoArrayForm(AutoArray, TitleDescription):
+class AutoArrayForm(AutoArray):  # TODO: delete
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if "value" in kwargs.keys():
             self.value = kwargs["value"]
-        self._update_title_description()
-        self.children = [self.html_title, self.bn_add_from_zero, self.bx_boxes]
+        # self._update_title_description()
 
+
+if __name__ == "__main__":
+
+    class CustomItem(w.HBox):
+        _value = tr.Unicode()
+
+        @tr.observe("_value")
+        def _obs_value(self, on_change):
+            self.html_out.value = self._value
+
+        @property
+        def value(self):
+            return self._value
+
+        @value.setter
+        def value(self, value):
+            with self.hold_trait_notifications():
+                self.a.value, self.b.value, self.c.value = value.split("-")
+
+        def __init__(self, value=None, **kwargs):
+            self.a = w.Text(layout=w.Layout(width="50px"))
+            self.b = w.Text(layout=w.Layout(width="50px"))
+            self.c = w.Text(layout=w.Layout(width="50px"))
+            self.html_out = w.HTML(layout=w.Layout(width="140px"))
+            super().__init__()
+            self.children = [self.a, self.b, self.c, self.html_out]
+            self._init_controls()
+            if value is not None:
+                self.value = value
+            else:
+                self._update("")
+
+        def _init_controls(self):
+            self.a.observe(self._update, names="value")
+            self.b.observe(self._update, names="value")
+            self.c.observe(self._update, names="value")
+
+        def _update(self, change):
+            self._value = "-".join([self.a.value, self.b.value, self.c.value])
+
+    class CustomArray(Array):
+        def fn_add(self, value=None):
+            return CustomItem(value=value)
+
+        def _post_init(self, **kwargs):
+            self.title = "custom array"
+            self._init_CustomArray_controls()
+
+        def _init_CustomArray_controls(self):
+            self.observe(self.update_colors, "_value")
+
+        def update_colors(self, on_change):
+            print("asdf")
+
+    arr_cu = CustomArray()
+    display(arr_cu)
+
+if __name__ == "__main__":
+    from pydantic import RootModel, Field, BaseModel
+    from ipyautoui.demo_schemas import ArrayWithUnionType, RootArray, RootArrayEnum
+
+    class MyString(RootModel):
+        root: str = Field(description="form with custom item...")
+
+    class MyObject(BaseModel):
+        stringy: str = Field("stringy", description="asdfsadf")
+        inty: int = 1
+        floaty: ty.Union[float, str] = 1.5
+        custom_item: str = Field(
+            "a-b-c",
+            description="custom_item",
+            json_schema_extra={"autoui": "CustomItem"},
+        )
+
+    class ArrayWithUnionType(RootModel):
+        """hl;askdfhas;dlkf"""
+
+        root: list[MyObject]
+
+    s = replace_refs(ArrayWithUnionType.model_json_schema())
+    v = MyObject(floaty=0.2).model_dump()
+    s["value"] = [v]
+    ui = AutoArrayForm.from_schema(s)
+    display(ui)
 
 if __name__ == "__main__":
     from pydantic import RootModel, Field, BaseModel
