@@ -244,8 +244,6 @@ def get_autodisplay_map(schema: ty.Union[ty.Type[BaseModel], dict], ext=".json",
     def renderer(path: pathlib.Path):  # TODO: this is a hack. better to generalise CRUD operations.
         _ui = ui(value=None, **kwargs)
         _ui.path = path
-        print(path)
-        print(path.is_file())
         _ui.load_file(path)
         _ui.savebuttonbar.unsaved_changes = False
         return _ui
