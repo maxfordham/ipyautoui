@@ -254,7 +254,10 @@ def get_autodisplay_map(schema: ty.Union[ty.Type[BaseModel], dict], ext=".json",
 
 def autoui(schema: ty.Union[ty.Type[BaseModel], dict], value=None, path=None, **kwargs):
     ui = get_autoui(schema, **kwargs)  # TODO: resolve how path is handled
-    return ui(value=value, **kwargs)
+    if value is None:
+        return ui(**kwargs)
+    else:
+        return ui(value=value, **kwargs)
 
 AutoUi = autoui
 
