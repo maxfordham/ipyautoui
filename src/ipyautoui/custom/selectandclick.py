@@ -28,7 +28,7 @@ from ipyautoui.custom.halo_decorator import halo_decorator
 from IPython.display import clear_output, display
 
 
-class SelectAndClick(w.Box):
+class SelectAndClick(w.Box):  # TODO: inherit TitleDescription
     _value = tr.Unicode(allow_none=True, default_value=None)
     fn_onclick = tr.Callable(lambda v: print(f"do something: {str(v)}"))
     fn_get_options = tr.Callable(None, allow_none=True)
