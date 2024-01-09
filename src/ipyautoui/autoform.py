@@ -58,6 +58,16 @@ class ShowRaw(tr.HasTraits):
         self.bn_showraw.observe(self._observe_bn_showraw, "value")
         
     @property
+    def vbx_showraw(self):
+        if not hasattr(self, "_vbx_showraw"):
+            self._init_bn_showraw()
+        return self._vbx_showraw
+    
+    @vbx_showraw.setter
+    def vbx_showraw(self, value):
+        self._vbx_showraw = value
+        
+    @property
     def bn_showraw(self):
         if not hasattr(self, "_bn_showraw"):
             self._init_bn_showraw()
@@ -169,7 +179,7 @@ if __name__ == "__main__":
 # +
 
 
-class TestForm(AutoObjectFormLayout, w.VBox):
+class TestForm(AutoObjectFormLayout, TitleDescription, w.VBox):
     def __init__(self, **kwargs):
         self.vbx_error = w.VBox()
         self.vbx_widget = w.VBox()
