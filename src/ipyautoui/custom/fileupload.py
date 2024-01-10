@@ -68,23 +68,31 @@ def read_file_upload_item(di: dict, fdir=pathlib.Path("."), added_by=None):
 
 def add_file(upld_item, fdir=pathlib.Path(".")):
     f = read_file_upload_item(upld_item, fdir=fdir)
+    if f.path.is_file():
+        raise ValueError(f"{f.path} already exist. exiting operation.")
     f.path.write_bytes(upld_item["content"])
     return f
 
 
-def add_files_to_dir(upld_value, fdir=pathlib.Path(".")):
+def add_files_to_dir(upld_value, fdir=pathlib.Path("."), message=None):
     di = {}
     for l in upld_value:
-        f = add_file(l, fdir=fdir)
-        di[l["name"]] = f
+        try:
+            f = add_file(l, fdir=fdir)
+            di[l["name"]] = f
+        except Exception as e:
+            if message is not None:
+                message.value = f"<i>{str(e)}</i>"
+                time.sleep(2)
+            pass
     return [v.path for v in di.values()]
 
 
 # +
-def add_files(upld_value, fdir=pathlib.Path(".")):
+def add_files(upld_value, fdir=pathlib.Path("."), message=None):
     if not pathlib.Path(fdir).exists():
         pathlib.Path(fdir).mkdir(exist_ok=True)
-    return add_files_to_dir(upld_value, fdir=fdir)
+    return add_files_to_dir(upld_value, fdir=fdir, message=message)
 
 
 class FileUploadToDir(w.VBox):
@@ -160,19 +168,32 @@ class FileUploadToDir(w.VBox):
 if __name__ == "__main__":
     fupld = FileUploadToDir(value="IMG_0688.jpg")
     display(fupld)
-
-
 # -
+
+import time
+
 
 class FilesUploadToDir(Array):
     fdir = tr.Instance(klass=pathlib.PurePath, default_value=pathlib.Path("."))
     kwargs_display_path = tr.Dict(default_value={}, allow_none=False)
+    kwargs_file_upload = tr.Dict(default_value={}, allow_none=False)
+
+    @tr.default("kwargs_file_upload")
+    def _kwargs_file_upload(self):
+        return dict(multiple=True)
+
+    @tr.observe("kwargs_file_upload")
+    def _obs_kwargs_file_upload(self, value):
+        value = value["new"] | dict(multiple=True)
+        {setattr(self.upld, k, v) for k, v in value.items()}
 
     def __init__(self, **kwargs):
+        self.upld = w.FileUpload()
         super().__init__(**kwargs)
 
     def _post_init(self, **kwargs):
         self.fn_remove = self.fn_remove_file
+        self.message = w.HTML()
         self.add_remove_controls = "remove_only"
         self.show_hash = None
         value = kwargs.get("value")
@@ -182,16 +203,20 @@ class FilesUploadToDir(Array):
         self.kwargs_display_path = (lambda v: {} if v is None else v)(
             kwargs_display_path
         )
-        self.upld = w.FileUpload(**dict(multiple=True))
-        self.children = [self.upld] + list(self.children)
+        self.children = [
+            self.html_title,
+            w.HBox([self.upld, self.message]),
+            self.bx_boxes,
+        ]
         self._init_controls_FilesUploadToDir()
 
     def _init_controls_FilesUploadToDir(self):
         self.upld.observe(self._upld, "value")
 
     def _upld(self, on_change):
-        paths = add_files(self.upld.value, fdir=self.fdir)
+        paths = add_files(self.upld.value, fdir=self.fdir, message=self.message)
         self.add_files(paths)
+        self.message.value = ""
         self.upld.value = ()
 
     def add_files(self, paths: list[str]):
@@ -219,7 +244,10 @@ class FilesUploadToDir(Array):
 if __name__ == "__main__":
     p = pathlib.Path()
     p_ = list(IPYAUTOUI_ROOTDIR.parents)[2] / "docs" / "images" / "logo.png"
-    upld = FilesUploadToDir(value=[str(p_)])
+    upld = FilesUploadToDir(
+        value=[str(p_)],
+        kwargs_file_upload=dict(accept=".asc, .png, .jpg", multiple=True),
+    )
     display(upld)
     # test
 
