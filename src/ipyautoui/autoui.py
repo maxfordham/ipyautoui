@@ -216,7 +216,7 @@ def get_autoui(schema: ty.Union[ty.Type[BaseModel], dict], **kwargs):
         # assumes the root object is a container so reduces the search space
         caller = map_widget(schema, widgets_map=get_containers_map(), fail_on_error=True)
         is_container=True
-        class AutoUi(caller.autoui, ShowRaw, TitleDescription, WrapSaveButtonBar, AutoUiFileMethods):
+        class AutoUi(caller.autoui, ShowRaw, TitleDescription, WrapSaveButtonBar, AutoUiFileMethods):  
                 
             def _set_children(self):
                 self.children = [
@@ -228,7 +228,7 @@ def get_autoui(schema: ty.Union[ty.Type[BaseModel], dict], **kwargs):
                     self.vbx_showraw,
                 ]
         if model is not None:
-            return wrapped_partial(AutoUi.from_pydantic_model, model)
+            return wrapped_partial(AutoUi.from_pydantic_model, model)  # TODO: this is inefficient as the top-level mapping is called twice.
         else:
             return wrapped_partial(AutoUi.from_jsonschema, schema)
             
