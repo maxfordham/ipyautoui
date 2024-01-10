@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -21,12 +21,16 @@ a UI element that loads a folder for data caching, whilst storing a record of fo
 """
 
 # %run ../_dev_maplocal_params.py
-#
 # %load_ext lab_black
+# -
+
 from pydantic import ConfigDict, BaseModel
 import ipywidgets as w
 import typing as ty
 import traitlets as tr
+
+# +
+TreeModel = ty.ForwardRef("TreeModel")
 
 
 class TreeModel(BaseModel):
@@ -36,13 +40,10 @@ class TreeModel(BaseModel):
     description: str = ""
     options: list
     value: ty.Union[str, float, int] = None  # ty.Union[str, float, int]
-    children: ty.ForwardRef("TreeModel") = None
+    children: TreeModel = None
     disabled: bool = False
     placeholder: str = ""
     model_config = ConfigDict(extra="allow")
-
-
-TreeModel.update_forward_refs()
 
 
 # +
@@ -109,6 +110,7 @@ class DecisionUi(w.HBox):
 
 if __name__ == "__main__":
     from IPython.display import display
+
     PROJECTS = ["J5001", "J5002"]
     t = TreeModel(
         **{
