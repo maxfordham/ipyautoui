@@ -62,19 +62,19 @@ class TestEditGrid:
 
     def test_editgrid_multiindex_change_data(self):
         class TestProperties(BaseModel):
-            string: str = Field(column_width=100, section="a")
+            string: str = Field(json_schema_extra=dict(column_width=100, section="a"))
             floater: float = Field(
-                1.5, column_width=70, global_decimal_places=3, section="b"
+                1.5, json_schema_extra=dict(column_width=70, global_decimal_places=3, section="b")
             )
-            inty: int = Field(1, section="b")
+            inty: int = Field(1, json_schema_extra=dict(section="b"))
 
         class TestGridSchema(RootModel):
             """no default"""
 
             root: ty.List[TestProperties] = Field(
                 [TestProperties(string="string").model_dump()],
-                format="dataframe",
-                datagrid_index_name=("section", "title"),
+                json_schema_extra=dict(format="dataframe",
+                    datagrid_index_name=("section", "title"))
             )
 
         # df = pd.DataFrame([{"string": "test2", "floater": 2.2, "inty": 1}])
@@ -107,16 +107,6 @@ class TestEditGrid:
             {"string": "test2", "floater": 2.2, "inty": 1},
             {"string": "", "floater": 1.5, "inty": 1},
         )
-
-        # edit
-        # egrid.grid.select(row1=1, column1=1, row2=1, column2=1, clear_mode="all")
-        # egrid.ui_edit.value = {"string": "test", "floater": 1.5, "inty": 1}
-        # egrid._save_edit_to_grid()
-        # assert egrid.value == (
-        #     {"string": "string", "floater": 1.5, "inty": 1},
-        #     {"string": "test", "floater": 1.5, "inty": 1},
-        # )
-        # print("done")
 
 
 class TestAutoEditGrid:

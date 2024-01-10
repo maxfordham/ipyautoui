@@ -48,7 +48,7 @@ class ShowRaw(tr.HasTraits):
             icon="code",
             layout=w.Layout(width=BUTTON_WIDTH_MIN, display="None"),
             tooltip="show raw data",
-            style={"font_weight": "bold", "button_color": None},
+            style={"font_weight": "bold"},
         )
         self.vbx_showraw = w.VBox()
         self.out_raw = w.Output()

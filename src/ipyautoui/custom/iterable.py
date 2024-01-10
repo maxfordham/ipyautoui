@@ -671,13 +671,11 @@ if __name__ == "__main__":
 
     di_arr = {
         "fn_add": fn_add,
-        "maxlen": 10,
-        "show_hash": "index",
-        "toggle": True,
+        "max_items": 10,
         "title": "Array",
         "description": "asdf",
         "add_remove_controls": "append_only",
-        "orient_rows": False,
+        "align_horizontal": False,
     }
 
     arr = Array(**di_arr)
@@ -686,13 +684,11 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     di_arr = {
         "fn_add": fn_add,
-        "maxlen": 10,
-        "show_hash": "index",
-        "toggle": True,
+        "max_items": 10,
         "title": "Array",
         "description": "asdf",
         "add_remove_controls": "append_only",
-        "orient_rows": False,
+        "align_horizontal": False,
     }
 
     di = Dictionary(**di_arr)
@@ -710,12 +706,10 @@ if __name__ == "__main__":
     di_arr = {
         "items": None,
         "fn_add": fn_add,
-        "maxlen": 10,
-        "show_hash": "index",
-        #'toggle':True,
+        "max_items": 10,
         "title": "Array",
         "add_remove_controls": "append_only",
-        "orient_rows": False,
+        "align_horizontal": False,
     }
 
     arr = Array(**di_arr)
@@ -727,9 +721,7 @@ if __name__ == "__main__":
     di_arr = {
         "value": [{"None": False}],
         "fn_add": fn_add,
-        "maxlen": 10,
-        "show_hash": "index",
-        #'toggle':True,
+        "max_items": 10,
         "title": "Array",
         "add_remove_controls": "append_only",
         "align_horizontal": True,

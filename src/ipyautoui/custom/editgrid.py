@@ -396,8 +396,6 @@ class EditGrid(w.VBox, TitleDescription):
             fn_copy=self._copy,
             fn_delete=self._delete,
             fn_reload=get_reload(),
-            # backward=self.setview_default,
-            show_message=False,
         )
         self.addrow = w.VBox()
         self.editrow = w.VBox()

@@ -24,7 +24,7 @@ shutil.rmtree(DIR_TEST_DATA)
 # ^ remove previous data. this allows tests to check if files exist.
 
 
-class TestItem(w.HBox, tr.HasTraits):
+class MyItem(w.HBox, tr.HasTraits):
     value = tr.Dict()
 
     def __init__(self, di: ty.Dict):
@@ -45,20 +45,19 @@ class TestItem(w.HBox, tr.HasTraits):
 
 
 def fn_add():
-    return TestItem(di={"Example": 1})
+    return MyItem(di={"Example": 1})
 
 
 class TestCustom:
     def test_iterables_array(self):
         di_arr = {
-            "items": [fn_add()],
+            "widgets": [fn_add()],
             "fn_add": fn_add,
-            "maxlen": 10,
-            "show_hash": "index",
-            "toggle": True,
+            "max_items": 10,
+            # "show_hash": "index",
             "title": "Array",
             "add_remove_controls": "append_only",
-            "orient_rows": False,
+            "align_horizontal": False,
         }
         arr = Array(**di_arr)
 
