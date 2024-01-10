@@ -301,7 +301,7 @@ class TestAutoGrid:
     def test_empty_grid(self):
         class Cols(BaseModel):
             string: str = Field(json_schema_extra=dict(column_width=100))
-            floater: float = Field(column_width=70, global_decimal_places=3)
+            floater: float = Field(json_schema_extra=dict(column_width=70, global_decimal_places=3))
 
         class DataFrameSchema(RootModel):
             """no default"""
@@ -322,8 +322,8 @@ class TestAutoGrid:
         # get default data from top-level schema defaults
 
         class Cols(BaseModel):
-            string: str = Field("string", column_width=100)
-            floater: float = Field(3.14, column_width=70, global_decimal_places=3)
+            string: str = Field("string", json_schema_extra=dict(column_width=100))
+            floater: float = Field(3.14, json_schema_extra=dict(column_width=70, global_decimal_places=3))
 
         class DataFrameSchema(RootModel):
             """default."""
@@ -441,8 +441,8 @@ class TestAutoGrid:
         """Test that the order works"""
 
         class Cols(BaseModel):
-            string: str = Field(column_width=100)
-            floater: float = Field(column_width=70, global_decimal_places=3)
+            string: str = Field(json_schema_extra=dict(column_width=100))
+            floater: float = Field(json_schema_extra=dict(column_width=70, global_decimal_places=3))
 
         class DataFrameSchema(RootModel):
             """no default"""
@@ -488,12 +488,12 @@ class TestAutoGrid:
         """Test order with multi index"""
 
         class Cols(BaseModel):
-            string: str = Field(column_width=100, title="String", section="a")
+            string: str = Field(title="String", json_schema_extra=dict(column_width=100, section="a"))
             floater: float = Field(
-                column_width=70,
-                global_decimal_places=3,
                 title="Floater",
-                section="a",
+                json_schema_extra=dict(column_width=70,
+                    global_decimal_places=3,
+                    section="a")
             )
 
         class DataFrameSchema(RootModel):
@@ -636,13 +636,13 @@ class TestAutoGrid:
         works correctly."""
 
         class Cols(BaseModel):
-            string: str = Field(column_width=100)
-            floater: float = Field(column_width=70, global_decimal_places=3)
+            string: str = Field(json_schema_extra=dict(column_width=100))
+            floater: float = Field(json_schema_extra=dict(column_width=70, global_decimal_places=3))
 
         class DataFrameSchema(RootModel):
             """no default"""
 
-            root: ty.List[Cols] = Field(format="dataframe")
+            root: ty.List[Cols] = Field(json_schema_extra=dict(format="dataframe"))
 
         data = pd.DataFrame([Cols(string="test", floater=2.5).model_dump()])
         grid = AutoGrid(schema=DataFrameSchema, data=data)
