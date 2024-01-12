@@ -211,6 +211,8 @@ class Array(w.VBox, WatchValidate, TitleDescription):  # ,
         if self.length == 0:
             if self.add_remove_controls == ItemControl.append_only:
                 self.display_bn_add_from_zero(True)
+            elif self.add_remove_controls == ItemControl.add_remove:
+                self.display_bn_add_from_zero(True)
             else:
                 self.display_bn_add_from_zero(False)
         else:
