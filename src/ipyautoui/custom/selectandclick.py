@@ -13,7 +13,7 @@
 #     name: python3
 # ---
 
-# %run ../_dev_maplocal_params.py
+# # %run ../_dev_maplocal_params.py
 # %load_ext lab_black
 
 # +
@@ -42,6 +42,9 @@ class SelectAndClick(w.Box):  # TODO: inherit TitleDescription
     message = tr.Unicode(default_value="")
     align_horizontal = tr.Bool(default_value=True)
     align_left = tr.Bool(default_value=True)
+    show_loader = tr.Bool(default_value=True)
+    # TODO
+    # show_loader
 
     @property
     def value(self):
@@ -111,16 +114,16 @@ class SelectAndClick(w.Box):  # TODO: inherit TitleDescription
     def _observe_message(self, change):
         self.html_message.value = change["new"]
 
-    def __init__(self, selector_widget=w.Dropdown, **kwargs):
+    def __init__(self, selector_widget=w.Dropdown, dynamic_message=False, **kwargs):
         self._init_form(selector_widget=selector_widget)
         super().__init__(**kwargs)
 
-        self._init_controls()
+        self._init_controls(dynamic_message=dynamic_message)
         if self.fn_get_options is not None:
             self.update_options()
         self._observe_align_horizontal("")
         self._observe_align_left("")
-        if "value" in kwargs:
+        if "value" in kwargs and kwargs["value"] is not None:
             self.value = kwargs["value"]
 
     def _init_form(self, selector_widget=w.Dropdown):
@@ -132,15 +135,26 @@ class SelectAndClick(w.Box):  # TODO: inherit TitleDescription
         self.hbx_text = w.HBox()
         self.hbx_bbar = w.HBox()
 
-    def _init_controls(self):
+    def _init_controls(self, dynamic_message=False):
         self.bn.on_click(self.onclick)
-        self.select.observe(self._update_message, "value")
-        self.select.observe(self._update_value, "value")
+        self.set_observe_value(self.select, self._update_value)
+        if dynamic_message:
+            self.set_observe_value(self.select, self._update_message)
+        else:
+            self.bn.on_click(self._update_message)
+
+    def set_observe_value(self, widget_to_observe, fn_onchange):
+        if "value" in widget_to_observe.traits():
+            widget_to_observe.observe(fn_onchange, "value")
+        elif "_value" in widget_to_observe.traits():
+            widget_to_observe.observe(fn_onchange, "_value")
+        else:
+            raise ValueError("selector widget must have a `value` or `_value` trait")
 
     def update_options(self):
         self.options = self.fn_get_options()
 
-    def _update_message(self, on_change):
+    def _update_message(self, on_change):  # TODO: do on_click
         self.fn_update_message()
 
     def _update_value(self, on_change):
@@ -153,16 +167,20 @@ class SelectAndClick(w.Box):  # TODO: inherit TitleDescription
             self.html_message.value = ", ".join(self.select.value)
 
     def onclick(self, on_click):
-        @halo_decorator(
-            self.out_message,
-            loading_msg=self.fn_loading_msg(self.select.value),
-            succeed_msg=self.fn_succeed_msg(self.select.value),
-            failed_msg=self.fn_failed_msg(self.select.value),
-        )
-        def fn(*args, **kwargs):
-            self.fn_onclick(self.value)
+        if self.show_loader:
 
-        fn()
+            @halo_decorator(
+                self.out_message,
+                loading_msg=self.fn_loading_msg(self.select.value),
+                succeed_msg=self.fn_succeed_msg(self.select.value),
+                failed_msg=self.fn_failed_msg(self.select.value),
+            )
+            def fn(*args, **kwargs):
+                self.fn_onclick(self.value)
+
+            fn()
+        else:
+            self.fn_onclick(self.value)
 
         with self.out_message:
             display("done")
@@ -212,9 +230,18 @@ class Remove(SelectAndClick):
 if __name__ == "__main__":
     add = Add(fn_get_options=get_fruit_tuples, value="a")
     display(add)
-
-
 # -
+
+if __name__ == "__main__":
+    ui = Add(
+        fn_get_options=get_fruit_list,
+        fn_onclick=lambda v: print(f"loading project {v}"),
+        fn_message_onclick=lambda v: print("aasdf"),
+        title="load project:",
+        align_horizontal=False,
+    )
+    display(ui)
+
 
 class Load(SelectAndClick):
     loaded = tr.Unicode()
@@ -227,7 +254,7 @@ class Load(SelectAndClick):
         self._init_load_controls()
 
     def _init_load_controls(self):
-        self.select.observe(self._update_loaded, "value")
+        self.set_observe_value(self.select, self._update_loaded)
 
     def _update_loaded(self, on_change):
         if self.loaded == self.select.value:
@@ -251,8 +278,9 @@ class Load(SelectAndClick):
 
 if __name__ == "__main__":
     from time import sleep
+    from ipyautoui.custom.combobox_mapped import ComboboxMapped
 
-    LI = [str(l) for l in [3870, 4321, 6440]]
+    LI = {f"J{l}": str(l) for l in [3870, 4321, 6440]}
     ui = Load(
         loaded="3870",
         value="3870",
@@ -260,6 +288,8 @@ if __name__ == "__main__":
         title="<b> | select project</b>",
         align_left=False,
         fn_onclick=lambda v: sleep(4),
+        selector_widget=ComboboxMapped,
+        show_loader=False,
     )
     display(ui)
 
@@ -286,17 +316,6 @@ class SelectMultipleAndClick(SelectAndClick):
     @tr.default("align_left")
     def default_align_left(self):
         return True
-
-
-if __name__ == "__main__":
-    ui = Add(
-        fn_get_options=get_fruit_list,
-        fn_onclick=lambda v: print(f"loading project {v}"),
-        fn_message_onclick=lambda v: print("aasdf"),
-        title="load project:",
-        align_horizontal=False,
-    )
-    display(ui)
 
 
 # +
