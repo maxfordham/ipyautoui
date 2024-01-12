@@ -36,7 +36,7 @@ class ComboboxMapped(w.Box):
             if self.widget.ensure_option:
                 raise ValueError(f"value {value} not in options")
             else:
-                self._value = value
+                self.widget.value = value
 
     @property
     def options(self):
