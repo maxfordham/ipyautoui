@@ -26,81 +26,101 @@ from ipyautoui.constants import (
 )
 from ipyautoui.custom.halo_decorator import halo_decorator
 from IPython.display import clear_output, display
+from ipyautoui.custom.title_description import TitleDescription
+from IPython.display import SVG
+import inspect
+
+# PATH_SVG = "90-ring.svb"
+
+# +
+# TODO
+class SelectAndClickFormLayouts:
+    @staticmethod
+    def default_layout_form(ui):
+        ui.layout.display = "flex"
+        ui.layout.flex_flow = "row"
+        ui.layout.align_items = "stretch"
+        ui.children = [
+            ui.html_title,
+            ui.bn,
+            ui.select,
+            ui.html_notify,
+            ui.html_value,
+            ui.html_notify,
+        ]
+
+    @staticmethod
+    def align_horizontal_left(ui):
+        # up-down
+        ui.layout.display = "flex"
+        ui.layout.flex_flow = "row"
+        ui.layout.align_items = "stretch"
+        ui.children = [
+            ui.bn,
+            w.VBox([ui.html_title, ui.select]),
+            ui.html_notify,
+            ui.html_value,
+            ui.html_notify,
+        ]
+
+    @staticmethod
+    def align_horizontal_right(ui):
+        # up-down
+        ui.layout.display = "flex"
+        ui.layout.flex_flow = "row"
+        ui.layout.align_items = "stretch"
+        ui.children = [
+            ui.html_notify,
+            ui.html_value,
+            ui.html_notify,
+            ui.html_title,
+            ui.select,
+            ui.bn,
+        ]
+
+    @staticmethod
+    def align_vertical_right(ui):
+        # up-down
+        ui.layout.display = "flex"
+        ui.layout.flex_flow = "column"
+        ui.layout.align_items = "stretch"
+
+    @staticmethod
+    def align_vertical_left(ui):
+        # up-down
+        ui.layout.display = "flex"
+        ui.layout.flex_flow = "column"
+        ui.layout.align_items = "stretch"
 
 
-class SelectAndClick(w.Box):  # TODO: inherit TitleDescription
-    _value = tr.Unicode(allow_none=True, default_value=None)
-    fn_onclick = tr.Callable(lambda v: print(f"do something: {str(v)}"))
+class SelectAndClick(w.Box):
+    _value = tr.Any(allow_none=True, default_value=None)
+    fn_onclick = tr.Union(
+        [
+            tr.Callable(),
+            tr.List(tr.Callable()),
+        ],
+        default_value=lambda v: print(f"do something: {str(v)}"),
+    )
     fn_get_options = tr.Callable(None, allow_none=True)
-    fn_loading_msg = tr.Callable(lambda v: f"loading {v}")
-    fn_succeed_msg = tr.Callable(lambda v: f"successfully loaded {v}")
-    fn_failed_msg = tr.Callable(lambda v: f"failed to load {v}")
-    options = tr.Any(
-        default_value=[]
+    options = tr.Union(
+        [tr.List(), tr.Dict(), tr.List(tr.Tuple(tr.Any(), tr.Any()))], default_value=[]
     )  # allow whatever ipywidgets allows (list, list of tuples, dict)
     title = tr.Unicode(default_value="")
-    message = tr.Unicode(default_value="")
-    align_horizontal = tr.Bool(default_value=True)
-    align_left = tr.Bool(default_value=True)
-    show_loader = tr.Bool(default_value=True)
-    # TODO
-    # show_loader
+    fn_format_value = tr.Callable(
+        default_value=lambda app: f"value set to: {app.value}"
+    )
+    fn_layout_form = tr.Callable()
+    # show_loading_svg = tr.Bool(default_value=False)
 
-    @property
-    def value(self):
-        return self._value
+    @tr.default("fn_layout_form")
+    def default_fn_layout_form(self):
+        # SelectAndClickFormLayouts.default_layout_form(self)
+        return SelectAndClickFormLayouts.default_layout_form
 
-    @value.setter
-    def value(self, value):
-        self.select.value = value
-
-    @tr.observe("value")
-    def _observe_value(self, change):
-        if change["new"] != self.select.value:
-            self.select.value = change["new"]
-
-    @tr.observe("align_horizontal")
-    def _observe_align_horizontal(self, change):
-        self.align()
-
-    @tr.observe("align_left")
-    def _observe_align_left(self, change):
-        self.align()
-
-    def align(self):
-        # up-down
-        if self.align_horizontal:
-            self.layout.display = "flex"
-            self.layout.flex_flow = "row"
-            self.layout.align_items = "stretch"
-        else:
-            self.layout.display = "flex"
-            self.layout.flex_flow = "column"
-            self.layout.align_items = "stretch"
-        # left-right
-        if self.align_left and self.align_horizontal:
-            self.hbx_message = w.HBox([self.html_message, self.out_message])
-            self.children = [self.select, self.hbx_bbar]
-            self.hbx_text.children = [self.html_title, self.hbx_message]
-            self.hbx_bbar.children = [self.bn, self.hbx_text]
-        elif self.align_left and not self.align_horizontal:
-            self.hbx_message = w.HBox([self.html_message, self.out_message])
-            self.children = [self.hbx_bbar, self.select]
-            self.hbx_text.children = [self.html_title, self.hbx_message]
-            self.hbx_bbar.children = [self.bn, self.hbx_text]
-        elif not self.align_left and not self.align_horizontal:
-            self.hbx_message = w.HBox([self.html_message, self.out_message])
-            self.children = [self.select, self.hbx_bbar]
-            self.hbx_text.children = [self.html_title, self.hbx_message]
-            self.hbx_bbar.children = [self.hbx_text, self.bn]
-        elif not self.align_left and self.align_horizontal:
-            self.children = [
-                self.out_message,
-                self.html_message,
-                self.html_title,
-                self.select,
-                self.bn,
-            ]
+    @tr.observe("fn_layout_form")
+    def _fn_layout_form(self, on_change):
+        self.fn_layout_form(self)
 
     @tr.observe("options")
     def _observe_options(self, change):
@@ -110,38 +130,48 @@ class SelectAndClick(w.Box):  # TODO: inherit TitleDescription
     def _observe_title(self, change):
         self.html_title.value = change["new"]
 
-    @tr.observe("message")
-    def _observe_message(self, change):
-        self.html_message.value = change["new"]
+    @tr.observe("_value")
+    def _observe_value(self, change):
+        self.html_value.value = self.fn_format_value(self)
 
-    def __init__(self, selector_widget=w.Dropdown, dynamic_message=False, **kwargs):
-        self._init_form(selector_widget=selector_widget)
-        super().__init__(**kwargs)
+    @property
+    def value(self):
+        return self._value
 
-        self._init_controls(dynamic_message=dynamic_message)
-        if self.fn_get_options is not None:
-            self.update_options()
-        self._observe_align_horizontal("")
-        self._observe_align_left("")
-        if "value" in kwargs and kwargs["value"] is not None:
-            self.value = kwargs["value"]
+    @value.setter
+    def value(self, value):
+        self.select.value = value
+        self._value = value
 
     def _init_form(self, selector_widget=w.Dropdown):
         self.select = selector_widget()
         self.bn = w.Button()
+        self.out_loading = w.Output()
         self.html_title = w.HTML()
-        self.html_message = w.HTML()
-        self.out_message = w.Output()
-        self.hbx_text = w.HBox()
-        self.hbx_bbar = w.HBox()
+        self.html_value = w.HTML()
+        self.html_notify = w.HTML()
+
+    def __init__(self, selector_widget=w.Dropdown, **kwargs):
+        self._init_form(selector_widget=selector_widget)
+        value = None
+        if kwargs.get("value") is not None:
+            value = kwargs["value"]
+            kwargs.pop("value")
+        super().__init__(**kwargs)
+
+        self._init_controls()
+        if self.fn_get_options is not None:
+            self.update_options()
+        if value is not None:
+            self.value = value
+
+        self.fn_layout_form(self)
+        self._observe_select_value("")
 
     def _init_controls(self, dynamic_message=False):
         self.bn.on_click(self.onclick)
-        self.set_observe_value(self.select, self._update_value)
-        if dynamic_message:
-            self.set_observe_value(self.select, self._update_message)
-        else:
-            self.bn.on_click(self._update_message)
+        self.set_observe_value(self.select, self._observe_select_value)
+        self.observe(self._observe_select_value, "_value")
 
     def set_observe_value(self, widget_to_observe, fn_onchange):
         if "value" in widget_to_observe.traits():
@@ -151,55 +181,58 @@ class SelectAndClick(w.Box):  # TODO: inherit TitleDescription
         else:
             raise ValueError("selector widget must have a `value` or `_value` trait")
 
+    def _observe_select_value(self, on_change):
+        if self.value == self.select.value:
+            self.html_notify.value = "✔️"
+        else:
+            self.html_notify.value = "⚠️"
+
     def update_options(self):
         self.options = self.fn_get_options()
 
-    def _update_message(self, on_change):  # TODO: do on_click
-        self.fn_update_message()
+    # def loading(self, is_loading):
+    #     with self.out_loading:
+    #         if is_loading:
+    #             display(SVG(PATH_SVG))
+    #         else:
+    #             clear_output()
 
-    def _update_value(self, on_change):
-        self._value = self.select.value
-
-    def fn_update_message(self):
-        if isinstance(self.select.value, str):
-            self.html_message.value = self.select.value
+    def runfn(self, fn):
+        if "app" in inspect.signature(fn).parameters:
+            return fn(self.select.value, app=self)
         else:
-            self.html_message.value = ", ".join(self.select.value)
+            return fn(self.select.value)
 
     def onclick(self, on_click):
-        if self.show_loader:
+        # if self.show_loading_svg:
+        #     self.loading(True)
 
-            @halo_decorator(
-                self.out_message,
-                loading_msg=self.fn_loading_msg(self.select.value),
-                succeed_msg=self.fn_succeed_msg(self.select.value),
-                failed_msg=self.fn_failed_msg(self.select.value),
-            )
-            def fn(*args, **kwargs):
-                self.fn_onclick(self.value)
-
-            fn()
+        if isinstance(self.fn_onclick, list):
+            [self.runfn(fn) for fn in self.fn_onclick]
         else:
-            self.fn_onclick(self.value)
+            self.runfn(self.fn_onclick)
+        self._value = self.select.value
 
-        with self.out_message:
-            display("done")
-            clear_output()
-        self.onclick_extra()
-
-    def onclick_extra(self):
-        pass
-
-    @tr.default("align_horizontal")
-    def default_align_horizontal(self):
-        return True
-
-    @tr.default("align_left")
-    def default_align_left(self):
-        return True
+        # if self.show_loading_svg:
+        #     self.loading(False)
 
 
 # -
+
+if __name__ == "__main__":
+
+    def fn_onclick(value, app):
+        app.select.layout.display = "None"
+
+    ui = SelectAndClick(
+        options=[("A", "a"), ("B", "b"), ("C", "c")],
+        title="asefd",
+        value=("a"),
+        selector_widget=w.Dropdown,
+        fn_format_value=lambda app: f"value = {', '.join(app.value)}",
+        fn_onclick=fn_onclick,
+    )
+    display(ui)
 
 if __name__ == "__main__":
     get_fruit_dict = lambda: {"apple": "a", "berry": "b"}
@@ -244,36 +277,21 @@ if __name__ == "__main__":
 
 
 class Load(SelectAndClick):
-    loaded = tr.Unicode()
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         {setattr(self.bn, k, v) for k, v in LOAD_BUTTON_KWARGS.items()}
-        # self.fn_update_message()
         self.bn.layout.display = "None"
         self._init_load_controls()
 
     def _init_load_controls(self):
-        self.set_observe_value(self.select, self._update_loaded)
+        self.set_observe_value(self.select, self._show_hide_button)
+        self.observe(self._show_hide_button, "_value")
 
-    def _update_loaded(self, on_change):
-        if self.loaded == self.select.value:
+    def _show_hide_button(self, on_something):
+        if self.value == self.select.value:
             self.bn.layout.display = "None"
         else:
             self.bn.layout.display = ""
-
-    def fn_update_message(self):
-        if self.loaded == self.select.value:
-            self.message = f"✔️ {self.loaded} loaded ✔️"
-        else:
-            self.message = (
-                f"⚠️ {self.loaded} loaded, click to load {self.select.value} ⚠️"
-            )
-
-    def onclick_extra(self):
-        self.loaded = self.value
-        self.fn_update_message()
-        self._update_loaded("")
 
 
 if __name__ == "__main__":
@@ -286,47 +304,21 @@ if __name__ == "__main__":
         value="3870",
         fn_get_options=lambda: LI,
         title="<b> | select project</b>",
-        align_left=False,
-        fn_onclick=lambda v: sleep(4),
+        fn_onclick=lambda v: sleep(2),
         selector_widget=ComboboxMapped,
-        show_loader=False,
     )
     display(ui)
 
 
-class SelectMultipleAndClick(SelectAndClick):
-    _value = tr.List(allow_none=True)
-    fn_reload = tr.Callable(lambda: print("reload"))
-
-    @tr.observe("options")
-    def _observe_options(self, change):
-        self.select.value = (
-            []
-        )  # HOTFIX: Bugs out setting options if ALL values selected: https://github.com/jupyter-widgets/ipywidgets/issues/3876
-        self.select.options = change["new"]
-
-    def onclick(self, on_click):
-        self.fn_onclick(self.value)
-        self.fn_reload()
-
-    @tr.default("align_horizontal")
-    def default_align_horizontal(self):
-        return False
-
-    @tr.default("align_left")
-    def default_align_left(self):
-        return True
-
-
 # +
-class AddMultiple(SelectMultipleAndClick):
+class AddMultiple(SelectAndClick):
     def __init__(self, **kwargs):
         kwargs["selector_widget"] = w.SelectMultiple
         super().__init__(**kwargs)
         {setattr(self.bn, k, v) for k, v in ADD_BUTTON_KWARGS.items()}
 
 
-class RemoveMultiple(SelectMultipleAndClick):
+class RemoveMultiple(SelectAndClick):
     def __init__(self, **kwargs):
         kwargs["selector_widget"] = w.SelectMultiple
         super().__init__(**kwargs)
@@ -338,7 +330,6 @@ class RemoveMultiple(SelectMultipleAndClick):
 if __name__ == "__main__":
     ui = AddMultiple(
         fn_get_options=get_fruit_dict,
-        align_horizontal=False,
         title="<b>asdf |</b>",
     )
     display(ui)
@@ -346,12 +337,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     ui.fn_get_options = get_fruit_dict
 
-if __name__ == "__main__":
-    ui.align_horizontal = True
 
-if __name__ == "__main__":
-    ui.align_horizontal = False
-    ui.align_left = True
 
 
 
