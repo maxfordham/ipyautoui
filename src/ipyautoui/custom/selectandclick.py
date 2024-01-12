@@ -100,7 +100,7 @@ class SelectAndClick(w.Box):
             tr.Callable(),
             tr.List(tr.Callable()),
         ],
-        default_value=lambda v: print(f"do something: {str(v)}"),
+        default_value=lambda v, **kwargs: print(f"do something: {str(v)}"),
     )
     fn_get_options = tr.Callable(None, allow_none=True)
     options = tr.Union(
@@ -108,7 +108,7 @@ class SelectAndClick(w.Box):
     )  # allow whatever ipywidgets allows (list, list of tuples, dict)
     title = tr.Unicode(default_value="")
     fn_format_value = tr.Callable(
-        default_value=lambda app: f"value set to: {app.value}"
+        default_value=lambda self: f"value set to: {self.value}"
     )
     fn_layout_form = tr.Callable()
     # show_loading_svg = tr.Bool(default_value=False)
@@ -198,8 +198,8 @@ class SelectAndClick(w.Box):
     #             clear_output()
 
     def runfn(self, fn):
-        if "app" in inspect.signature(fn).parameters:
-            return fn(self.select.value, app=self)
+        if "self" in inspect.signature(fn).parameters:
+            return fn(self.select.value, self=self)
         else:
             return fn(self.select.value)
 
@@ -221,15 +221,15 @@ class SelectAndClick(w.Box):
 
 if __name__ == "__main__":
 
-    def fn_onclick(value, app):
-        app.select.layout.display = "None"
+    def fn_onclick(value, self):
+        self.select.layout.display = "None"
 
     ui = SelectAndClick(
         options=[("A", "a"), ("B", "b"), ("C", "c")],
         title="asefd",
         value=("a"),
         selector_widget=w.Dropdown,
-        fn_format_value=lambda app: f"value = {', '.join(app.value)}",
+        fn_format_value=lambda self: f"value = {', '.join(self.value)}",
         fn_onclick=fn_onclick,
     )
     display(ui)
