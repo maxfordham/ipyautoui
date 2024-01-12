@@ -27,7 +27,6 @@ from ipyautoui.constants import (
 
 from IPython.display import display
 from datetime import datetime
-from markdown import markdown
 import logging
 from enum import Enum
 

@@ -28,7 +28,6 @@ import traceback
 import pandas as pd
 import ipywidgets as w
 from IPython.display import clear_output, display
-from markdown import markdown
 from pydantic import BaseModel, Field
 
 from ipyautoui.autoobject import AutoObjectForm
@@ -434,9 +433,7 @@ class EditGrid(w.VBox, TitleDescription):
 
     def _check_one_row_selected(self):
         if len(self.grid.selected_indexes) > 1:
-            raise Exception(
-                markdown("  👇 _Please only select ONLY one row from the table!_")
-            )
+            raise Exception("  👇 <i>Please only select ONLY one row from the table!</i>")
 
     # edit row
     # --------------------------------------------------------------------------
@@ -480,9 +477,7 @@ class EditGrid(w.VBox, TitleDescription):
 
         except Exception as e:
             self.buttonbar_grid.edit.value = False
-            self.buttonbar_grid.message.value = markdown(
-                "  👇 _Please select one row from the table!_ "
-            )
+            self.buttonbar_grid.message.value = "  👇 <i>Please select one row from the table!</i> "
             traceback.print_exc()
 
     # --------------------------------------------------------------------------
@@ -543,9 +538,7 @@ class EditGrid(w.VBox, TitleDescription):
     def _copy(self):
         try:
             if self.grid.selected_indexes == []:
-                self.buttonbar_grid.message.value = markdown(
-                    "  👇 _Please select a row from the table!_ "
-                )
+                self.buttonbar_grid.message.value = "  👇 <i>Please select a row from the table!</i> "               
             else:
                 if not self.show_copy_dialogue:
                     if self.datahandler is not None:
@@ -556,15 +549,13 @@ class EditGrid(w.VBox, TitleDescription):
                         self._copy_selected_to_end()
                         # ^ add copied values. note. above syntax required to avoid editing in place.
 
-                    self.buttonbar_grid.message.value = markdown("  📝 _Copied Data_ ")
+                    self.buttonbar_grid.message.value = "  📝 <i>Copied Data</i> "
                     self.buttonbar_grid.copy.value = False
 
                 else:
                     print("need to implement show copy dialogue")
         except Exception as e:
-            self.buttonbar_grid.message.value = markdown(
-                "  👇 _Please select a row from the table!_ "
-            )
+            self.buttonbar_grid.message.value = "  👇 <i>Please select a row from the table!</i> "
             traceback.print_exc()
 
     # --------------------------------------------------------------------------
@@ -573,7 +564,7 @@ class EditGrid(w.VBox, TitleDescription):
     # --------------------------------------------------------------------------
     def _reload_datahandler(self):
         self._reload_all_data()
-        self.buttonbar_grid.message.value = markdown("  🔄 _Reloaded Data_ ")
+        self.buttonbar_grid.message.value = "  🔄 <i>Reloaded Data</i> "
 
     def _reload_all_data(self):
         if self.datahandler is not None:
@@ -592,7 +583,7 @@ class EditGrid(w.VBox, TitleDescription):
                 if i not in self.grid.selected_indexes
             ]
             # ^ Only set for values NOT in self.grid.selected_indexes
-        self.buttonbar_grid.message.value = markdown("  🗑️ _Deleted Row_ ")
+        self.buttonbar_grid.message.value = "  🗑️ <i>Deleted Row</i> "
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.delete.value = False
 
@@ -610,9 +601,9 @@ class EditGrid(w.VBox, TitleDescription):
                     self.ui_delete.value = self.grid.selected_dict
             else:
                 self.buttonbar_grid.delete.value = False
-                self.buttonbar_grid.message.value = markdown(
-                    "  👇 _Please select at least one row from the table!_"
-                )
+                self.buttonbar_grid.message.value =  "  👇 <i>Please select at least one row from the table!</i>"
+                   
+                
 
         except Exception as e:
             print("delete error")
@@ -654,7 +645,7 @@ if __name__ == "__main__":
         )
 
     title = "The Wonderful Edit Grid Application"
-    description = markdown("Useful for all editing purposes whatever they may be 👍")
+    description = "Useful for all editing purposes whatever they may be 👍"
     editgrid = EditGrid(
         schema=TestDataFrame,
         title=title,
@@ -700,7 +691,7 @@ if __name__ == "__main__":
         fn_copy=lambda v: print(v),
     )
     title = "The Wonderful Edit Grid Application"
-    description = markdown("Useful for all editing purposes whatever they may be 👍")
+    description = "Useful for all editing purposes whatever they may be 👍"
     editgrid = EditGrid(
         schema=TestDataFrame,
         title=title,
@@ -739,7 +730,7 @@ if __name__ == "__main__":
             # datagrid_index_name=("section", "title"),
         )
 
-    description = markdown(
+    description = (
         "<b>The Wonderful Edit Grid Application</b><br>Useful for all editing purposes"
         " whatever they may be 👍"
     )
