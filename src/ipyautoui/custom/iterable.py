@@ -142,6 +142,8 @@ class ItemBox(w.Box):
 
 
 class Array(w.VBox, WatchValidate, TitleDescription):  # ,
+    # TODO: explicitly define widget type for each item. AutoArray guesses it, but it can be overridden...
+    
     _value = tr.List()  # NOTE: value setter and getter in `WatchValidate`
     # _widgets = tr.List() # TODO: list of DOMWidgets ?
     fn_add = tr.Callable(
