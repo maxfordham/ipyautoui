@@ -278,8 +278,8 @@ class EditGrid(w.VBox, TitleDescription):
 
     def _update_value_from_grid(self):
         self._value = self.grid.records()
-      
-    # TODO: this is a bit of a hack... need to refactor when EditGrid inherits WatchValidate  
+
+    # TODO: this is a bit of a hack... need to refactor when EditGrid inherits WatchValidate
     @classmethod
     def from_pydantic_model(cls, model: ty.Type[BaseModel], **kwargs):
         return cls(model, **kwargs)
@@ -303,11 +303,10 @@ class EditGrid(w.VBox, TitleDescription):
         show_title: bool = True,
         **kwargs,
     ):  # TODO: use **kwargs to pass attributes to EditGrid as in AutoObject and AutoArray
-        
         self.vbx_error = w.VBox()
         self.vbx_widget = w.VBox()
         # TODO: ^ move common container attributes to WatchValidate
-        
+
         self.description = description
         self.title = title
         self.show_title = show_title
@@ -365,12 +364,9 @@ class EditGrid(w.VBox, TitleDescription):
         self.ui_add.show_savebuttonbar = True
         self.ui_add.savebuttonbar.fns_onsave = [self._post, self._save_add_to_grid]
         self.ui_add.savebuttonbar.fns_onrevert = [self._set_ui_add_to_default_row]
-        
+
     def _set_children(self):
-        self.children = [
-            self.hbx_title_description,
-            self.vbx_widget
-        ]
+        self.children = [self.hbx_title_description, self.vbx_widget]
 
     @property
     def schema(self):
@@ -433,7 +429,9 @@ class EditGrid(w.VBox, TitleDescription):
 
     def _check_one_row_selected(self):
         if len(self.grid.selected_indexes) > 1:
-            raise Exception("  👇 <i>Please only select ONLY one row from the table!</i>")
+            raise Exception(
+                "  👇 <i>Please only select ONLY one row from the table!</i>"
+            )
 
     # edit row
     # --------------------------------------------------------------------------
@@ -477,7 +475,9 @@ class EditGrid(w.VBox, TitleDescription):
 
         except Exception as e:
             self.buttonbar_grid.edit.value = False
-            self.buttonbar_grid.message.value = "  👇 <i>Please select one row from the table!</i> "
+            self.buttonbar_grid.message.value = (
+                "  👇 <i>Please select one row from the table!</i> "
+            )
             traceback.print_exc()
 
     # --------------------------------------------------------------------------
@@ -538,7 +538,9 @@ class EditGrid(w.VBox, TitleDescription):
     def _copy(self):
         try:
             if self.grid.selected_indexes == []:
-                self.buttonbar_grid.message.value = "  👇 <i>Please select a row from the table!</i> "               
+                self.buttonbar_grid.message.value = (
+                    "  👇 <i>Please select a row from the table!</i> "
+                )
             else:
                 if not self.show_copy_dialogue:
                     if self.datahandler is not None:
@@ -555,7 +557,9 @@ class EditGrid(w.VBox, TitleDescription):
                 else:
                     print("need to implement show copy dialogue")
         except Exception as e:
-            self.buttonbar_grid.message.value = "  👇 <i>Please select a row from the table!</i> "
+            self.buttonbar_grid.message.value = (
+                "  👇 <i>Please select a row from the table!</i> "
+            )
             traceback.print_exc()
 
     # --------------------------------------------------------------------------
@@ -601,9 +605,9 @@ class EditGrid(w.VBox, TitleDescription):
                     self.ui_delete.value = self.grid.selected_dict
             else:
                 self.buttonbar_grid.delete.value = False
-                self.buttonbar_grid.message.value =  "  👇 <i>Please select at least one row from the table!</i>"
-                   
-                
+                self.buttonbar_grid.message.value = (
+                    "  👇 <i>Please select at least one row from the table!</i>"
+                )
 
         except Exception as e:
             print("delete error")
