@@ -118,7 +118,6 @@ class WrapSaveButtonBar(tr.HasTraits):  # TODO: extend TitleDescription
         fns_onsave (callable): additional functions to be called on save
         fns_onrevert (callable): additional functions to be called on revert
     """
-    savebuttonbar = tr.Instance(klass=SaveButtonBar, default_value=SaveButtonBar())
     show_savebuttonbar = tr.Bool(default_value=True)
     fns_onsave = tr.List(trait=tr.Callable())
     fns_onrevert = tr.List(trait=tr.Callable())
@@ -126,6 +125,16 @@ class WrapSaveButtonBar(tr.HasTraits):  # TODO: extend TitleDescription
     @tr.observe("show_savebuttonbar")
     def _observe_show_savebuttonbar(self, change):
         show_hide_widget(self.savebuttonbar, self.show_savebuttonbar)
+        
+    @property
+    def savebuttonbar(self):
+        if not hasattr(self, "_savebuttonbar"):
+            self.savebuttonbar = SaveButtonBar()
+        return self._savebuttonbar
+    
+    @savebuttonbar.setter
+    def savebuttonbar(self, value):
+        self._savebuttonbar = value
 
     @tr.observe("fns_onsave")
     def _observe_fns_onsave(self, change):
