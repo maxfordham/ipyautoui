@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -23,7 +23,7 @@
 import ipywidgets as w
 from markdown import markdown
 from IPython.display import display, clear_output
-from pydantic import BaseModel, field_validator, Field, ValidationInfo
+from pydantic import BaseModel, field_validator, Field, ValidationInfo, BeforeValidator
 import pathlib
 import typing as ty
 import stringcase
@@ -31,24 +31,78 @@ from datetime import datetime
 import traitlets as tr
 import json
 import logging
+import time
+
 from ipyautoui.constants import DELETE_BUTTON_KWARGS
 from ipyautoui._utils import getuser
-from ipyautoui.autodisplay import DisplayObject, DisplayPath, ORDER_DEFAULT
+from ipyautoui.autodisplay import (
+    DisplayObject,
+    DisplayPath,
+    ORDER_DEFAULT,
+    ORDER_NOTPATH,
+)
 from ipyautoui.custom.iterable import Array
 from ipyautoui.autodisplay_renderers import render_file
 from ipyautoui.env import Env
-from ipyautoui.constants import DELETE_BUTTON_KWARGS
-from ipyautoui.autodisplay import ORDER_NOTPATH
+from pydantic import BaseModel, field_validator, Field, ValidationInfo, BeforeValidator
+import typing as ty
+from typing_extensions import Annotated
 
 IPYAUTOUI_ROOTDIR = Env().IPYAUTOUI_ROOTDIR
 logger = logging.getLogger(__name__)
 
 
-# -
+# +
+try:
+    from ipyvuetify.extra import FileInput
+
+    class VuetifyFileUplad(w.Box):
+        value = tr.List(trait=tr.Dict())
+        # NOTE: haven't implemented a value setter as for this
+        #       application it is not required.
+
+        def __init__(self, **kwargs):
+            self.upld = FileInput(**kwargs)
+            super().__init__([self.upld])
+            self._init_controls()
+
+        def _init_controls(self):
+            self.upld.observe(self._upld, "file_info")
+
+        def _upld(self, on_change):
+            self.value = [
+                f | {"content": d["file_obj"].read()}
+                for f, d in zip(self.upld.file_info, self.upld.get_files())
+            ]
+
+except ImportError as e:
+    logger.warning(f"ipyvuetify not installed. {e}")
+
+    class VuetifyFileUplad(w.Box):
+        value = tr.Unicode(
+            "ipyvuetify not installed. you must install it to use the `ipyvuetify.extra import FileInput`"
+        )
+
+        def __init__(self, **kwargs):
+            super().__init__()
+            self.children = [w.HTML(self.value)]
+
+# +
+def make_validator(label: str) -> ty.Callable[[ty.Any, ValidationInfo], bytes]:
+    def validator(v: ty.Any, info: ValidationInfo) -> bytes:
+        if not isinstance(v, bytes):
+            v = v.tobytes()
+        return v
+
+    return validator
 
 
 class File(BaseModel):
     name: str
+    size: int
+    type: str
+    # last_modified: int =Field(serialization_alias ="lastModified") # ignore for now
+    content: Annotated[bytes, BeforeValidator(make_validator("make-bytes"))]
     fdir: pathlib.Path = pathlib.Path(".")
     path: pathlib.Path = Field(pathlib.Path("overide.me"), validate_default=True)
 
@@ -57,7 +111,6 @@ class File(BaseModel):
     def _path(cls, v, info: ValidationInfo):
         values = info.data
         return values["fdir"] / values["name"]
-
 
 # +
 def read_file_upload_item(di: dict, fdir=pathlib.Path("."), added_by=None):
@@ -70,7 +123,8 @@ def add_file(upld_item, fdir=pathlib.Path(".")):
     f = read_file_upload_item(upld_item, fdir=fdir)
     if f.path.is_file():
         raise ValueError(f"{f.path} already exist. exiting operation.")
-    f.path.write_bytes(upld_item["content"])
+    # f.path.write_bytes(upld_item["content"])
+    f.path.write_bytes(f.content)
     return f
 
 
@@ -168,15 +222,24 @@ class FileUploadToDir(w.VBox):
 if __name__ == "__main__":
     fupld = FileUploadToDir(value="IMG_0688.jpg")
     display(fupld)
-# -
-
-import time
+# +
+MAP_FILEUPLOAD_TYPE = {True: VuetifyFileUplad, False: w.FileUpload}
+MAP_CLEARFILEUPLOAD = {
+    True: lambda wgdt: wgdt.upld.clear(),
+    False: lambda wgdt: setattr(wgdt, "value", ()),
+}
 
 
 class FilesUploadToDir(Array):
+    use_vuetify = tr.Bool(default_value=None, allow_none=False)
     fdir = tr.Instance(klass=pathlib.PurePath, default_value=pathlib.Path("."))
     kwargs_display_path = tr.Dict(default_value={}, allow_none=False)
     kwargs_file_upload = tr.Dict(default_value={}, allow_none=False)
+
+    @tr.observe("use_vuetify")
+    def _obs_use_vuetify(self, value):
+        if value["new"] != value["old"]:
+            self._init_upld()
 
     @tr.default("kwargs_file_upload")
     def _kwargs_file_upload(self):
@@ -185,15 +248,39 @@ class FilesUploadToDir(Array):
     @tr.observe("kwargs_file_upload")
     def _obs_kwargs_file_upload(self, value):
         value = value["new"] | dict(multiple=True)
-        {setattr(self.upld, k, v) for k, v in value.items()}
+        if self.use_vuetify:
+            widg = self.upld.upld
+        else:
+            widg = self.upld
+        {setattr(widg, k, v) for k, v in value.items()}
+
+    @classmethod
+    def trait_order(cls):
+        return [k for k, v in cls.__dict__.items() if isinstance(v, tr.TraitType)]
+
+    def get_ordered_kwargs(self, kwargs):
+        in_order = list(kwargs.keys())
+        tr_order = self.trait_order()
+        out_order = tr_order + [i for i in in_order if i not in tr_order]
+        return {o: kwargs[o] for o in out_order if o in in_order}
 
     def __init__(self, **kwargs):
-        self.upld = w.FileUpload()
-        super().__init__(**kwargs)
+        self.hbx_upload = w.HBox()
+        self.message = w.HTML()
+        super().__init__()
+        kwargs = self.get_ordered_kwargs(kwargs)
+        {setattr(self, k, v) for k, v in kwargs.items()}
+
+    def _init_upld(self):
+        self.upld = MAP_FILEUPLOAD_TYPE[self.use_vuetify]()
+        self.hbx_upload.children = [self.upld, self.message]
+        self._init_controls_FilesUploadToDir()
+
+    def _init_controls_FilesUploadToDir(self):
+        self.upld.observe(self._upld, "value")
 
     def _post_init(self, **kwargs):
         self.fn_remove = self.fn_remove_file
-        self.message = w.HTML()
         self.add_remove_controls = "remove_only"
         self.show_hash = None
         value = kwargs.get("value")
@@ -203,21 +290,18 @@ class FilesUploadToDir(Array):
         self.kwargs_display_path = (lambda v: {} if v is None else v)(
             kwargs_display_path
         )
+
         self.children = [
             self.html_title,
-            w.HBox([self.upld, self.message]),
+            self.hbx_upload,
             self.bx_boxes,
         ]
-        self._init_controls_FilesUploadToDir()
-
-    def _init_controls_FilesUploadToDir(self):
-        self.upld.observe(self._upld, "value")
 
     def _upld(self, on_change):
         paths = add_files(self.upld.value, fdir=self.fdir, message=self.message)
         self.add_files(paths)
         self.message.value = ""
-        self.upld.value = ()
+        MAP_CLEARFILEUPLOAD[self.use_vuetify](self.upld)
 
     def add_files(self, paths: list[str]):
         for p in paths:
@@ -240,6 +324,7 @@ class FilesUploadToDir(Array):
         self.boxes = []
         self.add_files(value)
 
+# -
 
 if __name__ == "__main__":
     p = pathlib.Path()
@@ -247,6 +332,7 @@ if __name__ == "__main__":
     upld = FilesUploadToDir(
         value=[str(p_)],
         kwargs_file_upload=dict(accept=".asc, .png, .jpg", multiple=True),
+        use_vuetify=True,
     )
     display(upld)
     # test
