@@ -142,7 +142,8 @@ class Nullable(w.HBox):
             self.bn.icon = "toggle-on"
             self.widget.layout.display = ""
             self.show_none.layout.display = "None"
-            self.value = self.widget.value
+            if self.widget.value is not None:
+                self.value = self.widget.value
 
 
 def nullable(fn, **kwargs):
