@@ -104,7 +104,9 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
     type = tr.Unicode(default_value="object")
     allOf = tr.List(allow_none=True, default_value=None)
     properties = tr.Dict()
-    _value = tr.Dict(allow_none=True)  # NOTE: value setter and getter in `WatchValidate`
+    _value = tr.Dict(
+        allow_none=True
+    )  # NOTE: value setter and getter in `WatchValidate`
     fdir = tr.Instance(klass=pathlib.PurePath, default_value=None, allow_none=True)
     align_horizontal = tr.Bool(default_value=True)
     nested_widgets = tr.List()
@@ -196,8 +198,13 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
                     logger.warning(f"{k}: widget does not have a `disabled` traitlet")
         else:
             for k, v in self.di_widgets.items():
-                if "disabled" in self.pr[k].schema_ and self.pr[k].schema_["disabled"]:
-                    logger.info(f"{k}: widget disabled in base schema")
+                if (
+                    "disabled" in self.properties[k].keys()
+                    and self.properties[k]["disabled"]
+                ):
+                    logger.info(
+                        f"{k}: widget is disabled in base schema. Enabling not allowed."
+                    )
                 else:
                     try:
                         v.disabled = False
@@ -304,7 +311,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
         self.vbx_error = w.VBox()
         self.vbx_widget = w.VBox()
         # TODO: ^ move common container attributes to WatchValidate
-        
+
         self.model = None
         super().__init__()
         kwargs = self.get_ordered_kwargs(kwargs)
@@ -314,16 +321,13 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
             self.value = kwargs["value"]
         else:
             self._value = self.di_widgets_value
-            
-        self._set_children()  
+
+        self._set_children()
         self._post_init(**kwargs)
-        
+
     def _set_children(self):
-        self.children = [
-            self.hbx_title_description,
-            self.vbx_widget
-        ]
-            
+        self.children = [self.hbx_title_description, self.vbx_widget]
+
     def _post_init(self, **kwargs):
         pass
 
@@ -342,7 +346,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
         try:
             return list(self.di_widgets.keys())
         except:
-            None
+            return None
 
     @property
     def json(self):
@@ -384,7 +388,8 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
     def set_watcher(self, key, widget, watch):
         logger.debug(f"{watch} trait found for: {key}")
         widget.observe(
-            self._watch_validate_change, watch  # NOTE: `_watch_validate_change` in WatchValidate
+            self._watch_validate_change,
+            watch,  # NOTE: `_watch_validate_change` in WatchValidate
         )
 
     def _init_watch_widgets(self):
@@ -393,7 +398,6 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
                 if v.has_trait(watch):
                     self.set_watcher(k, v, watch)
                     break  # if `_value` is found don't look for `value`
-
 
     def _update_widgets_from_value(self):
         with self.silence_autoui_traits():
@@ -409,7 +413,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
                     logging.critical(
                         f"no widget created for {k}, with value {str(v)}. fix this in the schema!"
                     )
-                    
+
     def _get_value(self):
         return self.di_widgets_value
 
@@ -470,7 +474,7 @@ if __name__ == "__main__":
     # s["align_horizontal"] = False
     s["order_can_hide_rows"] = True
     s["order"] = ["int_slider_req", "dropdown_int", "int_range_slider_disabled"]
-    ui = AutoObjectForm.from_schema(s, value=v)
+    ui = AutoObjectForm.from_jsonschema(s, value=v)
     display(ui)
 
 if __name__ == "__main__":
@@ -485,19 +489,15 @@ if __name__ == "__main__":
     s = replace_refs(NestedEditableGrid.model_json_schema())
     s["order_can_hide_rows"] = False
     s["open_nested"] = True
-    ui = AutoObject.from_schema(s)
+    ui = AutoObject.from_jsonschema(s)
     display(ui)
-
-# +
-# ui.schema
-# -
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import NestedEditableGrid, ComplexSerialisation
 
     s = replace_refs(ComplexSerialisation.model_json_schema())
     s["order_can_hide_rows"] = False
-    ui = AutoObject.from_schema(s)
+    ui = AutoObject.from_jsonschema(s)
     display(ui)
 
 if __name__ == "__main__":
@@ -529,7 +529,7 @@ if __name__ == "__main__":
     s = replace_refs(CoreIpywidgets.model_json_schema())
     # s["align_horizontal"] = False
     s["order_can_hide_rows"] = False
-    ui = AutoObject.from_schema(s, value=v)
+    ui = AutoObject.from_jsonschema(s, value=v)
     display(ui)
 
 if __name__ == "__main__":
