@@ -377,6 +377,7 @@ class CrudButtonBar(w.HBox):
             self.active = None
             w.tooltip = self.crud_view[button_name]["tooltip"]
             w.layout.border = None
+            self.message.value = ""
             self.fn_backward()
 
     def _add(self, onchange):
