@@ -91,7 +91,7 @@ EDIT_BUTTON_KWARGS = frozenmap(
     icon="edit",
     style={},
     button_style="warning",
-    tooltip="add item",
+    tooltip="edit item",
     layout={"width": BUTTON_WIDTH_MIN},  # , "height": BUTTON_HEIGHT_MIN
     disabled=False,
 )
