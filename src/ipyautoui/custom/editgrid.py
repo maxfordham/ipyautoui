@@ -97,7 +97,7 @@ class RowEditor:
 
 
 # +
-class UiDelete(w.HBox):
+class UiDelete(w.VBox):
     value = tr.Dict(default_value={})
     columns = tr.List(default_value=[])
 
@@ -133,9 +133,9 @@ class UiDelete(w.HBox):
         self.fn_delete = fn_delete
         self.out_delete = w.Output()
         self.bn_delete = w.Button(
-            icon="trash",
+            description="DELETE",
             button_style="danger",
-            layout=w.Layout(width=BUTTON_WIDTH_MIN),
+            layout=w.Layout(width="100px"),
         )
         self.vbx_messages = w.VBox()
         self.message = w.HTML(
