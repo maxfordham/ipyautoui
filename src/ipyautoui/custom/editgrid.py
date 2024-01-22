@@ -425,7 +425,7 @@ class EditGrid(w.VBox, TitleDescription):
         if self.buttonbar_grid.active is None:
             self.stk_crud.selected_index = None
         else:
-            self.stk_crud.selected_index = int(self.buttonbar_grid.active.value)
+            self.stk_crud.selected_index = self.buttonbar_grid.active_index
 
     def _check_one_row_selected(self):
         if len(self.grid.selected_indexes) > 1:

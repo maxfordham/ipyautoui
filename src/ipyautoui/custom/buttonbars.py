@@ -301,6 +301,7 @@ DEFAULT_BUTTONBAR_CONFIG = CrudView(
 # -
 
 class CrudButtonBar(w.HBox):
+    active = tr.Unicode(default_value=None, allow_none=True)
     crud_view = tr.Dict(default_value=DEFAULT_BUTTONBAR_CONFIG)
     fn_add = tr.Callable(default_value=lambda: print("add"))
     fn_edit = tr.Callable(default_value=lambda: print("edit"))
@@ -319,6 +320,13 @@ class CrudButtonBar(w.HBox):
     @tr.observe("crud_view")
     def _observe_crud_view(self, change):
         self._set_crud_view_options()
+
+    @property
+    def active_index(self):
+        if self.active is None:
+            return None
+        else:
+            return list(self.crud_view.keys()).index(self.active)
 
     def __init__(
         self,
@@ -360,11 +368,13 @@ class CrudButtonBar(w.HBox):
         fn = getattr(self, ("fn_" + button_name))
         if w.value:
             self.reset_toggles_except(button_name)
+            self.active = button_name
             w.tooltip = self.crud_view[button_name]["tooltip_clicked"]
             w.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
             self.message.value = self.crud_view[button_name]["message"]
             fn()
         else:
+            self.active = None
             w.tooltip = self.crud_view[button_name]["tooltip"]
             w.layout.border = None
             self.fn_backward()
