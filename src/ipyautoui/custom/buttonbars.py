@@ -306,7 +306,7 @@ class CrudButtonBar(w.HBox):
     fn_edit = tr.Callable(default_value=lambda: print("edit"))
     fn_copy = tr.Callable(default_value=lambda: print("copy"))
     fn_delete = tr.Callable(default_value=lambda: print("delete"))
-    fn_backward = tr.Callable(default_value=lambda: print("backward"))  # TODO
+    fn_backward = tr.Callable(default_value=lambda: print("backward"))
     fn_reload = tr.Callable(default_value=None, allow_none=True)
 
     @tr.observe("fn_reload")
@@ -336,10 +336,6 @@ class CrudButtonBar(w.HBox):
             self.message,
         ]
         self._init_controls()
-        self._post_init(**kwargs)
-
-    def _post_init(self, **kwargs):
-        pass
 
     def _init_form(self):
         # self.transpose w.ToggleButton(icon="arrow-right")
