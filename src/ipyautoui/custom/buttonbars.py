@@ -23,6 +23,11 @@ import typing as ty
 from ipyautoui.constants import (
     BUTTON_WIDTH_MIN,
     TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT,
+    ADD_BUTTON_KWARGS,
+    EDIT_BUTTON_KWARGS,
+    COPY_BUTTON_KWARGS,
+    DELETE_BUTTON_KWARGS,
+    RELOAD_BUTTON_KWARGS,
 )
 
 from IPython.display import display
@@ -141,7 +146,6 @@ class SaveActions(tr.HasTraits):
             overwrite_dupes=overwrite_dupes,
             to_beginning=to_beginning,
         )
-
 # -
 
 if __name__ == "__main__":
@@ -252,54 +256,58 @@ if __name__ == "__main__":
     sb.unsaved_changes = True
 
 # +
-BUTTONBAR_CONFIG = {
-    "add": {
-        "tooltip": "add item",
-        "tooltip_clicked": "Go back to table",
-        "button_style": "success",
-        "message": "  ➕ <i>Adding Value</i>",
-    },
-    "edit": {
-        "tooltip": "edit item",
-        "tooltip_clicked": "Go back to table",
-        "button_style": "success",
-        "message": "  ✏️ <i>Editing Value</i>",
-    },
-    "copy": {
-        "tooltip": "copy item",
-        "tooltip_clicked": "Go back to table",
-        "button_style": "success",
-        "message": "  📝 <i>Copying Value</i>",
-    },
-    "delete": {
-        "tooltip": "delete item",
-        "tooltip_clicked": "Go back to table",
-        "button_style": "success",
-        "message": "  🗑️ <i>Deleting Value</i>",
-    },
-}
+class CrudOptions(ty.TypedDict):
+    tooltip: str
+    tooltip_clicked: str
+    button_style: str
+    message: str
 
 
-class StrEnum(str, Enum):
-    pass
+class CrudView(ty.TypedDict):
+    add: CrudOptions
+    edit: CrudOptions
+    copy: CrudOptions
+    delete: CrudOptions
 
 
-CrudView = StrEnum(
-    "CrudView", {l: n for n, l in enumerate(list(BUTTONBAR_CONFIG.keys()))}
+DEFAULT_BUTTONBAR_CONFIG = CrudView(
+    add=CrudOptions(
+        tooltip="Add item",
+        tooltip_clicked="Go back to table",
+        button_style="success",
+        message="➕ <i>Adding Value</i>",
+    ),
+    edit=CrudOptions(
+        tooltip="Edit item",
+        tooltip_clicked="Go back to table",
+        button_style="warning",
+        message="✏️ <i>Editing Value</i>",
+    ),
+    copy=CrudOptions(
+        tooltip="Copy item",
+        tooltip_clicked="Go back to table",
+        button_style="primary",
+        message="📝 <i>Copying Value</i>",
+    ),
+    delete=CrudOptions(
+        tooltip="Delete item",
+        tooltip_clicked="Go back to table",
+        button_style="danger",
+        message="🗑️ <i>Deleting Value</i>",
+    ),
 )
 
 
-# +
-from ipyautoui import constants
-
+# -
 
 class CrudButtonBar(w.HBox):
-    active = tr.UseEnum(CrudView, allow_none=True, default_value=None)
+    active = tr.Unicode(default_value=None, allow_none=True)
+    crud_view = tr.Dict(default_value=DEFAULT_BUTTONBAR_CONFIG)
     fn_add = tr.Callable(default_value=lambda: print("add"))
     fn_edit = tr.Callable(default_value=lambda: print("edit"))
     fn_copy = tr.Callable(default_value=lambda: print("copy"))
     fn_delete = tr.Callable(default_value=lambda: print("delete"))
-    fn_backward = tr.Callable(default_value=lambda: print("backward"))  # TODO
+    fn_backward = tr.Callable(default_value=lambda: print("backward"))
     fn_reload = tr.Callable(default_value=None, allow_none=True)
 
     @tr.observe("fn_reload")
@@ -309,11 +317,16 @@ class CrudButtonBar(w.HBox):
         else:
             self.reload.layout.display = ""
 
-    @tr.observe("active")
-    def _observe_active(self, change):
-        if change["new"] is None:
-            self.message.value = ""
-        logging.info(f"active CRUD view = {change['new']}")
+    @tr.observe("crud_view")
+    def _observe_crud_view(self, change):
+        self._set_crud_view_options()
+
+    @property
+    def active_index(self):
+        if self.active is None:
+            return None
+        else:
+            return list(self.crud_view.keys()).index(self.active)
 
     def __init__(
         self,
@@ -334,13 +347,14 @@ class CrudButtonBar(w.HBox):
 
     def _init_form(self):
         # self.transpose w.ToggleButton(icon="arrow-right")
-        self.add = w.ToggleButton(**constants.ADD_BUTTON_KWARGS)
-        self.edit = w.ToggleButton(**constants.EDIT_BUTTON_KWARGS)
-        self.copy = w.ToggleButton(**constants.COPY_BUTTON_KWARGS)
-        self.delete = w.ToggleButton(**constants.DELETE_BUTTON_KWARGS)
-        self.reload = w.Button(**constants.RELOAD_BUTTON_KWARGS)
+        self.add = w.ToggleButton(**ADD_BUTTON_KWARGS)
+        self.edit = w.ToggleButton(**EDIT_BUTTON_KWARGS)
+        self.copy = w.ToggleButton(**COPY_BUTTON_KWARGS)
+        self.delete = w.ToggleButton(**DELETE_BUTTON_KWARGS)
+        self.reload = w.Button(**RELOAD_BUTTON_KWARGS)
         self.reload.layout.display = "None"
         self.message = w.HTML()
+        self._set_crud_view_options()
 
     def _init_controls(self):
         self.add.observe(self._add, "value")
@@ -355,13 +369,13 @@ class CrudButtonBar(w.HBox):
         if w.value:
             self.reset_toggles_except(button_name)
             self.active = button_name
-            w.tooltip = BUTTONBAR_CONFIG[button_name]["tooltip_clicked"]
+            w.tooltip = self.crud_view[button_name]["tooltip_clicked"]
             w.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
-            self.message.value = BUTTONBAR_CONFIG[button_name]["message"]
+            self.message.value = self.crud_view[button_name]["message"]
             fn()
         else:
             self.active = None
-            w.tooltip = BUTTONBAR_CONFIG[button_name]["tooltip"]
+            w.tooltip = self.crud_view[button_name]["tooltip"]
             w.layout.border = None
             self.fn_backward()
 
@@ -377,9 +391,18 @@ class CrudButtonBar(w.HBox):
     def _delete(self, onchange):
         self._onclick("delete")
 
-    def reset_toggles_except(self, name):
-        names = ["add", "edit", "delete", "copy"]
-        if name not in names:
+    def _set_crud_view_options(self):
+        for button_name in self.crud_view.keys():
+            w = getattr(self, button_name)
+            for k, v in self.crud_view[button_name].items():
+                if k in dir(w):
+                    setattr(w, k, self.crud_view[button_name][k])
+
+    def reset_toggles_except(self, name=None):
+        names = self.crud_view.keys()
+        if name is None:
+            names = names
+        elif name not in names:
             raise ValueError(f"`name` must be in {str(names)}. {name} given")
         names = [n for n in names if n != name]
         for n in names:
@@ -389,8 +412,6 @@ class CrudButtonBar(w.HBox):
         logger.info("Reloading all data")
         self.fn_reload()
 
-
-# -
 
 if __name__ == "__main__":
 
@@ -419,3 +440,5 @@ if __name__ == "__main__":
     )
 
     display(buttonbar)
+
+
