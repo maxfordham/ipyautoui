@@ -430,7 +430,7 @@ class EditGrid(w.VBox, TitleDescription):
     def _check_one_row_selected(self):
         if len(self.grid.selected_indexes) > 1:
             raise Exception(
-                "  👇 <i>Please only select ONLY one row from the table!</i>"
+                "👇 <i>Please only select ONLY one row from the table!</i>"
             )
 
     # edit row
@@ -476,7 +476,7 @@ class EditGrid(w.VBox, TitleDescription):
         except Exception as e:
             self.buttonbar_grid.edit.value = False
             self.buttonbar_grid.message.value = (
-                "  👇 <i>Please select one row from the table!</i> "
+                "👇 <i>Please select one row from the table!</i> "
             )
             traceback.print_exc()
 
@@ -551,7 +551,7 @@ class EditGrid(w.VBox, TitleDescription):
                         self._copy_selected_to_end()
                         # ^ add copied values. note. above syntax required to avoid editing in place.
 
-                    self.buttonbar_grid.message.value = "  📝 <i>Copied Data</i> "
+                    self.buttonbar_grid.message.value = "📝 <i>Copied Data</i> "
                     self.buttonbar_grid.copy.value = False
 
                 else:
@@ -568,7 +568,7 @@ class EditGrid(w.VBox, TitleDescription):
     # --------------------------------------------------------------------------
     def _reload_datahandler(self):
         self._reload_all_data()
-        self.buttonbar_grid.message.value = "  🔄 <i>Reloaded Data</i> "
+        self.buttonbar_grid.message.value = "🔄 <i>Reloaded Data</i> "
 
     def _reload_all_data(self):
         if self.datahandler is not None:
@@ -587,7 +587,7 @@ class EditGrid(w.VBox, TitleDescription):
                 if i not in self.grid.selected_indexes
             ]
             # ^ Only set for values NOT in self.grid.selected_indexes
-        self.buttonbar_grid.message.value = "  🗑️ <i>Deleted Row</i> "
+        self.buttonbar_grid.message.value = "🗑️ <i>Deleted Data</i> "
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.delete.value = False
 
@@ -606,7 +606,7 @@ class EditGrid(w.VBox, TitleDescription):
             else:
                 self.buttonbar_grid.delete.value = False
                 self.buttonbar_grid.message.value = (
-                    "  👇 <i>Please select at least one row from the table!</i>"
+                    "👇 <i>Please select at least one row from the table!</i>"
                 )
 
         except Exception as e:
