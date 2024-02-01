@@ -115,7 +115,15 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
     insert_rows = tr.Dict(default_value=None, allow_none=True)
     disabled = tr.Bool(default_value=False)
     open_nested = tr.Bool(default_value=None, allow_none=True)
+    show_null = tr.Bool(default_value=True)
 
+    @tr.observe("show_null")
+    def observe_show_null(self, on_change):
+        if self.show_null:
+            self._show_null()
+        else:
+            self._hide_null()
+                
     @tr.default("update_map_widgets")
     def _default_update_map_widgets(self):
         return {}
@@ -340,6 +348,17 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
         for r in self.di_boxes.values():
             if r.nested:
                 r.tgl.value = False
+                
+    def _hide_null(self):
+        for k, v in self.di_boxes.items():
+            if v.value is None:
+                v.layout.display = "None"
+
+
+    def _show_null(self):
+        for k, v in self.di_boxes.items():
+            if v.value is None and v.layout.display == "None":
+                v.layout.display = ""
 
     @property
     def default_order(self):
