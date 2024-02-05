@@ -400,6 +400,7 @@ document.write(`
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># create a pydantic model (or a json-schema) defining the fields of interest</span>
 <span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">ty</span>
 
 
 <span class="k">class</span> <span class="nc">Sub</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -411,16 +412,39 @@ document.write(`
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;Test&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This description is very important&quot;</span><span class="p">)</span>
     <span class="n">inty</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">sub</span><span class="p">:</span> <span class="n">Sub</span>
+    <span class="n">nu</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;this is a value&quot;</span><span class="p">}</span>
-<span class="n">ui</span> <span class="o">=</span> <span class="n">AutoUi</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">Example</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;test.ui.json&quot;</span><span class="p">),</span> <span class="n">show_savebuttonbar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ui</span> <span class="o">=</span> <span class="n">AutoUi</span><span class="p">(</span>
+    <span class="n">schema</span><span class="o">=</span><span class="n">Example</span><span class="p">,</span>
+    <span class="n">path</span><span class="o">=</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;test.ui.json&quot;</span><span class="p">),</span>
+    <span class="n">show_savebuttonbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">ui</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "3aac0f5cdf084b38aca5a76008da2c27"}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "f538b14c40674255be53298db0b5f02c"}</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ipyautoui.autoobject</span> <span class="kn">import</span> <span class="n">AutoObjectForm</span>
+
+<span class="n">AutoObjectForm</span><span class="o">.</span><span class="n">from_jsonschema</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">Example</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "c173cbea0d044804853f66572f03a12e"}</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ui.show_null = False</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -433,19 +457,19 @@ document.write(`
 <div class="cell_output docutils container">
 <div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
 <span class="ne">ValidationError</span><span class="g g-Whitespace">                           </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">line</span> <span class="mi">3</span>
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">line</span> <span class="mi">3</span>
 <span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="kn">from</span> <span class="nn">ipyautoui.basemodel</span> <span class="kn">import</span> <span class="n">file</span>
 <span class="ne">----&gt; </span><span class="mi">3</span> <span class="n">file</span><span class="p">(</span><span class="n">Example</span><span class="p">(),</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;test.json&quot;</span><span class="p">))</span>
 
-<span class="nn">File /usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.11/site-packages/pydantic/main.py:164,</span> in <span class="ni">BaseModel.__init__</span><span class="nt">(__pydantic_self__, **data)</span>
-<span class="g g-Whitespace">    </span><span class="mi">162</span> <span class="c1"># `__tracebackhide__` tells pytest and some other tools to omit this function from tracebacks</span>
-<span class="g g-Whitespace">    </span><span class="mi">163</span> <span class="n">__tracebackhide__</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="ne">--&gt; </span><span class="mi">164</span> <span class="n">__pydantic_self__</span><span class="o">.</span><span class="n">__pydantic_validator__</span><span class="o">.</span><span class="n">validate_python</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">self_instance</span><span class="o">=</span><span class="n">__pydantic_self__</span><span class="p">)</span>
+<span class="nn">File /usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.11/site-packages/pydantic/main.py:171,</span> in <span class="ni">BaseModel.__init__</span><span class="nt">(self, **data)</span>
+<span class="g g-Whitespace">    </span><span class="mi">169</span> <span class="c1"># `__tracebackhide__` tells pytest and some other tools to omit this function from tracebacks</span>
+<span class="g g-Whitespace">    </span><span class="mi">170</span> <span class="n">__tracebackhide__</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="ne">--&gt; </span><span class="mi">171</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pydantic_validator__</span><span class="o">.</span><span class="n">validate_python</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">self_instance</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 
 <span class="ne">ValidationError</span>: 1 validation error for Example
 <span class="n">sub</span>
   <span class="n">Field</span> <span class="n">required</span> <span class="p">[</span><span class="nb">type</span><span class="o">=</span><span class="n">missing</span><span class="p">,</span> <span class="n">input_value</span><span class="o">=</span><span class="p">{},</span> <span class="n">input_type</span><span class="o">=</span><span class="nb">dict</span><span class="p">]</span>
-    <span class="n">For</span> <span class="n">further</span> <span class="n">information</span> <span class="n">visit</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">errors</span><span class="o">.</span><span class="n">pydantic</span><span class="o">.</span><span class="n">dev</span><span class="o">/</span><span class="mf">2.5</span><span class="o">/</span><span class="n">v</span><span class="o">/</span><span class="n">missing</span>
+    <span class="n">For</span> <span class="n">further</span> <span class="n">information</span> <span class="n">visit</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">errors</span><span class="o">.</span><span class="n">pydantic</span><span class="o">.</span><span class="n">dev</span><span class="o">/</span><span class="mf">2.6</span><span class="o">/</span><span class="n">v</span><span class="o">/</span><span class="n">missing</span>
 </pre></div>
 </div>
 </div>
@@ -460,11 +484,6 @@ document.write(`
 
 <span class="n">save_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;test.simpleaui.json&quot;</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Save Location is: </span><span class="si">{</span><span class="n">save_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Save Location is: test.simpleaui.json
 </pre></div>
 </div>
 </div>
@@ -487,8 +506,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "ccf8e2bbc0534517b0aabb5e25ebfdc6", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -518,8 +535,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "b4d7bc3dc5564192afb76e63b53fb7bb", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -566,14 +581,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>FileUploadToDir still needs fixing following updates to `iterable.py`. DO NOT USE.
-/home/jovyan/micromamba/envs/ipyautoui-dev/lib/python3.11/site-packages/pydantic/_internal/_config.py:317: UserWarning: Valid config keys have changed in V2:
-* &#39;schema_extra&#39; has been renamed to &#39;json_schema_extra&#39;
-  warnings.warn(message, UserWarning)
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "52f1cb5e768c4bc5bfba0b50328b32c3", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -585,8 +592,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "2534c2c57173404c801d071cb60dd9f6", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 </div>
 </div>
