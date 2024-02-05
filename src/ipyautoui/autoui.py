@@ -54,7 +54,7 @@ from ipyautoui.automapschema import (
 )
 from ipyautoui.autobox import AutoBox
 from ipyautoui.autoform import TitleDescription, WrapSaveButtonBar, ShowRaw, ShowNull
-
+from ipyautoui.custom.editgrid import EditGrid
 logger = logging.getLogger(__name__)
 
 
@@ -229,24 +229,35 @@ def get_autoui(schema: ty.Union[ty.Type[BaseModel], dict], **kwargs):
             schema, widgets_map=get_containers_map(), fail_on_error=True
         )
         is_container = True
-        
-        class AutoUi(
-            caller.autoui,
-            ShowRaw,
-            ShowNull,
-            TitleDescription,
-            WrapSaveButtonBar,
-            AutoUiFileMethods,
-        ):
-            def _set_children(self):
-                self.children = [
-                    self.savebuttonbar,
-                    w.HBox([self.bn_showraw, self.bn_shownull, self.html_title]),
-                    self.html_description,
-                    self.vbx_error,
-                    self.vbx_widget,
-                    self.vbx_showraw,
-                ]
+        if issubclass(caller.autoui, EditGrid):
+            li = [caller.autoui, TitleDescription, ShowRaw, AutoUiFileMethods]
+            class AutoUi(*li):
+                def _set_children(self):
+                    self.children = [
+                        w.HBox([self.bn_showraw, self.html_title]),
+                        self.html_description,
+                        self.vbx_error,
+                        self.vbx_widget,
+                        self.vbx_showraw,
+                    ]
+        else:
+            class AutoUi(
+                caller.autoui,
+                ShowRaw,
+                ShowNull,
+                TitleDescription,
+                WrapSaveButtonBar,
+                AutoUiFileMethods,
+            ):
+                def _set_children(self):
+                    self.children = [
+                        self.savebuttonbar,
+                        w.HBox([self.bn_showraw, self.bn_shownull, self.html_title]),
+                        self.html_description,
+                        self.vbx_error,
+                        self.vbx_widget,
+                        self.vbx_showraw,
+                    ]
 
         if model is not None:
             return wrapped_partial(
