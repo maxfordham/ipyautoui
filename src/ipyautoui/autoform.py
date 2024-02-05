@@ -21,8 +21,8 @@ def make_bold(s: str) -> str:
 
 # -
 
-SHOWNULL_ICON_SHOW = "window-maximize"
-SHOWNULL_ICON_HIDE = "window-minimize"
+SHOWNULL_ICON_SHOW = "plus"
+SHOWNULL_ICON_HIDE = "minus"
 KWARGS_SHOWNULL = dict(
             icon=SHOWNULL_ICON_SHOW,
             layout=w.Layout(width=BUTTON_WIDTH_MIN, display=""),
@@ -53,11 +53,11 @@ class ShowNull(tr.HasTraits):
         self.bn_shownull.observe(self._observe_bn_shownull, "value")
 
     def _observe_bn_shownull(self, on_change):
-        self.show_null = not(self.bn_shownull.value)
+        self.show_null = self.bn_shownull.value
         if self.show_null:
-            self.bn_shownull.icon = SHOWNULL_ICON_SHOW
-        else:
             self.bn_shownull.icon = SHOWNULL_ICON_HIDE
+        else:
+            self.bn_shownull.icon = SHOWNULL_ICON_SHOW
 
     @property
     def bn_shownull(self):

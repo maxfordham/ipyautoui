@@ -116,7 +116,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
     insert_rows = tr.Dict(default_value=None, allow_none=True)
     disabled = tr.Bool(default_value=False)
     open_nested = tr.Bool(default_value=None, allow_none=True)
-    show_null = tr.Bool(default_value=True)
+    show_null = tr.Bool(default_value=False)
     # show_raw = tr.Bool(default_value=False)  # TODO: match logic for show_null
 
     @tr.observe("show_null")
@@ -125,8 +125,11 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
             
     def _show_null(self, yesno: bool):
         for k, v in self.di_boxes.items():
-            if pd.isnull(self.value[k]):
-                v.layout.display = (lambda yesno: "" if yesno else "None")(yesno)
+            try:
+                if pd.isnull(self.value[k]):
+                    v.layout.display = (lambda yesno: "" if yesno else "None")(yesno)
+            except:
+                pass
                 
     @tr.default("update_map_widgets")
     def _default_update_map_widgets(self):
@@ -333,7 +336,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
             self.value = kwargs["value"]
         else:
             self._value = self.di_widgets_value
-
+        self._show_null(self.show_null)
         self._set_children()
         self._post_init(**kwargs)
 
