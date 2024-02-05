@@ -37,6 +37,7 @@ from pydantic import BaseModel
 from ipyautoui.watch_validate import WatchValidate
 from ipyautoui.custom.title_description import TitleDescription
 import contextlib
+import pandas as pd  # TODO: pandas is a heavy dep. if only used for pd.isnull... ? 
 
 logger = logging.getLogger(__name__)
 
@@ -116,13 +117,16 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
     disabled = tr.Bool(default_value=False)
     open_nested = tr.Bool(default_value=None, allow_none=True)
     show_null = tr.Bool(default_value=True)
+    # show_raw = tr.Bool(default_value=False)  # TODO: match logic for show_null
 
     @tr.observe("show_null")
     def observe_show_null(self, on_change):
-        if self.show_null:
-            self._show_null()
-        else:
-            self._hide_null()
+        self._show_null(self.show_null)
+            
+    def _show_null(self, yesno: bool):
+        for k, v in self.di_boxes.items():
+            if pd.isnull(self.value[k]):
+                v.layout.display = (lambda yesno: "" if yesno else "None")(yesno)
                 
     @tr.default("update_map_widgets")
     def _default_update_map_widgets(self):
@@ -349,16 +353,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
             if r.nested:
                 r.tgl.value = False
                 
-    def _hide_null(self):
-        for k, v in self.di_boxes.items():
-            if v.value is None:
-                v.layout.display = "None"
 
-
-    def _show_null(self):
-        for k, v in self.di_boxes.items():
-            if v.value is None and v.layout.display == "None":
-                v.layout.display = ""
 
     @property
     def default_order(self):
@@ -448,12 +443,13 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout):
             **kwargs,
         )
         self.children = [
-            self.savebuttonbar,
+            w.HBox([self.bn_shownull, self.savebuttonbar ]),
             self.html_title,
             self.html_description,
             self.vbx_widget,
             self.vbx_showraw,
         ]
+        self.show_hide_bn_nullable()
 
     def display_ui(self):  # NOTE: this overwritten this in AutoObjectForm
         self.vbx_widget.layout.display = ""
