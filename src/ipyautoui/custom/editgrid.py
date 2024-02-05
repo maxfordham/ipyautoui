@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -429,9 +429,7 @@ class EditGrid(w.VBox, TitleDescription):
 
     def _check_one_row_selected(self):
         if len(self.grid.selected_indexes) > 1:
-            raise Exception(
-                "👇 <i>Please only select ONLY one row from the table!</i>"
-            )
+            raise Exception("👇 <i>Please only select ONLY one row from the table!</i>")
 
     # edit row
     # --------------------------------------------------------------------------
@@ -667,6 +665,74 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
+    from pydantic import RootModel
+
+    # Test: EditGrid instance with multi-indexing.
+    AUTO_GRID_DEFAULT_VALUE = [
+        {
+            "string": None,
+            "integer": 1,
+            "floater": 3.14,
+        },
+    ]
+    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
+    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE + [
+        {
+            "string": None,
+            "integer": None,
+            "floater": None,
+        },
+    ]
+
+    class DataFrameCols(BaseModel):
+        string: ty.Optional[str] = Field(
+            "string",
+            json_schema_extra=dict(
+                column_width=400,
+            ),
+        )
+        integer: ty.Optional[int] = Field(
+            1,
+            json_schema_extra=dict(
+                column_width=80,
+            ),
+        )
+        floater: ty.Optional[float] = Field(
+            None,
+            json_schema_extra=dict(
+                column_width=70,
+            ),
+        )
+
+    class TestDataFrame(RootModel):
+        """a description of TestDataFrame"""
+
+        root: ty.List[DataFrameCols] = Field(
+            default=AUTO_GRID_DEFAULT_VALUE,
+            json_schema_extra=dict(
+                format="dataframe",
+            ),
+        )
+
+    title = "The Wonderful Edit Grid Application"
+    description = "Useful for all editing purposes whatever they may be 👍"
+    editgrid = EditGrid(
+        schema=TestDataFrame,
+        title=title,
+        description=description,
+        # transposed=True,
+        ui_add=None,
+        ui_edit=None,
+        warn_on_delete=True,
+        show_copy_dialogue=False,
+        close_crud_dialogue_on_action=False,
+        global_decimal_places=1,
+        column_width={"String": 400},
+    )
+    editgrid.observe(lambda c: print("_value changed"), "_value")
+    display(editgrid)
+
+if __name__ == "__main__":
     editgrid.grid.order = ("floater", "string")
     # ^ NOTE: this will result in a value change in the grid
 
@@ -703,10 +769,6 @@ if __name__ == "__main__":
         datahandler=datahandler,
     )
     display(editgrid)
-
-# +
-# editgrid._reload_datahandler()
-# -
 
 if __name__ == "__main__":
 
