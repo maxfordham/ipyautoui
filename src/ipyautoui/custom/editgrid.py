@@ -461,7 +461,8 @@ class EditGrid(w.VBox, TitleDescription):
             self.grid.selections = selections
 
     def _set_ui_edit_to_selected_row(self):
-        self.ui_edit.value = self.grid.selected
+        if self.grid.selected is not None:
+            self.ui_edit.value = self.grid.selected
         self.ui_edit.savebuttonbar.unsaved_changes = False
 
     def _patch(self):
