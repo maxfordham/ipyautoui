@@ -29,6 +29,7 @@ import pandas as pd
 import ipywidgets as w
 from IPython.display import clear_output, display
 from pydantic import BaseModel, Field
+import json
 
 from ipyautoui.autoobject import AutoObjectForm
 from ipyautoui.custom.buttonbars import CrudButtonBar
@@ -267,6 +268,11 @@ class EditGrid(w.VBox, TitleDescription):
         _transforms = self.grid._transforms
         self.grid.transform([])  # Set to no transforms
         self.grid.transform(_transforms)  # Set to previous transforms
+        
+    @property
+    def json(self):  # HOTFIX: not required if WatchValidate is used
+        return json.dumps(self.value, indent=4)
+
 
     @property
     def transposed(self):
