@@ -40,16 +40,10 @@ class ShowNull(tr.HasTraits):
 
     @tr.observe("display_bn_shownull")
     def _observe_display_bn_shownull(self, change):
-        # if self.display_bn_shownull:
-        #     self.bn_shownull.layout.display = ""
-        # else:
-        #     self.bn_shownull.layout.display = "None"
         show_hide_widget(self.bn_shownull, self.display_bn_shownull)
     
     def _init_bn_shownull(self):
         self.bn_shownull = w.ToggleButton(**KWARGS_SHOWNULL)
-        
-        # _init_controls
         self.bn_shownull.observe(self._observe_bn_shownull, "value")
 
     def _observe_bn_shownull(self, on_change):

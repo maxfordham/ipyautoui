@@ -119,17 +119,22 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
     show_null = tr.Bool(default_value=False)
     # show_raw = tr.Bool(default_value=False)  # TODO: match logic for show_null
 
-    @tr.observe("show_null")
+    @tr.observe("show_null", "_value")
     def observe_show_null(self, on_change):
         self._show_null(self.show_null)
             
     def _show_null(self, yesno: bool):
         for k, v in self.di_boxes.items():
-            try:
-                if pd.isnull(self.value[k]):
-                    v.layout.display = (lambda yesno: "" if yesno else "None")(yesno)
-            except:
-                pass
+            if k in self.value.keys():
+                if not isinstance(self.value[k], (dict, list)):
+                    if pd.isnull(self.value[k]):
+                        v.layout.display = (lambda yesno: "" if yesno else "None")(yesno)
+                    else:
+                        v.layout.display = ""
+            else:
+                # If no value passed assume value is None
+                v.layout.display = (lambda yesno: "" if yesno else "None")(yesno)
+
                 
     @tr.default("update_map_widgets")
     def _default_update_map_widgets(self):
