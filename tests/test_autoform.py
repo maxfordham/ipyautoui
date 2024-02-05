@@ -2,6 +2,7 @@ from ipyautoui.autoform import (
     demo_autoobject_form,
     AutoObjectFormLayout,
 )
+import ipywidgets as w
 
 form = demo_autoobject_form()
 
@@ -37,3 +38,11 @@ class TestAutoObjectFormLayout:
         assert form.savebuttonbar.layout.display == "None"
         form.show_savebuttonbar = True
         assert form.savebuttonbar.layout.display == ""
+
+def test_show_null():
+    form = demo_autoobject_form()
+    assert isinstance(form.bn_shownull, w.ToggleButton)
+    assert form.display_bn_shownull == True
+    assert form.bn_shownull.layout.display == ""
+    form.display_bn_shownull = False
+    assert form.bn_shownull.layout.display == "None"

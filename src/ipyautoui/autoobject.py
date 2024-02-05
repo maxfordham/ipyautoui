@@ -37,6 +37,7 @@ from pydantic import BaseModel
 from ipyautoui.watch_validate import WatchValidate
 from ipyautoui.custom.title_description import TitleDescription
 import contextlib
+import pandas as pd  # TODO: pandas is a heavy dep. if only used for pd.isnull... ? 
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +116,21 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
     insert_rows = tr.Dict(default_value=None, allow_none=True)
     disabled = tr.Bool(default_value=False)
     open_nested = tr.Bool(default_value=None, allow_none=True)
+    show_null = tr.Bool(default_value=False)
+    # show_raw = tr.Bool(default_value=False)  # TODO: match logic for show_null
 
+    @tr.observe("show_null")
+    def observe_show_null(self, on_change):
+        self._show_null(self.show_null)
+            
+    def _show_null(self, yesno: bool):
+        for k, v in self.di_boxes.items():
+            try:
+                if pd.isnull(self.value[k]):
+                    v.layout.display = (lambda yesno: "" if yesno else "None")(yesno)
+            except:
+                pass
+                
     @tr.default("update_map_widgets")
     def _default_update_map_widgets(self):
         return {}
@@ -321,7 +336,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
             self.value = kwargs["value"]
         else:
             self._value = self.di_widgets_value
-
+        self._show_null(self.show_null)
         self._set_children()
         self._post_init(**kwargs)
 
@@ -340,6 +355,8 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
         for r in self.di_boxes.values():
             if r.nested:
                 r.tgl.value = False
+                
+
 
     @property
     def default_order(self):
@@ -348,12 +365,6 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
         except:
             return None
 
-    @property
-    def json(self):
-        if self.model is not None:
-            return self.model(**self.value).model_dump_json(indent=4)
-        else:
-            return json.dumps(self.value, indent=4)
 
     def _init_ui(self):
         self._init_widgets()
@@ -429,12 +440,13 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout):
             **kwargs,
         )
         self.children = [
-            self.savebuttonbar,
+            w.HBox([self.bn_shownull, self.savebuttonbar ]),
             self.html_title,
             self.html_description,
             self.vbx_widget,
             self.vbx_showraw,
         ]
+        self.show_hide_bn_nullable()
 
     def display_ui(self):  # NOTE: this overwritten this in AutoObjectForm
         self.vbx_widget.layout.display = ""

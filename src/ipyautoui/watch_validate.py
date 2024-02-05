@@ -85,6 +85,13 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
                 with self.silence_autoui_traits():
                     self._update_widgets_from_value()
                 pass
+            
+    @property
+    def json(self):
+        if self.model is not None:
+            return self.model(**self.value).model_dump_json(indent=4)
+        else:
+            return json.dumps(self.value, indent=4)
 
     def _set_validate_value(self, v):  # this is called on change of the UI
         if self.model is not None:
