@@ -365,12 +365,6 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
         except:
             return None
 
-    @property
-    def json(self):
-        if self.model is not None:
-            return self.model(**self.value).model_dump_json(indent=4)
-        else:
-            return json.dumps(self.value, indent=4)
 
     def _init_ui(self):
         self._init_widgets()
