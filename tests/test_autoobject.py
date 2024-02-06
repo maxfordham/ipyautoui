@@ -110,3 +110,16 @@ def test_dont_show_null():
     assert ui.display_bn_shownull == False
     assert ui.bn_shownull.layout.display == "None"
     
+def test_null_display_on_value_change():
+    """Check that displays of widgets are set appropriately when value is changed."""
+    class Nullables(BaseModel):
+        a: ty.Optional[str] = Field(default=None)
+        b: str = Field(default="Test")
+        c: ty.Optional[str] = Field(default="Test")
+
+    ui = AutoObject.from_pydantic_model(Nullables)
+    assert ["None", "", ""] == [v.layout.display for k, v in ui.di_boxes.items()]
+    ui.value = {'a': 'Test', 'b': "Test", 'c': "Test"}
+    assert ["", "", ""] == [v.layout.display for k, v in ui.di_boxes.items()]
+    ui.value = {'a': 'Test', 'b': "Test", "c": None}
+    assert ["", "", "None"] == [v.layout.display for k, v in ui.di_boxes.items()]
