@@ -106,7 +106,7 @@ def test_dont_show_null():
         a: str = Field(default="Test", description="This test is important")
         b: str = Field(default="Test1", description="This test is important too")
 
-    ui = AutoObjectForm.from_pydantic_model(NoNullables) 
+    ui = AutoObjectForm.from_pydantic_model(NoNullables)
     assert ui.display_bn_shownull == False
     assert ui.bn_shownull.layout.display == "None"
     

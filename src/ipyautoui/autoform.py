@@ -1,5 +1,3 @@
-# +
-
 """layout attributes of a form box
 """
 # %run _dev_maplocal_params.py
@@ -9,34 +7,19 @@ import traitlets as tr
 import typing as ty
 
 from IPython.display import display, clear_output
-from ipyautoui.constants import BUTTON_WIDTH_MIN
+from ipyautoui.nullable import Nullable
+from ipyautoui.constants import KWARGS_SHOWNULL, KWARGS_SHOWRAW, SHOWNULL_ICON_SHOW, SHOWNULL_ICON_HIDE
 from ipyautoui.custom.buttonbars import SaveButtonBar
 from ipyautoui.custom.title_description import TitleDescription
 from ipyautoui._utils import display_python_string, show_hide_widget
-from ipyautoui.nullable import Nullable
 
 def make_bold(s: str) -> str:
     return f"<big><b>{s}</b></big>"
 
 
 # -
-
-SHOWNULL_ICON_SHOW = "plus"
-SHOWNULL_ICON_HIDE = "minus"
-KWARGS_SHOWNULL = dict(
-            icon=SHOWNULL_ICON_SHOW,
-            layout=w.Layout(width=BUTTON_WIDTH_MIN, display=""),
-            tooltip="show null form fields",
-            style={"font_weight": "bold"})
-KWARGS_SHOWRAW = dict(icon="code",
-            layout=w.Layout(width=BUTTON_WIDTH_MIN, display="None"),
-            tooltip="show raw data",
-            style={"font_weight": "bold"},
-        )
-
-
 class ShowNull(tr.HasTraits):
-    display_bn_shownull = tr.Bool(default_value=True)
+    display_bn_shownull = tr.Bool(default_value=True)        
 
     @tr.observe("display_bn_shownull")
     def _observe_display_bn_shownull(self, change):
@@ -63,20 +46,26 @@ class ShowNull(tr.HasTraits):
     def bn_shownull(self, value):
         self._bn_shownull = value
 
-    def show_hide_bn_nullable(self):  # work with AutoObject only
-        is_nullable = [True for v in self.di_widgets.values() if isinstance(v, Nullable)]
-        if len(is_nullable) > 0:
-            if self.display_bn_shownull:
-                show_hide_widget(self.bn_shownull, self.display_bn_shownull)
-                # NOTE: don't think should be required but it appeared to be saving the 
-                #       state of the button.layout.display between objects otherwise ... 
-                #       ... not sure... but this seems to fix it
-            else:
-                self.display_bn_shownull = True
+    def show_hide_bn_nullable(self):
+        """Set display of show null button based on if any nullable widgets are found."""
+        if self.check_for_nullables():
+            self.display_bn_shownull = True
         else:
             self.display_bn_shownull = False
 
-
+    def check_for_nullables(self) -> bool:
+        """Search through widgets and as soon as a Nullable widget is found, return True.
+        Else, return False."""
+        if not hasattr(self, 'di_widgets'):
+            raise AttributeError(
+                "The 'di_widgets' attribute is not defined in this class. "
+                "It must be defined in a subclass before calling this method."
+            )
+        for v in self.di_widgets.values():
+            if isinstance(v, Nullable):
+                return True
+        return False
+    
 
 if __name__ == "__main__":
     sn = ShowNull()
@@ -247,11 +236,6 @@ if __name__ == "__main__":
 
 
 # +
-
-
-
-
-
 def demo_autoobject_form(title="test", description="a description of the title"):
     """for docs and testing only..."""
     from ipyautoui.custom.buttonbars import SaveButtonBar
