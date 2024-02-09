@@ -48,23 +48,10 @@ class ShowNull(tr.HasTraits):
 
     def show_hide_bn_nullable(self):
         """Set display of show null button based on if any nullable widgets are found."""
-        if self.check_for_nullables():
+        if self.check_for_nullables():  # check_for_nullables is defined in AutoObject
             self.display_bn_shownull = True
         else:
             self.display_bn_shownull = False
-
-    def check_for_nullables(self) -> bool:
-        """Search through widgets and as soon as a Nullable widget is found, return True.
-        Else, return False."""
-        if not hasattr(self, 'di_widgets'):
-            raise AttributeError(
-                "The 'di_widgets' attribute is not defined in this class. "
-                "It must be defined in a subclass before calling this method."
-            )
-        for v in self.di_widgets.values():
-            if isinstance(v, Nullable):
-                return True
-        return False
     
 
 if __name__ == "__main__":

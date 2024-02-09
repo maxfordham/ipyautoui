@@ -433,6 +433,14 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
         get_value = lambda v: v._value if "_value" in v.traits() else v.value
         return {k: get_value(v) for k, v in self.di_widgets.items()}
 
+    def check_for_nullables(self) -> bool:
+        """Search through widgets and as soon as a Nullable widget is found, return True.
+        Else, return False."""
+        for v in self.di_widgets.values():
+            if isinstance(v, Nullable):
+                return True
+        return False
+
 
 class AutoObjectForm(AutoObject, AutoObjectFormLayout):
     def __init__(self, **kwargs):
