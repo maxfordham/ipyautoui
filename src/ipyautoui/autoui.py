@@ -31,37 +31,25 @@ Example:
 # %load_ext lab_black
 
 import pathlib
-from IPython.display import display
-from pydantic import BaseModel, ValidationError
-import json
-import traitlets as tr
-import typing as ty
-from ipyautoui.autoform import AutoObjectFormLayout, ShowRaw
-from ipyautoui.custom import SaveButtonBar  # removing makes circular import error
 import json
 import logging
-from ipyautoui.automapschema import map_widget, widgetcaller, _init_model_schema
+import functools
+import traitlets as tr
+import typing as ty
 import ipywidgets as w
-from pydantic import BaseModel
-from ipyautoui.automapschema import pydantic_validate
-from IPython.display import clear_output
-from ipyautoui.automapschema import (
-    map_widget,
-    widgetcaller,
-    _init_model_schema,
-    get_widgets_map,
-    get_containers_map,
-)
+from pydantic import BaseModel, ValidationError
+from IPython.display import display
+
+from ipyautoui.custom import SaveButtonBar  # removing makes circular import error
 from ipyautoui.autobox import AutoBox
-from ipyautoui.autoform import TitleDescription, WrapSaveButtonBar, ShowRaw, ShowNull
+from ipyautoui.autoform import AutoObjectFormLayout, TitleDescription, WrapSaveButtonBar, ShowRaw, ShowNull
 from ipyautoui.custom.editgrid import EditGrid
+from ipyautoui.automapschema import get_widgets_map, get_containers_map, map_widget, widgetcaller, _init_model_schema, pydantic_validate
+
 logger = logging.getLogger(__name__)
 
 
 # +
-import functools
-
-
 def wrapped_partial(func, *args, **kwargs):
     # http://louistiao.me/posts/adding-__name__-and-__doc__-attributes-to-functoolspartial-objects/
     partial_func = functools.partial(func, *args, **kwargs)
@@ -217,9 +205,6 @@ class AutoRenderMethods:
         return {ext: AutoRenderer}
 
 
-
-
-
 def get_autoui(schema: ty.Union[ty.Type[BaseModel], dict], **kwargs):
     model, schema = _init_model_schema(schema)
     schema = {**schema, **kwargs}
@@ -258,6 +243,7 @@ def get_autoui(schema: ty.Union[ty.Type[BaseModel], dict], **kwargs):
                         self.vbx_widget,
                         self.vbx_showraw,
                     ]
+                    self.show_hide_bn_nullable()
 
         if model is not None:
             return wrapped_partial(

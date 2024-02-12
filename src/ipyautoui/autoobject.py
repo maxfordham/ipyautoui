@@ -21,23 +21,18 @@
 
 import logging
 import pathlib
-import functools
 import ipywidgets as w
-from IPython.display import display
+import pandas as pd  # TODO: pandas is a heavy dep. if only used for pd.isnull... ? 
 import traitlets as tr
-import typing as ty
-import json
+from IPython.display import display
+from jsonref import replace_refs
 import ipyautoui.automapschema as aumap
 from ipyautoui._utils import obj_from_importstr
 from ipyautoui.nullable import Nullable
 from ipyautoui.autobox import AutoBox
 from ipyautoui.autoform import AutoObjectFormLayout
-from jsonref import replace_refs
-from pydantic import BaseModel
 from ipyautoui.watch_validate import WatchValidate
 from ipyautoui.custom.title_description import TitleDescription
-import contextlib
-import pandas as pd  # TODO: pandas is a heavy dep. if only used for pd.isnull... ? 
 
 logger = logging.getLogger(__name__)
 
@@ -438,6 +433,14 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
         get_value = lambda v: v._value if "_value" in v.traits() else v.value
         return {k: get_value(v) for k, v in self.di_widgets.items()}
 
+    def check_for_nullables(self) -> bool:
+        """Search through widgets and as soon as a Nullable widget is found, return True.
+        Else, return False."""
+        for v in self.di_widgets.values():
+            if isinstance(v, Nullable):
+                return True
+        return False
+
 
 class AutoObjectForm(AutoObject, AutoObjectFormLayout):
     def __init__(self, **kwargs):
@@ -452,7 +455,7 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout):
             self.vbx_showraw,
         ]
         self.show_hide_bn_nullable()
-
+        
     def display_ui(self):  # NOTE: this overwritten this in AutoObjectForm
         self.vbx_widget.layout.display = ""
 
