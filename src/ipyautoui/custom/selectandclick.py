@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -23,31 +23,25 @@ from ipyautoui.constants import (
     DELETE_BUTTON_KWARGS,
     ADD_BUTTON_KWARGS,
     LOAD_BUTTON_KWARGS,
+    
 )
 from ipyautoui.custom.halo_decorator import halo_decorator
 from IPython.display import clear_output, display
 from ipyautoui.custom.title_description import TitleDescription
-from IPython.display import SVG
 import inspect
 
+# from ipyautoui.
 # PATH_SVG = "90-ring.svb"
 
 # +
 # TODO
-class SelectAndClickFormLayouts:
+class FormLayouts:
     @staticmethod
     def default_layout_form(ui):
         ui.layout.display = "flex"
         ui.layout.flex_flow = "row"
         ui.layout.align_items = "stretch"
-        ui.children = [
-            ui.html_title,
-            ui.bn,
-            ui.select,
-            ui.html_notify,
-            ui.html_value,
-            ui.html_notify,
-        ]
+        ui.children = [ui.html_title, ui.bn, ui.select, self.hbx_message]
 
     @staticmethod
     def align_horizontal_left(ui):
@@ -55,13 +49,7 @@ class SelectAndClickFormLayouts:
         ui.layout.display = "flex"
         ui.layout.flex_flow = "row"
         ui.layout.align_items = "stretch"
-        ui.children = [
-            ui.bn,
-            w.VBox([ui.html_title, ui.select]),
-            ui.html_notify,
-            ui.html_value,
-            ui.html_notify,
-        ]
+        ui.children = [ui.bn, w.VBox([ui.html_title, ui.select]), self.hbx_message]
 
     @staticmethod
     def align_horizontal_right(ui):
@@ -70,9 +58,7 @@ class SelectAndClickFormLayouts:
         ui.layout.flex_flow = "row"
         ui.layout.align_items = "stretch"
         ui.children = [
-            ui.html_notify,
-            ui.html_value,
-            ui.html_notify,
+            self.hbx_message,
             ui.html_title,
             ui.select,
             ui.bn,
@@ -85,12 +71,25 @@ class SelectAndClickFormLayouts:
         ui.layout.flex_flow = "column"
         ui.layout.align_items = "stretch"
 
+        ui.children = [
+            ui.select,
+            self.hbx_message,
+            ui.html_title,
+            ui.bn,
+        ]
+
     @staticmethod
     def align_vertical_left(ui):
         # up-down
         ui.layout.display = "flex"
         ui.layout.flex_flow = "column"
         ui.layout.align_items = "stretch"
+        
+        ui.children = [
+            w.HBox([ui.bn, ui.html_title]),
+            ui.select,
+            ui.hbx_message,
+        ]
 
 
 class SelectAndClick(w.Box):
@@ -115,8 +114,7 @@ class SelectAndClick(w.Box):
 
     @tr.default("fn_layout_form")
     def default_fn_layout_form(self):
-        # SelectAndClickFormLayouts.default_layout_form(self)
-        return SelectAndClickFormLayouts.default_layout_form
+        return FormLayouts.default_layout_form
 
     @tr.observe("fn_layout_form")
     def _fn_layout_form(self, on_change):
@@ -150,6 +148,7 @@ class SelectAndClick(w.Box):
         self.html_title = w.HTML()
         self.html_value = w.HTML()
         self.html_notify = w.HTML()
+        self.hbx_message = w.HBox([self.html_notify, self.html_value, self.html_notify])
 
     def __init__(self, selector_widget=w.Dropdown, **kwargs):
         self._init_form(selector_widget=selector_widget)
