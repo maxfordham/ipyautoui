@@ -10,6 +10,7 @@ from ipyautoui._utils import frozenmap
 DIR_MODULE = pathlib.Path(__file__).parent
 DIR_EXAMPLE = DIR_MODULE.parents[1] / "examples"
 PATH_VJSF_TEMPLATE = DIR_MODULE / "vjsf.vue"
+PATH_SVG = DIR_MODULE / "data" / "12-dots-scale-rotate.svg"
 
 BUTTON_WIDTH_MIN = "44px"
 BUTTON_WIDTH_MEDIUM = "90px"
@@ -75,6 +76,13 @@ LOAD_BUTTON_KWARGS = frozenmap(
     icon="upload",
     # style={"button_color":"white"},
     button_style="info",
+    layout={"width": BUTTON_WIDTH_MIN},
+    disabled=False,
+)
+PLAY_BUTTON_KWARGS = frozenmap(
+    icon="play",
+    # style={"button_color":"white"},
+    button_style="primary",
     layout={"width": BUTTON_WIDTH_MIN},
     disabled=False,
 )
