@@ -45,6 +45,14 @@ FILEUPLD_BUTTON_KWARGS = frozenmap(
     layout={"width": "60px"},
     disabled=False,
 )
+FILEDNLD_BUTTON_KWARGS = frozenmap(
+    icon="download",
+    description="",
+    tooltip="download file",
+    button_style="info",
+    layout={"width": "60px"},
+    disabled=False,
+)
 
 IMAGE_BUTTON_KWARGS = frozenmap(
     icon="image",
