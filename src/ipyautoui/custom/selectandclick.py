@@ -41,7 +41,7 @@ class FormLayouts:
         ui.layout.display = "flex"
         ui.layout.flex_flow = "row"
         ui.layout.align_items = "stretch"
-        ui.children = [ui.html_title, ui.bn, ui.select, self.hbx_message]
+        ui.children = [ui.html_title, ui.bn, ui.select, ui.hbx_message]
 
     @staticmethod
     def align_horizontal_left(ui):
@@ -49,7 +49,7 @@ class FormLayouts:
         ui.layout.display = "flex"
         ui.layout.flex_flow = "row"
         ui.layout.align_items = "stretch"
-        ui.children = [ui.bn, w.VBox([ui.html_title, ui.select]), self.hbx_message]
+        ui.children = [ui.bn, w.VBox([ui.html_title, ui.select]), ui.hbx_message]
 
     @staticmethod
     def align_horizontal_right(ui):
@@ -58,7 +58,7 @@ class FormLayouts:
         ui.layout.flex_flow = "row"
         ui.layout.align_items = "stretch"
         ui.children = [
-            self.hbx_message,
+            ui.hbx_message,
             ui.html_title,
             ui.select,
             ui.bn,
@@ -73,7 +73,7 @@ class FormLayouts:
 
         ui.children = [
             ui.select,
-            self.hbx_message,
+            ui.hbx_message,
             ui.html_title,
             ui.bn,
         ]
@@ -91,6 +91,7 @@ class FormLayouts:
             ui.hbx_message,
         ]
 
+SelectAndClickFormLayouts = FormLayouts # TODO: deprecate name `SelectAndClickFormLayouts`
 
 class SelectAndClick(w.Box):
     _value = tr.Any(allow_none=True, default_value=None)
