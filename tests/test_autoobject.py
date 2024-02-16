@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, RootModel, ConfigDict
-from ipyautoui.autoobject import AutoObject
+from ipyautoui.autoobject import AutoObject, AutoObjectForm
 import pytest
 import stringcase
 from ipyautoui.demo_schemas import RootEnum, RootArrayEnum, CoreIpywidgets
@@ -77,3 +77,49 @@ class TestAnyOf:
         ui = AutoObject.from_pydantic_model(ObjSet)
         assert "anyOf" in ui.di_callers['obj_set'].kwargs["items"]
 
+
+def test_show_null():
+    ui = AutoObjectForm.from_pydantic_model(CoreIpywidgets)  # NOTE: CoreIpywidgets has a Nullable values
+    assert ui.display_bn_shownull == True
+    assert ui.bn_shownull.layout.display == ""
+    
+def test_show_null_twice():
+    from ipyautoui.autoform import demo_autoobject_form
+    import ipywidgets as w
+    
+    # one
+    form = demo_autoobject_form()
+    assert isinstance(form.bn_shownull, w.ToggleButton)
+    assert form.display_bn_shownull == True
+    assert form.bn_shownull.layout.display == ""
+    form.display_bn_shownull = False
+    assert form.bn_shownull.layout.display == "None"
+    assert form.display_bn_shownull == False
+    
+    # two
+    ui = AutoObjectForm.from_pydantic_model(CoreIpywidgets)  # NOTE: CoreIpywidgets has a Nullable values
+    assert ui.display_bn_shownull == True
+    assert ui.bn_shownull.layout.display == "" # or equals("") 
+    
+def test_dont_show_null():
+    class NoNullables(BaseModel):
+        a: str = Field(default="Test", description="This test is important")
+        b: str = Field(default="Test1", description="This test is important too")
+
+    ui = AutoObjectForm.from_pydantic_model(NoNullables)
+    assert ui.display_bn_shownull == False
+    assert ui.bn_shownull.layout.display == "None"
+    
+def test_null_display_on_value_change():
+    """Check that displays of widgets are set appropriately when value is changed."""
+    class Nullables(BaseModel):
+        a: ty.Optional[str] = Field(default=None)
+        b: str = Field(default="Test")
+        c: ty.Optional[str] = Field(default="Test")
+
+    ui = AutoObject.from_pydantic_model(Nullables)
+    assert ["None", "", ""] == [v.layout.display for k, v in ui.di_boxes.items()]
+    ui.value = {'a': 'Test', 'b': "Test", 'c': "Test"}
+    assert ["", "", ""] == [v.layout.display for k, v in ui.di_boxes.items()]
+    ui.value = {'a': 'Test', 'b': "Test", "c": None}
+    assert ["", "", "None"] == [v.layout.display for k, v in ui.di_boxes.items()]

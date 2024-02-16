@@ -1,23 +1,65 @@
-# %run _dev_maplocal_params.py
 """layout attributes of a form box
 """
+# %run _dev_maplocal_params.py
 # +
 import ipywidgets as w
 import traitlets as tr
 import typing as ty
 
 from IPython.display import display, clear_output
-from ipyautoui.constants import BUTTON_WIDTH_MIN
+from ipyautoui.nullable import Nullable
+from ipyautoui.constants import KWARGS_SHOWNULL, KWARGS_SHOWRAW, SHOWNULL_ICON_SHOW, SHOWNULL_ICON_HIDE
 from ipyautoui.custom.buttonbars import SaveButtonBar
 from ipyautoui.custom.title_description import TitleDescription
-from ipyautoui._utils import display_python_string, show_hide_widget    
-
-
-# +
+from ipyautoui._utils import display_python_string, show_hide_widget
 
 def make_bold(s: str) -> str:
     return f"<big><b>{s}</b></big>"
 
+
+# -
+class ShowNull(tr.HasTraits):
+    display_bn_shownull = tr.Bool(default_value=True)        
+
+    @tr.observe("display_bn_shownull")
+    def _observe_display_bn_shownull(self, change):
+        show_hide_widget(self.bn_shownull, self.display_bn_shownull)
+    
+    def _init_bn_shownull(self):
+        self.bn_shownull = w.ToggleButton(**KWARGS_SHOWNULL)
+        self.bn_shownull.observe(self._observe_bn_shownull, "value")
+
+    def _observe_bn_shownull(self, on_change):
+        self.show_null = self.bn_shownull.value
+        if self.show_null:
+            self.bn_shownull.icon = SHOWNULL_ICON_HIDE
+        else:
+            self.bn_shownull.icon = SHOWNULL_ICON_SHOW
+
+    @property
+    def bn_shownull(self):
+        if not hasattr(self, "_bn_shownull"):
+            self._init_bn_shownull()
+        return self._bn_shownull
+    
+    @bn_shownull.setter
+    def bn_shownull(self, value):
+        self._bn_shownull = value
+
+    def show_hide_bn_nullable(self):
+        """Set display of show null button based on if any nullable widgets are found."""
+        if self.check_for_nullables():  # check_for_nullables is defined in AutoObject
+            self.display_bn_shownull = True
+        else:
+            self.display_bn_shownull = False
+    
+
+if __name__ == "__main__":
+    sn = ShowNull()
+    display(sn.bn_shownull)
+
+
+# +
 class ShowRaw(tr.HasTraits):
     show_raw = tr.Bool()
     fn_onshowraw = tr.Callable(default_value=lambda: "{'test':'json'}")
@@ -44,12 +86,7 @@ class ShowRaw(tr.HasTraits):
         return self.display_ui
     
     def _init_bn_showraw(self):
-        self._bn_showraw = w.ToggleButton(
-            icon="code",
-            layout=w.Layout(width=BUTTON_WIDTH_MIN, display="None"),
-            tooltip="show raw data",
-            style={"font_weight": "bold"},
-        )
+        self._bn_showraw = w.ToggleButton(**KWARGS_SHOWRAW)
         self.vbx_showraw = w.VBox()
         self.out_raw = w.Output()
         self.vbx_showraw.children = [self.out_raw]
@@ -176,41 +213,37 @@ class WrapSaveButtonBar(tr.HasTraits):  # TODO: extend TitleDescription
     def _default_fns_onrevert(self):
         return self.savebuttonbar.fns_onsave
 
-class AutoObjectFormLayout(ShowRaw, WrapSaveButtonBar):
+class AutoObjectFormLayout(ShowRaw, ShowNull, WrapSaveButtonBar):
     pass
 
 
 if __name__ == "__main__":
-    ui = AutoObjectFormLayout(description="description", show_savebuttonbar=True)
+    ui = AutoObjectFormLayout(show_savebuttonbar=True)  # description="description", 
     display(ui)
 
 
 # +
-
-
-class TestForm(AutoObjectFormLayout, TitleDescription, w.VBox):
-    def __init__(self, **kwargs):
-        self.vbx_error = w.VBox()
-        self.vbx_widget = w.VBox()
-        
-        self.vbx_widget.children = [w.ToggleButton()]
-        super().__init__(
-            **kwargs,
-        )
-        
-        self.children = [
-            self.savebuttonbar,
-            w.HBox([self.bn_showraw, self.html_title]),
-            self.html_description,
-            self.vbx_widget,
-            self.vbx_showraw,
-        ]
-
-
 def demo_autoobject_form(title="test", description="a description of the title"):
     """for docs and testing only..."""
     from ipyautoui.custom.buttonbars import SaveButtonBar
+    li = [AutoObjectFormLayout, TitleDescription, w.VBox, ShowNull]
+    class TestForm(*li):
+        def __init__(self, **kwargs):
+            self.vbx_error = w.VBox()
+            self.vbx_widget = w.VBox()
 
+            self.vbx_widget.children = [w.ToggleButton()]
+            super().__init__(
+                **kwargs,
+            )
+
+            self.children = [
+                self.savebuttonbar,
+                w.HBox([self.bn_showraw, self.bn_shownull, self.html_title]),
+                self.html_description,
+                self.vbx_widget,
+                self.vbx_showraw,
+            ]
     form = TestForm()
     form.title = make_bold(title)
     form.description = description

@@ -9,6 +9,7 @@ dependencies:
   - python
   - jupyterlab>=4.0.0,<5.0.0a0
   - jupyterlab-unfold
+  - jupyterlab-search-replace
   - jupyterlab-lsp
   - jupyterlab-myst
   - python-lsp-server

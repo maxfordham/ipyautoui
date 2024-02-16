@@ -1,11 +1,8 @@
 import functools
-import pandas as pd
-import numpy as np
-import math
 import ipywidgets as w
 import traitlets as tr
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-
+import pandas as pd
 SHOW_NONE_KWARGS = dict(value="None", disabled=True, layout={"display": "None"})
 
 
@@ -28,22 +25,6 @@ def _get_value_trait(obj_with_traits):
             raise ValueError(
                 f"{str(type(obj_with_traits))}: has no 'value' or '_value' trait"
             )
-
-
-def is_null(value):
-    """
-
-    Example:
-        >>> [is_null(value) for value in [math.nan, np.nan, None, pd.NA, 3.3, "adsf"]]
-        [True, True, True, True, False, False]
-    """
-    fn = lambda value, check: True if value is check else False
-    li_check = [fn(value, obj) for obj in [pd.NA, math.nan, np.nan, None]]
-    if True in li_check:
-        return True
-    else:
-        return False
-
 
 class Nullable(w.HBox):
     """class to allow widgets to be nullable. The widget that is extended is accessed
@@ -142,7 +123,8 @@ class Nullable(w.HBox):
             self.bn.icon = "toggle-on"
             self.widget.layout.display = ""
             self.show_none.layout.display = "None"
-            self.value = self.widget.value
+            if self.widget.value is not None:
+                self.value = self.widget.value
 
 
 def nullable(fn, **kwargs):

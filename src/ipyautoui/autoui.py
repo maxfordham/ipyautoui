@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -31,40 +31,39 @@ Example:
 # %load_ext lab_black
 
 import pathlib
-from IPython.display import display
-from pydantic import BaseModel, ValidationError
-import json
-import traitlets as tr
-import typing as ty
-from ipyautoui.autoform import AutoObjectFormLayout, ShowRaw
-from ipyautoui.custom import SaveButtonBar  # removing makes circular import error
 import json
 import logging
-from ipyautoui.automapschema import map_widget, widgetcaller, _init_model_schema
+import functools
+import traitlets as tr
+import typing as ty
 import ipywidgets as w
-from pydantic import BaseModel
-from ipyautoui.automapschema import pydantic_validate
-from IPython.display import clear_output
-from ipyautoui.automapschema import map_widget, widgetcaller, _init_model_schema, get_widgets_map, get_containers_map
+from pydantic import BaseModel, ValidationError
+from IPython.display import display
+
+from ipyautoui.custom import SaveButtonBar  # removing makes circular import error
 from ipyautoui.autobox import AutoBox
-from ipyautoui.autoform import TitleDescription, WrapSaveButtonBar, ShowRaw
+from ipyautoui.autoform import AutoObjectFormLayout, TitleDescription, WrapSaveButtonBar, ShowRaw, ShowNull
+from ipyautoui.custom.editgrid import EditGrid
+from ipyautoui.automapschema import get_widgets_map, get_containers_map, map_widget, widgetcaller, _init_model_schema, pydantic_validate
 
 logger = logging.getLogger(__name__)
 
 
 # +
-import functools
 def wrapped_partial(func, *args, **kwargs):
     # http://louistiao.me/posts/adding-__name__-and-__doc__-attributes-to-functoolspartial-objects/
     partial_func = functools.partial(func, *args, **kwargs)
     functools.update_wrapper(partial_func, func)
     return partial_func
 
+
 def parse_json_file(path: pathlib.Path, model=None):
     """read json from file"""
     p = pathlib.Path(path)
     if model is not None:
-        return model(**json.loads(p.read_text())).model_dump() # json.loads(model.parse_file(p).json())
+        return model(
+            **json.loads(p.read_text())
+        ).model_dump()  # json.loads(model.parse_file(p).json())
     else:
         return json.loads(p.read_text())
 
@@ -204,50 +203,80 @@ class AutoRenderMethods:
     ):
         AutoRenderer = cls.create_autoui_renderer(schema, **kwargs)
         return {ext: AutoRenderer}
-    
-
-
 
 
 def get_autoui(schema: ty.Union[ty.Type[BaseModel], dict], **kwargs):
     model, schema = _init_model_schema(schema)
     schema = {**schema, **kwargs}
-    try: 
+    try:
         # assumes the root object is a container so reduces the search space
-        caller = map_widget(schema, widgets_map=get_containers_map(), fail_on_error=True)
-        is_container=True
-        class AutoUi(caller.autoui, ShowRaw, TitleDescription, WrapSaveButtonBar, AutoUiFileMethods):  
-                
-            def _set_children(self):
-                self.children = [
-                    self.savebuttonbar,
-                    w.HBox([self.bn_showraw, self.html_title]),
-                    self.html_description,
-                    self.vbx_error,
-                    self.vbx_widget,
-                    self.vbx_showraw,
-                ]
+        caller = map_widget(
+            schema, widgets_map=get_containers_map(), fail_on_error=True
+        )
+        is_container = True
+        if issubclass(caller.autoui, EditGrid):
+            li = [caller.autoui, TitleDescription, ShowRaw, AutoUiFileMethods]
+            class AutoUi(*li):
+                def _set_children(self):
+                    self.children = [
+                        w.HBox([self.bn_showraw, self.html_title]),
+                        self.html_description,
+                        self.vbx_error,
+                        self.vbx_widget,
+                        self.vbx_showraw,
+                    ]
+        else:
+            class AutoUi(
+                caller.autoui,
+                ShowRaw,
+                ShowNull,
+                TitleDescription,
+                WrapSaveButtonBar,
+                AutoUiFileMethods,
+            ):
+                def _set_children(self):
+                    self.children = [
+                        self.savebuttonbar,
+                        w.HBox([self.bn_showraw, self.bn_shownull, self.html_title]),
+                        self.html_description,
+                        self.vbx_error,
+                        self.vbx_widget,
+                        self.vbx_showraw,
+                    ]
+                    self.show_hide_bn_nullable()
+
         if model is not None:
-            return wrapped_partial(AutoUi.from_pydantic_model, model)  # TODO: this is inefficient as the top-level mapping is called twice.
+            return wrapped_partial(
+                AutoUi.from_pydantic_model, model
+            )  # TODO: this is inefficient as the top-level mapping is called twice.
         else:
             return wrapped_partial(AutoUi.from_jsonschema, schema)
-            
+
     except:
         # increases the search spaces to include all widgets
         caller = map_widget(schema, widgets_map=get_widgets_map())
-        is_container=False
-        return wrapped_partial(AutoBox.wrapped_widget, caller.autoui, kwargs_box=caller.kwargs_box, kwargs_fromcaller=caller.kwargs)
-    
-def get_autodisplay_map(schema: ty.Union[ty.Type[BaseModel], dict], ext=".json", **kwargs):
+        is_container = False
+        return wrapped_partial(
+            AutoBox.wrapped_widget,
+            caller.autoui,
+            kwargs_box=caller.kwargs_box,
+            kwargs_fromcaller=caller.kwargs,
+        )
+
+def get_autodisplay_map(
+    schema: ty.Union[ty.Type[BaseModel], dict], ext=".json", **kwargs
+):
     ui = get_autoui(schema, **kwargs)
-    
-    def renderer(path: pathlib.Path):  # TODO: this is a hack. better to generalise CRUD operations.
+
+    def renderer(
+        path: pathlib.Path,
+    ):  # TODO: this is a hack. better to generalise CRUD operations.
         _ui = ui(value=None, **kwargs)
         _ui.path = path
         _ui.load_file(path)
         _ui.savebuttonbar.unsaved_changes = False
         return _ui
-    
+
     return {ext: renderer}
 
 def autoui(schema: ty.Union[ty.Type[BaseModel], dict], value=None, path=None, **kwargs):

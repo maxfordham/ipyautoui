@@ -311,16 +311,27 @@ if __name__ == "__main__":
 
 
 # +
-class AddMultiple(SelectAndClick):
+class SelectMultipleAndClick(SelectAndClick):
+    @tr.observe("options")
+    def _observe_options(self, change):
+        self.select.value = (
+            []
+        )  # HOTFIX: Bugs out setting options if ALL values selected: https://github.com/jupyter-widgets/ipywidgets/issues/3876
+        self.select.options = change["new"]
+
     def __init__(self, **kwargs):
         kwargs["selector_widget"] = w.SelectMultiple
+        super().__init__(**kwargs)
+
+
+class AddMultiple(SelectMultipleAndClick):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         {setattr(self.bn, k, v) for k, v in ADD_BUTTON_KWARGS.items()}
 
 
-class RemoveMultiple(SelectAndClick):
+class RemoveMultiple(SelectMultipleAndClick):
     def __init__(self, **kwargs):
-        kwargs["selector_widget"] = w.SelectMultiple
         super().__init__(**kwargs)
         {setattr(self.bn, k, v) for k, v in DELETE_BUTTON_KWARGS.items()}
 
@@ -336,9 +347,3 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     ui.fn_get_options = get_fruit_dict
-
-
-
-
-
-

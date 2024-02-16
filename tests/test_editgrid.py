@@ -107,29 +107,35 @@ class TestEditGrid:
             {"string": "test2", "floater": 2.2, "inty": 1},
             {"string": "", "floater": 1.5, "inty": 1},
         )
+        
+def test_show_hide_nullable():
+    class TestProperties(BaseModel):
+        string: str 
+        nullable_string: ty.Optional[str] = None
+        floater: float = 1.5
+        inty: int = 1
 
+
+    class TestGridSchema(RootModel):
+        """no default"""
+
+        root: ty.List[TestProperties] = Field(
+            [TestProperties(string="string").model_dump()],
+        )
+        
+    egrid = EditGrid(
+            schema=TestGridSchema,
+            value=[{"string": "test2","nullable_string":None, "floater": 2.2, "inty": 1}],
+        )
+    assert egrid.ui_edit.bn_shownull.layout.display == ""
 
 class TestAutoEditGrid:
-    @pytest.mark.skip(
-        reason=(
-            "not sure if this will work - does it need javascript / backbonejs"
-            " traitlets stuff to be running? will they not running without the notebook"
-            " session?"
-        )
-    )
     def test_editgrid_change_data(self):
         grid = AutoUi(schema=EditableGrid)
-        v = grid.value.copy()
+        v = grid.value
 
-        check = False
-
-        def test_observe(on_change):
-            check = True
-
-        grid.di_widgets["__root__"].observe(test_observe, "_value")
-
-        assert "_value" in grid.di_widgets["__root__"].traits()
-        grid.di_widgets["__root__"]._save_add_to_grid()
-        assert v != grid.di_widgets["__root__"].value
+        assert "_value" in grid.traits()
+        assert v == grid.value
+        grid._save_add_to_grid()
+        assert v != grid.value
         assert v != grid._value
-        assert check == True

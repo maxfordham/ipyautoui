@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -29,6 +29,7 @@ import pandas as pd
 import ipywidgets as w
 from IPython.display import clear_output, display
 from pydantic import BaseModel, Field
+import json
 
 from ipyautoui.autoobject import AutoObjectForm
 from ipyautoui.custom.buttonbars import CrudButtonBar
@@ -97,7 +98,7 @@ class RowEditor:
 
 
 # +
-class UiDelete(w.HBox):
+class UiDelete(w.VBox):
     value = tr.Dict(default_value={})
     columns = tr.List(default_value=[])
 
@@ -133,9 +134,9 @@ class UiDelete(w.HBox):
         self.fn_delete = fn_delete
         self.out_delete = w.Output()
         self.bn_delete = w.Button(
-            icon="trash",
+            description="DELETE",
             button_style="danger",
-            layout=w.Layout(width=BUTTON_WIDTH_MIN),
+            layout=w.Layout(width="100px"),
         )
         self.vbx_messages = w.VBox()
         self.message = w.HTML(
@@ -267,6 +268,11 @@ class EditGrid(w.VBox, TitleDescription):
         _transforms = self.grid._transforms
         self.grid.transform([])  # Set to no transforms
         self.grid.transform(_transforms)  # Set to previous transforms
+        
+    @property
+    def json(self):  # HOTFIX: not required if WatchValidate is used
+        return json.dumps(self.value, indent=4)
+
 
     @property
     def transposed(self):
@@ -425,13 +431,11 @@ class EditGrid(w.VBox, TitleDescription):
         if self.buttonbar_grid.active is None:
             self.stk_crud.selected_index = None
         else:
-            self.stk_crud.selected_index = int(self.buttonbar_grid.active.value)
+            self.stk_crud.selected_index = self.buttonbar_grid.active_index
 
     def _check_one_row_selected(self):
         if len(self.grid.selected_indexes) > 1:
-            raise Exception(
-                "  👇 <i>Please only select ONLY one row from the table!</i>"
-            )
+            raise Exception("👇 <i>Please only select ONLY one row from the table!</i>")
 
     # edit row
     # --------------------------------------------------------------------------
@@ -461,7 +465,8 @@ class EditGrid(w.VBox, TitleDescription):
             self.grid.selections = selections
 
     def _set_ui_edit_to_selected_row(self):
-        self.ui_edit.value = self.grid.selected
+        if self.grid.selected is not None:
+            self.ui_edit.value = self.grid.selected
         self.ui_edit.savebuttonbar.unsaved_changes = False
 
     def _patch(self):
@@ -476,7 +481,7 @@ class EditGrid(w.VBox, TitleDescription):
         except Exception as e:
             self.buttonbar_grid.edit.value = False
             self.buttonbar_grid.message.value = (
-                "  👇 <i>Please select one row from the table!</i> "
+                "👇 <i>Please select one row from the table!</i> "
             )
             traceback.print_exc()
 
@@ -551,7 +556,7 @@ class EditGrid(w.VBox, TitleDescription):
                         self._copy_selected_to_end()
                         # ^ add copied values. note. above syntax required to avoid editing in place.
 
-                    self.buttonbar_grid.message.value = "  📝 <i>Copied Data</i> "
+                    self.buttonbar_grid.message.value = "📝 <i>Copied Data</i> "
                     self.buttonbar_grid.copy.value = False
 
                 else:
@@ -568,7 +573,7 @@ class EditGrid(w.VBox, TitleDescription):
     # --------------------------------------------------------------------------
     def _reload_datahandler(self):
         self._reload_all_data()
-        self.buttonbar_grid.message.value = "  🔄 <i>Reloaded Data</i> "
+        self.buttonbar_grid.message.value = "🔄 <i>Reloaded Data</i> "
 
     def _reload_all_data(self):
         if self.datahandler is not None:
@@ -587,7 +592,7 @@ class EditGrid(w.VBox, TitleDescription):
                 if i not in self.grid.selected_indexes
             ]
             # ^ Only set for values NOT in self.grid.selected_indexes
-        self.buttonbar_grid.message.value = "  🗑️ <i>Deleted Row</i> "
+        self.buttonbar_grid.message.value = "🗑️ <i>Deleted Data</i> "
         if self.close_crud_dialogue_on_action:
             self.buttonbar_grid.delete.value = False
 
@@ -606,7 +611,7 @@ class EditGrid(w.VBox, TitleDescription):
             else:
                 self.buttonbar_grid.delete.value = False
                 self.buttonbar_grid.message.value = (
-                    "  👇 <i>Please select at least one row from the table!</i>"
+                    "👇 <i>Please select at least one row from the table!</i>"
                 )
 
         except Exception as e:
@@ -667,6 +672,74 @@ if __name__ == "__main__":
 
 
 if __name__ == "__main__":
+    from pydantic import RootModel
+
+    # Test: EditGrid instance with multi-indexing.
+    AUTO_GRID_DEFAULT_VALUE = [
+        {
+            "string": None,
+            "integer": 1,
+            "floater": 3.14,
+        },
+    ]
+    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
+    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE + [
+        {
+            "string": None,
+            "integer": None,
+            "floater": None,
+        },
+    ]
+
+    class DataFrameCols(BaseModel):
+        string: ty.Optional[str] = Field(
+            "string",
+            json_schema_extra=dict(
+                column_width=400,
+            ),
+        )
+        integer: ty.Optional[int] = Field(
+            1,
+            json_schema_extra=dict(
+                column_width=80,
+            ),
+        )
+        floater: ty.Optional[float] = Field(
+            None,
+            json_schema_extra=dict(
+                column_width=70,
+            ),
+        )
+
+    class TestDataFrame(RootModel):
+        """a description of TestDataFrame"""
+
+        root: ty.List[DataFrameCols] = Field(
+            default=AUTO_GRID_DEFAULT_VALUE,
+            json_schema_extra=dict(
+                format="dataframe",
+            ),
+        )
+
+    title = "The Wonderful Edit Grid Application"
+    description = "Useful for all editing purposes whatever they may be 👍"
+    editgrid = EditGrid(
+        schema=TestDataFrame,
+        title=title,
+        description=description,
+        # transposed=True,
+        ui_add=None,
+        ui_edit=None,
+        warn_on_delete=True,
+        show_copy_dialogue=False,
+        close_crud_dialogue_on_action=False,
+        global_decimal_places=1,
+        column_width={"String": 400},
+    )
+    editgrid.observe(lambda c: print("_value changed"), "_value")
+    display(editgrid)
+
+if __name__ == "__main__":
     editgrid.grid.order = ("floater", "string")
     # ^ NOTE: this will result in a value change in the grid
 
@@ -703,10 +776,6 @@ if __name__ == "__main__":
         datahandler=datahandler,
     )
     display(editgrid)
-
-# +
-# editgrid._reload_datahandler()
-# -
 
 if __name__ == "__main__":
 
