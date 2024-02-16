@@ -15,148 +15,86 @@
 #     name: python3
 # ---
 
-"""file upload wrapper"""
+"""file download widget"""
 # %load_ext lab_black
-# %run ../_dev_maplocal_params.py
 
-from base64 import b64encode
 import ipywidgets as w
-from IPython.display import clear_output
 import traitlets as tr
 import pathlib
+from base64 import b64encode
+from IPython.display import clear_output, HTML
+from ipyautoui.constants import FILEDNLD_BUTTON_KWARGS
 
 
-# %%
-download_output = w.Output()
-display(download_output)
+# +
+def coerce_to_alphanumeric(text: str, remove_spaces=False):
+    """NOT IN USE!
+
+    This is to ensure file directory is acceptable by the OS."""
+    import re
+
+    text = re.sub(r"[^a-zA-Z0-9]", "", text)
+    if remove_spaces:
+        text = text.replace(" ", "")
+    return text
 
 
-def trigger_download(content_b64: str, filename: str, kind: str = "text/json"):
-    # see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs for details
-    data_url = f"data:{kind};charset=utf-8;base64,{content_b64}"
-    js_code = f"""
-        var a = document.createElement('a');
-        a.setAttribute('download', '{filename}');
-        a.setAttribute('href', '{data_url}');
-        a.click()
-    """
-    with download_output:
-        clear_output()
-        display(w.HTML(f"<script>{js_code}</script>"))
-
-
-def load_pdf_to_b64(fpth: pathlib.Path) -> str:
-    with open(fpth, "rb") as pdf_file:
-        content_b64 = b64encode(pdf_file.read()).decode()
+def load_file_to_b64(fpth: pathlib.Path) -> str:  # bytes ?
+    with open(fpth, "rb") as file:
+        content_b64 = b64encode(file.read()).decode()
     return content_b64
 
 
-# %%
-def coerce_to_alphanumeric(text: str):
-    """This is to ensure file directory is acceptable by the OS."""
-    name = text.replace(" ", "")
-    name = re.sub(r"[^a-zA-Z0-9]", "", name)
-    return name
-
-
-# +
-get_js_code = (
-    lambda fname, url: f"""
-var a = document.createElement('a');
-a.setAttribute('download', '{fname}');
-a.setAttribute('href', '{url}');
-a.click()
-"""
-)
-download_output = w.Output()
-
-
-class FileDownload(w.VBox):
-    filename = tr.Unicode()
-    content_b64 = tr.Unicode()
-    type = tr.Unicode(default_value="text/json")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.download_button = w.Button(description="Download")
-        self.download_button.on_click(self._on_download_button_clicked)
-        self.children = [self.download_button]
-
-    def _on_download_button_clicked(self, _):
-        self.trigger_download()
-
-    def trigger_download(self):
-        data_url = f"data:{self.type};charset=utf-8;base64,{self.content_b64}"
-        js_code = get_js_code(self.filename, data_url)
-        # download_output = w.Output()
-        with download_output:
-            clear_output()
-            display(w.HTML(f"<script>{js_code}</script>"))
-
-    def load_file(self, fpth: pathlib.Path):
-        with open(fpth, "rb") as file:
-            self.content_b64 = b64encode(file.read()).decode()
-
-
-# +
-import tempfile
-
-# Create a temporary file for testing
-with tempfile.NamedTemporaryFile(delete=False) as temp:
-    temp.write(b"Test content")
-    temp_path = pathlib.Path(temp.name)
-
-# Create a FileDownload instance
-fd = FileDownload()
-fd.filename = "test_file.txt"
-fd.load_file(temp_path)
-
-# Display the FileDownload instance
-display(fd)
-
-# Simulate a button click to trigger the download
-fd.download_button.click()
-# -
-
-fd.content_b64
-
-# +
-download_output = w.Output()
-display(download_output)
-from IPython.display import HTML
-
-
-def load_pdf_to_b64(fpth: pathlib.Path) -> str:
-    with open(fpth, "rb") as pdf_file:
-        content_b64 = b64encode(pdf_file.read()).decode()
-    return content_b64
-
-
-def trigger_download(content_b64: str, filename: str, kind: str = "text/json"):
+def trigger_download(content_b64: str, fname: str, output, kind: str = "text/json"):
     # see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs for details
+    # QUESTION: should kind be set to file type?
     data_url = f"data:{kind};charset=utf-8;base64,{content_b64}"
     js_code = f"""
         var a = document.createElement('a');
-        a.setAttribute('download', '{filename}');
+        a.setAttribute('download', '{fname}');
         a.setAttribute('href', '{data_url}');
         a.click()
     """
-    with download_output:
+    with output:
+        print("---")
         clear_output()
         display(HTML(f"<script>{js_code}</script>"))
 
 
-# +
-import pathlib
+class FileDownload(w.VBox):
+    """
+    downloads files into client Downloads folder
+    
+    Attributes:
+    value = tr.Instance(klass=pathlib.Path)
+    content_b64 = tr.Unicode() # updates on change to `value`
+    """
 
-fpth = pathlib.Path("../../../tests/filetypes/eg_pdf.pdf")
-print(f"fpth.is_file() = {fpth.is_file()}")
-b_pdf = load_pdf_to_b64(fpth)
-trigger_download(b_pdf, "eg_pdf.pdf")
-# -
+    value = tr.Instance(klass=pathlib.Path)
+    content_b64 = tr.Unicode()
+
+    @tr.observe("value")
+    def obs_fpth(self, on_change):
+        if self.value.is_file():
+            self.content_b64 = load_file_to_b64(self.value)
+        self.bn_download.tooltip = f"download file: {self.value.name}"
+
+    def __init__(self, **kwargs):
+        self.output = w.Output()
+        self.bn_download = w.Button(**FILEDNLD_BUTTON_KWARGS)
+        super().__init__(**kwargs)
+        self.bn_download.on_click(self._on_bn_download_clicked)
+        self.children = [self.bn_download, self.output]
+
+    def _on_bn_download_clicked(self, on_click):
+        self.trigger_download()
+
+    def trigger_download(self):
+        trigger_download(self.content_b64, self.value.name, self.output)
 
 
-
-
-
-
+if __name__ == "__main__":
+    fpth = pathlib.Path("../../../tests/filetypes/eg_pdf.pdf")
+    b64 = load_file_to_b64(fpth)
+    fd = FileDownload(value=fpth)
+    display(fd)
