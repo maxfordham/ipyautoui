@@ -30,6 +30,7 @@ def pool_runner(tasks, callback=None):
 
 
 class ExecuteTasks(w.VBox):
+    """NOTE: callable must not be a lambda fn"""
     tasks = tr.Union([
         tr.List(trait=tr.TraitType(tr.Callable())), 
         tr.Dict(value_trait=tr.TraitType(tr.Unicode(), tr.Callable()))
@@ -92,53 +93,63 @@ class ExecuteTasks(w.VBox):
 if __name__ == "__main__":
     from random import random
     from time import sleep
-
+    import functools
     def task():
         t = random() * 2
         sleep(t)
         return f"sleep: {t}"
-    
-    END = 5
+
+    def test(s):
+        return s
+    END = 1
     tasks = {f"task-{_}" : task for _ in range(END)}
+    tasks = {f"task-{_}" : functools.partial(test, "asdf") for _ in range(END)}
     ex = ExecuteTasks(tasks=tasks)
     display(ex)
     ex.start()
 
 
 # %%
-class SelectAndExecute(ExecuteTasks):
-    all_tasks = tr.Union([
-        tr.Dict(value_trait=tr.TraitType(tr.Unicode(), tr.Callable()))
-    ], default_value = {})
-    tasks = tr.Union([
-        tr.Dict(value_trait=tr.TraitType(tr.Unicode(), tr.Callable()))
-    ], default_value = {})
+class SelectAndExecute(w.HBox):
+    title = tr.Unicode()
+    tasks = tr.Dict(value_trait=tr.TraitType(tr.Unicode(), tr.Callable()), default_value={})
+
+    @tr.observe("title")
+    def obs_title(self, on_change):
+        self.select.title = self.title 
+        
+    @tr.observe("tasks")
+    def obs_tasks(self, on_change):
+        self.select.select.options = self.tasks.keys()
+
+        def get_select_height(self):
+            h = len(self.tasks)*100 / 5.8 
+            if h < 100: 
+                return 100
+            elif h > 600:
+                return 600
+            else:
+                return h
+            
+
+        self.select.select.layout.height = f"{get_select_height(self)}px"
     
     def __init__(self, **kwargs):
-        kwargs["all_tasks"] = kwargs["tasks"]
-        super().__init__(**kwargs)
-        self.select = SelectMultipleAndClick(
-            options=list(self.all_tasks.keys()), 
-            fn_onclick=self.fn_onclick,
-            fn_layout_form=FormLayouts.align_vertical_left
-        )
-        self.select.select.layout.height = f"{len(self.all_tasks)*100 / 6 }px"
+        self.execute = ExecuteTasks()
+        self.select = SelectMultipleAndClick(fn_onclick=self.fn_onclick, fn_layout_form=FormLayouts.align_vertical_left)
+        self.select.hbx_message.layout.display = "None"
         {setattr(self.select.bn, k, v) for k, v in PLAY_BUTTON_KWARGS.items()}
         {setattr(self.select, k, v) for k, v in kwargs.items() if k in self.select.traits()}
-        self.select.hbx_message.layout.display = "None"
-        self.vbx_tasks.layout.display = "None"
-        self.children = [w.HBox([
-            self.select, 
-            w.VBox([self.progress, self.vbx_tasks])
-            ])
-        ]
+        super().__init__(**kwargs)
+        self.children = [self.select, self.execute]
+
     def fn_onclick(self, onclick):
-        self.progress.value = 0
-        self.tasks = {k:v for k, v in self.all_tasks.items() if k in self.select.select.value}
-        self.progress.max = self.end
-        self.vbx_tasks.layout.display = ""
+        self.execute.progress.value = 0
+        self.execute.tasks = {k:v for k, v in self.tasks.items() if k in self.select.select.value}
+        self.execute.progress.max = self.execute.end
+        self.execute.vbx_tasks.layout.display = ""
         
-        self.start()
+        self.execute.start()
 
 if __name__ == "__main__":
     from random import random
@@ -153,5 +164,30 @@ if __name__ == "__main__":
     tasks = {f"task-{_}" : task for _ in range(END)}
     se = SelectAndExecute(tasks=tasks, title="<b>Generate Selected Schedules</b>")
     display(se)
+
+# %%
+if __name__ == "__main__":
+    from random import random
+    from time import sleep
+
+    def task():
+        t = random() * 2
+        sleep(t)
+        return f"sleep: {t}"
+    
+    END = 20
+    tasks = {f"task-{_}" : task for _ in range(END)}
+    se = SelectAndExecute( title="<b>Generate Selected Schedules</b>")
+    display(se)
+
+# %%
+if __name__ == "__main__":
+    se.tasks=tasks
+
+# %%
+
+# %%
+
+# %%
 
 # %%
