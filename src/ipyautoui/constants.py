@@ -50,8 +50,7 @@ FILEDNLD_BUTTON_KWARGS = frozenmap(
     icon="download",
     description="",
     tooltip="download file",
-    button_style="info",
-    layout={"width": "60px"},
+    layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     disabled=False,
 )
 
