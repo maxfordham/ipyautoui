@@ -30,12 +30,14 @@ def pool_runner(tasks, callback=None):
 
 
 class ExecuteTasks(w.VBox):
+    """NOTE: callable must not be a lambda fn"""
     tasks = tr.Union([
         tr.List(trait=tr.TraitType(tr.Callable())), 
         tr.Dict(value_trait=tr.TraitType(tr.Unicode(), tr.Callable()))
     ], default_value = {})
     task_names = tr.List(trait=tr.Unicode())
     runner = tr.Callable(default_value = pool_runner)
+    results = tr.List(trait=tr.Any())
 
     @tr.observe("tasks")
     def obs_tasks(self, on_change):
@@ -46,8 +48,9 @@ class ExecuteTasks(w.VBox):
         task_names = self.task_names
         if task_names is not None:
             li.append([w.HTML(task+ " |") for task in task_names])
-        self.results = [w.HTML() for _ in range(self.end)]
-        li.append(self.results)
+        self.html_results = [w.HTML() for _ in range(self.end)]
+        self.results = [None for _ in range(self.end)]
+        li.append(self.html_results)
         self.vbx_tasks.children = [w.HBox(l) for l in zip(*li)]
     
     def __init__(
@@ -84,65 +87,79 @@ class ExecuteTasks(w.VBox):
             return list(self.tasks.keys())
             
     def callback(self, result):
+
         n = self.progress.value
         self.spinners[n].complete = True
-        self.results[n].value = str(result)
+        self.results[n] = result
+        self.html_results[n] = str(result)
         self.progress.value += 1
 
 if __name__ == "__main__":
     from random import random
     from time import sleep
-
-    def task():
+    import functools
+    from IPython.display import display
+    
+    def task(s):
         t = random() * 2
         sleep(t)
-        return f"sleep: {t}"
-    
-    END = 5
-    tasks = {f"task-{_}" : task for _ in range(END)}
+        return f"sleep: {s}"
+
+
+    END = 2
+    tasks = {f"task-{_}" : functools.partial(task, f"result-{_}") for _ in range(END)}
     ex = ExecuteTasks(tasks=tasks)
-    display(ex)
     ex.start()
+    display(ex)
+    assert ex.results == [f"sleep: result-{_}" for _ in range(END)]
 
 
 # %%
-class SelectAndExecute(ExecuteTasks):
-    all_tasks = tr.Union([
-        tr.Dict(value_trait=tr.TraitType(tr.Unicode(), tr.Callable()))
-    ], default_value = {})
-    tasks = tr.Union([
-        tr.Dict(value_trait=tr.TraitType(tr.Unicode(), tr.Callable()))
-    ], default_value = {})
+class SelectAndExecute(w.HBox):
+    title = tr.Unicode()
+    tasks = tr.Dict(value_trait=tr.TraitType(tr.Unicode(), tr.Callable()), default_value={})
+
+    @tr.observe("title")
+    def obs_title(self, on_change):
+        self.select.title = self.title 
+        
+    @tr.observe("tasks")
+    def obs_tasks(self, on_change):
+        self.select.select.options = self.tasks.keys()
+
+        def get_select_height(self):
+            h = len(self.tasks)*100 / 5.8 
+            if h < 100: 
+                return 100
+            elif h > 600:
+                return 600
+            else:
+                return h
+            
+
+        self.select.select.layout.height = f"{get_select_height(self)}px"
     
     def __init__(self, **kwargs):
-        kwargs["all_tasks"] = kwargs["tasks"]
-        super().__init__(**kwargs)
-        self.select = SelectMultipleAndClick(
-            options=list(self.all_tasks.keys()), 
-            fn_onclick=self.fn_onclick,
-            fn_layout_form=FormLayouts.align_vertical_left
-        )
-        self.select.select.layout.height = f"{len(self.all_tasks)*100 / 6 }px"
+        self.execute = ExecuteTasks()
+        self.select = SelectMultipleAndClick(fn_onclick=self.fn_onclick, fn_layout_form=FormLayouts.align_vertical_left)
+        self.select.hbx_message.layout.display = "None"
         {setattr(self.select.bn, k, v) for k, v in PLAY_BUTTON_KWARGS.items()}
         {setattr(self.select, k, v) for k, v in kwargs.items() if k in self.select.traits()}
-        self.select.hbx_message.layout.display = "None"
-        self.vbx_tasks.layout.display = "None"
-        self.children = [w.HBox([
-            self.select, 
-            w.VBox([self.progress, self.vbx_tasks])
-            ])
-        ]
+        super().__init__(**kwargs)
+        self.children = [self.select, self.execute]
+
     def fn_onclick(self, onclick):
-        self.progress.value = 0
-        self.tasks = {k:v for k, v in self.all_tasks.items() if k in self.select.select.value}
-        self.progress.max = self.end
-        self.vbx_tasks.layout.display = ""
+        self.execute.progress.value = 0
+        self.execute.tasks = {k:v for k, v in self.tasks.items() if k in self.select.select.value}
+        self.execute.progress.max = self.execute.end
+        self.execute.vbx_tasks.layout.display = ""
         
-        self.start()
+        self.execute.start()
 
 if __name__ == "__main__":
     from random import random
     from time import sleep
+    from IPython.display import display
 
     def task():
         t = random() * 2
@@ -155,3 +172,20 @@ if __name__ == "__main__":
     display(se)
 
 # %%
+if __name__ == "__main__":
+    from random import random
+    from time import sleep
+
+    def task():
+        t = random() * 2
+        sleep(t)
+        return f"sleep: {t}"
+    
+    END = 20
+    tasks = {f"task-{_}" : task for _ in range(END)}
+    se = SelectAndExecute( title="<b>Generate Selected Schedules</b>")
+    display(se)
+
+# %%
+if __name__ == "__main__":
+    se.tasks=tasks
