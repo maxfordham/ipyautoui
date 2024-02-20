@@ -37,6 +37,7 @@ class ExecuteTasks(w.VBox):
     ], default_value = {})
     task_names = tr.List(trait=tr.Unicode())
     runner = tr.Callable(default_value = pool_runner)
+    results = tr.List(trait=tr.Any())
 
     @tr.observe("tasks")
     def obs_tasks(self, on_change):
@@ -47,8 +48,9 @@ class ExecuteTasks(w.VBox):
         task_names = self.task_names
         if task_names is not None:
             li.append([w.HTML(task+ " |") for task in task_names])
-        self.results = [w.HTML() for _ in range(self.end)]
-        li.append(self.results)
+        self.html_results = [w.HTML() for _ in range(self.end)]
+        self.results = [None for _ in range(self.end)]
+        li.append(self.html_results)
         self.vbx_tasks.children = [w.HBox(l) for l in zip(*li)]
     
     def __init__(
@@ -85,28 +87,31 @@ class ExecuteTasks(w.VBox):
             return list(self.tasks.keys())
             
     def callback(self, result):
+
         n = self.progress.value
         self.spinners[n].complete = True
-        self.results[n].value = str(result)
+        self.results[n] = result
+        self.html_results[n] = str(result)
         self.progress.value += 1
 
 if __name__ == "__main__":
     from random import random
     from time import sleep
     import functools
-    def task():
+    from IPython.display import display
+    
+    def task(s):
         t = random() * 2
         sleep(t)
-        return f"sleep: {t}"
+        return f"sleep: {s}"
 
-    def test(s):
-        return s
-    END = 1
-    tasks = {f"task-{_}" : task for _ in range(END)}
-    tasks = {f"task-{_}" : functools.partial(test, "asdf") for _ in range(END)}
+
+    END = 2
+    tasks = {f"task-{_}" : functools.partial(task, f"result-{_}") for _ in range(END)}
     ex = ExecuteTasks(tasks=tasks)
-    display(ex)
     ex.start()
+    display(ex)
+    assert ex.results == [f"sleep: result-{_}" for _ in range(END)]
 
 
 # %%
@@ -154,6 +159,7 @@ class SelectAndExecute(w.HBox):
 if __name__ == "__main__":
     from random import random
     from time import sleep
+    from IPython.display import display
 
     def task():
         t = random() * 2
@@ -183,11 +189,3 @@ if __name__ == "__main__":
 # %%
 if __name__ == "__main__":
     se.tasks=tasks
-
-# %%
-
-# %%
-
-# %%
-
-# %%
