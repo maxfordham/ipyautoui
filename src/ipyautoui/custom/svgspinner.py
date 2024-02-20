@@ -16,7 +16,7 @@
 # %%
 import ipywidgets as w
 import traitlets as tr
-from IPython.display import SVG, clear_output
+from IPython.display import SVG, clear_output, display
 from ipyautoui._utils import show_hide_widget
 from ipyautoui.constants import PATH_SVG
 
