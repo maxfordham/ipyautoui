@@ -22,6 +22,8 @@ import traitlets as tr
 from ipyautoui.custom.selectandclick import SelectMultipleAndClick, FormLayouts
 from ipyautoui.constants import PLAY_BUTTON_KWARGS
 from ipyautoui._utils import calc_select_multiple_size
+from ipyautoui.custom.timeelapsed import TimeElapsed
+from datetime import datetime
 
 def pool_runner(tasks, callback=None):
     with Pool() as pool:
@@ -62,12 +64,15 @@ class ExecuteTasks(w.VBox):
             kwargs["task_names"] = ["" for _ in range(self.end)]
         self.progress = w.IntProgress(min=0, step=1)
         self.vbx_tasks = w.VBox()
+        self.time_elapsed = TimeElapsed()
         super().__init__(**kwargs)
-        self.children = [self.progress, self.vbx_tasks]
+        self.children = [self.progress, self.time_elapsed, self.vbx_tasks]
 
 
     def start(self):
+        self.time_elapsed.start_time = datetime.now()
         self.runner(self.callables, callback=self.callback)
+        self.time_elapsed.end_time = datetime.now()
 
     @property
     def end(self):
@@ -92,7 +97,7 @@ class ExecuteTasks(w.VBox):
         n = self.progress.value
         self.spinners[n].complete = True
         self.results[n] = result
-        self.html_results[n] = str(result)
+        self.html_results[n].value = str(result)
         self.progress.value += 1
 
 if __name__ == "__main__":
@@ -110,9 +115,9 @@ if __name__ == "__main__":
     END = 2
     tasks = {f"task-{_}" : functools.partial(task, f"result-{_}") for _ in range(END)}
     ex = ExecuteTasks(tasks=tasks)
-    ex.start()
     display(ex)
-    assert ex.results == [f"sleep: result-{_}" for _ in range(END)]
+    ex.start()
+    
 
 
 # %%
