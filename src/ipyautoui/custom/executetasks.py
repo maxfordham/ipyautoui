@@ -21,6 +21,7 @@ import ipywidgets as w
 import traitlets as tr
 from ipyautoui.custom.selectandclick import SelectMultipleAndClick, FormLayouts
 from ipyautoui.constants import PLAY_BUTTON_KWARGS
+from ipyautoui._utils import calc_select_multiple_size
 
 def pool_runner(tasks, callback=None):
     with Pool() as pool:
@@ -126,18 +127,7 @@ class SelectAndExecute(w.HBox):
     @tr.observe("tasks")
     def obs_tasks(self, on_change):
         self.select.select.options = self.tasks.keys()
-
-        def get_select_height(self):
-            h = len(self.tasks)*100 / 5.8 
-            if h < 100: 
-                return 100
-            elif h > 600:
-                return 600
-            else:
-                return h
-            
-
-        self.select.select.layout.height = f"{get_select_height(self)}px"
+        self.select.select.layout.height = f"{calc_select_multiple_size(len(self.tasks))}px"
     
     def __init__(self, **kwargs):
         self.execute = ExecuteTasks()

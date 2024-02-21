@@ -16,7 +16,9 @@ import inspect
 import immutables
 import getpass
 import logging
-
+import io
+import zipfile
+from base64 import b64encode
 
 logger = logging.getLogger(__name__)
 frozenmap = immutables.Map
@@ -472,3 +474,31 @@ def show_hide_widget(widget, show: bool):
             widget.layout.display = "None"
     except:
         ValueError(str(widget) + "failed to change layout.display")
+
+def zip_files_to_string(fpths: ty.List[pathlib.Path]) -> str:
+    # Create a BytesIO object
+    zip_buffer = io.BytesIO()
+
+    # Create a ZipFile object with the BytesIO object as the file
+    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+        # Loop over each file
+        for file in fpths:
+            # Add file to the zip
+            zip_file.write(file, arcname=file.name)
+
+    # Get the byte content of the zip file
+    zip_bytes = zip_buffer.getvalue()
+
+    # Convert the bytes to a base64 string
+    zip_string = b64encode(zip_bytes).decode()
+
+    return zip_string
+
+def calc_select_multiple_size(no_items, min=100, max=600, step=5.8):
+    h = no_items * min / step
+    if h < min: 
+        return min
+    elif h > max:
+        return max
+    else:
+        return h
