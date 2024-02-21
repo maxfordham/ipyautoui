@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.0
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -29,7 +29,7 @@ from ipyautoui.autoui import (
     AutoObjectFormLayout,
     get_from_schema_root,
 )
-from ipyautoui.autoform import make_bold
+from ipyautoui.custom.title_description import TitleDescription
 import logging
 import json
 
@@ -82,15 +82,17 @@ if __name__ == "__main__":
     ui = Vjsf(schema=schema)
     display(ui)
 
+# +
 
-class AutoVjsf(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods):
+
+class AutoVjsf(
+    w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethods, TitleDescription
+):
     _value = tr.Dict()
     """create a vuetify form using ipyvuetify using VJSF """
 
     def __init__(self, schema, **kwargs):
         super().__init__(**kwargs)
-        # self.show_raw = show_raw
-        # self.show_description = False
 
         self.model, schema = _init_model_schema(schema)
         if "value" in kwargs:
@@ -102,25 +104,21 @@ class AutoVjsf(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethod
             self.autowidget = Vjsf(schema=schema)
         else:
             self.autowidget = Vjsf(schema=schema, value=value)
+        self.vbx_widget = w.VBox(
+            [self.autowidget]
+        )  # seems messy but all container widgets expect vbx_widget...
         self._value = self.autowidget.value
         self._init_controls()
         self.children = [
-            self.savebuttonbar,
-            self.hbx_title,
-            self.html_description,
-            self.autowidget,
+            w.HBox([self.bn_showraw, self.savebuttonbar]),
+            self.html_title,  # only showing title here as description in Vjsf
+            self.vbx_widget,
             self.vbx_showraw,
         ]
-
-    def get_description(self):  # TODO: put this in AutoObjectFormLayout
-        return get_from_schema_root(self.schema, "description")
+        self.title = self.get_title()
 
     def get_title(self):  # TODO: put this in AutoObjectFormLayout
         return get_from_schema_root(self.schema, "title")
-
-    def display_showraw(self):
-        self.autowidget.layout.display = "None"
-        return self.json
 
     @property
     def json(self):
@@ -154,10 +152,14 @@ class AutoVjsf(w.VBox, AutoObjectFormLayout, AutoUiFileMethods, AutoRenderMethod
         return self.autowidget.schema
 
 
+# -
+
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
 
-    autowidget = AutoVjsf(schema=CoreIpywidgets, path=pathlib.Path("test_vuetify.json"))
+    autowidget = AutoVjsf(
+        schema=CoreIpywidgets,
+    )
     display(autowidget)
 
 if __name__ == "__main__":
@@ -172,8 +174,8 @@ if __name__ == "__main__":
     autowidget.show_title = True
     autowidget.show_raw = True
 
-
-
 if __name__ == "__main__":
     Renderer = AutoVjsf.create_autoui_renderer(schema)
-    display(Renderer(path="test.json"))
+    display(Renderer(path=pathlib.Path("test.json")))
+
+
