@@ -556,6 +556,7 @@ using VS Code then install the Jupytext extension. In the <code class="docutils 
 <div class="section" id="packaging">
 <h2>Packaging<a class="headerlink" href="#packaging" title="Permalink to this headline">#</a></h2>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1">#  NOTE: restricted to core-maintainers only</span>
+mamba<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>hatcher<span class="w"> </span>python<span class="w"> </span>hatch<span class="w"> </span>
 mamba<span class="w"> </span>activate<span class="w"> </span>hatcher<span class="w"> </span><span class="c1"># or conda env with hatch installed</span>
 hatch<span class="w"> </span>build<span class="w">  </span><span class="c1"># builds to local folder</span>
 hatch<span class="w"> </span>publish<span class="w"> </span>-u<span class="w"> </span>__token__<span class="w"> </span>-a<span class="w"> </span>&lt;your-pypi-token&gt;<span class="w">  </span><span class="c1"># publishes to pypi</span>
