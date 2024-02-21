@@ -27,7 +27,7 @@ class TimeElapsed(w.HBox):
     time_string_format = tr.Unicode('%H:%M:%S')
     start_str = tr.Unicode("<b>start-time=</b>")
     end_str = tr.Unicode("<b>end-time=</b>")
-    delta_str = tr.Unicode("<b>elapsed-time=</b>")
+    delta_str = tr.Unicode("<b>elapsed-time⏱=</b>")
     start_time = tr.Instance(klass=datetime, allow_none=True, default_value=None)
     end_time = tr.Instance(klass=datetime, allow_none=True, default_value=None)
     time_delta = tr.Instance(klass=timedelta, allow_none=True, default_value=None)
