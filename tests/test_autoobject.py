@@ -123,3 +123,47 @@ def test_null_display_on_value_change():
     assert ["", "", ""] == [v.layout.display for k, v in ui.di_boxes.items()]
     ui.value = {'a': 'Test', 'b': "Test", "c": None}
     assert ["", "", "None"] == [v.layout.display for k, v in ui.di_boxes.items()]
+  
+    
+def test_show_title_description():
+    #290 
+    
+    from typing import Annotated
+    from pydantic import BaseModel, Field
+
+    from ipyautoui.autoobject import AutoObject
+
+
+    class NestedStr(BaseModel):
+        """A nested model"""
+        string: str = Field(description = "nested")
+        
+
+    class NestedStrWithTitle(NestedStr):
+        """nested string with title"""
+        model_config = ConfigDict(title="NestedStrWithTitle")
+
+    class Compound(BaseModel):
+        """My compound model"""
+        nest_str_1: Annotated[
+            NestedStr,
+            Field(title="AnnotatedTitle", description="Overridden description nest_str_1, title not coming through")
+        ]
+        nest_str_2: NestedStr = Field(description="d2")
+        nest_str_3: NestedStr = Field(title="nest_str_3", description="d3")
+        nest_str_4: NestedStrWithTitle
+
+        
+    assert Compound.model_json_schema()["$defs"]["NestedStr"]["title"] == "NestedStr" 
+    ui = AutoObject.from_pydantic_model(Compound)
+    
+    for k in ui.schema["properties"].keys():
+        property = (lambda ui, k: ui.schema["properties"][k]["allOf"][0] if "allOf" in ui.schema["properties"][k] else ui.schema["properties"][k])(ui, k)
+        assert "title" in property
+        bx = ui.di_boxes[k]
+        assert "title" in ui.jsonschema_caller[k]["kwargs_box"]
+        assert bx.title is not None
+    
+    titles = ["AnnotatedTitle", "NestedStr", "nest_str_3", "NestedStrWithTitle"]
+    for l, t in zip(ui.di_boxes.values(), titles):
+        assert l.html_title.value == f"<b>{t}</b>"
