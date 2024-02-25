@@ -999,7 +999,7 @@ def flatten_type_and_nullable(di: dict, fn=None) -> dict:
         if len(types_non_null) > 1 and enum is not None:
             di["examples"] = enum
         for _ in types_non_null:
-            di = {**di, **_}
+            di = {**_, **di}
         del di[kw]
         return {**di, **{"nullable": is_nullable}}
 
@@ -1302,7 +1302,10 @@ def map_widget(
         for l in widgets_map[widget_name].li_fn_modify:
             kwargs = l(kwargs, wi)
 
-        kwargs_box = update_keys(di)
+        kwargs_box = flatten_type_and_nullable(di)
+        # TODO: ^ probs a more efficient way to do this to avoid repetition with above
+        #          as `flatten_type_and_nullable` is typically in `li_fn_modify`
+        kwargs_box = update_keys(kwargs_box)
         kwargs_box = remove_non_present_kwargs(AutoBox, kwargs_box)
         return WidgetCaller(
             schema_=di,
