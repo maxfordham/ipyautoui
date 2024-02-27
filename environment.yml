@@ -21,6 +21,7 @@ dependencies:
   - altair # optional
   - halo # optional
   - plotly # optional
+  - reacton
   - pip
   - pip:
     - maplocal==0.2.1
