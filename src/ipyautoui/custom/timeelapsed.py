@@ -14,9 +14,9 @@
 # ---
 
 # %%
-from datetime import datetime, timedelta
 import ipywidgets as w
 import traitlets as tr
+from datetime import datetime, timedelta
 
 def timedelta_to_str(t_delta: timedelta) -> str:
     total_seconds = int(t_delta.total_seconds())
@@ -36,7 +36,12 @@ class TimeElapsed(w.HBox):
     @tr.observe("start_time", "end_time")
     def update(self, on_change):
         if self.start_time is not None and self.end_time is not None:
-            self.time_delta = self.end_time - self.start_time
+            time_delta = self.end_time - self.start_time
+            if time_delta.total_seconds() >= 0:
+                self.time_delta = time_delta
+            else:
+                self.time_delta = None
+            
             
     @tr.observe("start_str")
     def observe_start_str(self, on_change):
@@ -48,19 +53,31 @@ class TimeElapsed(w.HBox):
 
     @tr.observe("delta_str")
     def observe_delta_str(self, on_change):
-        self.html_delta_str.value = self.delta_str
+        if self.delta_str is not None:
+            self.html_delta_str.value = self.delta_str
+        else:
+            self.html_delta_str.value = ""
 
     @tr.observe("start_time")
     def observe_start_time(self, on_change):
-        self.html_start.value = f"{self.start_time.strftime(self.time_string_format)}"
+        if self.start_time is not None:
+            self.html_start.value = f"{self.start_time.strftime(self.time_string_format)}"
+        else:
+            self.html_start.value = ""
 
     @tr.observe("end_time")
     def observe_end_time(self, on_change):
-        self.html_end.value = f"{self.end_time.strftime(self.time_string_format)}"
+        if self.end_time is not None:
+            self.html_end.value = f"{self.end_time.strftime(self.time_string_format)}"
+        else:
+            self.html_end.value = ""
 
     @tr.observe("time_delta")
     def observe_time_delta(self, on_change):
-        self.html_delta.value = f"{timedelta_to_str(self.time_delta)}"
+        if self.time_delta is not None:
+            self.html_delta.value = f"{timedelta_to_str(self.time_delta)}"
+        else:
+            self.html_delta.value = ""
     
     def __init__(self, **kwargs):
         self.html_start = w.HTML()
@@ -86,3 +103,5 @@ if __name__ == "__main__":
 # %%
 if __name__ == "__main__":
     te.end_time = datetime.now()
+
+# %%

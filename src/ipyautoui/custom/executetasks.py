@@ -14,16 +14,16 @@
 # ---
 
 # %%
-import typing as ty
-from multiprocessing.pool import Pool
-from ipyautoui.custom.svgspinner import SvgSpinner
 import ipywidgets as w
 import traitlets as tr
+import typing as ty
+from datetime import datetime
+from multiprocessing.pool import Pool
+from ipyautoui.custom.svgspinner import SvgSpinner
 from ipyautoui.custom.selectandclick import SelectMultipleAndClick, FormLayouts
 from ipyautoui.constants import PLAY_BUTTON_KWARGS
 from ipyautoui._utils import calc_select_multiple_size
 from ipyautoui.custom.timeelapsed import TimeElapsed
-from datetime import datetime
 
 def pool_runner(tasks, callback=None):
     with Pool() as pool:
@@ -55,28 +55,6 @@ class ExecuteTasks(w.VBox):
         self.results = [None for _ in range(self.end)]
         li.append(self.html_results)
         self.vbx_tasks.children = [w.HBox(l) for l in zip(*li)]
-    
-    def __init__(
-        self, **kwargs
-    ):
-        
-        if "task_names" not in kwargs:
-            kwargs["task_names"] = ["" for _ in range(self.end)]
-        self.progress = w.IntProgress(min=0, step=1)
-        self.vbx_tasks = w.VBox()
-        self.time_elapsed = TimeElapsed()
-        super().__init__(**kwargs)
-        self.children = [self.progress, self.time_elapsed, self.vbx_tasks]
-
-
-    def start(self):
-        self.time_elapsed.start_time = datetime.now()
-        self.runner(self.callables, callback=self.callback)
-        self.time_elapsed.end_time = datetime.now()
-
-    @property
-    def end(self):
-        return len(self.tasks)
 
     @property
     def callables(self):
@@ -91,9 +69,32 @@ class ExecuteTasks(w.VBox):
             return None
         else:
             return list(self.tasks.keys())
+    
+    def __init__(
+        self, **kwargs
+    ):
+        if "task_names" not in kwargs:
+            kwargs["task_names"] = ["" for _ in range(self.end)]
+        self.progress = w.IntProgress(min=0, step=1)
+        self.vbx_tasks = w.VBox()
+        self.time_elapsed = TimeElapsed()
+        super().__init__(**kwargs)
+        self.children = [self.progress, self.time_elapsed, self.vbx_tasks]
+
+    def start(self):
+        if hasattr(self, "spinners"):
+            for spinner in self.spinners:
+                spinner.complete = False
+        self.time_elapsed.start_time = datetime.now()
+        self.time_elapsed.end_time = None
+        self.runner(self.callables, callback=self.callback)
+        self.time_elapsed.end_time = datetime.now()
+
+    @property
+    def end(self):
+        return len(self.tasks)
             
     def callback(self, result):
-
         n = self.progress.value
         self.spinners[n].complete = True
         self.results[n] = result
@@ -117,7 +118,6 @@ if __name__ == "__main__":
     ex = ExecuteTasks(tasks=tasks)
     display(ex)
     ex.start()
-    
 
 
 # %%
@@ -148,7 +148,6 @@ class SelectAndExecute(w.HBox):
         self.execute.tasks = {k:v for k, v in self.tasks.items() if k in self.select.select.value}
         self.execute.progress.max = self.execute.end
         self.execute.vbx_tasks.layout.display = ""
-        
         self.execute.start()
 
 if __name__ == "__main__":
