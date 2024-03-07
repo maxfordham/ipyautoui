@@ -62,6 +62,7 @@ def trigger_download(content_b64: str, fname: str, output, kind: str = "text/jso
         print("---")
         clear_output()
         display(HTML(f"<script>{js_code}</script>"))
+        clear_output()
 
 
 class _Base(w.VBox):
