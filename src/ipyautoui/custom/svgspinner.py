@@ -35,8 +35,8 @@ class SvgSpinner(w.VBox):
         else:
             self.display_spinner()
 
-    def __init__(self, path_svg=PATH_SVG):
-        super().__init__()
+    def __init__(self, path_svg=PATH_SVG, **kwargs):
+        super().__init__(**kwargs)
         self.path_svg = path_svg
         self.out = w.Output(layout=dict(width="25px"))
         self.children = [self.out]
