@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.0
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -21,7 +21,10 @@ import pathlib
 import traitlets as tr
 import typing as ty
 from ipyfilechooser import FileChooser
-
+import ipywidgets as w
+import os
+import logging
+logger = logging.getLogger(__name__)
 
 def make_path(path):
     if type(path) == str:
@@ -66,25 +69,55 @@ class FileChooser(FileChooser):
             raise ValueError(f"{str(p)} not a valid path or dir")
         self._apply_selection()
 
-    def __init__(self, value: pathlib.Path = None, **kwargs):
-        try:
-            kwargs.pop("title")
-        except:
-            pass
+    def __init__(
+        self,
+        value=None,
+        path: str = os.getcwd(),
+        filename: str = "",
+        title: str = "",
+        select_desc: str = "Select",
+        change_desc: str = "Change",
+        show_hidden: bool = False,
+        select_default: bool = False,
+        dir_icon: ty.Optional[str] = "\U0001F4C1 ",
+        dir_icon_append: bool = False,
+        show_only_dirs: bool = False,
+        filter_pattern: ty.Optional[ty.Sequence[str]] = None,
+        sandbox_path: ty.Optional[str] = None,
+        layout: w.Layout = w.Layout(width="500px"),
+        **kwargs,
+    ):
+        kwargs = kwargs | {
+            "path": path,
+            "filename": filename,
+            # title
+            "select_desc": select_desc,
+            "change_desc": change_desc,
+            "show_hidden": show_hidden,
+            "select_default": select_default,
+            "dir_icon": dir_icon,
+            "dir_icon_append": dir_icon_append,
+            "show_only_dirs": show_only_dirs,
+            "filter_pattern": filter_pattern,
+            "sandbox_path": sandbox_path,
+            "layout": layout,
+        }
+
         if value is None:
             super().__init__(**kwargs)
         else:
             value = pathlib.Path(value)
             if value.is_file():
-                if "filename" in kwargs:
-                    del kwargs["filename"]
-                super().__init__(str(value.parent), filename=value.name, **kwargs)
+                kwargs["path"] = str(value.parent)
+                kwargs["filename"] = value.name
+                super().__init__(**kwargs)
                 self._apply_selection()
             elif value.is_dir():
-                super().__init__(str(value), **kwargs)
+                kwargs["path"] = str(value.parent)
+                super().__init__(**kwargs)
             else:
-                print("path given doesnt exist")
-                super().__init__(str(value), **kwargs)
+                logger.warning("path given doesnt exist")
+                super().__init__(**kwargs)
         self._set_value("click")
         self._init_controls()
 
@@ -113,7 +146,7 @@ if __name__ == "__main__":
 
     class Test(BaseModel):
         path: pathlib.Path = Field(
-            ".", json_schema_extra=dict(filter_pattern=["*.py"])
+            ".", json_schema_extra=dict(filter_pattern=["*_.py"])
         )  # note. filter_pattern ipyfilechooser kwarg passed on
         string: str = "test"
 
@@ -122,3 +155,6 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     display(ui.value)
+    display(ui.di_widgets["path"].filter_pattern)
+
+
