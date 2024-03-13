@@ -45,7 +45,6 @@ from ipyautoui.custom.title_description import TitleDescription
 import enum
 import string
 import random
-import inspect
 from ipyautoui.automapschema import from_schema_method, get_widget
 from jsonref import replace_refs
 from ipyautoui.watch_validate import WatchValidate
