@@ -40,7 +40,7 @@ f1 = lambda self: [
             self.hbx_title_description,
         ]
     ),
-    self.widget,
+    w.HBox([SPACER, self.widget]),
 ]
 f2 = lambda self: [
     w.HBox(
