@@ -1,8 +1,10 @@
 import functools
+import pandas as pd
 import ipywidgets as w
 import traitlets as tr
+
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-import pandas as pd
+
 SHOW_NONE_KWARGS = dict(value="None", disabled=True, layout={"display": "None"})
 
 

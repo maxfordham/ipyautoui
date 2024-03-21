@@ -378,14 +378,19 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
             for k in self.di_callers.keys()
         }
         self.vbx_widget.children = list(self.di_boxes.values())
-        self.indent_non_nullable()
+        self.indent_widgets()
 
-    def indent_non_nullable(self):
+    def indent_widgets(self):
+        """Indent the widgets appropriately based on the schema.
+        Any widget that is not nullable and has a type of "array" will be indented."""
         li = [v.allow_none for v in self.di_callers.values()]
         if True in li:
             for k, v in self.di_callers.items():
                 if not v.allow_none:
                     self.di_boxes[k].indent = True
+                if "type" in v.kwargs and v.kwargs["type"] == "array":
+                    self.di_boxes[k].indent = True
+
 
     def _insert_rows(self):
         if self.insert_rows is not None:
