@@ -121,7 +121,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
     def _show_null(self, yesno: bool):
         for k, v in self.di_boxes.items():
             if k in self.value.keys():
-                if pd.isnull(self.value[k]):
+                if self.value[k] is None:
                     v.layout.display = (lambda yesno: "" if yesno else "None")(yesno)
                 else:
                     v.layout.display = ""
