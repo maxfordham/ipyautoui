@@ -5,10 +5,11 @@ from IPython.display import clear_output
 import contextlib
 from pydantic import BaseModel, RootModel, ValidationError
 from jsonref import replace_refs
+import json
 import logging
 logger = logging.getLogger(__name__)
 
-def pydantic_validate(model, value):
+def pydantic_validate(model: BaseModel, value):
     return model.model_validate(value).model_dump(mode="json")
 
 class _WatchSilent(tr.HasTraits):  # TODO: contains context manager for silencing traits
@@ -158,11 +159,13 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
         return ui
 
     @classmethod
-    def from_pydantic_model(cls, model: ty.Type[BaseModel], value: ty.Any = None, **kwargs):
+    def from_pydantic_model(cls, model: ty.Type[BaseModel], value: ty.Any = None, by_alias=False, **kwargs):
         if not (issubclass(model, BaseModel) or issubclass(model, RootModel)):
             raise ValueError(f"schema must be a pydantic model, not {type(model)}")
         else:
-            schema = replace_refs(model.model_json_schema())
+            if "by_alias" in kwargs.keys():
+                by_alias = kwargs["by_alias"]
+            schema = replace_refs(model.model_json_schema(by_alias=by_alias))
             schema = {k: v for k, v in schema.items() if k != "$defs"}
         if value is not None:
             schema["value"] = value
