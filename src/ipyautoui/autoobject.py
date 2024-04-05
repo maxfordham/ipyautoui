@@ -95,6 +95,7 @@ class AutoObject(w.VBox, WatchValidate):
 
     """
 
+    nested_widgets = tr.List()
     update_map_widgets = tr.Dict()
     widgets_map = tr.Dict()
     type = tr.Unicode(default_value="object")
@@ -105,7 +106,6 @@ class AutoObject(w.VBox, WatchValidate):
     )  # NOTE: value setter and getter in `WatchValidate`
     fdir = tr.Instance(klass=pathlib.PurePath, default_value=None, allow_none=True)
     align_horizontal = tr.Bool(default_value=True)
-    nested_widgets = tr.List()
     order = tr.List(default_value=None, allow_none=True)
     order_can_hide_rows = tr.Bool(default_value=True)
     insert_rows = tr.Dict(default_value=None, allow_none=True)
@@ -294,10 +294,10 @@ class AutoObject(w.VBox, WatchValidate):
     def _valid_value(self, proposal):
         # TODO: add validation?
         return proposal["value"]
-
-    @classmethod
-    def trait_order(cls):
-        return [k for k, v in cls.__dict__.items() if isinstance(v, tr.TraitType)]
+    
+    @staticmethod
+    def trait_order():
+        return [k for k, v in AutoObject.__dict__.items() if isinstance(v, tr.TraitType)]
 
     def get_ordered_kwargs(self, kwargs):
         in_order = list(kwargs.keys())
