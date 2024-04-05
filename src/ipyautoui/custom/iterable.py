@@ -140,7 +140,7 @@ class ItemBox(w.Box):
 # -
 
 
-class Array(w.VBox, WatchValidate, TitleDescription):  # ,
+class Array(w.VBox, WatchValidate):
     # TODO: explicitly define widget type for each item. AutoArray guesses it, but it can be overridden...
     
     _value = tr.List()  # NOTE: value setter and getter in `WatchValidate`
@@ -276,7 +276,7 @@ class Array(w.VBox, WatchValidate, TitleDescription):  # ,
         self._post_init(**kwargs)
         
     def _set_children(self):
-        self.children = [self.hbx_title_description, self.vbx_widget]
+        self.children = [self.vbx_widget]
 
     def _init_widgets(self, kwargs):
         if "widgets" in kwargs:
@@ -475,13 +475,15 @@ class AutoArray(Array):
             self.value = kwargs["value"]
 
 
-class AutoArrayForm(AutoArray):  # TODO: delete
+class AutoArrayForm(AutoArray, TitleDescription):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if "value" in kwargs.keys():
             self.value = kwargs["value"]
-        # self._update_title_description()
+        self._update_title_description()
 
+    def _set_children(self):
+        self.children = [self.hbx_title_description, self.vbx_widget]
 
 if __name__ == "__main__":
 

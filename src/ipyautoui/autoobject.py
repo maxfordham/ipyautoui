@@ -61,7 +61,7 @@ def _get_value_trait(obj_with_traits):
         )
 
 
-class AutoObject(w.VBox, WatchValidate, TitleDescription):
+class AutoObject(w.VBox, WatchValidate):
     """creates an ipywidgets form from a json-schema or pydantic model.
     datatype must be "object"
 
@@ -340,7 +340,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
         self._post_init(**kwargs)
 
     def _set_children(self):
-        self.children = [self.hbx_title_description, self.vbx_widget]
+        self.children = [self.vbx_widget]
 
     def _post_init(self, **kwargs):
         pass
@@ -446,7 +446,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
         return False
 
 
-class AutoObjectForm(AutoObject, AutoObjectFormLayout):
+class AutoObjectForm(AutoObject, AutoObjectFormLayout, TitleDescription):
     def __init__(self, **kwargs):
         super().__init__(
             **kwargs,
@@ -460,13 +460,15 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout):
         ]
         self.show_hide_bn_nullable()
         
-    def display_ui(self):  # NOTE: this overwritten this in AutoObjectForm
+    def display_ui(self):
         self.vbx_widget.layout.display = ""
 
-    def display_showraw(self):  # NOTE: this overwritten this in AutoObjectForm
+    def display_showraw(self):
         self.vbx_widget.layout.display = "None"
         return self.json
-
+    
+    def _set_children(self):
+        self.children = [self.hbx_title_description, self.vbx_widget]
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
