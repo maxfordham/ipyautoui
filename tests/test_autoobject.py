@@ -167,3 +167,27 @@ def test_show_title_description():
     titles = ["AnnotatedTitle", "NestedStr", "nest_str_3", "NestedStrWithTitle"]
     for l, t in zip(ui.di_boxes.values(), titles):
         assert l.html_title.value == f"<b>{t}</b>"
+        
+def test_nested_widgets():
+    from pydantic import BaseModel, field_validator, ValidationInfo, Field
+
+    class B(BaseModel):
+        b: str = "b"
+        n: int = 1
+
+    class A(BaseModel):
+        a: str ="a"
+        b: list[B]
+        
+    
+    ui = AutoObject.from_pydantic_model(A)
+    assert ui.di_boxes["b"].nested == True 
+    
+    ui = AutoObject.from_pydantic_model(A, nested_widgets=[])
+    assert ui.di_boxes["b"].nested == False 
+    
+    ui = AutoObjectForm.from_pydantic_model(A)
+    assert ui.di_boxes["b"].nested == True 
+    
+    ui = AutoObjectForm.from_pydantic_model(A, nested_widgets=[])
+    assert ui.di_boxes["b"].nested == False 

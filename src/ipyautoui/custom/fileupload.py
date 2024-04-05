@@ -21,32 +21,25 @@
 
 # +
 import ipywidgets as w
-from markdown import markdown
-from IPython.display import display, clear_output
+from IPython.display import display
 from pydantic import BaseModel, field_validator, Field, ValidationInfo, BeforeValidator
 import pathlib
 import typing as ty
-import stringcase
-from datetime import datetime
 import traitlets as tr
-import json
 import logging
 import time
 
 from ipyautoui.constants import DELETE_BUTTON_KWARGS
 from ipyautoui._utils import getuser
 from ipyautoui.autodisplay import (
-    DisplayObject,
     DisplayPath,
-    ORDER_DEFAULT,
     ORDER_NOTPATH,
 )
 from ipyautoui.custom.iterable import Array
-from ipyautoui.autodisplay_renderers import render_file
 from ipyautoui.env import Env
-from pydantic import BaseModel, field_validator, Field, ValidationInfo, BeforeValidator
-import typing as ty
+from ipyautoui.custom.title_description import TitleDescription
 from typing_extensions import Annotated
+
 
 IPYAUTOUI_ROOTDIR = Env().IPYAUTOUI_ROOTDIR
 logger = logging.getLogger(__name__)
@@ -230,7 +223,7 @@ MAP_CLEARFILEUPLOAD = {
 }
 
 
-class FilesUploadToDir(Array):
+class FilesUploadToDir(Array, TitleDescription):
     use_vuetify = tr.Bool(default_value=None, allow_none=False)
     fdir = tr.Instance(klass=pathlib.PurePath, default_value=pathlib.Path("."))
     kwargs_display_path = tr.Dict(default_value={}, allow_none=False)

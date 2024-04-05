@@ -61,7 +61,7 @@ def _get_value_trait(obj_with_traits):
         )
 
 
-class AutoObject(w.VBox, WatchValidate, TitleDescription):
+class AutoObject(w.VBox, WatchValidate):
     """creates an ipywidgets form from a json-schema or pydantic model.
     datatype must be "object"
 
@@ -95,6 +95,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
 
     """
 
+    nested_widgets = tr.List()
     update_map_widgets = tr.Dict()
     widgets_map = tr.Dict()
     type = tr.Unicode(default_value="object")
@@ -105,7 +106,6 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
     )  # NOTE: value setter and getter in `WatchValidate`
     fdir = tr.Instance(klass=pathlib.PurePath, default_value=None, allow_none=True)
     align_horizontal = tr.Bool(default_value=True)
-    nested_widgets = tr.List()
     order = tr.List(default_value=None, allow_none=True)
     order_can_hide_rows = tr.Bool(default_value=True)
     insert_rows = tr.Dict(default_value=None, allow_none=True)
@@ -294,10 +294,10 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
     def _valid_value(self, proposal):
         # TODO: add validation?
         return proposal["value"]
-
-    @classmethod
-    def trait_order(cls):
-        return [k for k, v in cls.__dict__.items() if isinstance(v, tr.TraitType)]
+    
+    @staticmethod
+    def trait_order():
+        return [k for k, v in AutoObject.__dict__.items() if isinstance(v, tr.TraitType)]
 
     def get_ordered_kwargs(self, kwargs):
         in_order = list(kwargs.keys())
@@ -340,7 +340,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
         self._post_init(**kwargs)
 
     def _set_children(self):
-        self.children = [self.hbx_title_description, self.vbx_widget]
+        self.children = [self.vbx_widget]
 
     def _post_init(self, **kwargs):
         pass
@@ -446,7 +446,7 @@ class AutoObject(w.VBox, WatchValidate, TitleDescription):
         return False
 
 
-class AutoObjectForm(AutoObject, AutoObjectFormLayout):
+class AutoObjectForm(AutoObject, AutoObjectFormLayout, TitleDescription):
     def __init__(self, **kwargs):
         super().__init__(
             **kwargs,
@@ -460,13 +460,15 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout):
         ]
         self.show_hide_bn_nullable()
         
-    def display_ui(self):  # NOTE: this overwritten this in AutoObjectForm
+    def display_ui(self):
         self.vbx_widget.layout.display = ""
 
-    def display_showraw(self):  # NOTE: this overwritten this in AutoObjectForm
+    def display_showraw(self):
         self.vbx_widget.layout.display = "None"
         return self.json
-
+    
+    def _set_children(self):
+        self.children = [self.hbx_title_description, self.vbx_widget]
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
