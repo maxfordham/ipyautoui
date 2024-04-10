@@ -6,8 +6,6 @@ import annotated_types
 from enum import Enum
 from pydantic import StringConstraints, Field, conint, confloat, ConfigDict
 from ipyautoui.basemodel import BaseModel
-import pandas as pd
-from pathlib import PurePosixPath
 from typing_extensions import Annotated
 from enum import IntEnum
 

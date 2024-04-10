@@ -21,10 +21,9 @@ import typing as ty
 import ipywidgets as w
 from pydantic import BaseModel, Field
 from ipyautoui.nullable import nullable
-from ipyautoui._utils import frozenmap, obj_from_importstr
 from jsonref import replace_refs
 from ipyautoui.constants import MAP_JSONSCHEMA_TO_IPYWIDGET
-from ipyautoui._utils import remove_non_present_kwargs
+from ipyautoui._utils import remove_non_present_kwargs, frozenmap, obj_from_importstr
 from ipyautoui.custom.markdown_widget import MarkdownWidget
 from ipyautoui.custom.filechooser import FileChooser
 from ipyautoui.custom.date_string import DatePickerString, NaiveDatetimePickerString
