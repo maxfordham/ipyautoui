@@ -392,7 +392,6 @@ class GridSchema:
         """
 
         if not isinstance(data.index, pd.RangeIndex):
-            # raise ValueError("Data must have a RangeIndex")
             logging.warning(
                 "ipyautoui.custom.autogrid.AutoGrid (and EditGrid) data must have a"
                 " RangeIndex"
