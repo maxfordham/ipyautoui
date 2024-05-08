@@ -7,7 +7,7 @@ channels:
   - conda-forge
 dependencies:
   - python
-  - jupyterlab>=4.0.0,<5.0.0a0
+  - jupyterlab>=4.2.0,<5.0.0a0
   - jupyterlab-unfold
   - jupyterlab-search-replace
   - jupyterlab-lsp
@@ -23,7 +23,7 @@ dependencies:
   - plotly # optional
   - pip
   - pip:
-    - maplocal==0.2.1
+    # - maplocal==0.2.1
     - pydantic-extra-types
     - pytest-examples
     - -e .
