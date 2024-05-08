@@ -1,24 +1,25 @@
+import io
 import os
-import pathlib
 import json
 import yaml
-import importlib
-from typing import Type
-from markdown import markdown
-from math import log10, floor
-import ipywidgets as w
-from IPython.display import display, Markdown
 import codecs
-from pydantic import BaseModel, field_validator, Field, ValidationInfo
-import typing as ty
-import importlib.util
+import zipfile
+import logging
+import pathlib
+import getpass
 import inspect
 import immutables
-import getpass
-import logging
-import io
-import zipfile
+import importlib
+import importlib.util
+import pandas as pd
+import ipywidgets as w
+import typing as ty
+from typing import Type
 from base64 import b64encode
+from markdown import markdown
+from math import log10, floor
+from pydantic import BaseModel, field_validator, Field, ValidationInfo
+from IPython.display import display, Markdown
 
 logger = logging.getLogger(__name__)
 frozenmap = immutables.Map
@@ -502,3 +503,16 @@ def calc_select_multiple_size(no_items, min=100, max=600, step=5.8):
         return max
     else:
         return h
+    
+def is_null(v) -> bool:
+    """Check if a value is null.
+
+    This function exists because pd.isnull returns an ndarray of bools for
+    non-scalar values, which is not what we want. Therefore, we check if the
+    value is a list, dict, pd.Series, or pd.DataFrame and return False if it is,
+    otherwise we return the result of pd.isnull.
+    """
+    if isinstance(v, (list, dict, pd.Series, pd.DataFrame)):
+        return False
+    else:
+        return pd.isnull(v)

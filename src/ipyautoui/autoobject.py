@@ -22,12 +22,12 @@
 import logging
 import pathlib
 import ipywidgets as w
-import pandas as pd  # TODO: pandas is a heavy dep. if only used for pd.isnull... ? 
 import traitlets as tr
 from IPython.display import display
 from jsonref import replace_refs
+
 import ipyautoui.automapschema as aumap
-from ipyautoui._utils import obj_from_importstr
+from ipyautoui._utils import obj_from_importstr, is_null
 from ipyautoui.nullable import Nullable
 from ipyautoui.autobox import AutoBox
 from ipyautoui.autoform import AutoObjectFormLayout
@@ -121,7 +121,7 @@ class AutoObject(w.VBox, WatchValidate):
     def _show_null(self, yesno: bool):
         for k, v in self.di_boxes.items():
             if k in self.value.keys():
-                if self.value[k] is None:
+                if is_null(self.value[k]):
                     v.layout.display = (lambda yesno: "" if yesno else "None")(yesno)
                 else:
                     v.layout.display = ""
@@ -418,7 +418,7 @@ class AutoObject(w.VBox, WatchValidate):
         with self.silence_autoui_traits():
             for k, v in self.value.items():
                 if k in self.di_widgets.keys():
-                    if v is None and not isinstance(self.di_widgets[k], Nullable):
+                    if is_null(v) and not isinstance(self.di_widgets[k], Nullable):
                         v = _get_value_trait(self.di_widgets[k]).default()
                     try:
                         self.di_widgets[k].value = v
