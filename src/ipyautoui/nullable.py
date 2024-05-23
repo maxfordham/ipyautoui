@@ -1,9 +1,9 @@
 import functools
-import pandas as pd
 import ipywidgets as w
 import traitlets as tr
 
 from ipyautoui.constants import BUTTON_WIDTH_MIN
+from ipyautoui._utils import is_null
 
 SHOW_NONE_KWARGS = dict(value="None", disabled=True, layout={"display": "None"})
 
@@ -89,9 +89,7 @@ class Nullable(w.HBox):
 
     @value.setter
     def value(self, value):
-        if isinstance(value, dict) or isinstance(value, list):
-            self.update_value(value)
-        elif pd.isnull(value):
+        if is_null(value):
             self.bn.value = True
             self._value = None
         else:
