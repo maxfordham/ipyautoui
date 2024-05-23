@@ -7,7 +7,7 @@ import pandas as pd
 from .constants import DIR_TESTS, DIR_FILETYPES
 from ipyautoui.custom.editgrid import EditGrid
 from ipyautoui.custom.buttonbars import CrudButtonBar
-from ipyautoui.demo_schemas import EditableGrid
+from ipyautoui.demo_schemas.editable_datagrid import EditableGrid, DataFrameCols
 from ipyautoui import AutoUi
 from pydantic import BaseModel, Field, RootModel
 import typing as ty
@@ -108,6 +108,35 @@ class TestEditGrid:
             {"string": "", "floater": 1.5, "inty": 1},
         )
         
+    def test_editgrid_duplicate_transposed(self):
+        grid = EditGrid(schema=EditableGrid)
+        grid.grid.transposed = True
+        grid.grid.selections = [{'r1': 0, 'r2': 4, 'c1': 0, 'c2': 0}]
+        grid._copy()
+        # assert grid.grid.selections == []
+        df = grid.grid.get_visible_data()
+        assert isinstance(df, pd.DataFrame)
+        print("done")
+        
+    def test_editgrid_edit_transposed(self):
+        grid = EditGrid(schema=EditableGrid)
+        grid.grid.transposed = True
+        grid.grid.selections = [{'r1': 0, 'r2': 4, 'c1': 0, 'c2': 0}]
+        grid._copy()
+        grid.grid.selections = [{'r1': 0, 'r2': 4, 'c1': 1, 'c2': 1}]
+        grid._copy()
+        grid.grid.selections = [{'r1': 0, 'r2': 4, 'c1': 1, 'c2': 1}]
+        grid.ui_edit.value = DataFrameCols(string="mystring").model_dump(mode="json")
+        grid._save_edit_to_grid()
+        # assert grid.grid.selections == []
+        
+        grid.grid.selections = [{'r1': 0, 'r2': 4, 'c1': 21, 'c2': 2}]
+        grid.ui_edit.value = DataFrameCols(integer=0, string="mystring-1").model_dump(mode="json")
+        grid._save_edit_to_grid()
+        df = grid.grid.get_visible_data()
+        assert isinstance(df, pd.DataFrame)
+        print("done")
+        
 def test_show_hide_nullable():
     class TestProperties(BaseModel):
         string: str 
@@ -128,6 +157,38 @@ def test_show_hide_nullable():
             value=[{"string": "test2","nullable_string":None, "floater": 2.2, "inty": 1}],
         )
     assert egrid.ui_edit.bn_shownull.layout.display == ""
+    
+def test_selected_cells():
+    class TestProperties(BaseModel):
+        string: str 
+        # nullable_string: ty.Optional[str] = None
+        floater: float = 1.5
+        inty: int = 1
+
+
+    class TestGridSchema(RootModel):
+        """no default"""
+
+        root: ty.List[TestProperties] = Field(
+            [TestProperties(string="string").model_dump()],
+        )
+        
+    egrid = EditGrid(
+            schema=TestGridSchema,
+            value=[{"string": "test2","floater": 2.2, "inty": 1}]*4, #"nullable_string":None, 
+        )
+    egrid.grid.select(1,1)
+    egrid.grid.transposed = True
+    index = egrid.grid.selected_indexes[0]
+    assert index == 1
+    
+    
+    # assert egrid.grid.selected_indexes == [1]  # TODO: check if we should be resetting on transpose
+    egrid.ui_edit.value = egrid.ui_edit.value | {"string": "test", "inty":0}
+    egrid._save_edit_to_grid()
+    assert egrid.value[index]['inty'] == 0
+    print("done")
+    
 
 class TestAutoEditGrid:
     def test_editgrid_change_data(self):
