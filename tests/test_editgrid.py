@@ -1,18 +1,13 @@
-import shutil
-import pytest
+from pydantic import BaseModel, Field, RootModel
+import typing as ty
 import pandas as pd
 
-
-# from ipyautoui.tests import test_display_widget_mapping
-from .constants import DIR_TESTS, DIR_FILETYPES
+from .constants import DIR_TESTS
 from ipyautoui.custom.editgrid import EditGrid
 from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui.demo_schemas.editable_datagrid import EditableGrid, DataFrameCols
 from ipyautoui import AutoUi
-from pydantic import BaseModel, Field, RootModel
-import typing as ty
 
-# from ipyautoui.demo_schemas.editable_datagrid import DATAGRID_TEST_VALUE
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)

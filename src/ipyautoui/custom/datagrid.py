@@ -1,9 +1,12 @@
+import logging
+from copy import deepcopy
+
+import pandas as pd
+import traitlets as tr
+
 from ipydatagrid import CellRenderer, DataGrid, TextRenderer, VegaExpr
 from ipydatagrid.datagrid import SelectionHelper
-from copy import deepcopy
-import traitlets as tr
-import pandas as pd
-import logging
+
 
 class DataGrid(DataGrid):
     """extends DataGrid with useful generic functions"""

@@ -22,13 +22,14 @@ contains methods for validation, coercion, and default values.
 defines AutoGrid, a datagrid generated from a jsonschema."""
 
 import typing as ty
-import traitlets as tr
+from copy import deepcopy
 import logging
 import pandas as pd
+
+import traitlets as tr
 from pydantic import BaseModel, Field
 from ipydatagrid import CellRenderer, DataGrid, TextRenderer, VegaExpr
 from ipydatagrid.datagrid import SelectionHelper
-from copy import deepcopy
 
 from ipyautoui.custom.datagrid import DataGrid
 import ipyautoui.automapschema as asch
