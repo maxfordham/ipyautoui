@@ -149,11 +149,11 @@ class MarkdownWidget(w.VBox):
     _value = tr.Unicode(allow_none=True)  # default=""
 
     def __init__(self, **kwargs):
-        self._init_form( **kwargs)
+        self._init_form(**kwargs)
         self._init_controls()
         v = kwargs.get("value")
         if v is None:
-            v=""
+            v = ""
         self.value = v
 
     @property
@@ -165,8 +165,8 @@ class MarkdownWidget(w.VBox):
         self._value = value
         self.text.value = value
 
-    def _init_form(self,  **kwargs):
-        super().__init__( **{k:v for k, v in kwargs.items() if k != "tooltip"})
+    def _init_form(self, **kwargs):
+        super().__init__(**{k: v for k, v in kwargs.items() if k != "tooltip"})
         self.text = w.Textarea(layout={"width": "400px", "height": "300px"})
         self.rendered = w.Output()
         self.example_text = w.Textarea(

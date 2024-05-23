@@ -25,12 +25,13 @@ import traitlets as tr
 import ipywidgets as w
 from ipyautoui._utils import show_hide_widget
 
+
 class TitleDescription(tr.HasTraits):
     title = tr.Unicode(default_value=None, allow_none=True)
     description = tr.Unicode(default_value=None, allow_none=True)
     show_title = tr.Bool(default_value=True)
     show_description = tr.Bool(default_value=True)
-    
+
     @tr.observe("title")
     def _observe_title(self, change):
         self.html_title.value = f"<b>{self.title}</b>"
@@ -46,25 +47,25 @@ class TitleDescription(tr.HasTraits):
     @tr.observe("show_title")
     def _observe_show_title(self, change):
         show_hide_widget(self.html_title, self.show_title)
-        
+
     @property
     def html_title(self):
         self._init_title()
         return self._html_title
-    
+
     @property
     def html_description(self):
         self._init_description()
         return self._html_description
-        
+
     def _init_title(self):
         if not hasattr(self, "_html_title"):
             self._html_title = w.HTML()
-        
+
     def _init_description(self):
         if not hasattr(self, "_html_description"):
             self._html_description = w.HTML()
-            
+
     @property
     def hbx_title_description(self):
         self._init_title()

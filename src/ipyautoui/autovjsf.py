@@ -16,7 +16,6 @@
 # +
 
 
-
 import pathlib
 import ipyvuetify as v
 import traitlets as tr
@@ -177,5 +176,3 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     Renderer = AutoVjsf.create_autoui_renderer(schema)
     display(Renderer(path=pathlib.Path("test.json")))
-
-

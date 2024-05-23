@@ -15,7 +15,9 @@ DATAGRID_TEST_VALUE = [
 
 class DataFrameCols(BaseModel):
     string: str = Field("string", json_schema_extra=dict(column_width=200))
-    nullable_string: ty.Optional[str] = Field(None, json_schema_extra=dict(column_width=200))
+    nullable_string: ty.Optional[str] = Field(
+        None, json_schema_extra=dict(column_width=200)
+    )
     integer: int = Field(1)
     floater: float = Field(3.1415, json_schema_extra=dict(column_width=70))
     something_else: float = Field(324, json_schema_extra=dict(column_width=100))

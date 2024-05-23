@@ -18,7 +18,6 @@
 """
 
 
-
 import logging
 import pathlib
 import ipywidgets as w
@@ -117,7 +116,7 @@ class AutoObject(w.VBox, WatchValidate):
     @tr.observe("show_null", "_value")
     def observe_show_null(self, on_change):
         self._show_null(self.show_null)
-            
+
     def _show_null(self, yesno: bool):
         for k, v in self.di_boxes.items():
             if k in self.value.keys():
@@ -129,7 +128,6 @@ class AutoObject(w.VBox, WatchValidate):
                 # If no value passed assume value is None
                 v.layout.display = (lambda yesno: "" if yesno else "None")(yesno)
 
-                
     @tr.default("update_map_widgets")
     def _default_update_map_widgets(self):
         return {}
@@ -187,10 +185,8 @@ class AutoObject(w.VBox, WatchValidate):
 
     @tr.validate("insert_rows")
     def validate_insert_rows(self, proposal):
-        fn_checkisintkeys = (
-            lambda di: True
-            if [isinstance(l, int) == True for l in di.keys()]
-            else False
+        fn_checkisintkeys = lambda di: (
+            True if [isinstance(l, int) == True for l in di.keys()] else False
         )
         v = proposal["value"]
         if v is None:
@@ -294,10 +290,12 @@ class AutoObject(w.VBox, WatchValidate):
     def _valid_value(self, proposal):
         # TODO: add validation?
         return proposal["value"]
-    
+
     @staticmethod
     def trait_order():
-        return [k for k, v in AutoObject.__dict__.items() if isinstance(v, tr.TraitType)]
+        return [
+            k for k, v in AutoObject.__dict__.items() if isinstance(v, tr.TraitType)
+        ]
 
     def get_ordered_kwargs(self, kwargs):
         in_order = list(kwargs.keys())
@@ -354,8 +352,6 @@ class AutoObject(w.VBox, WatchValidate):
         for r in self.di_boxes.values():
             if r.nested:
                 r.tgl.value = False
-                
-
 
     @property
     def default_order(self):
@@ -363,7 +359,6 @@ class AutoObject(w.VBox, WatchValidate):
             return list(self.di_widgets.keys())
         except:
             return None
-
 
     def _init_ui(self):
         self._init_widgets()
@@ -390,7 +385,6 @@ class AutoObject(w.VBox, WatchValidate):
                     self.di_boxes[k].indent = True
                 if "type" in v.kwargs and v.kwargs["type"] == "array":
                     self.di_boxes[k].indent = True
-
 
     def _insert_rows(self):
         if self.insert_rows is not None:
@@ -452,23 +446,24 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout, TitleDescription):
             **kwargs,
         )
         self.children = [
-            w.HBox([self.bn_shownull, self.savebuttonbar ]),
+            w.HBox([self.bn_shownull, self.savebuttonbar]),
             self.html_title,
             self.html_description,
             self.vbx_widget,
             self.vbx_showraw,
         ]
         self.show_hide_bn_nullable()
-        
+
     def display_ui(self):
         self.vbx_widget.layout.display = ""
 
     def display_showraw(self):
         self.vbx_widget.layout.display = "None"
         return self.json
-    
+
     def _set_children(self):
         self.children = [self.hbx_title_description, self.vbx_widget]
+
 
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets

@@ -269,8 +269,8 @@ if __name__ == "__main__":
     c1_str_not_exists = (
         "📁⚠️ - `{}` : folder does not exist in location. It will be created on load"
     )
-    c1 = (
-        lambda value: c1_str_exists.format(make_new_path(value["fdir"]))
+    c1 = lambda value: (
+        c1_str_exists.format(make_new_path(value["fdir"]))
         if value["fdir"].is_dir()
         else c1_str_not_exists.format(make_new_path(value["fdir"]))
     )

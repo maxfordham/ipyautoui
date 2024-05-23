@@ -15,19 +15,24 @@ DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
 
 # def test_get_visible_data():
 #     agr = AutoGrid(schema=EditableGrid, data = pd.DataFrame(DATAGRID_TEST_VALUE*2))
-    
+
 #     print("done")
+
 
 class TestGridSchema:
     def test_validate_editable_grid_schema(self):
         class TestProperties(BaseModel):
             string: str = Field(json_schema_extra=dict(column_width=100))
-            floater: float = Field(json_schema_extra=dict(column_width=70, global_decimal_places=3))
+            floater: float = Field(
+                json_schema_extra=dict(column_width=70, global_decimal_places=3)
+            )
 
         class TestGridSchema(RootModel):
             """no default"""
 
-            root: ty.List[TestProperties] = Field(json_schema_extra=dict(format="dataframe"))
+            root: ty.List[TestProperties] = Field(
+                json_schema_extra=dict(format="dataframe")
+            )
 
         model, schema = _init_model_schema(TestGridSchema)
         gridschema = GridSchema(schema)
@@ -36,7 +41,9 @@ class TestGridSchema:
         class TestGridSchemaFail(RootModel):
             """no default"""
 
-            root: ty.Dict[str, TestProperties] = Field(json_schema_extra=dict(format="dataframe"))
+            root: ty.Dict[str, TestProperties] = Field(
+                json_schema_extra=dict(format="dataframe")
+            )
 
         with pytest.raises(ValueError):
             model, schema = _init_model_schema(TestGridSchemaFail)
@@ -45,12 +52,16 @@ class TestGridSchema:
     def test_empty_default_data(self):
         class TestProperties(BaseModel):
             string: str = Field(json_schema_extra=dict(column_width=100))
-            floater: float = Field(json_schema_extra=dict(column_width=70, global_decimal_places=3))
+            floater: float = Field(
+                json_schema_extra=dict(column_width=70, global_decimal_places=3)
+            )
 
         class TestGridSchema(RootModel):
             """no default"""
 
-            root: ty.List[TestProperties] = Field(json_schema_extra=dict(format="dataframe"))
+            root: ty.List[TestProperties] = Field(
+                json_schema_extra=dict(format="dataframe")
+            )
 
         model, schema = _init_model_schema(TestGridSchema)
         gridschema = GridSchema(schema)
@@ -66,13 +77,16 @@ class TestGridSchema:
     def test_partial_row_default_data(self):
         class TestProperties(BaseModel):
             string: str = Field(json_schema_extra=dict(column_width=100))
-            floater: float = Field(1.5, json_schema_extra=dict(column_width=70, global_decimal_places=3))
+            floater: float = Field(
+                1.5, json_schema_extra=dict(column_width=70, global_decimal_places=3)
+            )
 
         class TestGridSchema(RootModel):
             """no default"""
 
             root: ty.List[TestProperties] = Field(
-                [TestProperties(string="string").model_dump()], json_schema_extra=dict(format="dataframe")
+                [TestProperties(string="string").model_dump()],
+                json_schema_extra=dict(format="dataframe"),
             )
 
         model, schema = _init_model_schema(TestGridSchema)
@@ -91,7 +105,10 @@ class TestGridSchema:
         class TestProperties(BaseModel):
             string: str = Field(json_schema_extra=dict(column_width=100, section="a"))
             floater: float = Field(
-                1.5, json_schema_extra=dict(column_width=70, global_decimal_places=3, section="b")
+                1.5,
+                json_schema_extra=dict(
+                    column_width=70, global_decimal_places=3, section="b"
+                ),
             )
             inty: int = Field(1, json_schema_extra=dict(section="b"))
 
@@ -100,7 +117,9 @@ class TestGridSchema:
 
             root: ty.List[TestProperties] = Field(
                 [TestProperties(string="string").model_dump()],
-                json_schema_extra=dict(format="dataframe", datagrid_index_name=("section", "title")),
+                json_schema_extra=dict(
+                    format="dataframe", datagrid_index_name=("section", "title")
+                ),
             )
 
         model, schema = _init_model_schema(TestGridSchema)
@@ -127,12 +146,17 @@ class TestGridSchema:
                 ),
             )
         )
-        
+
     def test_nullable_multiindex(self):
         class TestProperties(BaseModel):
-            string: ty.Optional[str] = Field(json_schema_extra=dict(column_width=100, section="a"))
+            string: ty.Optional[str] = Field(
+                json_schema_extra=dict(column_width=100, section="a")
+            )
             floater: ty.Optional[float] = Field(
-                1.5, json_schema_extra=dict(column_width=70, global_decimal_places=3, section="b")
+                1.5,
+                json_schema_extra=dict(
+                    column_width=70, global_decimal_places=3, section="b"
+                ),
             )
             inty: int = Field(1, json_schema_extra=dict(section="b"))
 
@@ -141,7 +165,9 @@ class TestGridSchema:
 
             root: ty.List[TestProperties] = Field(
                 [TestProperties(string="string").model_dump()],
-                json_schema_extra=dict(format="dataframe", datagrid_index_name=("section", "title")),
+                json_schema_extra=dict(
+                    format="dataframe", datagrid_index_name=("section", "title")
+                ),
             )
 
         model, schema = _init_model_schema(TestGridSchema)
@@ -173,7 +199,10 @@ class TestGridSchema:
         class TestProperties(BaseModel):
             string: str = Field(json_schema_extra=dict(column_width=100, section="a"))
             floater: float = Field(
-                1.5, json_schema_extra=dict(column_width=70, global_decimal_places=3, section="b")
+                1.5,
+                json_schema_extra=dict(
+                    column_width=70, global_decimal_places=3, section="b"
+                ),
             )
 
         class TestGridSchema(RootModel):
@@ -181,8 +210,9 @@ class TestGridSchema:
 
             root: ty.List[TestProperties] = Field(
                 [TestProperties(string="string").model_dump()],
-                json_schema_extra=dict(format="dataframe",
-                datagrid_index_name=("section", "title")),
+                json_schema_extra=dict(
+                    format="dataframe", datagrid_index_name=("section", "title")
+                ),
             )
 
         model, schema = _init_model_schema(TestGridSchema)
@@ -220,7 +250,10 @@ class TestGridSchema:
         class TestProperties(BaseModel):
             string: str = Field(json_schema_extra=dict(column_width=100, section="a"))
             floater: float = Field(
-                1.5, json_schema_extra=dict(column_width=70, global_decimal_places=3, section="b")
+                1.5,
+                json_schema_extra=dict(
+                    column_width=70, global_decimal_places=3, section="b"
+                ),
             )
 
         class TestGridSchema(RootModel):
@@ -228,8 +261,9 @@ class TestGridSchema:
 
             root: ty.List[TestProperties] = Field(
                 [TestProperties(string="string").model_dump()],
-                json_schema_extra=dict(format="dataframe",
-                datagrid_index_name=("section", "title")),
+                json_schema_extra=dict(
+                    format="dataframe", datagrid_index_name=("section", "title")
+                ),
             )
 
         model, schema = _init_model_schema(TestGridSchema)
@@ -307,7 +341,9 @@ class TestAutoGrid:
     def test_empty_grid(self):
         class Cols(BaseModel):
             string: str = Field(json_schema_extra=dict(column_width=100))
-            floater: float = Field(json_schema_extra=dict(column_width=70, global_decimal_places=3))
+            floater: float = Field(
+                json_schema_extra=dict(column_width=70, global_decimal_places=3)
+            )
 
         class DataFrameSchema(RootModel):
             """no default"""
@@ -329,13 +365,16 @@ class TestAutoGrid:
 
         class Cols(BaseModel):
             string: str = Field("string", json_schema_extra=dict(column_width=100))
-            floater: float = Field(3.14, json_schema_extra=dict(column_width=70, global_decimal_places=3))
+            floater: float = Field(
+                3.14, json_schema_extra=dict(column_width=70, global_decimal_places=3)
+            )
 
         class DataFrameSchema(RootModel):
             """default."""
 
             root: ty.List[Cols] = Field(
-                [Cols(string="test", floater=1.5).model_dump()], json_schema_extra=dict(format="dataframe")
+                [Cols(string="test", floater=1.5).model_dump()],
+                json_schema_extra=dict(format="dataframe"),
             )
 
         grid = AutoGrid(schema=DataFrameSchema)
@@ -347,7 +386,9 @@ class TestAutoGrid:
         # get default data passed as kwarg, titles as column headers
         class Cols(BaseModel):
             string: str = Field("string", json_schema_extra=dict(column_width=100))
-            floater: float = Field(3.14, json_schema_extra=dict(column_width=70, global_decimal_places=3))
+            floater: float = Field(
+                3.14, json_schema_extra=dict(column_width=70, global_decimal_places=3)
+            )
 
         class DataFrameSchema(RootModel):
             """no default. but properties have default"""
@@ -436,14 +477,15 @@ class TestAutoGrid:
             },
         ]
 
-
     @pytest.mark.parametrize("transposed", [True, False])
     def test_order_index(self, transposed: bool):
         """Test that the order works"""
 
         class Cols(BaseModel):
             string: str = Field(json_schema_extra=dict(column_width=100))
-            floater: float = Field(json_schema_extra=dict(column_width=70, global_decimal_places=3))
+            floater: float = Field(
+                json_schema_extra=dict(column_width=70, global_decimal_places=3)
+            )
 
         class DataFrameSchema(RootModel):
             """no default"""
@@ -489,20 +531,23 @@ class TestAutoGrid:
         """Test order with multi index"""
 
         class Cols(BaseModel):
-            string: str = Field(title="String", json_schema_extra=dict(column_width=100, section="a"))
+            string: str = Field(
+                title="String", json_schema_extra=dict(column_width=100, section="a")
+            )
             floater: float = Field(
                 title="Floater",
-                json_schema_extra=dict(column_width=70,
-                    global_decimal_places=3,
-                    section="a")
+                json_schema_extra=dict(
+                    column_width=70, global_decimal_places=3, section="a"
+                ),
             )
 
         class DataFrameSchema(RootModel):
             """no default"""
 
             root: ty.List[Cols] = Field(
-                json_schema_extra=dict(format="dataframe",
-                    datagrid_index_name=("section", "title")),
+                json_schema_extra=dict(
+                    format="dataframe", datagrid_index_name=("section", "title")
+                ),
             )
 
         order = (
@@ -541,7 +586,9 @@ class TestAutoGrid:
 
         class Cols(BaseModel):
             string: str = Field(json_schema_extra=dict(column_width=100))
-            floater: float = Field(json_schema_extra=dict(column_width=70, global_decimal_places=3))
+            floater: float = Field(
+                json_schema_extra=dict(column_width=70, global_decimal_places=3)
+            )
 
         class DataFrameSchema(RootModel):
             """no default"""
@@ -588,17 +635,23 @@ class TestAutoGrid:
         """Test that order works with multi-index and strict subset of columns"""
 
         class Cols(BaseModel):
-            string: str = Field(json_schema_extra=dict(column_width=100, title="String", section="a"))
-            floater: float = Field(title="Floater",
-                json_schema_extra=dict(column_width=70,global_decimal_places=3,section="a")
+            string: str = Field(
+                json_schema_extra=dict(column_width=100, title="String", section="a")
+            )
+            floater: float = Field(
+                title="Floater",
+                json_schema_extra=dict(
+                    column_width=70, global_decimal_places=3, section="a"
+                ),
             )
 
         class DataFrameSchema(RootModel):
             """no default"""
 
             root: ty.List[Cols] = Field(
-                json_schema_extra=dict(format="dataframe",
-                    datagrid_index_name=("section", "title"))
+                json_schema_extra=dict(
+                    format="dataframe", datagrid_index_name=("section", "title")
+                )
             )
 
         order = ("floater",)
@@ -638,7 +691,9 @@ class TestAutoGrid:
 
         class Cols(BaseModel):
             string: str = Field(json_schema_extra=dict(column_width=100))
-            floater: float = Field(json_schema_extra=dict(column_width=70, global_decimal_places=3))
+            floater: float = Field(
+                json_schema_extra=dict(column_width=70, global_decimal_places=3)
+            )
 
         class DataFrameSchema(RootModel):
             """no default"""

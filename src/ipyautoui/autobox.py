@@ -17,7 +17,6 @@
 """
 
 
-
 # +
 import logging
 import ipywidgets as w
@@ -190,18 +189,18 @@ class AutoBox(w.VBox, Nest, TitleDescription):
 
     def format_box(self):
         self.children = map_format[self.format_tuple](self)
-        
+
     @classmethod
-    def wrapped_widget(cls, widget_type, kwargs_box=None, kwargs_fromcaller=None, **kwargs):
+    def wrapped_widget(
+        cls, widget_type, kwargs_box=None, kwargs_fromcaller=None, **kwargs
+    ):
         if kwargs_fromcaller is None:
             kwargs_fromcaller = {}
         widget = widget_type(**{**kwargs_fromcaller, **kwargs})
         if kwargs_box is None:
             kwargs_box = {}
-        kwargs_box["widget"] = widget   
+        kwargs_box["widget"] = widget
         return cls(**kwargs_box)
-        
-        
 
 
 if __name__ == "__main__":

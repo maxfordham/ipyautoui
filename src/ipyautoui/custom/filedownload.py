@@ -29,6 +29,7 @@ from ipyautoui.constants import FILEDNLD_BUTTON_KWARGS
 from ipyautoui._utils import zip_files_to_string, calc_select_multiple_size
 from ipyautoui.custom.selectandclick import SelectMultipleAndClick, FormLayouts
 
+
 # +
 def coerce_to_alphanumeric(text: str, remove_spaces=False):
     """NOT IN USE!
@@ -177,6 +178,7 @@ if __name__ == "__main__":
     fsd = FilesDownload(value=fpths)
     display(fsd)
 
+
 # +
 class SelectAndDownload(SelectMultipleAndClick, _FilesDownload):
     filename = tr.Unicode(allow_none=True, default_value=None)
@@ -219,5 +221,3 @@ if __name__ == "__main__":
     )
     display(sd)
 # -
-
-

@@ -23,7 +23,6 @@ from ipyautoui.constants import (
     DELETE_BUTTON_KWARGS,
     ADD_BUTTON_KWARGS,
     LOAD_BUTTON_KWARGS,
-    
 )
 from ipyautoui.custom.halo_decorator import halo_decorator
 from IPython.display import clear_output, display
@@ -32,6 +31,7 @@ import inspect
 
 # from ipyautoui.
 # PATH_SVG = "90-ring.svb"
+
 
 # +
 # TODO
@@ -84,14 +84,18 @@ class FormLayouts:
         ui.layout.display = "flex"
         ui.layout.flex_flow = "column"
         ui.layout.align_items = "stretch"
-        
+
         ui.children = [
             w.HBox([ui.bn, ui.html_title]),
             ui.select,
             ui.hbx_message,
         ]
 
-SelectAndClickFormLayouts = FormLayouts # TODO: deprecate name `SelectAndClickFormLayouts`
+
+SelectAndClickFormLayouts = (
+    FormLayouts  # TODO: deprecate name `SelectAndClickFormLayouts`
+)
+
 
 class SelectAndClick(w.Box):
     _value = tr.Any(allow_none=True, default_value=None)

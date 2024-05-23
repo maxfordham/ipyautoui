@@ -14,8 +14,6 @@
 # ---
 
 
-
-
 import ipywidgets as w
 import traitlets as tr
 import typing as ty
@@ -188,5 +186,3 @@ if __name__ == "__main__":
     ui = AnyOf(**sch)
     display(sch)
     display(ui)
-
-

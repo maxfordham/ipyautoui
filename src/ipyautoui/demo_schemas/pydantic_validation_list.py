@@ -1,7 +1,10 @@
 from pydantic import BaseModel, field_validator, Field
 
+
 class PydanticValidationList(BaseModel):
-    a: list[str] = Field(description="a list of strings that must contain 'asdf' as the first item.\n If not, it will be added by pydantic validation")
+    a: list[str] = Field(
+        description="a list of strings that must contain 'asdf' as the first item.\n If not, it will be added by pydantic validation"
+    )
     b: str
 
     @field_validator("a")

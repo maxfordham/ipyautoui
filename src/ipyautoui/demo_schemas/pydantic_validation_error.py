@@ -6,9 +6,9 @@ class PydanticValidationError(BaseModel):
     b: int = 3
     c: int = Field(0, description=" = A + B")
 
-    @field_validator('c')
+    @field_validator("c")
     @classmethod
     def _c(cls, v: int, info: ValidationInfo) -> int:
-        if v !=  info.data.get('a') + info.data.get('b'):
+        if v != info.data.get("a") + info.data.get("b"):
             raise ValueError("C must equal A + B")
         return v

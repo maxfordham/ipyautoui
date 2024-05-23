@@ -120,12 +120,12 @@ class CategoriesEnum(RootModel):
 
 
 class Rule(BaseModel):
-    categories: list[
-        CategoriesEnum
-    ] = Field(  # BUG: this doesn't work if it is ty.Optional ...
-        title="Categories",  # TODO: this is pydantic bug (should generate title from field name)
-        description="Revit MEP categories to filter by (i.e. revit object must belong to categories defined here). If empty, all categories are included.",
-        json_schema_extra=dict(allow_duplicates=False),
+    categories: list[CategoriesEnum] = (
+        Field(  # BUG: this doesn't work if it is ty.Optional ...
+            title="Categories",  # TODO: this is pydantic bug (should generate title from field name)
+            description="Revit MEP categories to filter by (i.e. revit object must belong to categories defined here). If empty, all categories are included.",
+            json_schema_extra=dict(allow_duplicates=False),
+        )
     )
     parameter: str = Field(
         description="name of schedule parameter against which to apply filter rule",

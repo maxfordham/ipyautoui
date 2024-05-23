@@ -1,4 +1,5 @@
 """extending default pydantic BaseModel. NOT IN USE."""
+
 import pathlib
 from pydantic import ConfigDict, BaseModel
 from typing import Type

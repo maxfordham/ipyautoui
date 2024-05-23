@@ -173,7 +173,7 @@ class MultiSelectSearch(w.VBox):
 
 if __name__ == "__main__":
     from IPython.display import display
-    
+
     words = """
 a
 AAA

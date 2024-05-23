@@ -113,5 +113,3 @@ if __name__ == "__main__":
         auto_open=True,
     )
     display(docs)
-
-

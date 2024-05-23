@@ -120,5 +120,3 @@ class ShowHide(w.VBox):
 if __name__ == "__main__":
     d = ShowHide(auto_open=True)
     display(d)
-
-

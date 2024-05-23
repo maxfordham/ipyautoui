@@ -27,6 +27,7 @@ def get_order():
     li = [l.split("import ")[1] for l in li]
     return li
 
+
 pycall = """# copy the code below into your notebook to try the demo
 
 from ipyautoui import AutoUi
@@ -105,7 +106,7 @@ class Demo(w.Tab, tr.HasTraits):
     def _update_autoui(self):
         self.autoui = AutoUi(self.pydantic_model)
         self._update_pycall()
-        self.vbx_autoui.children = [self.vbx_pycall, self.autoui ]
+        self.vbx_autoui.children = [self.vbx_pycall, self.autoui]
 
     def _update_pydantic(self):
         with self.out_pydantic:
@@ -121,7 +122,6 @@ class Demo(w.Tab, tr.HasTraits):
         with self.out_sch:
             clear_output()
             display(Markdown(s_sch))
-            
 
     def _update_jsonschema_caller(self):
         try:
@@ -137,6 +137,7 @@ class Demo(w.Tab, tr.HasTraits):
             with self.out_caller:
                 s_sch = self.autoui.jsonschema_caller
                 from pprint import pprint
+
                 clear_output()
                 display(pprint(s_sch))
 

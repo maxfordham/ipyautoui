@@ -8,6 +8,7 @@ Returns:
 from PIL import Image
 import shutil
 
+
 def convertImage(img):
     img = img.convert("RGBA")
     datas = img.getdata()
@@ -33,5 +34,3 @@ img = convertImage(img)
 img.getbbox()
 im2 = img.crop(img.getbbox())
 im2.save("images/favicon.png")
-
-

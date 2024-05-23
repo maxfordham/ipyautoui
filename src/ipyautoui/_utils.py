@@ -427,6 +427,7 @@ def get_user():
 
         return getuser()
 
+
 def type_as_json(value):
     if isinstance(value, str):
         return "string"
@@ -447,7 +448,8 @@ def type_as_json(value):
             "value must be: string, integer, number, array, object or None"
         )
 
-def json_as_type(s)->ty.Type:
+
+def json_as_type(s) -> ty.Type:
     if s == "string":
         return str
     elif s == "integer":
@@ -466,7 +468,8 @@ def json_as_type(s)->ty.Type:
         raise ValueError(
             "value must be: string, integer, number, array, object or None"
         )
-        
+
+
 def show_hide_widget(widget, show: bool):
     try:
         if show:
@@ -475,6 +478,7 @@ def show_hide_widget(widget, show: bool):
             widget.layout.display = "None"
     except:
         ValueError(str(widget) + "failed to change layout.display")
+
 
 def zip_files_to_string(fpths: ty.List[pathlib.Path]) -> str:
     # Create a BytesIO object
@@ -495,15 +499,17 @@ def zip_files_to_string(fpths: ty.List[pathlib.Path]) -> str:
 
     return zip_string
 
+
 def calc_select_multiple_size(no_items, min=100, max=600, step=5.8):
     h = no_items * min / step
-    if h < min: 
+    if h < min:
         return min
     elif h > max:
         return max
     else:
         return h
-    
+
+
 def is_null(v) -> bool:
     """Check if a value is null.
 

@@ -118,6 +118,6 @@ class LoadProject(w.HBox, tr.HasTraits):
 
 if __name__ == "__main__":
     from IPython.display import display
-    
+
     load_project = LoadProject()
     display(load_project)
