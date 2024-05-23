@@ -12,11 +12,18 @@ DATAGRID_TEST_VALUE = [
 ]
 
 
+# class DataFrameCols(BaseModel):
+#     string: str = Field("string", title=("string", "string"), json_schema_extra=dict(column_width=200))
+#     integer: int = Field(1, title=("number", "integer"))
+#     floater: float = Field(3.1415,title=("number", "integer"), json_schema_extra=dict(column_width=70))
+#     something_else: float = Field(324,title=("number", "something_else"), json_schema_extra=dict(column_width=100))
+# NOTE: should it work like this ^
+    
 class DataFrameCols(BaseModel):
-    string: str = Field("string", title=("string", "string"), json_schema_extra=dict(column_width=200))
-    integer: int = Field(1, title=("number", "integer"))
-    floater: float = Field(3.1415,title=("number", "integer"), json_schema_extra=dict(column_width=70))
-    something_else: float = Field(324,title=("number", "something_else"), json_schema_extra=dict(column_width=100))
+    string: str = Field("string", json_schema_extra=dict(column_width=200, section="string"))
+    integer: int = Field(1, json_schema_extra=dict(column_width=200, section="number"))
+    floater: float = Field(3.1415, json_schema_extra=dict(column_width=70, section="number"))
+    something_else: float = Field(324, json_schema_extra=dict(column_width=100, section="number"))
 
 
 class MultiIndexEditableGrid(RootModel):
@@ -28,5 +35,6 @@ class MultiIndexEditableGrid(RootModel):
             format="DataFrame",
             warn_on_delete=True,  # TODO: this isn't being passed
             global_decimal_places=2,
+            datagrid_index_name=("section", "title")
         )
     )
