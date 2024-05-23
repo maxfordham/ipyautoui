@@ -17,6 +17,7 @@
 
 # +
 """General widget for editing data"""
+
 # %run ../_dev_maplocal_params.py
 # %load_ext lab_black
 # TODO: move editgrid.py to root ?
@@ -268,11 +269,10 @@ class EditGrid(w.VBox, TitleDescription):
         _transforms = self.grid._transforms
         self.grid.transform([])  # Set to no transforms
         self.grid.transform(_transforms)  # Set to previous transforms
-        
+
     @property
     def json(self):  # HOTFIX: not required if WatchValidate is used
         return json.dumps(self.value, indent=4)
-
 
     @property
     def transposed(self):
@@ -491,7 +491,7 @@ class EditGrid(w.VBox, TitleDescription):
     # --------------------------------------------------------------------------
     def _save_add_to_grid(self):
         if self.datahandler is None:
-            if not self.grid._data["data"]:  # If no data in grid
+            if len(self.grid._data["data"]) == 0:  # If no data in grid
                 self.value = tuple([self.ui_add.value])
             else:
                 # Append new row onto data frame and set to grid's data.
@@ -799,8 +799,9 @@ if __name__ == "__main__":
                     floater=2.5,
                 ).model_dump()
             ],
-            json_schema_extra=dict(format="dataframe"),
-            # datagrid_index_name=("section", "title"),
+            json_schema_extra=dict(
+                format="dataframe", datagrid_index_name=("section", "title")
+            ),
         )
 
     description = (
@@ -810,6 +811,7 @@ if __name__ == "__main__":
     editgrid = EditGrid(
         schema=TestDataFrame,
         description=description,
+        # transposed=True,
         ui_add=None,
         ui_edit=None,
         warn_on_delete=True,
@@ -819,6 +821,4 @@ if __name__ == "__main__":
     display(editgrid)
 
 if __name__ == "__main__":
-    editgrid.transposed = False
-
-
+    editgrid.transposed = True
