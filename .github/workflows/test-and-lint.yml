@@ -60,19 +60,17 @@ jobs:
         run: |
           mamba install -n my-env flake8
 
-      # - name: Lint with flake8
-      #   shell: bash -l {0}
-      #   run: |
-      #     # stop the build if there are Python syntax errors or undefined names
-      #     # Ignore scripts folder as mainly archived scripts
-      #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-      #     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-      #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      - name: Lint with flake8
+        shell: bash -l {0}
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          # Ignore scripts folder as mainly archived scripts
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-      # - name: Install pytest
-      #   run: |
-      #     mamba install -n my-env pytest
-      # ^ REMOVED AS `pytest` IN `environment.yml`
+      - name: Lint with black
+        uses: psf/black@stable
 
       - name: Run tests
         shell: bash -l {0}
