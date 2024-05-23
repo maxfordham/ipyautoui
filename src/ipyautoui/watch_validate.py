@@ -7,15 +7,19 @@ from pydantic import BaseModel, RootModel, ValidationError
 from jsonref import replace_refs
 import json
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 def pydantic_validate(model: BaseModel, value):
     return model.model_validate(value).model_dump(mode="json")
 
+
 class _WatchSilent(tr.HasTraits):  # TODO: contains context manager for silencing traits
     pass
 
-def summarize_di_callers(obj): # : AutoObject
+
+def summarize_di_callers(obj):  # : AutoObject
     fn_ser = lambda k, v: str(v) if k == "autoui" else v
     fn_item = lambda v: {
         k_: fn_ser(k_, v_) for k_, v_ in v.model_dump().items() if k_ != "schema_"
@@ -25,6 +29,7 @@ def summarize_di_callers(obj): # : AutoObject
     else:  # root item
         return fn_item(obj.caller)
 
+
 class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
     error = tr.Unicode(default_value=None, allow_none=True)
     schema = tr.Dict(default_value=None, allow_none=True)
@@ -32,7 +37,6 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
     show_validation = tr.Bool(default_value=True)
     _value = tr.Any()  # TODO: update trait type on schema change
     _silent = tr.Bool(default_value=False)
-    
 
     @contextlib.contextmanager
     def silence_autoui_traits(self):
@@ -54,7 +58,7 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
             self.is_valid.value = True
         else:
             if self.show_validation:
-                self.out_error.layout = w.Layout(border='2px solid red', display="")
+                self.out_error.layout = w.Layout(border="2px solid red", display="")
                 with self.out_error:
                     clear_output()
                     logging.error(self.error)
@@ -86,7 +90,7 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
                 with self.silence_autoui_traits():
                     self._update_widgets_from_value()
                 pass
-            
+
     @property
     def json(self):
         if self.model is not None:
@@ -115,7 +119,7 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
                 self._value = v_
         else:
             self._value = v
-            
+
     def _watch_validate_update_value(self):
         # NOTE: this code only run when triggered by a change in a UI
         #       when value is forced in by the value setter it does not run
@@ -123,7 +127,7 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
         if v != self._value:
             self._set_validate_value(v)
             if hasattr(self, "savebuttonbar"):
-                self.savebuttonbar.unsaved_changes = True 
+                self.savebuttonbar.unsaved_changes = True
 
     def _watch_validate_change(self, on_change):
         # NOTE: this method is intended for container widgets and is called
@@ -136,12 +140,12 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
         if not self._silent:
             self._watch_validate_update_value()
 
-    
-
     @classmethod
     def from_jsonschema(cls, schema: dict, value: ty.Any = None, **kwargs):
         if not isinstance(schema, dict):
-            raise ValueError(f"schema must be a dict of type jsonschema, not {type(schema)}")
+            raise ValueError(
+                f"schema must be a dict of type jsonschema, not {type(schema)}"
+            )
         else:
             model = None
             if "$defs" in schema.keys():
@@ -159,7 +163,9 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
         return ui
 
     @classmethod
-    def from_pydantic_model(cls, model: ty.Type[BaseModel], value: ty.Any = None, by_alias=False, **kwargs):
+    def from_pydantic_model(
+        cls, model: ty.Type[BaseModel], value: ty.Any = None, by_alias=False, **kwargs
+    ):
         if not (issubclass(model, BaseModel) or issubclass(model, RootModel)):
             raise ValueError(f"schema must be a pydantic model, not {type(model)}")
         else:
@@ -182,13 +188,14 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
             self.out_error = w.Output()
             self.is_valid = w.Valid(value=True)
             self.vbx_error.children = [self.is_valid, self.out_error]
-            
+
     @property
-    def jsonschema_caller(self): 
+    def jsonschema_caller(self):
         #  NOTE: this is only used for demo
         #        it will only work from AutoObject
         #        a better implementation defo possible! ...
         return summarize_di_callers(self)
+
     # -----------------------------------------------------------
     # implement these methods in your class that uses validation:
     # i.e. AutoObject, AutoArray, EditGrid, etc.
@@ -210,5 +217,3 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
         #       of any child widget. `_init_watcher` name is not
         #       required by this base class but could be used...
         pass
-
-

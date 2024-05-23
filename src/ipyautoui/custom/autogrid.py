@@ -38,6 +38,7 @@ from ipyautoui._utils import json_as_type
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 
+
 # +
 def get_property_types(properties):  #  TODO: THIS SHOULD NOT BE REQUIRED
     def fn(v):
@@ -56,6 +57,7 @@ def get_property_types(properties):  #  TODO: THIS SHOULD NOT BE REQUIRED
                 return lambda: None
         else:
             return lambda: None
+
     return {k: fn(v)() for k, v in properties.items()}
 
 
@@ -480,7 +482,6 @@ if __name__ == "__main__":
 
     model, schema = asch._init_model_schema(TestDataFrame)
     gridschema = GridSchema(schema)
-
 
 
 # +
@@ -922,7 +923,9 @@ class AutoGrid(DataGrid):
         """Get the data selected in the table which is returned as a dataframe."""
         s = self.selected_visible_cell_iterator
         rows = set([l["r"] for l in s])
-        return [self.apply_map_name_title(s._data["data"].loc[r].to_dict()) for r in rows]
+        return [
+            self.apply_map_name_title(s._data["data"].loc[r].to_dict()) for r in rows
+        ]
 
     @property
     def selected_col(self):
@@ -1177,6 +1180,7 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     from pydantic import RootModel
+
     # Check hide_nan works
     class DataFrameCols(BaseModel):
         floater: float = Field(
@@ -1197,8 +1201,11 @@ if __name__ == "__main__":
 
     grid = AutoGrid(
         schema=TestDataFrame,
-        data=pd.DataFrame([DataFrameCols(inty=3, stringy="string").dict(), DataFrameCols(floater=2.555).dict()])
+        data=pd.DataFrame(
+            [
+                DataFrameCols(inty=3, stringy="string").dict(),
+                DataFrameCols(floater=2.555).dict(),
+            ]
+        ),
     )
     display(grid)
-
-

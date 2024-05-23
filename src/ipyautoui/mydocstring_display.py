@@ -39,11 +39,11 @@ def read_module_docstring(fpth):
 #  from mf_modules.pydtype_operations import list_items_after
 def list_items_after(li, after="Image"):
     """
-    list all items in list after a given item 
+    list all items in list after a given item
     is found
 
     Args:
-        li (list): 
+        li (list):
         **after (?): list item after which new list begins
             uses find in so partial string matches work
 
@@ -64,7 +64,7 @@ def list_items_after(li, after="Image"):
 
 
 def docstring_img_list(doc, fpth=None):
-    """creates list of fpths for images. 
+    """creates list of fpths for images.
     if fpth != None, assumes images are relative to script files"""
 
     def get_imgs(li):
@@ -172,8 +172,8 @@ def md_to_file(str_md, fpth_md):
     return fpth_md
 
 
-def fpth_chg_extension(fpth, new_ext='docx'):
-    return os.path.splitext(fpth)[0] + '.' + new_ext
+def fpth_chg_extension(fpth, new_ext="docx"):
+    return os.path.splitext(fpth)[0] + "." + new_ext
 
 
 def docstring_to_mdfile(fpth_py, fpth_md=None, functions=None):

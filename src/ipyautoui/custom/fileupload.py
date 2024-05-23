@@ -16,7 +16,7 @@
 # ---
 
 """file upload wrapper"""
-# %load_ext lab_black
+
 # %run ../_dev_maplocal_params.py
 
 # +
@@ -80,6 +80,7 @@ except ImportError as e:
             super().__init__()
             self.children = [w.HTML(self.value)]
 
+
 # +
 def make_validator(label: str) -> ty.Callable[[ty.Any, ValidationInfo], bytes]:
     def validator(v: ty.Any, info: ValidationInfo) -> bytes:
@@ -104,6 +105,7 @@ class File(BaseModel):
     def _path(cls, v, info: ValidationInfo):
         values = info.data
         return values["fdir"] / values["name"]
+
 
 # +
 def read_file_upload_item(di: dict, fdir=pathlib.Path("."), added_by=None):
@@ -316,6 +318,7 @@ class FilesUploadToDir(Array, TitleDescription):
     def value(self, value):
         self.boxes = []
         self.add_files(value)
+
 
 # -
 

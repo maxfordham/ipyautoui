@@ -13,7 +13,7 @@ class TestDemo:
         for k, wi in d.autoui.di_widgets.items():
             nm = str(wi.__class__)
             assert "WidgetCallerError" not in nm
-            
+
     def test_change_pydantic_model(self):
         # check that that showraw gets added and removed on trait change
         d = Demo()
@@ -22,7 +22,6 @@ class TestDemo:
         d.pydantic_model = OverrideIpywidgets
         assert d.pydantic_model == OverrideIpywidgets
         assert d.python_file == PosixPath(inspect.getfile(OverrideIpywidgets))
-
 
     def test_demoreel(self):
         # check that that showraw gets added and removed on trait change

@@ -14,7 +14,7 @@
 # ---
 
 # %run ../_dev_maplocal_params.py
-# %load_ext lab_black
+
 
 from IPython.display import IFrame, Javascript, clear_output, display
 import ipywidgets as w
@@ -113,5 +113,3 @@ if __name__ == "__main__":
         auto_open=True,
     )
     display(docs)
-
-

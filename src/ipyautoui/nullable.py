@@ -28,6 +28,7 @@ def _get_value_trait(obj_with_traits):
                 f"{str(type(obj_with_traits))}: has no 'value' or '_value' trait"
             )
 
+
 class Nullable(w.HBox):
     """class to allow widgets to be nullable. The widget that is extended is accessed
     using `self.widget`"""

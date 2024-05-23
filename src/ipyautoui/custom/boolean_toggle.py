@@ -6,13 +6,17 @@ not sure this has any value so haven't linked it to the autoui mapping yet!
 import traitlets as tr
 import ipywidgets as w
 
+
 class BooleanToggleButtons(w.HBox):
     value = tr.Bool(allow_none=True)
-    def __init__(self, options=["Yes", "No"], **kwargs):
-        if len(options) !=2:
-            raise ValueError("for it to be a boolean widget the len of options must be 2")
 
-        super().__init__( **kwargs)
+    def __init__(self, options=["Yes", "No"], **kwargs):
+        if len(options) != 2:
+            raise ValueError(
+                "for it to be a boolean widget the len of options must be 2"
+            )
+
+        super().__init__(**kwargs)
         self.widget = w.ToggleButtons(options=options)
         options = options + [None]
         self.map_bool = dict(zip(options, [True, False, None]))

@@ -22,7 +22,7 @@ This item is used for the AutoObject `array`.
 """
 # TODO: move iterable.py to root
 # %run ../_dev_maplocal_params.py
-# %load_ext lab_black
+
 
 # +
 import ipywidgets as w
@@ -142,7 +142,7 @@ class ItemBox(w.Box):
 
 class Array(w.VBox, WatchValidate):
     # TODO: explicitly define widget type for each item. AutoArray guesses it, but it can be overridden...
-    
+
     _value = tr.List()  # NOTE: value setter and getter in `WatchValidate`
     # _widgets = tr.List() # TODO: list of DOMWidgets ?
     fn_add = tr.Callable(
@@ -197,7 +197,8 @@ class Array(w.VBox, WatchValidate):
             except Exception as e:
                 raise ValueError(
                     f"{e}, widget-type={str(type(self.boxes[n].widget))}, value={v}, also, ",
-                    f"\n value (len={len(self.value)} and widgets (len={len(self.widgets)}) must be same length")
+                    f"\n value (len={len(self.value)} and widgets (len={len(self.widgets)}) must be same length",
+                )
         self._update_boxes()
 
     @tr.validate("type")
@@ -245,9 +246,9 @@ class Array(w.VBox, WatchValidate):
     def map_key_value(self):
         return {
             b.key: (
-                lambda w: w.value
-                if hasattr(w, "value") or hasattr(w, "_value")
-                else None
+                lambda w: (
+                    w.value if hasattr(w, "value") or hasattr(w, "_value") else None
+                )
             )(b.widget.value)
             for b in self.boxes
         }
@@ -261,7 +262,7 @@ class Array(w.VBox, WatchValidate):
     def __init__(self, **kwargs):
         self.vbx_widget = w.VBox()
         self.vbx_error = w.VBox()
-        
+
         self.bn_add_from_zero = w.Button(**ADD_BUTTON_KWARGS)
         self.bn_add_from_zero.layout.display = "None"
         self.bx_boxes = w.Box()
@@ -270,11 +271,11 @@ class Array(w.VBox, WatchValidate):
         self.bn_add_from_zero.layout.display = ""
         super().__init__(**kwargs)
         self.vbx_widget.children = [self.bn_add_from_zero, self.bx_boxes]
-        
+
         self.layout.border = "1px solid #00a3e0"
         self._set_children()
         self._post_init(**kwargs)
-        
+
     def _set_children(self):
         self.children = [self.vbx_widget]
 
@@ -346,7 +347,9 @@ class Array(w.VBox, WatchValidate):
         logger.info(f"add row with key = {key}")
         self.add_row(key=key)
 
-    def add_row(self, key=None, new_key=None, add_kwargs=None, widget=None, update_value=True):
+    def add_row(
+        self, key=None, new_key=None, add_kwargs=None, widget=None, update_value=True
+    ):
         """add row to array after key. if key=None then append to end"""
         if self.max_items is not None and len(self.boxes) >= self.max_items:
             logging.warning(
@@ -484,6 +487,7 @@ class AutoArrayForm(AutoArray, TitleDescription):
 
     def _set_children(self):
         self.children = [self.hbx_title_description, self.vbx_widget]
+
 
 if __name__ == "__main__":
 

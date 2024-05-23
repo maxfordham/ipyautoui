@@ -20,12 +20,31 @@ def get_classes(member=demo_schemas) -> ty.List[ty.Type[BaseModel]]:
 
 
 def get_order():
+    """Get the order of the classes imported into demo_schemas."""
     p = pathlib.Path(__file__).parent / "demo_schemas" / "__init__.py"
-    li = p.read_text().split("\n")
-    li = [l for l in li if l != ""]
-    li = [l for l in li if l[0] != "#"]
-    li = [l.split("import ")[1] for l in li]
+    lines = p.read_text().split("\n")
+    li = []
+    current_line = ""
+    for line in lines:
+        stripped = line.strip().strip(",")
+        if stripped == "" or stripped[0] == "#":
+            continue
+        if "(" in stripped:  # start of multiline import
+            current_line += stripped.strip("(")
+            continue
+        if ")" in stripped:  # end of multiline import
+            current_line += stripped.strip(")")
+            li.append(current_line)
+            current_line = ""
+            continue
+        if current_line:  # middle of multiline import
+            current_line += stripped
+            continue
+        # single line import
+        li.append(stripped)
+    li = [l.split("import ")[1] for l in li if "import " in l]
     return li
+
 
 pycall = """# copy the code below into your notebook to try the demo
 
@@ -105,7 +124,7 @@ class Demo(w.Tab, tr.HasTraits):
     def _update_autoui(self):
         self.autoui = AutoUi(self.pydantic_model)
         self._update_pycall()
-        self.vbx_autoui.children = [self.vbx_pycall, self.autoui ]
+        self.vbx_autoui.children = [self.vbx_pycall, self.autoui]
 
     def _update_pydantic(self):
         with self.out_pydantic:
@@ -121,7 +140,6 @@ class Demo(w.Tab, tr.HasTraits):
         with self.out_sch:
             clear_output()
             display(Markdown(s_sch))
-            
 
     def _update_jsonschema_caller(self):
         try:
@@ -137,6 +155,7 @@ class Demo(w.Tab, tr.HasTraits):
             with self.out_caller:
                 s_sch = self.autoui.jsonschema_caller
                 from pprint import pprint
+
                 clear_output()
                 display(pprint(s_sch))
 

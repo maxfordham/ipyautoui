@@ -35,6 +35,7 @@ from ipyautoui.autoui import autoui
 from ipyautoui.demo_schemas import CoreIpywidgets, RootSimple
 import pathlib
 
+
 def test_autoui():
     ui = autoui(RootSimple, path=pathlib.Path("test.json"))
     ui
@@ -63,9 +64,9 @@ class TestAutoUi:
         assert ui.show_savebuttonbar == False
         assert ui.savebuttonbar.layout.display == "None"
         print("done")
-        
+
     def test_pydantic_validation(self):
-        
+
         class Test(BaseModel):
             a: str
             b: str
@@ -74,15 +75,15 @@ class TestAutoUi:
             @classmethod
             def name_must(cls, v: str) -> str:
                 return "asdf"
-            
+
         ui = AutoUi(Test)
         ui.di_widgets["a"].value = "my val"
-        assert ui.value == {"a": "asdf", "b":""}
+        assert ui.value == {"a": "asdf", "b": ""}
         ui.di_widgets["b"].value = "my val"
-        assert ui.value == {"a": "asdf", "b":"my val"}
-        
+        assert ui.value == {"a": "asdf", "b": "my val"}
+
     def test_pydantic_validation_list(self):
-        
+
         class TestList(BaseModel):
             a: list[str]
             b: str
@@ -93,30 +94,30 @@ class TestAutoUi:
                 if "asdf" not in v:
                     v = ["asdf"] + v
                 return v
+
         ui = AutoUi(TestList)
-        assert ui.value == {'a': ['asdf'], 'b': ''}
-        # ui.di_widgets["a"].value = [] # NOTE: this won't work. value setting must happen from the top down, or from the ui. 
+        assert ui.value == {"a": ["asdf"], "b": ""}
+        # ui.di_widgets["a"].value = [] # NOTE: this won't work. value setting must happen from the top down, or from the ui.
         assert ui.di_widgets["a"].widgets[0].value == "asdf"
         ui.di_widgets["a"].widgets[0].value == ""
-        assert ui.value == {"a": ["asdf"], "b":""}
+        assert ui.value == {"a": ["asdf"], "b": ""}
         assert ui.di_widgets["a"].widgets[0].value == "asdf"
         ui.di_widgets["a"].widgets[0].value = "a"
         v = ui.value
-        assert v == {"a": ["asdf","a"], "b":""}
+        assert v == {"a": ["asdf", "a"], "b": ""}
         ui.di_widgets["b"].value = "my val"
         v = ui.value
-        assert ui.value == {"a": ["asdf","a"], "b":"my val"}
-        
-        
+        assert ui.value == {"a": ["asdf", "a"], "b": "my val"}
+
     def test_pydantic_validation_list_enums(self):
         class RoleEnum(Enum):
             director = "Director in Charge"
             lead_crm = "Client Relationship Management (CRM) Lead"
-        
+
         class Obj(BaseModel):
             c: RoleEnum = RoleEnum.director
-            d: int =0
-        
+            d: int = 0
+
         class TestListEnums(BaseModel):
             a: list[Obj]
             b: str
@@ -128,18 +129,23 @@ class TestAutoUi:
                 if RoleEnum.director not in li:
                     v = [Obj(**{"a": RoleEnum.director})] + v
                 return v
-            
+
         ui = AutoUi(TestListEnums)
-        
-        ui.value = {"a": [{"c": "Client Relationship Management (CRM) Lead", "d":0}], "b":""}
+
+        ui.value = {
+            "a": [{"c": "Client Relationship Management (CRM) Lead", "d": 0}],
+            "b": "",
+        }
         v = ui.value
         assert v["a"][1]["c"] == "Client Relationship Management (CRM) Lead"
-        assert v == {"a": [{"c": "Director in Charge", "d":0}, {"c": "Client Relationship Management (CRM) Lead", "d":0}], "b":""}
-
-
+        assert v == {
+            "a": [
+                {"c": "Director in Charge", "d": 0},
+                {"c": "Client Relationship Management (CRM) Lead", "d": 0},
+            ],
+            "b": "",
+        }
 
     # def test_display_file(self):
     #     fpths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
     #     d0 = DisplayFile(fpths[0])
-
-

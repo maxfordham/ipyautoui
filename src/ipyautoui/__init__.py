@@ -18,6 +18,7 @@ Example::
     demo()
     
 """
+
 from ipyautoui.autoui import AutoUi
 from ipyautoui.autodisplay import AutoDisplay
 from ipyautoui.autovjsf import AutoVjsf  # TODO: make optional dependency...

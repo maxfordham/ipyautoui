@@ -15,7 +15,7 @@
 
 # +
 # %run ../_dev_maplocal_params.py
-# %load_ext lab_black
+
 
 import ipywidgets as w
 import traitlets as tr
@@ -36,6 +36,7 @@ import logging
 from enum import Enum
 
 logger = logging.getLogger(__name__)
+
 
 # +
 def merge_callables(callables: ty.Union[ty.Callable, ty.List[ty.Callable]]):
@@ -146,6 +147,8 @@ class SaveActions(tr.HasTraits):
             overwrite_dupes=overwrite_dupes,
             to_beginning=to_beginning,
         )
+
+
 # -
 
 if __name__ == "__main__":
@@ -255,6 +258,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     sb.unsaved_changes = True
 
+
 # +
 class CrudOptions(ty.TypedDict):
     tooltip: str
@@ -299,6 +303,7 @@ DEFAULT_BUTTONBAR_CONFIG = CrudView(
 
 
 # -
+
 
 class CrudButtonBar(w.HBox):
     active = tr.Unicode(default_value=None, allow_none=True)
@@ -441,5 +446,3 @@ if __name__ == "__main__":
     )
 
     display(buttonbar)
-
-

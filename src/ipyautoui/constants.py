@@ -1,4 +1,5 @@
 """contains packages global constants"""
+
 import pathlib
 from ipydatagrid import TextRenderer
 from ipyautoui._utils import frozenmap
@@ -156,15 +157,17 @@ DELETE_BUTTON_KWARGS = frozenmap(
 SHOWNULL_ICON_SHOW = "plus"
 SHOWNULL_ICON_HIDE = "minus"
 KWARGS_SHOWNULL = frozenmap(
-            icon=SHOWNULL_ICON_SHOW,
-            layout=dict(width=BUTTON_WIDTH_MIN, display=""),
-            tooltip="show null form fields",
-            style={"font_weight": "bold"})
-KWARGS_SHOWRAW = frozenmap(icon="code",
-            layout=dict(width=BUTTON_WIDTH_MIN, display="None"),
-            tooltip="show raw data",
-            style={"font_weight": "bold"},
-        )
+    icon=SHOWNULL_ICON_SHOW,
+    layout=dict(width=BUTTON_WIDTH_MIN, display=""),
+    tooltip="show null form fields",
+    style={"font_weight": "bold"},
+)
+KWARGS_SHOWRAW = frozenmap(
+    icon="code",
+    layout=dict(width=BUTTON_WIDTH_MIN, display="None"),
+    tooltip="show raw data",
+    style={"font_weight": "bold"},
+)
 
 
 KWARGS_DATAGRID_DEFAULT = frozenmap(

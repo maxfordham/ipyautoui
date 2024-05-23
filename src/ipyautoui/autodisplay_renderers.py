@@ -18,8 +18,8 @@
 displayfile is used to display certain types of files.
 The module lets us preview a data retrieved from: file, request or callable (< TODO)
 """
-# %run _dev_maplocal_params.py
-# %load_ext lab_black
+
+
 # +
 import os
 import pathlib
@@ -67,12 +67,14 @@ def getbytes(path: ty.Union[pathlib.Path, HttpUrl, ty.Callable]) -> ty.ByteStrin
     """common function for read bytes from: a request, file or callable
     NOTE: if a callable the data must be returned as bytes
     """
+
     def is_url(p):
-        try: 
+        try:
             HttpUrl(p)
             return True
         except:
             return False
+
     if isinstance(path, pathlib.Path):
         return path.read_bytes()
     elif is_url(path):

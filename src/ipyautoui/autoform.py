@@ -1,6 +1,6 @@
 """layout attributes of a form box
 """
-# %run _dev_maplocal_params.py
+
 # +
 import ipywidgets as w
 import traitlets as tr
@@ -8,10 +8,16 @@ import typing as ty
 
 from IPython.display import display, clear_output
 from ipyautoui.nullable import Nullable
-from ipyautoui.constants import KWARGS_SHOWNULL, KWARGS_SHOWRAW, SHOWNULL_ICON_SHOW, SHOWNULL_ICON_HIDE
+from ipyautoui.constants import (
+    KWARGS_SHOWNULL,
+    KWARGS_SHOWRAW,
+    SHOWNULL_ICON_SHOW,
+    SHOWNULL_ICON_HIDE,
+)
 from ipyautoui.custom.buttonbars import SaveButtonBar
 from ipyautoui.custom.title_description import TitleDescription
 from ipyautoui._utils import display_python_string, show_hide_widget
+
 
 def make_bold(s: str) -> str:
     return f"<big><b>{s}</b></big>"
@@ -19,12 +25,12 @@ def make_bold(s: str) -> str:
 
 # -
 class ShowNull(tr.HasTraits):
-    display_bn_shownull = tr.Bool(default_value=True)        
+    display_bn_shownull = tr.Bool(default_value=True)
 
     @tr.observe("display_bn_shownull")
     def _observe_display_bn_shownull(self, change):
         show_hide_widget(self.bn_shownull, self.display_bn_shownull)
-    
+
     def _init_bn_shownull(self):
         self.bn_shownull = w.ToggleButton(**KWARGS_SHOWNULL)
         self.bn_shownull.observe(self._observe_bn_shownull, "value")
@@ -41,7 +47,7 @@ class ShowNull(tr.HasTraits):
         if not hasattr(self, "_bn_shownull"):
             self._init_bn_shownull()
         return self._bn_shownull
-    
+
     @bn_shownull.setter
     def bn_shownull(self, value):
         self._bn_shownull = value
@@ -52,7 +58,7 @@ class ShowNull(tr.HasTraits):
             self.display_bn_shownull = True
         else:
             self.display_bn_shownull = False
-    
+
 
 if __name__ == "__main__":
     sn = ShowNull()
@@ -64,15 +70,15 @@ class ShowRaw(tr.HasTraits):
     show_raw = tr.Bool()
     fn_onshowraw = tr.Callable(default_value=lambda: "{'test':'json'}")
     fn_onhideraw = tr.Callable(default_value=lambda: None)
-    
+
     @tr.validate("show_raw")
     def _validate_show_raw(self, proposal):
         return proposal["value"]
-    
+
     @tr.default("show_raw")
     def _default_show_raw(self):
         return False
-    
+
     @tr.observe("show_raw")
     def _observe_show_raw(self, change):
         show_hide_widget(self.bn_showraw, self.show_raw)
@@ -84,26 +90,26 @@ class ShowRaw(tr.HasTraits):
     @tr.default("fn_onhideraw")
     def _default_fn_onhideraw(self):
         return self.display_ui
-    
+
     def _init_bn_showraw(self):
         self._bn_showraw = w.ToggleButton(**KWARGS_SHOWRAW)
         self.vbx_showraw = w.VBox()
         self.out_raw = w.Output()
         self.vbx_showraw.children = [self.out_raw]
-        
+
         # _init_controls
         self.bn_showraw.observe(self._observe_bn_showraw, "value")
-        
+
     @property
     def vbx_showraw(self):
         if not hasattr(self, "_vbx_showraw"):
             self._init_bn_showraw()
         return self._vbx_showraw
-    
+
     @vbx_showraw.setter
     def vbx_showraw(self, value):
         self._vbx_showraw = value
-        
+
     @property
     def bn_showraw(self):
         if not hasattr(self, "_bn_showraw"):
@@ -126,7 +132,7 @@ class ShowRaw(tr.HasTraits):
             self.bn_showraw.icon = "code"
             self.fn_onhideraw()
             self.vbx_showraw.layout.display = "None"
-            
+
     # functionality below overwritten
     # @property
     # def json(self):
@@ -138,7 +144,7 @@ class ShowRaw(tr.HasTraits):
     def display_showraw(self):  # NOTE: this overwritten this in AutoObjectForm
         self.vbx_widget.layout.display = "None"
         return self.json
-            
+
 
 class WrapSaveButtonBar(tr.HasTraits):  # TODO: extend TitleDescription
     """UI container for autoui form
@@ -155,6 +161,7 @@ class WrapSaveButtonBar(tr.HasTraits):  # TODO: extend TitleDescription
         fns_onsave (callable): additional functions to be called on save
         fns_onrevert (callable): additional functions to be called on revert
     """
+
     show_savebuttonbar = tr.Bool(default_value=True)
     fns_onsave = tr.List(trait=tr.Callable())
     fns_onrevert = tr.List(trait=tr.Callable())
@@ -162,13 +169,13 @@ class WrapSaveButtonBar(tr.HasTraits):  # TODO: extend TitleDescription
     @tr.observe("show_savebuttonbar")
     def _observe_show_savebuttonbar(self, change):
         show_hide_widget(self.savebuttonbar, self.show_savebuttonbar)
-        
+
     @property
     def savebuttonbar(self):
         if not hasattr(self, "_savebuttonbar"):
             self.savebuttonbar = SaveButtonBar()
         return self._savebuttonbar
-    
+
     @savebuttonbar.setter
     def savebuttonbar(self, value):
         self._savebuttonbar = value
@@ -213,12 +220,13 @@ class WrapSaveButtonBar(tr.HasTraits):  # TODO: extend TitleDescription
     def _default_fns_onrevert(self):
         return self.savebuttonbar.fns_onsave
 
+
 class AutoObjectFormLayout(ShowRaw, ShowNull, WrapSaveButtonBar):
     pass
 
 
 if __name__ == "__main__":
-    ui = AutoObjectFormLayout(show_savebuttonbar=True)  # description="description", 
+    ui = AutoObjectFormLayout(show_savebuttonbar=True)  # description="description",
     display(ui)
 
 
@@ -226,7 +234,9 @@ if __name__ == "__main__":
 def demo_autoobject_form(title="test", description="a description of the title"):
     """for docs and testing only..."""
     from ipyautoui.custom.buttonbars import SaveButtonBar
+
     li = [AutoObjectFormLayout, TitleDescription, w.VBox, ShowNull]
+
     class TestForm(*li):
         def __init__(self, **kwargs):
             self.vbx_error = w.VBox()
@@ -244,6 +254,7 @@ def demo_autoobject_form(title="test", description="a description of the title")
                 self.vbx_widget,
                 self.vbx_showraw,
             ]
+
     form = TestForm()
     form.title = make_bold(title)
     form.description = description
@@ -281,5 +292,3 @@ if __name__ == "__main__":
     form.show_description = True
     form.show_title = True
     form.show_raw = True
-
-

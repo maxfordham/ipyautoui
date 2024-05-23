@@ -3,6 +3,7 @@ from ipyautoui.basemodel import BaseModel
 from typing_extensions import Annotated
 from enum import Enum
 
+
 class LongEnum(str, Enum):
     a = "a"
     b = "b"
@@ -28,7 +29,7 @@ class NestedObject(BaseModel):
     string1: str = Field(default="adsf", description="a description about my string")
     int_slider1: Annotated[int, Field(ge=0, le=3)] = 2
     int_text1: int = 1
-    tags: list[LongEnum] = (LongEnum.a, )
+    tags: list[LongEnum] = (LongEnum.a,)
 
 
 class RecursiveNest(BaseModel):

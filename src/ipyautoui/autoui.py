@@ -27,8 +27,7 @@ Example:
         from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
         DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
 """
-# %run _dev_maplocal_params.py
-# %load_ext lab_black
+
 
 import pathlib
 import json
@@ -42,9 +41,22 @@ from IPython.display import display
 
 from ipyautoui.custom import SaveButtonBar  # removing makes circular import error
 from ipyautoui.autobox import AutoBox
-from ipyautoui.autoform import AutoObjectFormLayout, TitleDescription, WrapSaveButtonBar, ShowRaw, ShowNull
+from ipyautoui.autoform import (
+    AutoObjectFormLayout,
+    TitleDescription,
+    WrapSaveButtonBar,
+    ShowRaw,
+    ShowNull,
+)
 from ipyautoui.custom.editgrid import EditGrid
-from ipyautoui.automapschema import get_widgets_map, get_containers_map, map_widget, widgetcaller, _init_model_schema, pydantic_validate
+from ipyautoui.automapschema import (
+    get_widgets_map,
+    get_containers_map,
+    map_widget,
+    widgetcaller,
+    _init_model_schema,
+    pydantic_validate,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -216,6 +228,7 @@ def get_autoui(schema: ty.Union[ty.Type[BaseModel], dict], **kwargs):
         is_container = True
         if issubclass(caller.autoui, EditGrid):
             li = [caller.autoui, TitleDescription, ShowRaw, AutoUiFileMethods]
+
             class AutoUi(*li):
                 def _set_children(self):
                     self.children = [
@@ -225,7 +238,9 @@ def get_autoui(schema: ty.Union[ty.Type[BaseModel], dict], **kwargs):
                         self.vbx_widget,
                         self.vbx_showraw,
                     ]
+
         else:
+
             class AutoUi(
                 caller.autoui,
                 ShowRaw,
@@ -263,6 +278,7 @@ def get_autoui(schema: ty.Union[ty.Type[BaseModel], dict], **kwargs):
             kwargs_fromcaller=caller.kwargs,
         )
 
+
 def get_autodisplay_map(
     schema: ty.Union[ty.Type[BaseModel], dict], ext=".json", **kwargs
 ):
@@ -279,6 +295,7 @@ def get_autodisplay_map(
 
     return {ext: renderer}
 
+
 def autoui(schema: ty.Union[ty.Type[BaseModel], dict], value=None, path=None, **kwargs):
     ui = get_autoui(schema, **kwargs)  # TODO: resolve how path is handled
     if value is None:
@@ -286,8 +303,8 @@ def autoui(schema: ty.Union[ty.Type[BaseModel], dict], value=None, path=None, **
     else:
         return ui(value=value, **kwargs)
 
-AutoUi = autoui
 
+AutoUi = autoui
 
 
 if __name__ == "__main__":

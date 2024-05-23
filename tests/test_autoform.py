@@ -39,6 +39,7 @@ class TestAutoObjectFormLayout:
         form.show_savebuttonbar = True
         assert form.savebuttonbar.layout.display == ""
 
+
 def test_show_null():
     form = demo_autoobject_form()
     assert isinstance(form.bn_shownull, w.ToggleButton)

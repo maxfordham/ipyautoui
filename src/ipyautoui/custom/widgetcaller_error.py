@@ -18,7 +18,7 @@
 
 # %%
 """widget caller error"""
-# %load_ext lab_black
+
 # %run ../_dev_maplocal_params.py
 # %run ../__init__.py
 

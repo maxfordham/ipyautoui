@@ -16,7 +16,7 @@ class DataGrid(DataGrid):
     count_changes = tr.Int()
     map_name_index = tr.Dict()
     transposed = tr.Bool(default_value=False)
-    
+
     def __init__(self, dataframe, index_name=None, **kwargs):
         if "transposed" in kwargs:
             self.transposed = True

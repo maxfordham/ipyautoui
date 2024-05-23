@@ -15,7 +15,7 @@
 
 """wrapper for ipyfilechooster.FileChooser"""
 # %run ../_dev_maplocal_params.py
-# %load_ext lab_black
+
 
 import pathlib
 import traitlets as tr
@@ -24,7 +24,9 @@ from ipyfilechooser import FileChooser
 import ipywidgets as w
 import os
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 def make_path(path):
     if type(path) == str:
@@ -156,5 +158,3 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     display(ui.value)
     display(ui.di_widgets["path"].filter_pattern)
-
-

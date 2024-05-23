@@ -14,8 +14,7 @@
 # ---
 
 # +
-# %run _dev_maplocal_params.py
-# %load_ext lab_black
+
 
 import pathlib
 import ipyvuetify as v
@@ -177,5 +176,3 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     Renderer = AutoVjsf.create_autoui_renderer(schema)
     display(Renderer(path=pathlib.Path("test.json")))
-
-

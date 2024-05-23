@@ -15,7 +15,7 @@
 
 # +
 # %run ../_dev_maplocal_params.py
-# %load_ext lab_black
+
 
 from IPython.display import display, HTML, clear_output
 import ipywidgets as w

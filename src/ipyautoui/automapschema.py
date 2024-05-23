@@ -14,8 +14,7 @@
 # ---
 
 # +
-# %run _dev_maplocal_params.py
-# %load_ext lab_black
+
 
 import typing as ty
 import ipywidgets as w
@@ -49,6 +48,7 @@ def _init_model_schema(
     schema = replace_refs(schema)
     schema = {k: v for k, v in schema.items() if k != "$defs"}
     return model, schema
+
 
 def pydantic_validate(model, value):
     return model.model_validate(value).model_dump(mode="json")
@@ -117,7 +117,7 @@ def flatten_allOf(di: dict) -> dict:
     if "allOf" in di.keys():
         for _ in di["allOf"]:
             di = {**di, **_}
-        return {k:v for k,v in di.items() if k != "allOf"}
+        return {k: v for k, v in di.items() if k != "allOf"}
     else:
         return di
 
@@ -739,10 +739,11 @@ def is_Textarea(
         return True, allow_none
     else:
         return False, allow_none
-    
+
+
 def is_enum_array(di: dict) -> (bool, int):
     is_enum = lambda di: True if "enum" in di.keys() else False
-    
+
     if not "items" in di.keys():
         return False, 0
     if is_enum(di["items"]):
@@ -756,8 +757,9 @@ def is_enum_array(di: dict) -> (bool, int):
                 return False, 0
         else:
             return False, 0
-        
-def is_select_multiple(di:dict) ->( bool, int):
+
+
+def is_select_multiple(di: dict) -> (bool, int):
     t = di["type"]
     if "autoui" in di.keys():
         return False, 0
@@ -767,7 +769,9 @@ def is_select_multiple(di:dict) ->( bool, int):
         return False, 0
     return is_enum_array(di)
 
+
 SELECT_MULTIPLE_MAX_ITEMS = 10
+
 
 def is_SelectMultiple(
     di: dict, allow_none=False, checked_nullable=False
@@ -793,7 +797,8 @@ def is_SelectMultiple(
             return True, allow_none
         else:
             return False, allow_none
-    
+
+
 def is_TagsInput(
     di: dict, allow_none=False, checked_nullable=False
 ) -> tuple[bool, bool]:
@@ -932,7 +937,9 @@ def remove_title_and_description(di):
     return {k: v for k, v in di.items() if k != "description" and k != "title"}
 
 
-def create_widget_caller(schema, calling=None, remove_title=True, map_keys=MAP_JSONSCHEMA_TO_IPYWIDGET):
+def create_widget_caller(
+    schema, calling=None, remove_title=True, map_keys=MAP_JSONSCHEMA_TO_IPYWIDGET
+):
     """
     creates a "caller" object from the schema.
     this renames schema keys as follows to match ipywidgets:
@@ -965,13 +972,18 @@ def create_widget_caller(schema, calling=None, remove_title=True, map_keys=MAP_J
         caller = remove_non_present_kwargs(calling, caller)
     return caller
 
+
 def tags_widget_caller(schema, calling=None, remove_title=True):
     map_keys = dict(MAP_JSONSCHEMA_TO_IPYWIDGET) | {"enum": "allowed_tags"}
-    return create_widget_caller(schema, calling=calling, remove_title=remove_title, map_keys=map_keys)
+    return create_widget_caller(
+        schema, calling=calling, remove_title=remove_title, map_keys=map_keys
+    )
+
 
 def flatten_items(di: dict, fn=None) -> dict:
-    di = {**di, **{k:v for k, v in di["items"].items() if k!="type"}}
-    return {k:v for k,v in di.items() if k!="items"}
+    di = {**di, **{k: v for k, v in di["items"].items() if k != "type"}}
+    return {k: v for k, v in di.items() if k != "items"}
+
 
 def flatten_type_and_nullable(di: dict, fn=None) -> dict:
     if "type" in di.keys():
@@ -985,7 +997,9 @@ def flatten_type_and_nullable(di: dict, fn=None) -> dict:
             raise ValueError("currently must have anyOf or allOf or type in schema")
         types = di[kw]
         is_nullable = "null" in [l.get("type") for l in types]
-        types_non_null = [l for l in types if l.get("type") != "null"]  # get non-null types
+        types_non_null = [
+            l for l in types if l.get("type") != "null"
+        ]  # get non-null types
 
         def get_enum(types_non_null):
             li = [_["enum"] for _ in types_non_null if "enum" in _.keys()]
@@ -1108,10 +1122,12 @@ schema:
 
 from ipyautoui.autoanyof import AnyOf
 
+
 def get_containers_map(di_update=None):
     from ipyautoui.custom.iterable import AutoArray
     from ipyautoui.autoobject import AutoObject
     from ipyautoui.custom.editgrid import EditGrid
+
     CONTAINERS_MAP = frozenmap(
         **{
             "object": WidgetMapper(fn_filt=is_Object, widget=AutoObject),
@@ -1130,6 +1146,7 @@ def get_containers_map(di_update=None):
     if di_update is None:
         di_update = {}
     return update_widgets_map(CONTAINERS_MAP, di_update=di_update)
+
 
 def get_widgets_map(di_update=None):
     WIDGETS_MAP = frozenmap(
@@ -1238,7 +1255,8 @@ def get_widgets_map(di_update=None):
                 widget=AnyOf,
                 li_fn_modify=[create_widget_caller],
             ),
-        } | dict(get_containers_map())
+        }
+        | dict(get_containers_map())
     )
 
     if di_update is None:

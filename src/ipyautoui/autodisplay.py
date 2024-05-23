@@ -36,8 +36,8 @@ Example:
         display(d)
 
 """
-# # %run _dev_maplocal_params.py
-# %load_ext lab_black
+#
+
 # %%
 import pathlib
 import functools
@@ -938,8 +938,8 @@ class AutoDisplay(tr.HasTraits):
             self.b_display_default.layout.display = "None"
             self.auto_open = [False] * len(self.paths)
         else:
-            match = (
-                lambda name, path: str(path) if isinstance(path, pathlib.Path) else name
+            match = lambda name, path: (
+                str(path) if isinstance(path, pathlib.Path) else name
             )
             self.auto_open = [
                 fnmatch.fnmatch(match(name, path), patterns=self.patterns)

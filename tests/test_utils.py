@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from ipyautoui._utils import is_null
 
+
 def test_is_null():
     assert is_null(None) == True
     assert is_null(np.nan) == True

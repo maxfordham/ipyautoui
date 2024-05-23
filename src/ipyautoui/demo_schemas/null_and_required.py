@@ -1,6 +1,7 @@
 """
 An example schema definition that demonstrates the current capability of the AutoUi class
 """
+
 import typing as ty
 import annotated_types
 from enum import Enum

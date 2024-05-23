@@ -16,7 +16,7 @@
 # %run ../_dev_maplocal_params.py
 # # %run __init__.py
 # # %run ../__init__.py
-# %load_ext lab_black
+
 
 # +
 import ipywidgets as w
@@ -120,5 +120,3 @@ class ShowHide(w.VBox):
 if __name__ == "__main__":
     d = ShowHide(auto_open=True)
     display(d)
-
-
