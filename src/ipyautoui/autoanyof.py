@@ -13,8 +13,8 @@
 #     name: python3
 # ---
 
-# %run _dev_maplocal_params.py
-# %load_ext lab_black
+
+
 
 import ipywidgets as w
 import traitlets as tr

@@ -16,8 +16,8 @@
 # +
 """AutoObject - create a 
 """
-# %run _dev_maplocal_params.py
-# %load_ext lab_black
+
+
 
 import logging
 import pathlib

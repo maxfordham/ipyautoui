@@ -17,7 +17,7 @@
 
 """generic support for observed title and description"""
 # %run ../_dev_maplocal_params.py
-# %load_ext lab_black
+
 
 # TODO: move to root
 

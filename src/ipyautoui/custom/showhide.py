@@ -16,7 +16,7 @@
 # %run ../_dev_maplocal_params.py
 # # %run __init__.py
 # # %run ../__init__.py
-# %load_ext lab_black
+
 
 # +
 import ipywidgets as w

@@ -21,7 +21,7 @@ a UI element that loads a folder for data caching, whilst storing a record of fo
 """
 
 # %run ../_dev_maplocal_params.py
-# %load_ext lab_black
+
 # -
 
 from pydantic import ConfigDict, BaseModel

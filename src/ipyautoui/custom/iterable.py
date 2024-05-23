@@ -22,7 +22,7 @@ This item is used for the AutoObject `array`.
 """
 # TODO: move iterable.py to root
 # %run ../_dev_maplocal_params.py
-# %load_ext lab_black
+
 
 # +
 import ipywidgets as w

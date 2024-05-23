@@ -16,7 +16,7 @@
 
 # %%
 # %run ../_dev_maplocal_params.py
-# %load_ext lab_black
+
 
 # %%
 from enum import Enum

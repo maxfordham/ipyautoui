@@ -19,7 +19,7 @@
 """General widget for editing data"""
 
 # %run ../_dev_maplocal_params.py
-# %load_ext lab_black
+
 # TODO: move editgrid.py to root ?
 
 import traitlets as tr

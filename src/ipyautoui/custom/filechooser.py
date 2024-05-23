@@ -15,7 +15,7 @@
 
 """wrapper for ipyfilechooster.FileChooser"""
 # %run ../_dev_maplocal_params.py
-# %load_ext lab_black
+
 
 import pathlib
 import traitlets as tr
