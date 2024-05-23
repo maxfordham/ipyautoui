@@ -29,6 +29,7 @@ dependencies:
   - nbsphinx-link
   - sphinxcontrib-mermaid
   - sphinx-panels
+  - nbclient>=0.7.4
   - pip
   - pip:
     - maplocal==0.2.1
