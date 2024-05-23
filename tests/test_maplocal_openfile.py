@@ -2,8 +2,8 @@ import pathlib
 import typing as ty
 
 # NOTE: this requires user specific configuration of the .env file to work
-from maplocal import maplocal, openlocal, maplocal_openlocal_exists
-from maplocal.maplocal import MAPENV
+# from maplocal import maplocal, openlocal, maplocal_openlocal_exists
+# from maplocal.maplocal import MAPENV
 
 # TODO: Fix test
 # if maplocal_openlocal_exists():

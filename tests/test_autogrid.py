@@ -5,12 +5,18 @@ import typing as ty
 
 from ipyautoui.custom.autogrid import AutoGrid, GridSchema
 from ipyautoui.automapschema import _init_model_schema
+from ipyautoui.demo_schemas.editable_datagrid import EditableGrid, DATAGRID_TEST_VALUE
 
 from .constants import DIR_TESTS
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
 
+
+# def test_get_visible_data():
+#     agr = AutoGrid(schema=EditableGrid, data = pd.DataFrame(DATAGRID_TEST_VALUE*2))
+    
+#     print("done")
 
 class TestGridSchema:
     def test_validate_editable_grid_schema(self):
@@ -310,9 +316,9 @@ class TestAutoGrid:
 
         # initiate empty grid
         grid = AutoGrid(schema=DataFrameSchema)
-        assert grid._data["data"] == []
+        assert len(grid._data["data"]) == 0
         assert grid._data["schema"]["fields"] == [
-            {"name": "index", "type": "integer"},  # NOTE: unable to detect type
+            {"name": "key", "type": "integer"},  # NOTE: unable to detect type
             {"name": "String", "type": "string"},
             {"name": "Floater", "type": "string"},  # NOTE: unable to detect type
             {"name": "ipydguuid", "type": "integer"},
@@ -333,8 +339,8 @@ class TestAutoGrid:
             )
 
         grid = AutoGrid(schema=DataFrameSchema)
-        assert grid._data["data"] == [
-            {"index": 0, "String": "test", "Floater": 1.5, "ipydguuid": 0}
+        assert grid._data["data"].to_dict(orient="records") == [
+            {"key": 0, "String": "test", "Floater": 1.5, "ipydguuid": 0}
         ]
 
     def test_pass_data_as_kwarg(self):
@@ -350,8 +356,8 @@ class TestAutoGrid:
 
         df = pd.DataFrame([{"String": "test2", "Floater": 2.2}])
         grid3 = AutoGrid(schema=DataFrameSchema, data=df)
-        assert grid3._data["data"] == [
-            {"index": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
+        assert grid3._data["data"].to_dict(orient="records") == [
+            {"key": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
         ]
 
     def test_pass_data_as_kwarg_map_titles(self):
@@ -371,8 +377,8 @@ class TestAutoGrid:
 
         df = pd.DataFrame([{"string": "test2", "floater": 2.2}])
         grid = AutoGrid(schema=DataFrameSchema, data=df)
-        assert grid._data["data"] == [
-            {"index": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
+        assert grid._data["data"].to_dict(orient="records") == [
+            {"key": 0, "String": "test2", "Floater": 2.2, "ipydguuid": 0}
         ]
 
     def test_reset_multiindex_data_with_init_data(self):
@@ -400,10 +406,9 @@ class TestAutoGrid:
 
         df = pd.DataFrame([{"string": "test2", "floater": 2.2, "inty": 1}])
         gr = AutoGrid(schema=TestGridSchema, data=df)
-
-        assert gr._data["data"] == [
+        assert gr._data["data"].to_dict(orient="records") == [
             {
-                ("index", ""): 0,
+                ("key", ""): 0,
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
@@ -414,27 +419,23 @@ class TestAutoGrid:
         df1 = pd.DataFrame([{"string": "test2", "floater": 2.2, "inty": 1}] * 2)
         gr.data = gr._init_data(df1)
 
-        assert gr._data["data"] == [
+        assert gr._data["data"].to_dict(orient="records") == [
             {
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
                 ("ipydguuid", ""): 0,
-                ("index", ""): 0,
+                ("key", ""): 0,
             },
             {
                 ("a", "String"): "test2",
                 ("b", "Floater"): 2.2,
                 ("b", "Inty"): 1,
                 ("ipydguuid", ""): 1,
-                ("index", ""): 1,
+                ("key", ""): 1,
             },
         ]
 
-        gr.transposed = True
-        df = gr._init_data(
-            pd.DataFrame([{"string": "test2", "floater": 2.2, "inty": 1}])
-        )
 
     @pytest.mark.parametrize("transposed", [True, False])
     def test_order_index(self, transposed: bool):

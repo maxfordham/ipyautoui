@@ -264,7 +264,7 @@ def file(self: Type[BaseModel], path: pathlib.Path, **json_kwargs):
     """
     if "indent" not in json_kwargs.keys():
         json_kwargs.update({"indent": 4})
-    path.write_text(self.json(**json_kwargs), encoding="utf-8")
+    path.write_text(self.model_dump_json(**json_kwargs), encoding="utf-8")
 
 
 def round_sig_figs(x: float, sig_figs: int):

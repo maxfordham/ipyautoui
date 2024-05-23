@@ -19,9 +19,10 @@ dependencies = [
     "immutables",
     "ipython",
     "ipywidgets>8",
-    "ipydatagrid>=1.1.14,<1.3",
-    "ipyfilechooser",       # make optional
-    "ipyvuetify",           # make optional
+    "jupyterlab>=4.2",
+    "ipydatagrid>=1.3.2", #312
+    "ipyfilechooser", # make optional
+    "ipyvuetify", # make optional
     "markdown",
     "Markdown",
     "jsonref",
