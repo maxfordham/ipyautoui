@@ -55,11 +55,7 @@ jobs:
       - name: Update environment
         run: mamba env update -n my-env -f environment.yml
         if: steps.cache.outputs.cache-hit != 'true'
-
-      - name: Install flake8
-        run: |
-          mamba install -n my-env flake8
-
+        
       - name: Lint with flake8
         shell: bash -l {0}
         run: |

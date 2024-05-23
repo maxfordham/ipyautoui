@@ -16,6 +16,7 @@ dependencies:
   - voila
   - jupytext
   - black
+  - flake8
   - nb_black
   - pytest
   - altair # optional
