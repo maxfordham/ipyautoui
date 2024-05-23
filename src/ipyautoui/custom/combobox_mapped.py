@@ -17,6 +17,7 @@
 
 import ipywidgets as w
 import traitlets as tr
+from IPython.display import display
 
 
 class ComboboxMapped(w.Box):

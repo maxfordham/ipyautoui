@@ -17,6 +17,7 @@
 import ipywidgets as w
 import traitlets as tr
 from datetime import datetime, timedelta
+from IPython.display import display
 
 
 def timedelta_to_str(t_delta: timedelta) -> str:
