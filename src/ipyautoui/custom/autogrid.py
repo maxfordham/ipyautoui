@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -20,21 +20,23 @@
 contains methods for validation, coercion, and default values. 
 
 defines AutoGrid, a datagrid generated from a jsonschema."""
-# %run ../_dev_maplocal_params.py
-# %load_ext lab_black
 
 import typing as ty
 import traitlets as tr
 import logging
 import pandas as pd
 from pydantic import BaseModel, Field
-import ipyautoui.automapschema as asch
-from ipyautoui._utils import obj_from_importstr, frozenmap
 from ipydatagrid import CellRenderer, DataGrid, TextRenderer, VegaExpr
 from ipydatagrid.datagrid import SelectionHelper
+from copy import deepcopy
+
+from ipyautoui.custom.datagrid import DataGrid
+import ipyautoui.automapschema as asch
+from ipyautoui._utils import obj_from_importstr, frozenmap
+from ipyautoui._utils import json_as_type
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
-from ipyautoui._utils import json_as_type
+
 # +
 def get_property_types(properties):  #  TODO: THIS SHOULD NOT BE REQUIRED
     def fn(v):
@@ -479,117 +481,6 @@ if __name__ == "__main__":
     gridschema = GridSchema(schema)
 
 
-class DataGrid(DataGrid):
-    """extends DataGrid with useful generic functions"""
-
-    global_decimal_places = tr.Int(default_value=None, allow_none=True)
-    hide_nan = tr.Bool(default_value=False)
-    count_changes = tr.Int()
-    map_name_index = tr.Dict()
-
-    @property
-    def map_index_name(self):
-        return {v: k for k, v in self.map_name_index.items()}
-
-    @tr.default("count_changes")
-    def _default_count_changes(self):
-        self._observe_changes()
-        return 0
-
-    @tr.observe("global_decimal_places", "hide_nan")
-    def _set_text_value(self, change):
-        if self.global_decimal_places is None:
-            vega_expr = "cell.value"
-        else:
-            newfmt = f".{self.global_decimal_places}f"
-            vega_expr = f"""
-                if (
-                    !isNumber(cell.value),
-                    cell.value,
-                    if (
-                        round(cell.value) == cell.value,
-                        cell.value,
-                        format(cell.value, '{newfmt}')
-                    )
-                )
-            """ 
-            # ^ If not a number then return the value, else if the value is a whole number 
-            # then return the value, else format the value to the number of decimal places specified
-        if self.hide_nan:
-            vega_expr = f"""
-                if(
-                    !isValid(cell.value),
-                    ' ',
-                    {vega_expr}
-                )
-                """
-            # ^ If the value is not valid (i.e. NaN) then return a blank space, else return the value
-            # evaluated by global_decimal_place vega expression
-        self.default_renderer.text_value = VegaExpr(vega_expr)
-
-    @property
-    def datagrid_schema_fields(self):
-        return self._data["schema"]["fields"]
-
-    def _observe_changes(self):
-        self.on_cell_change(self._count_cell_changes)
-        self.observe(self._count_data_change, "_data")
-
-    def _count_cell_changes(self, cell):
-        logging.info(
-            "DataGrid Change --> {row}:{column}".format(
-                row=cell["row"], column=cell["column_index"]
-            )
-        )
-        self.count_changes += 1
-
-    def _count_data_change(self, cell):
-        self.count_changes += 1
-
-    def get_dataframe_index(self, dataframe):
-        """Returns a primary key to be used in ipydatagrid's
-        view of the passed DataFrame.
-
-        OVERRIDES get_dataframe_index in ipydatagrid. addes support for multi-index.
-        TODO: add support for multi-index in ipydatagrid
-        """
-        # Passed index_name takes highest priority
-        if self._index_name is not None:
-            return self._index_name
-
-        # Dataframe with names index used by default
-        if dataframe.index.name is not None:
-            return dataframe.index.name
-
-        # as above but for multi-index
-        if dataframe.index.names is not None:
-            return dataframe.index.names
-
-        # If no index_name param, nor named-index DataFrame
-        # have been passed, revert to default "key"
-        return "key"
-
-    # ----------------
-    # https://github.com/bloomberg/ipydatagrid/issues/340
-    # selecting when a transform is applied...
-    @property
-    def selected_visible_cell_iterator(self):
-        """
-        An iterator to traverse selected cells one by one.
-        """
-        # Copy of the front-end data model
-        view_data = self.get_visible_data()
-
-        # Get primary key from dataframe
-        index_key = self.get_dataframe_index(view_data)
-
-        # Serielize to JSON table schema
-        view_data_object = self.generate_data_object(view_data, "ipydguuid", index_key)
-
-        return SelectionHelper(view_data_object, self.selections, self.selection_mode)
-
-    # ----------
-
 
 # +
 # datagrid_index = "title"
@@ -610,7 +501,6 @@ class AutoGrid(DataGrid):
     """
 
     schema = tr.Dict()  # TODO: deprecate / make optional...
-    transposed = tr.Bool(default_value=False)
     order = tr.Tuple(default_value=None, allow_none=True)
     datagrid_index_name = tr.Union(trait_types=[tr.Unicode(), tr.Tuple()])
 
@@ -769,7 +659,9 @@ class AutoGrid(DataGrid):
             if self.by_title:
                 data = data.rename(columns=self.map_name_index)
         else:
-            data = pd.DataFrame(self.gridschema._get_default_data(), columns=self.map_index_name)
+            data = pd.DataFrame(
+                self.gridschema._get_default_data(), columns=self.map_index_name
+            )
         return data
 
     def _init_data(self, data) -> pd.DataFrame:
@@ -797,11 +689,11 @@ class AutoGrid(DataGrid):
                 f" old={old}, new={new_value})"
             )
             logging.info(s)
-            print(s)
             self.set_cell_value(column_name, primary_key_value, new_value)
             return {
                 "column_name": column_name,
                 "primary_key_value": primary_key_value,
+                "old_value": old,
                 "new_value": new_value,
             }
         else:
@@ -1029,7 +921,7 @@ class AutoGrid(DataGrid):
         """Get the data selected in the table which is returned as a dataframe."""
         s = self.selected_visible_cell_iterator
         rows = set([l["r"] for l in s])
-        return [self.apply_map_name_title(s._data["data"][r]) for r in rows]
+        return [self.apply_map_name_title(s._data["data"].loc[r].to_dict()) for r in rows]
 
     @property
     def selected_col(self):
@@ -1063,7 +955,7 @@ class AutoGrid(DataGrid):
         if isinstance(index, pd.core.indexes.frozen.FrozenList):
             index = tuple(index)
         rows = set([l["r"] for l in s])
-        return [s._data["data"][r][index] for r in rows]
+        return [s._data["data"].loc[r][index] for r in rows]
 
     @property
     def selected_col_index(self):
@@ -1163,15 +1055,18 @@ if __name__ == "__main__":
             title="Important String",
             json_schema_extra=dict(column_width=120),
         )
-        integer: int = Field(40, title="Integer of somesort", json_schema_extra=dict(column_width=150))
+        integer: int = Field(
+            40, title="Integer of somesort", json_schema_extra=dict(column_width=150)
+        )
         floater: float = Field(
-            1.3398234, title="Floater", json_schema_extra=dict(column_width=70)  # , renderer={"format": ".2f"}
+            1.3398234,
+            title="Floater",
+            json_schema_extra=dict(column_width=70),  # , renderer={"format": ".2f"}
         )
 
     class TestDataFrame(RootModel):
         root: ty.List[DataFrameCols] = Field(
-            json_schema_extra=dict(format="dataframe",
-            global_decimal_places=2),
+            json_schema_extra=dict(format="dataframe", global_decimal_places=2),
         )
 
     grid = AutoGrid(schema=TestDataFrame, order=("floater", "string", "integer"))
@@ -1184,9 +1079,12 @@ if __name__ == "__main__":
             title="Important String",
             column_width=120,
         )
-        integer: int = Field(title="Integer of somesort", json_schema_extra=dict(column_width=400))
+        integer: int = Field(
+            title="Integer of somesort", json_schema_extra=dict(column_width=400)
+        )
         floater: float = Field(
-            title="Floater", json_schema_extra=dict(column_width=70)  # , renderer={"format": ".2f"}
+            title="Floater",
+            json_schema_extra=dict(column_width=70),  # , renderer={"format": ".2f"}
         )
 
     class TestDataFrame(RootModel):
@@ -1196,8 +1094,7 @@ if __name__ == "__main__":
                 DataFrameCols(string="another string", integer=10, floater=2.5),
                 DataFrameCols(string="test", integer=42, floater=0.78),
             ],
-            json_schema_extra=dict(format="dataframe",
-            global_decimal_places=2),
+            json_schema_extra=dict(format="dataframe", global_decimal_places=2),
         )
 
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
@@ -1212,14 +1109,16 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     print(grid.is_transposed)
-# -
-
-if __name__ == "__main__":
-    grid.transposed = True
 
 # +
 if __name__ == "__main__":
+    grid.transposed = True
+
+if __name__ == "__main__":
     grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
+
+# +
+
 
 if __name__ == "__main__":
     # test pd.to_dict
@@ -1249,33 +1148,34 @@ if __name__ == "__main__":
         floater: float = Field(
             1.3398234,
             title="Floater",
-            json_schema_extra=dict(column_width=70,
-            section="b"),  # , renderer={"format": ".2f"}
+            json_schema_extra=dict(
+                column_width=70, section="b"
+            ),  # , renderer={"format": ".2f"}
         )
 
     class TestDataFrame(RootModel):
         # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
         root: ty.List[DataFrameCols] = Field(
             [DataFrameCols()],
-            json_schema_extra=dict(format="dataframe",
-            global_decimal_places=2,
-            datagrid_index_name=("section", "title")),
+            json_schema_extra=dict(
+                format="dataframe",
+                global_decimal_places=2,
+                datagrid_index_name=("section", "title"),
+            ),
         )
 
     grid = AutoGrid(schema=TestDataFrame, by_title=True)
     display(grid)
+# -
 
 if __name__ == "__main__":
     grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)
 
 if __name__ == "__main__":
-    grid.transposed = False
+    grid.transposed = True
 
 if __name__ == "__main__":
-    grid.set_item_value(0, {"string": "check", "integer": 2, "floater": 3.0})
-# -
-
-if __name__ == "__main__":
+    from pydantic import RootModel
     # Check hide_nan works
     class DataFrameCols(BaseModel):
         floater: float = Field(
@@ -1288,8 +1188,8 @@ if __name__ == "__main__":
             None,
         )
 
-    class TestDataFrame(BaseModel):
-        __root__: ty.List[DataFrameCols] = Field(
+    class TestDataFrame(RootModel):
+        root: ty.List[DataFrameCols] = Field(
             format="dataframe",
             hide_nan=True,
         )
