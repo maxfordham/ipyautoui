@@ -14,10 +14,6 @@
 # ---
 
 # +
-"""AutoObject - create a 
-"""
-
-
 import logging
 import pathlib
 import ipywidgets as w
