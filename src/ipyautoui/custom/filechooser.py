@@ -62,11 +62,11 @@ class FileChooser(FileChooser):
         self._value = str(value)
         p = pathlib.Path(self.value)
         if p.is_dir():
-            self.reset(self.value, None)
+            self.reset(self.value, "")
         elif p.is_file():
             self.reset(p.parent, p.name)
         elif p.parent.is_dir():
-            self.reset(p.parent, None)
+            self.reset(p.parent, p.name)
         else:
             raise ValueError(f"{str(p)} not a valid path or dir")
         self._apply_selection()
