@@ -63,6 +63,7 @@ class CoreIpywidgets(BaseModel):
     )
     float_slider: float = Field(default=2.2, ge=1, le=3)
     float_text: float = 2.2
+    float_text_with_unit: float = Field(default=2.2, json_schema_extra=dict(unit="mm"))
     float_text_locked: float = Field(default=2.2, json_schema_extra=dict(disabled=True))
     float_range_slider: tuple[confloat(ge=0, le=4), confloat(ge=0, le=4)] = Field(
         default=(0, 2.2)
