@@ -1,4 +1,5 @@
 import ipywidgets as w
+import traitlets as tr
 
 def bold(text):
     return "<b>{}</b>".format(text)
