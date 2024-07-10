@@ -40,7 +40,10 @@ class TitleDescription(tr.HasTraits):
 
     @tr.observe("unit")
     def _observe_unit(self, change):
-        self.html_unit.value += f"<b>({self.unit})</b>"
+        if self.unit:
+            self.html_unit.value += f"<b>({self.unit})</b>"
+        else:
+            self.html_unit.value = ""
 
     @tr.observe("description")
     def _observe_description(self, change):
