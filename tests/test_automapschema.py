@@ -92,6 +92,27 @@ def test_combobox():
     assert_widget_map(schema)
 
 
+def test_combobox_mapped():
+    class Test(BaseModel):
+        """Test to see that widgets with private traits are captured by kwargs when mapping to the widget.
+        E.g. ComboboxMapped has the traits `_value` and `_options` which should be captured by kwargs.
+        """
+
+        combobox_mapped: str = Field(
+            "apple",
+            json_schema_extra=dict(
+                options={"APPLE": "apple", "PEAR": "pear"},
+                autoui="ipyautoui.custom.combobox_mapped.ComboboxMapped",
+            ),
+        )
+
+    model, schema = _init_model_schema(Test)
+    assert_widget_map(schema)
+    widget_caller = map_widget(schema["properties"]["combobox_mapped"])
+    assert widget_caller.kwargs["value"] == "apple"
+    assert widget_caller.kwargs["options"] == {"APPLE": "apple", "PEAR": "pear"}
+
+
 def test_CoreIpywidgets():
     assert_widget_map(CoreIpywidgets)
 
