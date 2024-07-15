@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -326,7 +326,7 @@ class AutoObject(w.VBox, WatchValidate):
         {setattr(self, k, v) for k, v in kwargs.items()}
 
         if "value" in kwargs.keys():
-            self.value = kwargs["value"]
+            self.value = self.di_widgets_value | kwargs["value"]
         else:
             self._value = self.di_widgets_value
         self._show_null(self.show_null)

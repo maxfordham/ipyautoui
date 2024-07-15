@@ -208,3 +208,18 @@ def test_nested_widgets():
 
     ui = AutoObjectForm.from_pydantic_model(A, nested_widgets=[])
     assert ui.di_boxes["b"].nested == False
+
+
+def test_non_nullable_have_values():
+    """Test that if a value is passed with a key-value pair missing for a non-nullable field, the value is set
+    for that non-nullable field."""
+    from pydantic import BaseModel, Field
+
+    class NonNullable(BaseModel):
+        a: str = Field(default="A")
+        b: str = Field(default="B")
+
+    ui = AutoObject.from_pydantic_model(NonNullable, value={"a": "TEST"})
+    assert ui.value == {"a": "TEST", "b": "B"}
+    ui.value = {"b": "TEST"}
+    assert ui.value == {"a": "A", "b": "TEST"}
