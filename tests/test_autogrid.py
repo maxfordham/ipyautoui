@@ -310,6 +310,20 @@ class TestGridSchema:
             ].values()
         ]
 
+    def test_coerce_data_set_default_values(self):
+        class Test(BaseModel):
+            text: str = ""
+            number: float
+
+        class TestDataFrame(RootModel):
+            root: ty.List[Test] = Field(format="dataframe")
+
+        model, schema = _init_model_schema(TestDataFrame)
+        gridschema = GridSchema(schema)
+        data = gridschema.coerce_data(pd.DataFrame([{"number": 2}]))
+        assert data.loc[0, "Text"] == ""  # default value should be set
+        assert data.loc[0, "Number"] == 2  # value passed should be set
+
     def test_grid_types(self):
         class TestProperties(BaseModel):
             stringy: str

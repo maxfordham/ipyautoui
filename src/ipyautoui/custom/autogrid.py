@@ -420,6 +420,12 @@ class GridSchema:
                 drop = [l for l in col_names if l not in self.get_order_titles(order)]
             return data.drop(drop, axis=1)
 
+        def fill_with_default(col):
+            default_value = self._get_default_row().get(col.name)
+            if default_value is not None:
+                return col.fillna(default_value)
+            return col
+
         if order is None:
             order = self.default_order
 
@@ -432,10 +438,9 @@ class GridSchema:
 
         if len(col_names) < len(order):
             # add missing columns
-            data = data.reindex(
-                columns=order,
-                # fill_value=self._get_default_row(),  # TODO: check this.
-            )
+            data = data.reindex(columns=order)
+
+        data = data.apply(fill_with_default)
 
         # map column names to outward facing names
         if bykeys:
