@@ -89,7 +89,6 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
                 #       traitlets doesn't register the change.
                 with self.silence_autoui_traits():
                     self._update_widgets_from_value()
-                pass
 
     @property
     def json(self):
