@@ -1,7 +1,8 @@
 import pytest
 import pandas as pd
-from pydantic import BaseModel, Field, RootModel
 import typing as ty
+from datetime import datetime
+from pydantic import BaseModel, Field, RootModel
 
 from ipyautoui.custom.autogrid import AutoGrid, GridSchema
 from ipyautoui.automapschema import _init_model_schema
@@ -11,12 +12,6 @@ from .constants import DIR_TESTS
 
 DIR_TEST_DATA = DIR_TESTS / "test_data"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
-
-
-# def test_get_visible_data():
-#     agr = AutoGrid(schema=EditableGrid, data = pd.DataFrame(DATAGRID_TEST_VALUE*2))
-
-#     print("done")
 
 
 class TestGridSchema:
@@ -314,6 +309,12 @@ class TestGridSchema:
         class Test(BaseModel):
             text: str = ""
             number: float
+            integer: int = 1
+            boolean: bool = True
+            optional_string: ty.Optional[str] = None
+            date_time: datetime = datetime(2020, 1, 1)
+            dictionary: dict = {"test": "test"}
+            array: list = ["test", "test again"]
 
         class TestDataFrame(RootModel):
             root: ty.List[Test] = Field(format="dataframe")
@@ -322,6 +323,15 @@ class TestGridSchema:
         gridschema = GridSchema(schema)
         data = gridschema.coerce_data(pd.DataFrame([{"number": 2}]))
         assert data.loc[0, "Text"] == ""  # default value should be set
+        assert data.loc[0, "Integer"] == 1
+        assert data.loc[0, "Array"] == [
+            "test",
+            "test again",
+        ]  # default value should be set
+        assert data.loc[0, "Dictionary"] == {"test": "test"}
+        assert data.loc[0, "Date Time"] == "2020-01-01T00:00:00"
+        assert data.loc[0, "Boolean"] == True
+        assert pd.isna(data.loc[0, "Optional String"])
         assert data.loc[0, "Number"] == 2  # value passed should be set
 
     def test_grid_types(self):

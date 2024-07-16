@@ -422,9 +422,10 @@ class GridSchema:
 
         def fill_with_default(col):
             default_value = self._get_default_row().get(col.name)
-            if default_value is not None:
-                return col.fillna(default_value)
-            return col
+            if default_value is None:
+                return col
+            else:
+                return col.apply(lambda x: default_value if pd.isna(x) else x)
 
         if order is None:
             order = self.default_order
