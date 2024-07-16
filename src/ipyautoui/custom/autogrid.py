@@ -425,7 +425,13 @@ class GridSchema:
             if default_value is None:
                 return col
             else:
-                return col.apply(lambda x: default_value if pd.isna(x) else x)
+                return col.apply(
+                    lambda x: (
+                        default_value
+                        if (pd.isna(x).all() if isinstance(x, list) else pd.isna(x))
+                        else x
+                    )
+                )
 
         if order is None:
             order = self.default_order
