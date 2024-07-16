@@ -54,46 +54,6 @@ def pydantic_validate(model, value):
     return model.model_validate(value).model_dump(mode="json")
 
 
-# def is_Nullable(di: dict) -> bool:
-#     """
-#     is_Nullable({'title': 'floater', 'default': 1.33, 'anyOf': [{'type': 'string'}, {'type': 'null'}]})
-#     True
-#     """
-#     if "type" not in di.keys() and "anyOf" in di.keys():
-#         if "null" in [l.get("type") for l in di["anyOf"]]:
-#             return True
-#         else:
-#             return False
-#     else:
-#         return False
-
-
-# def get_type(di: dict) -> str:
-#     if "type" in di.keys():
-#         return di["type"]
-#     else:
-#         if "anyOf" in di.keys():
-#             kw = "anyOf"
-#         elif "allOf" in di.keys():
-#             kw = "allOf"
-#         else:
-#             raise ValueError("currently must have anyOf or allOf or type in schema")
-#         types = list(set([l.get("type") for l in di[kw]]))
-#         if len(types) > 2:
-#             raise ValueError(
-#                 f"currently a single type must be specified. a specific type + null is also allowed. not {str([l['type'] for l in di['anyOf']])}"
-#             )
-#         else:
-#             t = [l for l in types if l != "null"][0]
-#             return t
-
-
-# def get_type_and_nullable(di: dict) -> tuple[str, bool]:
-#     type_ = get_type(di)
-#     nullable = is_Nullable(di)
-#     return type_, nullable
-
-
 def is_allowed_type(di: dict) -> bool:
     #  https://json-schema.org/understanding-json-schema/reference/combining.html
     if "anyOf" in di:
