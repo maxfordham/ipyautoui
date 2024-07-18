@@ -735,11 +735,11 @@ class TestAutoGrid:
 
     def test_update_from_schema(self):
         autogrid = AutoGrid()
+
         class DataFrameCols(BaseModel):
             string: str = Field(
                 "string", json_schema_extra=dict(column_width=400, section="a")
             )
-
 
         class TestDataFrame(RootModel):
             """a description of TestDataFrame"""
@@ -750,7 +750,10 @@ class TestAutoGrid:
                 ),
             )
 
-        autogrid.update_from_schema(schema=TestDataFrame.model_json_schema(), data=pd.DataFrame([{"string": "Test"}]*10))
+        autogrid.update_from_schema(
+            schema=TestDataFrame.model_json_schema(),
+            data=pd.DataFrame([{"string": "Test"}] * 10),
+        )
         json_schema = jsonref.replace_refs(TestDataFrame.model_json_schema())
         import copy
 
@@ -758,7 +761,7 @@ class TestAutoGrid:
         schema_copy = copy.deepcopy(autogrid.schema)
         json_schema_copy = copy.deepcopy(json_schema)
         # Remove the $defs key from both copies if it exists
-        schema_copy.pop('$defs', None)
-        json_schema_copy.pop('$defs', None)
+        schema_copy.pop("$defs", None)
+        json_schema_copy.pop("$defs", None)
         # Now compare the modified copies
         assert schema_copy == json_schema_copy

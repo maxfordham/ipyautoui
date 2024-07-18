@@ -140,11 +140,11 @@ class TestEditGrid:
 
     def test_update_from_schema(self):
         editgrid = EditGrid()
+
         class DataFrameCols(BaseModel):
             string: str = Field(
                 "string", json_schema_extra=dict(column_width=400, section="a")
             )
-
 
         class TestDataFrame(RootModel):
             """a description of TestDataFrame"""
@@ -154,9 +154,11 @@ class TestEditGrid:
                     format="dataframe", datagrid_index_name=("section", "title")
                 ),
             )
-        value = [{"string": "Test"}]*10
-        editgrid.update_from_schema(TestDataFrame, value=[{"string": "Test"}]*10)
+
+        value = [{"string": "Test"}] * 10
+        editgrid.update_from_schema(TestDataFrame, value=[{"string": "Test"}] * 10)
         import jsonref
+
         json_schema = jsonref.replace_refs(TestDataFrame.model_json_schema())
         import copy
 
@@ -165,13 +167,12 @@ class TestEditGrid:
         json_schema_copy = copy.deepcopy(json_schema)
 
         # Remove the $defs key from both copies if it exists
-        schema_copy.pop('$defs', None)
-        json_schema_copy.pop('$defs', None)
+        schema_copy.pop("$defs", None)
+        json_schema_copy.pop("$defs", None)
 
         # Now compare the modified copies
         assert schema_copy == json_schema_copy
         assert list(editgrid.value) == value
-
 
 
 def test_show_hide_nullable():
