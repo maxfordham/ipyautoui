@@ -258,6 +258,18 @@ class EditGrid(w.VBox, TitleDescription):
             self.ui_copy.layout.display = "None"
 
     @property
+    def json(self):  # HOTFIX: not required if WatchValidate is used
+        return json.dumps(self.value, indent=4)
+
+    @property
+    def transposed(self):
+        return self.grid.transposed
+
+    @transposed.setter
+    def transposed(self, value: bool):
+        self.grid.transposed = value
+
+    @property
     def value(self):
         return self._value
 
@@ -271,24 +283,68 @@ class EditGrid(w.VBox, TitleDescription):
         self.grid.transform(_transforms)  # Set to previous transforms
 
     @property
-    def json(self):  # HOTFIX: not required if WatchValidate is used
-        return json.dumps(self.value, indent=4)
+    def schema(self):
+        return self.grid.schema
 
     @property
-    def transposed(self):
-        return self.grid.transposed
+    def row_schema(self):
+        return self.grid.schema["items"]
 
-    @transposed.setter
-    def transposed(self, value: bool):
-        self.grid.transposed = value
-
-    def _update_value_from_grid(self):
-        self._value = self.grid.records()
+    @property
+    def model(self):
+        return self.grid.model
 
     # TODO: this is a bit of a hack... need to refactor when EditGrid inherits WatchValidate
     @classmethod
     def from_pydantic_model(cls, model: ty.Type[BaseModel], **kwargs):
         return cls(model, **kwargs)
+
+    def __init__(
+        self,
+        schema: ty.Optional[ty.Union[dict, ty.Type[BaseModel]]] = None,
+        value: ty.Optional[list[dict[str, ty.Any]]] = None,
+        by_alias: bool = False,
+        by_title: bool = True,
+        datahandler: ty.Optional[DataHandler] = None,
+        ui_add: ty.Optional[ty.Callable] = None,
+        ui_edit: ty.Optional[ty.Callable] = None,
+        ui_delete: ty.Optional[ty.Callable] = None,
+        ui_copy: ty.Optional[ty.Callable] = None,
+        warn_on_delete: bool = False,
+        show_copy_dialogue: bool = False,
+        close_crud_dialogue_on_action: bool = False,
+        title: str = None,
+        description: str = None,
+        show_title: bool = True,
+        **kwargs,
+    ):  # TODO: use **kwargs to pass attributes to EditGrid as in AutoObject and AutoArray
+        self.kwargs = kwargs
+        self.vbx_error = w.VBox()
+        self.vbx_widget = w.VBox()
+        # TODO: ^ move common container attributes to WatchValidate
+        self.description = description
+        self.title = title
+        self.show_title = show_title
+        self.by_title = by_title
+        self.by_alias = by_alias
+        self.datahandler = datahandler
+
+        self.close_crud_dialogue_on_action = close_crud_dialogue_on_action
+        self._init_autogrid(schema, value, **kwargs)
+        self._init_ui_callables(
+            ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy
+        )
+        self._init_form()
+        self._init_row_controls()
+        self._init_controls()
+        super().__init__()
+        self.warn_on_delete = warn_on_delete
+        # self.show_copy_dialogue = show_copy_dialogue
+        self.show_copy_dialogue = False
+        # ^ TODO: delete this when that functionality is added
+        self._set_children()
+        self._set_datahandler(datahandler=datahandler)
+        self._update_value_from_grid()
 
     def update_from_schema(
         self,
@@ -355,53 +411,6 @@ class EditGrid(w.VBox, TitleDescription):
         self.ui_copy.layout.display = "None"
         self.ui_delete.fn_delete = self._delete_selected
 
-    def __init__(
-        self,
-        schema: ty.Optional[ty.Union[dict, ty.Type[BaseModel]]] = None,
-        value: ty.Optional[list[dict[str, ty.Any]]] = None,
-        by_alias: bool = False,
-        by_title: bool = True,
-        datahandler: ty.Optional[DataHandler] = None,
-        ui_add: ty.Optional[ty.Callable] = None,
-        ui_edit: ty.Optional[ty.Callable] = None,
-        ui_delete: ty.Optional[ty.Callable] = None,
-        ui_copy: ty.Optional[ty.Callable] = None,
-        warn_on_delete: bool = False,
-        show_copy_dialogue: bool = False,
-        close_crud_dialogue_on_action: bool = False,
-        title: str = None,
-        description: str = None,
-        show_title: bool = True,
-        **kwargs,
-    ):  # TODO: use **kwargs to pass attributes to EditGrid as in AutoObject and AutoArray
-        self.kwargs = kwargs
-        self.vbx_error = w.VBox()
-        self.vbx_widget = w.VBox()
-        # TODO: ^ move common container attributes to WatchValidate
-        self.description = description
-        self.title = title
-        self.show_title = show_title
-        self.by_title = by_title
-        self.by_alias = by_alias
-        self.datahandler = datahandler
-
-        self.close_crud_dialogue_on_action = close_crud_dialogue_on_action
-        self._init_autogrid(schema, value, **kwargs)
-        self._init_ui_callables(
-            ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy
-        )
-        self._init_form()
-        self._init_row_controls()
-        self._init_controls()
-        super().__init__()
-        self.warn_on_delete = warn_on_delete
-        # self.show_copy_dialogue = show_copy_dialogue
-        self.show_copy_dialogue = False
-        # ^ TODO: delete this when that functionality is added
-        self._set_children()
-        self._set_datahandler(datahandler=datahandler)
-        self._update_value_from_grid()
-
     def _init_row_controls(self):
         self.ui_edit.show_savebuttonbar = True
         self.ui_edit.savebuttonbar.fns_onsave = [self._patch, self._save_edit_to_grid]
@@ -409,33 +418,6 @@ class EditGrid(w.VBox, TitleDescription):
         self.ui_add.show_savebuttonbar = True
         self.ui_add.savebuttonbar.fns_onsave = [self._post, self._save_add_to_grid]
         self.ui_add.savebuttonbar.fns_onrevert = [self._set_ui_add_to_default_row]
-
-    def _set_datahandler(self, datahandler):
-        self.datahandler = datahandler
-        if self.datahandler is not None:
-            self.buttonbar_grid.fn_reload = self._reload_datahandler
-
-    def _set_children(self):
-        self.vbx_widget.children = [self.buttonbar_grid, self.stk_crud, self.grid]
-        self.stk_crud.children = [
-            self.ui_add,
-            self.ui_edit,
-            self.ui_copy,
-            self.ui_delete,
-        ]
-        self.children = [self.hbx_title_description, self.vbx_widget]
-
-    @property
-    def schema(self):
-        return self.grid.schema
-
-    @property
-    def row_schema(self):
-        return self.grid.schema["items"]
-
-    @property
-    def model(self):
-        return self.grid.model
 
     def _init_form(self):
         get_reload = lambda: (
@@ -458,6 +440,24 @@ class EditGrid(w.VBox, TitleDescription):
         self.buttonbar_grid.observe(self._setview, "active")
         self.grid.observe(self._observe_order, "order")
         self._observe_order(None)  # prompts order if it is set in by grid setter above
+
+    def _update_value_from_grid(self):
+        self._value = self.grid.records()
+
+    def _set_datahandler(self, datahandler):
+        self.datahandler = datahandler
+        if self.datahandler is not None:
+            self.buttonbar_grid.fn_reload = self._reload_datahandler
+
+    def _set_children(self):
+        self.vbx_widget.children = [self.buttonbar_grid, self.stk_crud, self.grid]
+        self.stk_crud.children = [
+            self.ui_add,
+            self.ui_edit,
+            self.ui_copy,
+            self.ui_delete,
+        ]
+        self.children = [self.hbx_title_description, self.vbx_widget]
 
     def _observe_order(self, on_change):
         if "order" in self.ui_add.traits() and self.grid.order is not None:
