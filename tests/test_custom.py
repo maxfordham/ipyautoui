@@ -18,7 +18,7 @@ from ipyautoui.custom.editgrid import AutoGrid, EditGrid
 from ipyautoui.custom.buttonbars import CrudButtonBar
 
 
-DIR_TEST_DATA = DIR_TESTS / "test_data"
+DIR_TEST_DATA = DIR_TESTS / "testdata"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
 shutil.rmtree(DIR_TEST_DATA)
 # ^ remove previous data. this allows tests to check if files exist.
