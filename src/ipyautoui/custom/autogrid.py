@@ -638,8 +638,8 @@ class AutoGrid(DataGrid):
             self.global_decimal_places = self.gridschema.datagrid_traits[
                 "global_decimal_places"
             ]
-        self.count_changes == 0
-        # ^ this sets the default value and initiates change observer
+        assert isinstance(self.count_changes, int) 
+        # ^ this sets the default value and initiates trait change observer in `datagrid.py`
         if order is not None:
             self.order = order
 

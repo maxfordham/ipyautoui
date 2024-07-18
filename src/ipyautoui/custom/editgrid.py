@@ -318,7 +318,6 @@ class EditGrid(w.VBox, TitleDescription):
         show_title: bool = True,
         **kwargs,
     ):  # TODO: use **kwargs to pass attributes to EditGrid as in AutoObject and AutoArray
-        self.kwargs = kwargs
         self.vbx_error = w.VBox()
         self.vbx_widget = w.VBox()
         # TODO: ^ move common container attributes to WatchValidate
