@@ -1,4 +1,5 @@
 import pytest
+import jsonref
 import pandas as pd
 import typing as ty
 from datetime import datetime
@@ -10,7 +11,7 @@ from ipyautoui.demo_schemas.editable_datagrid import EditableGrid, DATAGRID_TEST
 
 from .constants import DIR_TESTS
 
-DIR_TEST_DATA = DIR_TESTS / "test_data"
+DIR_TEST_DATA = DIR_TESTS / "testdata"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
 
 
@@ -731,3 +732,36 @@ class TestAutoGrid:
         assert grid.records() == [{"floater": 2.5, "string": "test"}]
         grid.order = ("floater",)
         assert grid.records() == [{"floater": 2.5}]
+
+    def test_update_from_schema(self):
+        autogrid = AutoGrid()
+
+        class DataFrameCols(BaseModel):
+            string: str = Field(
+                "string", json_schema_extra=dict(column_width=400, section="a")
+            )
+
+        class TestDataFrame(RootModel):
+            """a description of TestDataFrame"""
+
+            root: ty.List[DataFrameCols] = Field(
+                json_schema_extra=dict(
+                    format="dataframe", datagrid_index_name=("section", "title")
+                ),
+            )
+
+        autogrid.update_from_schema(
+            schema=TestDataFrame.model_json_schema(),
+            data=pd.DataFrame([{"string": "Test"}] * 10),
+        )
+        json_schema = jsonref.replace_refs(TestDataFrame.model_json_schema())
+        import copy
+
+        # Make deep copies to avoid modifying the original dictionaries
+        schema_copy = copy.deepcopy(autogrid.schema)
+        json_schema_copy = copy.deepcopy(json_schema)
+        # Remove the $defs key from both copies if it exists
+        schema_copy.pop("$defs", None)
+        json_schema_copy.pop("$defs", None)
+        # Now compare the modified copies
+        assert schema_copy == json_schema_copy
