@@ -291,36 +291,45 @@ class EditGrid(w.VBox, TitleDescription):
         return cls(model, **kwargs)
 
     def update_from_schema(
-        self, 
-        schema: ty.Union[dict, ty.Type[BaseModel]], 
+        self,
+        schema: ty.Optional[ty.Union[dict, ty.Type[BaseModel]]] = None,
         value: ty.Optional[list[dict[str, ty.Any]]] = None,
         datahandler: ty.Optional[DataHandler] = None,
         ui_add: ty.Optional[ty.Callable] = None,
         ui_edit: ty.Optional[ty.Callable] = None,
         ui_delete: ty.Optional[ty.Callable] = None,
         ui_copy: ty.Optional[ty.Callable] = None,
+        **kwargs,
     ):
-        self._init_autogrid(schema, value)
-        self._init_ui_callables(ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy)
+        getvalue = lambda value: (
+            None if value is None or value == [{}] else pd.DataFrame(value)
+        )
+        self.grid.update_from_schema(
+            schema, data=getvalue(value), by_alias=self.by_alias, **kwargs
+        )
+        self._init_ui_callables(
+            ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy
+        )
         self._init_row_controls()
         self._init_controls()
         self._set_children()
         self._set_datahandler(datahandler=datahandler)
 
     def _init_autogrid(
-        self, 
-        schema: ty.Union[dict, ty.Type[BaseModel]], 
-        value: ty.Optional[list[dict[str, ty.Any]]]
+        self,
+        schema: ty.Union[dict, ty.Type[BaseModel]],
+        value: ty.Optional[list[dict[str, ty.Any]]],
+        **kwargs,
     ):
         getvalue = lambda value: (
             None if value is None or value == [{}] else pd.DataFrame(value)
         )
         self.grid = AutoGrid(
-            schema, data=getvalue(value), by_alias=self.by_alias, **self.kwargs
+            schema, data=getvalue(value), by_alias=self.by_alias, **kwargs
         )
 
     def _init_ui_callables(
-        self, 
+        self,
         ui_add: ty.Optional[ty.Callable] = None,
         ui_edit: ty.Optional[ty.Callable] = None,
         ui_delete: ty.Optional[ty.Callable] = None,
@@ -329,26 +338,26 @@ class EditGrid(w.VBox, TitleDescription):
         if ui_add is None:
             self.ui_add = AutoObjectForm.from_jsonschema(self.row_schema)
         else:
-            self.ui_add = self.ui_add.from_jsonschema(self.row_schema)
+            self.ui_add = ui_add.from_jsonschema(self.row_schema)
         if ui_edit is None:
             self.ui_edit = AutoObjectForm.from_jsonschema(self.row_schema)
         else:
-            self.ui_edit = self.ui_edit.from_jsonschema(self.row_schema)
+            self.ui_edit = ui_edit.from_jsonschema(self.row_schema)
         if ui_delete is None:
             self.ui_delete = UiDelete()
         else:
-            self.ui_delete = self.ui_delete()
+            self.ui_delete = ui_delete()
         self.ui_delete.layout.display = "None"
         if ui_copy is None:
             self.ui_copy = UiCopy()
         else:
-            self.ui_copy = self.ui_copy()
+            self.ui_copy = ui_copy()
         self.ui_copy.layout.display = "None"
         self.ui_delete.fn_delete = self._delete_selected
-    
+
     def __init__(
         self,
-        schema: ty.Union[dict, ty.Type[BaseModel]],
+        schema: ty.Optional[ty.Union[dict, ty.Type[BaseModel]]] = None,
         value: ty.Optional[list[dict[str, ty.Any]]] = None,
         by_alias: bool = False,
         by_title: bool = True,
@@ -375,10 +384,12 @@ class EditGrid(w.VBox, TitleDescription):
         self.by_title = by_title
         self.by_alias = by_alias
         self.datahandler = datahandler
-        
+
         self.close_crud_dialogue_on_action = close_crud_dialogue_on_action
-        self._init_autogrid(schema, value)
-        self._init_ui_callables(ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy)
+        self._init_autogrid(schema, value, **kwargs)
+        self._init_ui_callables(
+            ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy
+        )
         self._init_form()
         self._init_row_controls()
         self._init_controls()
@@ -406,7 +417,12 @@ class EditGrid(w.VBox, TitleDescription):
 
     def _set_children(self):
         self.vbx_widget.children = [self.buttonbar_grid, self.stk_crud, self.grid]
-        self.stk_crud.children = [self.ui_add, self.ui_edit, self.ui_copy, self.ui_delete]
+        self.stk_crud.children = [
+            self.ui_add,
+            self.ui_edit,
+            self.ui_copy,
+            self.ui_delete,
+        ]
         self.children = [self.hbx_title_description, self.vbx_widget]
 
     @property
@@ -706,21 +722,22 @@ if __name__ == "__main__":
     display(editgrid)
 
 if __name__ == "__main__":
+
     class DataFrameCols(BaseModel):
         string: str = Field(
             "string", json_schema_extra=dict(column_width=400, section="a")
         )
-    
-    
+
     class TestDataFrame(RootModel):
         """a description of TestDataFrame"""
-    
+
         root: ty.List[DataFrameCols] = Field(
             json_schema_extra=dict(
                 format="dataframe", datagrid_index_name=("section", "title")
             ),
         )
-    editgrid._update_from_schema(TestDataFrame, value=[{"string": "Test"}]*10)
+
+    editgrid._update_from_schema(TestDataFrame, value=[{"string": "Test"}] * 10)
 
 if __name__ == "__main__":
     from pydantic import RootModel

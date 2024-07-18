@@ -34,8 +34,14 @@ logger = logging.getLogger(__name__)
 
 
 def _init_model_schema(
-    schema, by_alias=False
+    schema=None, by_alias=False
 ) -> tuple[ty.Optional[ty.Type[BaseModel]], dict]:
+    if schema is None:
+        return None, {
+            "format": "dataframe",
+            "type": "array",
+            "items": {"properties": {}},
+        }
     if isinstance(schema, dict):
         model = None  # jsonschema_to_pydantic(schema)
         # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM

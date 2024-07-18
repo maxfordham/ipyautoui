@@ -514,17 +514,31 @@ class AutoGrid(DataGrid):
 
     """
 
-    schema = tr.Dict()  # TODO: deprecate / make optional...
+    schema = tr.Dict(default_value=None, allow_none=True)
     order = tr.Tuple(default_value=None, allow_none=True)
     datagrid_index_name = tr.Union(trait_types=[tr.Unicode(), tr.Tuple()])
 
-    # @classmethod
-    # def from_schema(cls, schema, value=None):
-    #     return from_schema_method(cls, schema, value=value)
-
     @tr.observe("schema")
-    def _update_from_schema(self, change):
+    def _set_gridschema(self, onchange):
         self.gridschema = GridSchema(self.schema, **self.kwargs)
+
+    def update_from_schema(
+        self,
+        schema: ty.Optional[ty.Union[dict, ty.Type[BaseModel]]] = None,
+        data: ty.Optional[pd.DataFrame] = None,
+        by_alias: bool = False,
+        by_title: bool = True,
+        order: ty.Optional[tuple] = None,
+        **kwargs,
+    ):
+        self.__init__(
+            schema=schema,
+            data=data,
+            by_alias=by_alias,
+            by_title=by_title,
+            order=order,
+            **kwargs,
+        )
 
     @tr.validate("schema")
     def _valid_schema(self, proposal):
@@ -600,7 +614,7 @@ class AutoGrid(DataGrid):
 
     def __init__(
         self,
-        schema: ty.Union[dict, ty.Type[BaseModel]],
+        schema: ty.Optional[ty.Union[dict, ty.Type[BaseModel]]] = None,
         data: ty.Optional[pd.DataFrame] = None,
         by_alias: bool = False,
         by_title: bool = True,
@@ -624,7 +638,7 @@ class AutoGrid(DataGrid):
             self.global_decimal_places = self.gridschema.datagrid_traits[
                 "global_decimal_places"
             ]
-        assert self.count_changes == 0
+        self.count_changes == 0
         # ^ this sets the default value and initiates change observer
         if order is not None:
             self.order = order
