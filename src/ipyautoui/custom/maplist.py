@@ -64,6 +64,7 @@ class MapList(w.HBox):
         self._value = dict(zip(self.inputs, [c.value for c in self.vbx_map.children]))
         
 if __name__ == "__main__":
+    from IPython.display import display
     ui = MapList(
         inputs = list("abcd"), 
         options=list("abcd"), 
