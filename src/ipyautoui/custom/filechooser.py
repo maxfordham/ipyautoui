@@ -59,10 +59,10 @@ class FileChooser(FileChooser):
     def value(self, value: ty.Union[str, pathlib.Path]):
         """having the setter allows users to pass a new value field to the class which also updates the
         `selected` argument used by FileChooser"""
-        self._value = str(value)
-        p = pathlib.Path(self.value)
+        value = str(value)
+        p = pathlib.Path(value)
         if p.is_dir():
-            self.reset(self.value, "")
+            self.reset(value, "")
         elif p.is_file():
             self.reset(p.parent, p.name)
         elif p.parent.is_dir():
@@ -70,6 +70,7 @@ class FileChooser(FileChooser):
         else:
             raise ValueError(f"{str(p)} not a valid path or dir")
         self._apply_selection()
+        self._value = value
 
     def __init__(
         self,
