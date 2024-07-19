@@ -1,7 +1,9 @@
 import pytest
+import jsonref
 import pandas as pd
-from pydantic import BaseModel, Field, RootModel
 import typing as ty
+from datetime import datetime
+from pydantic import BaseModel, Field, RootModel
 
 from ipyautoui.custom.autogrid import AutoGrid, GridSchema
 from ipyautoui.automapschema import _init_model_schema
@@ -9,14 +11,8 @@ from ipyautoui.demo_schemas.editable_datagrid import EditableGrid, DATAGRID_TEST
 
 from .constants import DIR_TESTS
 
-DIR_TEST_DATA = DIR_TESTS / "test_data"
+DIR_TEST_DATA = DIR_TESTS / "testdata"
 DIR_TEST_DATA.mkdir(parents=True, exist_ok=True)
-
-
-# def test_get_visible_data():
-#     agr = AutoGrid(schema=EditableGrid, data = pd.DataFrame(DATAGRID_TEST_VALUE*2))
-
-#     print("done")
 
 
 class TestGridSchema:
@@ -309,6 +305,35 @@ class TestGridSchema:
                 "properties"
             ].values()
         ]
+
+    def test_coerce_data_set_default_values(self):
+        class Test(BaseModel):
+            text: str = ""
+            number: float
+            integer: int = 1
+            boolean: bool = True
+            optional_string: ty.Optional[str] = None
+            date_time: datetime = datetime(2020, 1, 1)
+            dictionary: dict = {"test": "test"}
+            array: list = ["test", "test again"]
+
+        class TestDataFrame(RootModel):
+            root: ty.List[Test] = Field(format="dataframe")
+
+        model, schema = _init_model_schema(TestDataFrame)
+        gridschema = GridSchema(schema)
+        data = gridschema.coerce_data(pd.DataFrame([{"number": 2}]))
+        assert data.loc[0, "Text"] == ""  # default value should be set
+        assert data.loc[0, "Integer"] == 1
+        assert data.loc[0, "Array"] == [
+            "test",
+            "test again",
+        ]  # default value should be set
+        assert data.loc[0, "Dictionary"] == {"test": "test"}
+        assert data.loc[0, "Date Time"] == "2020-01-01T00:00:00"
+        assert data.loc[0, "Boolean"] == True
+        assert pd.isna(data.loc[0, "Optional String"])
+        assert data.loc[0, "Number"] == 2  # value passed should be set
 
     def test_grid_types(self):
         class TestProperties(BaseModel):
@@ -707,3 +732,36 @@ class TestAutoGrid:
         assert grid.records() == [{"floater": 2.5, "string": "test"}]
         grid.order = ("floater",)
         assert grid.records() == [{"floater": 2.5}]
+
+    def test_update_from_schema(self):
+        autogrid = AutoGrid()
+
+        class DataFrameCols(BaseModel):
+            string: str = Field(
+                "string", json_schema_extra=dict(column_width=400, section="a")
+            )
+
+        class TestDataFrame(RootModel):
+            """a description of TestDataFrame"""
+
+            root: ty.List[DataFrameCols] = Field(
+                json_schema_extra=dict(
+                    format="dataframe", datagrid_index_name=("section", "title")
+                ),
+            )
+
+        autogrid.update_from_schema(
+            schema=TestDataFrame.model_json_schema(),
+            data=pd.DataFrame([{"string": "Test"}] * 10),
+        )
+        json_schema = jsonref.replace_refs(TestDataFrame.model_json_schema())
+        import copy
+
+        # Make deep copies to avoid modifying the original dictionaries
+        schema_copy = copy.deepcopy(autogrid.schema)
+        json_schema_copy = copy.deepcopy(json_schema)
+        # Remove the $defs key from both copies if it exists
+        schema_copy.pop("$defs", None)
+        json_schema_copy.pop("$defs", None)
+        # Now compare the modified copies
+        assert schema_copy == json_schema_copy

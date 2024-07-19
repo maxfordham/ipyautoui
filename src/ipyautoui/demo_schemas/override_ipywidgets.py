@@ -12,6 +12,13 @@ class OverrideIpywidgets(BaseModel):
         default="asd",
         json_schema_extra=dict(enum=["asd", "asdf"], autoui="ipywidgets.Combobox"),
     )
+    combobox_mapped: str = Field(
+        default="asd",
+        json_schema_extra=dict(
+            options={"ASD": "asd", "ASDF": "asdf"},
+            autoui="ipyautoui.custom.combobox_mapped.ComboboxMapped",
+        ),
+    )
     toggle: bool = Field(
         default=True,
         title="Toggle Button",

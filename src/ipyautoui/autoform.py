@@ -54,8 +54,13 @@ class ShowNull(tr.HasTraits):
 
     def show_hide_bn_nullable(self):
         """Set display of show null button based on if any nullable widgets are found."""
-        if self.check_for_nullables():  # check_for_nullables is defined in AutoObject
-            self.display_bn_shownull = True
+        if hasattr(self, "check_for_nullables"):
+            if (
+                self.check_for_nullables()
+            ):  # check_for_nullables is defined in AutoObject
+                self.display_bn_shownull = True
+            else:
+                self.display_bn_shownull = False
         else:
             self.display_bn_shownull = False
 

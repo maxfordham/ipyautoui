@@ -84,12 +84,14 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
             with self.hold_trait_notifications():
                 # these means that change events will be squashed
                 # and trigger after all widgets have changed
-                self._value = value
+                if isinstance(value, dict):
+                    self._value = self._value | value
+                else:
+                    self._value = value
                 # NOTE: it is required to set the whole "_value" otherwise
                 #       traitlets doesn't register the change.
                 with self.silence_autoui_traits():
                     self._update_widgets_from_value()
-                pass
 
     @property
     def json(self):

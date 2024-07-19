@@ -369,7 +369,8 @@ def traits_in_kwargs(call: ty.Callable, kwargs: dict):
         logger.info(f"{call.__name__} does not have traits attribute")
         return {}
     else:
-        return {k: v for k, v in kwargs.items() if k in list(call.traits(call).keys())}
+        li = list(call.traits(call).keys())
+        return {k: v for k, v in kwargs.items() if k in li or f"_{k}" in li}
 
 
 def remove_non_present_kwargs(callable_: ty.Callable, di: dict):

@@ -420,6 +420,19 @@ class GridSchema:
                 drop = [l for l in col_names if l not in self.get_order_titles(order)]
             return data.drop(drop, axis=1)
 
+        def fill_with_default(col):
+            default_value = self._get_default_row().get(col.name)
+            if default_value is None:
+                return col
+            else:
+                return col.apply(
+                    lambda x: (
+                        default_value
+                        if (pd.isna(x).all() if isinstance(x, list) else pd.isna(x))
+                        else x
+                    )
+                )
+
         if order is None:
             order = self.default_order
 
@@ -432,10 +445,9 @@ class GridSchema:
 
         if len(col_names) < len(order):
             # add missing columns
-            data = data.reindex(
-                columns=order,
-                # fill_value=self._get_default_row(),  # TODO: check this.
-            )
+            data = data.reindex(columns=order)
+
+        data = data.apply(fill_with_default)
 
         # map column names to outward facing names
         if bykeys:
@@ -502,17 +514,31 @@ class AutoGrid(DataGrid):
 
     """
 
-    schema = tr.Dict()  # TODO: deprecate / make optional...
+    schema = tr.Dict(default_value=None, allow_none=True)
     order = tr.Tuple(default_value=None, allow_none=True)
     datagrid_index_name = tr.Union(trait_types=[tr.Unicode(), tr.Tuple()])
 
-    # @classmethod
-    # def from_schema(cls, schema, value=None):
-    #     return from_schema_method(cls, schema, value=value)
-
     @tr.observe("schema")
-    def _update_from_schema(self, change):
+    def _set_gridschema(self, onchange):
         self.gridschema = GridSchema(self.schema, **self.kwargs)
+
+    def update_from_schema(
+        self,
+        schema: ty.Optional[ty.Union[dict, ty.Type[BaseModel]]] = None,
+        data: ty.Optional[pd.DataFrame] = None,
+        by_alias: bool = False,
+        by_title: bool = True,
+        order: ty.Optional[tuple] = None,
+        **kwargs,
+    ):
+        self.__init__(
+            schema=schema,
+            data=data,
+            by_alias=by_alias,
+            by_title=by_title,
+            order=order,
+            **kwargs,
+        )
 
     @tr.validate("schema")
     def _valid_schema(self, proposal):
@@ -588,7 +614,7 @@ class AutoGrid(DataGrid):
 
     def __init__(
         self,
-        schema: ty.Union[dict, ty.Type[BaseModel]],
+        schema: ty.Optional[ty.Union[dict, ty.Type[BaseModel]]] = None,
         data: ty.Optional[pd.DataFrame] = None,
         by_alias: bool = False,
         by_title: bool = True,
@@ -612,8 +638,8 @@ class AutoGrid(DataGrid):
             self.global_decimal_places = self.gridschema.datagrid_traits[
                 "global_decimal_places"
             ]
-        assert self.count_changes == 0
-        # ^ this sets the default value and initiates change observer
+        assert isinstance(self.count_changes, int)
+        # ^ this sets the default value and initiates trait change observer in `datagrid.py`
         if order is not None:
             self.order = order
 
