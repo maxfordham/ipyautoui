@@ -341,7 +341,10 @@ def display_ui_tooltips(uiobj: w.DOMWidget) -> w.VBox:
                     li.append(v)
         except Exception as err:
             logging.warning(err)
-    return w.VBox([w.HBox([l, w.HTML(f"<i>{l.tooltip}</i>")]) for l in li])
+    replace_newlines = lambda x: x.replace("\n", "<br>")
+    return w.VBox(
+        [w.HBox([l, w.HTML(f"<i>{replace_newlines(l.tooltip)}</i>")]) for l in li]
+    )
 
 
 class CrudButtonBar(w.VBox):  # w.HBox
@@ -511,5 +514,3 @@ if __name__ == "__main__":
         fn_reload=lambda: print("fn_reload"),
     )
     display(buttonbar)
-
-
