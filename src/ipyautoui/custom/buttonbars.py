@@ -320,6 +320,7 @@ DEFAULT_BUTTONBAR_CONFIG = CrudView(
     ),
     support=CrudOptions(
         **dict(HELP_BUTTON_KWARGS)
+        | dict(layout=dict(display="None"))
         | dict(
             tooltip="help - click to show description of all buttons in the toolbar",
             tooltip_clicked="hide help dialogue",
@@ -355,7 +356,15 @@ class CrudButtonBar(w.VBox):  # w.HBox
     fn_backward = tr.Callable(default_value=lambda: print("backward"))
     fn_support = tr.Callable(default_value=lambda: print("support"))
     fn_reload = tr.Callable(default_value=None, allow_none=True)
-    show_support = tr.Bool(default_value=True)
+    show_support = tr.Bool(default_value=False)
+
+    @tr.observe("show_support")
+    def _observe_show_support(self, change):
+        print(change)
+        if change["new"]:
+            self.support.layout.display = ""
+        else:
+            self.support.layout.display = "None"
 
     @tr.observe("fn_reload")
     def _observe_fn_reload(self, change):
@@ -376,7 +385,6 @@ class CrudButtonBar(w.VBox):  # w.HBox
             return list(self.crud_view.keys()).index(self.active)
 
     def _fn_support(self):
-
         with self.out:
             clear_output()
             display(display_ui_tooltips(self))
@@ -404,13 +412,13 @@ class CrudButtonBar(w.VBox):  # w.HBox
         self._init_controls()
 
     def _init_form(self):
-        # self.transpose w.ToggleButton(icon="arrow-right")
-        self.add = w.ToggleButton(**ADD_BUTTON_KWARGS)
-        self.edit = w.ToggleButton(**EDIT_BUTTON_KWARGS)
-        self.copy = w.ToggleButton(**COPY_BUTTON_KWARGS)
-        self.delete = w.ToggleButton(**DELETE_BUTTON_KWARGS)
-        self.reload = w.Button(**RELOAD_BUTTON_KWARGS)
-        self.support = w.ToggleButton(**HELP_BUTTON_KWARGS)
+        self.add = w.ToggleButton()
+        self.edit = w.ToggleButton()
+        self.copy = w.ToggleButton()
+        self.delete = w.ToggleButton()
+        self.reload = w.Button()
+        self.support = w.ToggleButton()
+        # ^ KWARGS for the buttons are set by CrudView
         self.message = w.HTML()
         self._set_crud_view_options()
 
@@ -506,3 +514,5 @@ if __name__ == "__main__":
         fn_reload=lambda: print("fn_reload"),
     )
     display(buttonbar)
+
+
