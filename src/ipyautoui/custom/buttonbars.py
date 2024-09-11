@@ -331,8 +331,8 @@ DEFAULT_BUTTONBAR_CONFIG = CrudView(
 
 
 # +
-def display_ui_tooltips(uiobj):
-    """pass a ui object and display all items that contain tooltips with the tooltips exposed. NOT IN USE"""
+def display_ui_tooltips(uiobj: w.DOMWidget) -> w.VBox:
+    """Pass a UI object and display all widgets within it with their tooltips."""
     li = []
     for _, v in uiobj.__dict__.items():
         try:
