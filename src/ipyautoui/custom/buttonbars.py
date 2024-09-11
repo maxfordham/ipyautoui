@@ -334,15 +334,13 @@ DEFAULT_BUTTONBAR_CONFIG = CrudView(
 def display_ui_tooltips(uiobj):
     """pass a ui object and display all items that contain tooltips with the tooltips exposed. NOT IN USE"""
     li = []
-    for k, v in uiobj.__dict__.items():
+    for _, v in uiobj.__dict__.items():
         try:
             if "tooltip" in v.__dict__["_trait_values"]:
                 if v.tooltip is not None:
                     li.append(v)
-            else:
-                pass
-        except:
-            pass
+        except Exception as err:
+            logging.warning(err)
     return w.VBox([w.HBox([l, w.HTML(f"<i>{l.tooltip}</i>")]) for l in li])
 
 
