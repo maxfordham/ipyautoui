@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -14,9 +14,6 @@
 # ---
 
 # +
-# %run ../_dev_maplocal_params.py
-
-
 import ipywidgets as w
 import traitlets as tr
 import typing as ty
@@ -28,9 +25,9 @@ from ipyautoui.constants import (
     COPY_BUTTON_KWARGS,
     DELETE_BUTTON_KWARGS,
     RELOAD_BUTTON_KWARGS,
+    HELP_BUTTON_KWARGS
 )
-
-from IPython.display import display
+from IPython.display import display, clear_output
 from datetime import datetime
 import logging
 from enum import Enum
@@ -272,40 +269,66 @@ class CrudView(ty.TypedDict):
     edit: CrudOptions
     copy: CrudOptions
     delete: CrudOptions
+    reload: CrudOptions
 
 
 DEFAULT_BUTTONBAR_CONFIG = CrudView(
-    add=CrudOptions(
+    add=CrudOptions(**dict(ADD_BUTTON_KWARGS) | dict(
         tooltip="Add item",
         tooltip_clicked="Go back to table",
         button_style="success",
         message="➕ <i>Adding Value</i>",
-    ),
-    edit=CrudOptions(
+    )),
+    edit=CrudOptions(**dict(EDIT_BUTTON_KWARGS) | dict(
         tooltip="Edit item",
         tooltip_clicked="Go back to table",
         button_style="warning",
         message="✏️ <i>Editing Value</i>",
-    ),
-    copy=CrudOptions(
+    )),
+    copy=CrudOptions(**dict(COPY_BUTTON_KWARGS) | dict(
         tooltip="Copy item",
         tooltip_clicked="Go back to table",
         button_style="primary",
         message="📝 <i>Copying Value</i>",
-    ),
-    delete=CrudOptions(
+    )),
+    delete=CrudOptions(**dict(DELETE_BUTTON_KWARGS) | dict(
         tooltip="Delete item",
         tooltip_clicked="Go back to table",
         button_style="danger",
         message="🗑️ <i>Deleting Value</i>",
-    ),
+    )),
+    reload=CrudOptions(**dict(RELOAD_BUTTON_KWARGS) | dict(
+        tooltip="reload data",
+        tooltip_clicked="",
+        button_style="info",
+        message="♻ <i>reloading data|</i>",
+    )),
+    support=CrudOptions(**dict(HELP_BUTTON_KWARGS) | dict(
+        tooltip="help - click to show description of all buttons in the toolbar",
+        tooltip_clicked="hide help dialogue",
+        message="❔ <i>Help Selected</i>",
+    )),
 )
 
 
-# -
+# +
+def display_ui_tooltips(uiobj):
+    """pass a ui object and display all items that contain tooltips with the tooltips exposed. NOT IN USE"""
+    li = []
+    for k, v in uiobj.__dict__.items():
+        try:
+            if "tooltip" in v.__dict__["_trait_values"]:
+                if v.tooltip is not None:
+                    li.append(v)
+            else:
+                pass
+        except:
+            pass
+    return w.VBox(
+        [w.HBox([l, w.HTML(f"<i>{l.tooltip}</i>")]) for l in li]
+    )
 
-
-class CrudButtonBar(w.HBox):
+class CrudButtonBar(w.VBox): # w.HBox
     active = tr.Unicode(default_value=None, allow_none=True)
     crud_view = tr.Dict(default_value=DEFAULT_BUTTONBAR_CONFIG)
     fn_add = tr.Callable(default_value=lambda: print("add"))
@@ -313,7 +336,9 @@ class CrudButtonBar(w.HBox):
     fn_copy = tr.Callable(default_value=lambda: print("copy"))
     fn_delete = tr.Callable(default_value=lambda: print("delete"))
     fn_backward = tr.Callable(default_value=lambda: print("backward"))
+    fn_support = tr.Callable(default_value=lambda: print("support"))
     fn_reload = tr.Callable(default_value=None, allow_none=True)
+    show_support = tr.Bool(default_value=True)
 
     @tr.observe("fn_reload")
     def _observe_fn_reload(self, change):
@@ -333,21 +358,31 @@ class CrudButtonBar(w.HBox):
         else:
             return list(self.crud_view.keys()).index(self.active)
 
+    def _fn_support(self):
+        
+        with self.out:
+            clear_output()
+            display(display_ui_tooltips(self))
+            
+
     def __init__(
         self,
         **kwargs,
     ):
         self._init_form()
         super().__init__(**kwargs)  # main container
+        self.fn_support = self._fn_support
         self.out = w.Output()
-        self.children = [
+        self.hbx_bbar = w.HBox([
             self.add,
             self.edit,
             self.copy,
             self.delete,
             self.reload,
+            self.support,
             self.message,
-        ]
+        ])
+        self.children = [self.hbx_bbar, self.out]
         self._init_controls()
 
     def _init_form(self):
@@ -357,7 +392,7 @@ class CrudButtonBar(w.HBox):
         self.copy = w.ToggleButton(**COPY_BUTTON_KWARGS)
         self.delete = w.ToggleButton(**DELETE_BUTTON_KWARGS)
         self.reload = w.Button(**RELOAD_BUTTON_KWARGS)
-        self.reload.layout.display = "None"
+        self.support = w.ToggleButton(**HELP_BUTTON_KWARGS)
         self.message = w.HTML()
         self._set_crud_view_options()
 
@@ -366,24 +401,27 @@ class CrudButtonBar(w.HBox):
         self.edit.observe(self._edit, "value")
         self.copy.observe(self._copy, "value")
         self.delete.observe(self._delete, "value")
+        self.support.observe(self._support, "value")
         self.reload.on_click(self._reload)
 
     def _onclick(self, button_name):
-        w = getattr(self, button_name)
+        wi = getattr(self, button_name)
         fn = getattr(self, ("fn_" + button_name))
-        if w.value:
+        if wi.value:
             self.reset_toggles_except(button_name)
             self.active = button_name
-            w.tooltip = self.crud_view[button_name]["tooltip_clicked"]
-            w.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
+            wi.tooltip = self.crud_view[button_name]["tooltip_clicked"]
+            wi.layout.border = TOGGLEBUTTON_ONCLICK_BORDER_LAYOUT
             self.message.value = self.crud_view[button_name]["message"]
             fn()
         else:
             self.active = None
-            w.tooltip = self.crud_view[button_name]["tooltip"]
-            w.layout.border = None
+            wi.tooltip = self.crud_view[button_name]["tooltip"]
+            wi.layout.border = None
             self.message.value = ""
             self.fn_backward()
+            with self.out:
+                clear_output()
 
     def _add(self, onchange):
         self._onclick("add")
@@ -396,6 +434,13 @@ class CrudButtonBar(w.HBox):
 
     def _delete(self, onchange):
         self._onclick("delete")
+
+    def _support(self, onchange):
+        self._onclick("support")
+
+    def _reload(self, on_click):
+        logger.info("Reloading all data")
+        self.fn_reload()
 
     def _set_crud_view_options(self):
         for button_name in self.crud_view.keys():
@@ -414,10 +459,8 @@ class CrudButtonBar(w.HBox):
         for n in names:
             setattr(getattr(self, n), "value", False)
 
-    def _reload(self, on_click):
-        logger.info("Reloading all data")
-        self.fn_reload()
 
+# -
 
 if __name__ == "__main__":
 
@@ -444,5 +487,6 @@ if __name__ == "__main__":
         fn_backward=backward,
         fn_reload=lambda: print("fn_reload"),
     )
-
     display(buttonbar)
+
+
