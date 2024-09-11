@@ -480,6 +480,8 @@ class EditGrid(w.VBox, TitleDescription):
     def _setview(self, onchange):
         if self.buttonbar_grid.active is None:
             self.stk_crud.selected_index = None
+        elif self.buttonbar_grid.active == "support":
+            self.stk_crud.selected_index = None
         else:
             self.stk_crud.selected_index = self.buttonbar_grid.active_index
 

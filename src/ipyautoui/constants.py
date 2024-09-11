@@ -140,6 +140,13 @@ BLANK_BUTTON_KWARGS = frozenmap(
     layout={"width": BUTTON_WIDTH_MIN, "height": BUTTON_HEIGHT_MIN},
     disabled=True,
 )
+HELP_BUTTON_KWARGS = frozenmap(
+    icon="question",
+    style={},
+    # button_style="primary",
+    tooltip="help",
+    layout={"width": BUTTON_WIDTH_MIN},  # , "height": BUTTON_HEIGHT_MIN
+)
 
 DOWNARROW_BUTTON_KWARGS = frozenmap(
     icon="arrow-down",
