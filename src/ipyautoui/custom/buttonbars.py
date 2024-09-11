@@ -347,7 +347,7 @@ def display_ui_tooltips(uiobj: w.DOMWidget) -> w.VBox:
     )
 
 
-class CrudButtonBar(w.VBox):  # w.HBox
+class CrudButtonBar(w.VBox):
     active = tr.Unicode(default_value=None, allow_none=True)
     crud_view = tr.Dict(default_value=DEFAULT_BUTTONBAR_CONFIG)
     fn_add = tr.Callable(default_value=lambda: print("add"))
