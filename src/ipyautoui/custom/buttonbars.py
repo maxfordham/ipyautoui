@@ -358,7 +358,6 @@ class CrudButtonBar(w.VBox):  # w.HBox
 
     @tr.observe("show_support")
     def _observe_show_support(self, change):
-        print(change)
         if change["new"]:
             self.support.layout.display = ""
         else:
