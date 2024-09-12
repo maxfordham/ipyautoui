@@ -22,13 +22,14 @@ dependencies:
   - halo # optional
   - plotly # optional
   - jupyter-book # for docs
-  - sphinx # for docs
+  - sphinx<5.0 # for docs
   - sphinx-book-theme # for docs
   - sphinx-autoapi
   - autodoc-pydantic # for docs
   - nbsphinx-link
   - sphinxcontrib-mermaid
   - sphinx-panels
+  - sphinxcontrib-serializinghtml==1.1.5  # Can remove once updated to sphinx>=5.0
   - nbclient>=0.7.4
   - pip
   - pip:

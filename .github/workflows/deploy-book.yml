@@ -11,6 +11,9 @@ on:
     #
     # paths:
     # - some-subfolder/**
+  pull_request:
+    branches:
+    - main
     
 env:
   CACHE_NUMBER: 1  # increase to reset cache manually
