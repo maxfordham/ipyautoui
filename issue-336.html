@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>AutoDisplay &#8212; ipyautoui</title>
+    <title>&lt;no title&gt; &#8212; ipyautoui</title>
   
   
   
@@ -60,12 +60,10 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="_static/sphinx-thebe.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'autodisplay';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'issue-336';</script>
     <link rel="shortcut icon" href="_static/favicon.png"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Custom Renderers" href="custom-renderers.html" />
-    <link rel="prev" title="AutoVjsf" href="autovuetify.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="None"/>
   </head>
@@ -156,11 +154,11 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <ul class="current nav bd-sidenav">
+        <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="demo.html">demo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="autoui.html">AutoUi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="autovuetify.html">AutoVjsf</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">AutoDisplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodisplay.html">AutoDisplay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="custom-renderers.html">Custom Renderers</a></li>
 </ul>
 
@@ -233,7 +231,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/jgunstone/ipyautoui/issues/new?title=Issue%20on%20page%20%2Fautodisplay.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/jgunstone/ipyautoui/issues/new?title=Issue%20on%20page%20%2Fissue-336.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -263,7 +261,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="_sources/autodisplay.ipynb" target="_blank"
+      <li><a href="_sources/issue-336.ipynb" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -345,7 +343,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>AutoDisplay</h1>
+    <h1><no title></h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -354,10 +352,9 @@ document.write(`
                 <h2> Contents </h2>
             </div>
             <nav aria-label="Page">
-                <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#render-a-list-of-files">Render a list of files</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-custom-renderer">Create a custom renderer</a></li>
+                <ul class="simple visible nav section-nav flex-column">
 </ul>
+
             </nav>
         </div>
     </div>
@@ -368,81 +365,43 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="autodisplay">
-<h1>AutoDisplay<a class="headerlink" href="#autodisplay" title="Permalink to this headline">#</a></h1>
-<section id="render-a-list-of-files">
-<h2>Render a list of files<a class="headerlink" href="#render-a-list-of-files" title="Permalink to this headline">#</a></h2>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>the demo requires a python kernel to run. Try on Binder <a class="reference external" href="https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD?urlpath=voila%2Frender%2Fdocs%2Fdemo.ipynb"><img alt="Binder" src="https://mybinder.org/badge_logo.svg" /></a></p>
-</div>
-<div class="cell docutils container">
+  <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ipyautoui.demo_schemas</span> <span class="kn">import</span> <span class="n">CoreIpywidgets</span>
-<span class="kn">from</span> <span class="nn">ipyautoui</span> <span class="kn">import</span> <span class="n">AutoUi</span><span class="p">,</span> <span class="n">AutoDisplay</span>
-<span class="kn">from</span> <span class="nn">ipyautoui.autodisplay</span> <span class="kn">import</span> <span class="n">DisplayPath</span>
-<span class="kn">from</span> <span class="nn">ipyautoui.constants</span> <span class="kn">import</span> <span class="n">load_test_constants</span>
-<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
-<span class="kn">import</span> <span class="nn">pathlib</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">ipyautoui.custom</span> <span class="kn">import</span> <span class="n">FileChooser</span>
 
-<span class="n">tests_constants</span> <span class="o">=</span> <span class="n">load_test_constants</span><span class="p">()</span>
-<span class="n">paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">load_test_constants</span><span class="p">()</span><span class="o">.</span><span class="n">DIR_FILETYPES</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.*&quot;</span><span class="p">))</span>
-<span class="n">ad</span> <span class="o">=</span> <span class="n">AutoDisplay</span><span class="o">.</span><span class="n">from_paths</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">display_showhide</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">display</span><span class="p">(</span><span class="n">ad</span><span class="p">)</span>
+<span class="c1"># Make a file so that we can set the value of FileChooser</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./dummy.txt&quot;</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+
+<span class="c1"># Make a FileChooser</span>
+<span class="n">fc</span> <span class="o">=</span> <span class="n">FileChooser</span><span class="p">()</span>
+
+<span class="c1"># Define an observer that just prints the state of the FileChooser</span>
+<span class="k">def</span> <span class="nf">print_status</span><span class="p">(</span><span class="n">change</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">change</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">]</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fc</span><span class="o">.</span><span class="n">_value</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fc</span><span class="o">.</span><span class="n">selected_path</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fc</span><span class="o">.</span><span class="n">selected_filename</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">fc</span><span class="p">)</span>
+<span class="c1"># Observe the _value traitlet</span>
+<span class="n">fc</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">print_status</span><span class="p">,</span> <span class="s2">&quot;_value&quot;</span><span class="p">)</span>
+
+<span class="c1"># set the value</span>
+<span class="n">fc</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "03e3dd3b00e34f90ba97edbca90a81eb"}</script></div>
-</div>
-</section>
-<section id="create-a-custom-renderer">
-<h2>Create a custom renderer<a class="headerlink" href="#create-a-custom-renderer" title="Permalink to this headline">#</a></h2>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ipyautoui.demo_schemas</span> <span class="kn">import</span> <span class="n">CoreIpywidgets</span>
-
-<span class="n">user_file_renderers</span> <span class="o">=</span> <span class="n">AutoUi</span><span class="o">.</span><span class="n">create_autodisplay_map</span><span class="p">(</span>
-    <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;.aui.json&quot;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">CoreIpywidgets</span>
-<span class="p">)</span>
-<span class="n">tests_constants</span><span class="o">.</span><span class="n">PATH_TEST_AUI</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
-    <span class="n">CoreIpywidgets</span><span class="p">(</span><span class="n">int_text_req</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">int_text_nullable</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">model_dump_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="p">)</span>
-
-<span class="n">test_ui</span> <span class="o">=</span> <span class="n">AutoDisplay</span><span class="o">.</span><span class="n">from_paths</span><span class="p">(</span>
-    <span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="n">tests_constants</span><span class="o">.</span><span class="n">PATH_TEST_AUI</span><span class="p">],</span>
-    <span class="n">renderers</span><span class="o">=</span><span class="n">user_file_renderers</span><span class="p">,</span>
-    <span class="n">display_showhide</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">display</span><span class="p">(</span><span class="n">test_ui</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">AttributeError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">line</span> <span class="mi">3</span>
-<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="kn">from</span> <span class="nn">ipyautoui.demo_schemas</span> <span class="kn">import</span> <span class="n">CoreIpywidgets</span>
-<span class="ne">----&gt; </span><span class="mi">3</span> <span class="n">user_file_renderers</span> <span class="o">=</span> <span class="n">AutoUi</span><span class="o">.</span><span class="n">create_autodisplay_map</span><span class="p">(</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span>     <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;.aui.json&quot;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">CoreIpywidgets</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="p">)</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="n">tests_constants</span><span class="o">.</span><span class="n">PATH_TEST_AUI</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
-<span class="g g-Whitespace">      </span><span class="mi">7</span>     <span class="n">CoreIpywidgets</span><span class="p">(</span><span class="n">int_text_req</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">int_text_nullable</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">model_dump_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="g g-Whitespace">      </span><span class="mi">8</span> <span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">10</span> <span class="n">test_ui</span> <span class="o">=</span> <span class="n">AutoDisplay</span><span class="o">.</span><span class="n">from_paths</span><span class="p">(</span>
-<span class="g g-Whitespace">     </span><span class="mi">11</span>     <span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="n">tests_constants</span><span class="o">.</span><span class="n">PATH_TEST_AUI</span><span class="p">],</span>
-<span class="g g-Whitespace">     </span><span class="mi">12</span>     <span class="n">renderers</span><span class="o">=</span><span class="n">user_file_renderers</span><span class="p">,</span>
-<span class="g g-Whitespace">     </span><span class="mi">13</span>     <span class="n">display_showhide</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="g g-Whitespace">     </span><span class="mi">14</span> <span class="p">)</span>
-
-<span class="ne">AttributeError</span>: &#39;function&#39; object has no attribute &#39;create_autodisplay_map&#39;
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "4b15c4b56c854d2499ebd75d45a5ea94", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>change[&#39;new&#39;]=&#39;dummy.txt&#39;
+fc._value=&#39;dummy.txt&#39;
+fc.selected_path=&#39;/home/jovyan/ipyautoui/docs&#39;
+fc.selected_filename=&#39;dummy.txt&#39;
 </pre></div>
 </div>
 </div>
 </div>
-</section>
-</section>
 
     <script type="text/x-thebe-config">
     {
@@ -475,24 +434,6 @@ document.write(`
   
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="autovuetify.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">AutoVjsf</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="custom-renderers.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Custom Renderers</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div></div>
   
 </div>
@@ -510,10 +451,9 @@ document.write(`
     <i class="fa-solid fa-list"></i> Contents
   </div>
   <nav class="bd-toc-nav page-toc">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#render-a-list-of-files">Render a list of files</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-custom-renderer">Create a custom renderer</a></li>
+    <ul class="simple visible nav section-nav flex-column">
 </ul>
+
   </nav></div>
 
 </div></div>
