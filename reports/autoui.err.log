@@ -30,13 +30,20 @@ Cell [0;32mIn[7], line 3[0m
 [1;32m      1[0m [38;5;28;01mfrom[39;00m [38;5;21;01mipyautoui[39;00m[38;5;21;01m.[39;00m[38;5;21;01mbasemodel[39;00m [38;5;28;01mimport[39;00m file
 [0;32m----> 3[0m file(Example(), pathlib[38;5;241m.[39mPath([38;5;124m"[39m[38;5;124mtest.json[39m[38;5;124m"[39m))
 
-File [0;32m/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.12/site-packages/pydantic/main.py:193[0m, in [0;36mBaseModel.__init__[0;34m(self, **data)[0m
-[1;32m    191[0m [38;5;66;03m# `__tracebackhide__` tells pytest and some other tools to omit this function from tracebacks[39;00m
-[1;32m    192[0m __tracebackhide__ [38;5;241m=[39m [38;5;28;01mTrue[39;00m
-[0;32m--> 193[0m [38;5;28mself[39m[38;5;241m.[39m__pydantic_validator__[38;5;241m.[39mvalidate_python(data, self_instance[38;5;241m=[39m[38;5;28mself[39m)
+File [0;32m/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.12/site-packages/pydantic/main.py:212[0m, in [0;36mBaseModel.__init__[0;34m(self, **data)[0m
+[1;32m    210[0m [38;5;66;03m# `__tracebackhide__` tells pytest and some other tools to omit this function from tracebacks[39;00m
+[1;32m    211[0m __tracebackhide__ [38;5;241m=[39m [38;5;28;01mTrue[39;00m
+[0;32m--> 212[0m validated_self [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m__pydantic_validator__[38;5;241m.[39mvalidate_python(data, self_instance[38;5;241m=[39m[38;5;28mself[39m)
+[1;32m    213[0m [38;5;28;01mif[39;00m [38;5;28mself[39m [38;5;129;01mis[39;00m [38;5;129;01mnot[39;00m validated_self:
+[1;32m    214[0m     warnings[38;5;241m.[39mwarn(
+[1;32m    215[0m         [38;5;124m'[39m[38;5;124mA custom validator is returning a value other than `self`.[39m[38;5;130;01m\n[39;00m[38;5;124m'[39m
+[1;32m    216[0m         [38;5;124m"[39m[38;5;124mReturning anything other than `self` from a top level model validator isn[39m[38;5;124m'[39m[38;5;124mt supported when validating via `__init__`.[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[1;32m    217[0m         [38;5;124m'[39m[38;5;124mSee the `model_validator` docs (https://docs.pydantic.dev/latest/concepts/validators/#model-validators) for more details.[39m[38;5;124m'[39m,
+[1;32m    218[0m         category[38;5;241m=[39m[38;5;28;01mNone[39;00m,
+[1;32m    219[0m     )
 
 [0;31mValidationError[0m: 1 validation error for Example
 sub
   Field required [type=missing, input_value={}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.8/v/missing
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
 
