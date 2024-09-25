@@ -29,7 +29,7 @@ dependencies = [
     "numpy",
     "openpyxl",
     "pandas",
-    "pydantic<2.9",
+    "pydantic>=2.9",
     "pydantic-settings",
     "pydantic-extra-types",
     "PyYAML",

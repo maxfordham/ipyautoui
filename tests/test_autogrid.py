@@ -754,7 +754,7 @@ class TestAutoGrid:
             schema=TestDataFrame.model_json_schema(),
             data=pd.DataFrame([{"string": "Test"}] * 10),
         )
-        json_schema = jsonref.replace_refs(TestDataFrame.model_json_schema())
+        json_schema = jsonref.replace_refs(TestDataFrame.model_json_schema(), merge_props=True)
         import copy
 
         # Make deep copies to avoid modifying the original dictionaries

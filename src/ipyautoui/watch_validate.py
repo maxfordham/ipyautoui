@@ -152,7 +152,7 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
             model = None
             if "$defs" in schema.keys():
                 try:
-                    schema = replace_refs(schema)
+                    schema = replace_refs(schema, merge_props=True)
                     schema = {k: v for k, v in schema.items() if k != "$defs"}
                 except ValueError as e:
                     logger.warning(f"replace_refs error: \n{e}")
@@ -171,9 +171,10 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
         if not (issubclass(model, BaseModel) or issubclass(model, RootModel)):
             raise ValueError(f"schema must be a pydantic model, not {type(model)}")
         else:
+            schema = model.model_json_schema(by_alias=by_alias)
             if "by_alias" in kwargs.keys():
                 by_alias = kwargs["by_alias"]
-            schema = replace_refs(model.model_json_schema(by_alias=by_alias))
+            schema = replace_refs(schema, merge_props=True)
             schema = {k: v for k, v in schema.items() if k != "$defs"}
         if value is not None:
             schema["value"] = value

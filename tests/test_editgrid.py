@@ -159,7 +159,7 @@ class TestEditGrid:
         editgrid.update_from_schema(TestDataFrame, value=[{"string": "Test"}] * 10)
         import jsonref
 
-        json_schema = jsonref.replace_refs(TestDataFrame.model_json_schema())
+        json_schema = jsonref.replace_refs(TestDataFrame.model_json_schema(), merge_props=True)
         import copy
 
         # Make deep copies to avoid modifying the original dictionaries

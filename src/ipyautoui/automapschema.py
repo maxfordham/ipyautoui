@@ -51,7 +51,7 @@ def _init_model_schema(
         model = schema  # the "model" passed is a pydantic model
         schema = model.model_json_schema(by_alias=by_alias).copy()
 
-    schema = replace_refs(schema)
+    schema = replace_refs(schema, merge_props=True)
     schema = {k: v for k, v in schema.items() if k != "$defs"}
     return model, schema
 
@@ -1321,7 +1321,7 @@ def from_schema_method(
 ):
     if "$defs" in schema.keys():
         try:
-            schema = replace_refs(schema)
+            schema = replace_refs(schema, merge_props=True)
         except ValueError as e:
             logger.warning(f"replace_refs error: \n{e}")
             pass
@@ -1331,7 +1331,7 @@ def from_schema_method(
 
 
 def from_model_method(cls, model: ty.Type[BaseModel], value: ty.Optional[dict] = None):
-    schema = replace_refs(model.model_json_schema())
+    schema = replace_refs(model.model_json_schema(), merge_props=True)
     if value is not None:
         schema["value"] = value
     ui = cls(**schema)
