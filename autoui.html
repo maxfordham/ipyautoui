@@ -427,7 +427,7 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "a7b01144113c411bbf518a66885e75fc"}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "b3b20ddcfc32466d906b28946c8bd111"}</script></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -438,7 +438,7 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "66668cb153a945da814651e66fa18f5e"}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "427f1473dca34365b1bf0485e9ca0ea6"}</script></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -462,22 +462,15 @@ document.write(`
 <span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="kn">from</span> <span class="nn">ipyautoui.basemodel</span> <span class="kn">import</span> <span class="n">file</span>
 <span class="ne">----&gt; </span><span class="mi">3</span> <span class="n">file</span><span class="p">(</span><span class="n">Example</span><span class="p">(),</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;test.json&quot;</span><span class="p">))</span>
 
-<span class="nn">File /usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.12/site-packages/pydantic/main.py:212,</span> in <span class="ni">BaseModel.__init__</span><span class="nt">(self, **data)</span>
-<span class="g g-Whitespace">    </span><span class="mi">210</span> <span class="c1"># `__tracebackhide__` tells pytest and some other tools to omit this function from tracebacks</span>
-<span class="g g-Whitespace">    </span><span class="mi">211</span> <span class="n">__tracebackhide__</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="ne">--&gt; </span><span class="mi">212</span> <span class="n">validated_self</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pydantic_validator__</span><span class="o">.</span><span class="n">validate_python</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">self_instance</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">213</span> <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">validated_self</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">214</span>     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">215</span>         <span class="s1">&#39;A custom validator is returning a value other than `self`.</span><span class="se">\n</span><span class="s1">&#39;</span>
-<span class="g g-Whitespace">    </span><span class="mi">216</span>         <span class="s2">&quot;Returning anything other than `self` from a top level model validator isn&#39;t supported when validating via `__init__`.</span><span class="se">\n</span><span class="s2">&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">217</span>         <span class="s1">&#39;See the `model_validator` docs (https://docs.pydantic.dev/latest/concepts/validators/#model-validators) for more details.&#39;</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">218</span>         <span class="n">category</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">219</span>     <span class="p">)</span>
+<span class="nn">File /usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.12/site-packages/pydantic/main.py:193,</span> in <span class="ni">BaseModel.__init__</span><span class="nt">(self, **data)</span>
+<span class="g g-Whitespace">    </span><span class="mi">191</span> <span class="c1"># `__tracebackhide__` tells pytest and some other tools to omit this function from tracebacks</span>
+<span class="g g-Whitespace">    </span><span class="mi">192</span> <span class="n">__tracebackhide__</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="ne">--&gt; </span><span class="mi">193</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pydantic_validator__</span><span class="o">.</span><span class="n">validate_python</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">self_instance</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 
 <span class="ne">ValidationError</span>: 1 validation error for Example
 <span class="n">sub</span>
   <span class="n">Field</span> <span class="n">required</span> <span class="p">[</span><span class="nb">type</span><span class="o">=</span><span class="n">missing</span><span class="p">,</span> <span class="n">input_value</span><span class="o">=</span><span class="p">{},</span> <span class="n">input_type</span><span class="o">=</span><span class="nb">dict</span><span class="p">]</span>
-    <span class="n">For</span> <span class="n">further</span> <span class="n">information</span> <span class="n">visit</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">errors</span><span class="o">.</span><span class="n">pydantic</span><span class="o">.</span><span class="n">dev</span><span class="o">/</span><span class="mf">2.9</span><span class="o">/</span><span class="n">v</span><span class="o">/</span><span class="n">missing</span>
+    <span class="n">For</span> <span class="n">further</span> <span class="n">information</span> <span class="n">visit</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">errors</span><span class="o">.</span><span class="n">pydantic</span><span class="o">.</span><span class="n">dev</span><span class="o">/</span><span class="mf">2.8</span><span class="o">/</span><span class="n">v</span><span class="o">/</span><span class="n">missing</span>
 </pre></div>
 </div>
 </div>
