@@ -131,7 +131,7 @@ def test_union():
         inty: int = 1
         floaty: ty.Union[float, str] = 1.5
 
-    di = replace_refs(MyObject.model_json_schema())
+    di = replace_refs(MyObject.model_json_schema(), merge_props=True)
     caller = map_widget(di)
     assert "anyOf" in caller.kwargs["properties"]["floaty"]
     ui = widgetcaller(caller)

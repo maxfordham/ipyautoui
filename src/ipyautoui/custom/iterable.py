@@ -567,7 +567,7 @@ if __name__ == "__main__":
 
         root: list[MyObject]
 
-    s = replace_refs(ArrayWithUnionType.model_json_schema())
+    s = replace_refs(ArrayWithUnionType.model_json_schema(), merge_props=True)
     v = MyObject(floaty=0.2).model_dump()
     s["value"] = [v]
     ui = AutoArrayForm.from_schema(s)
@@ -590,7 +590,7 @@ if __name__ == "__main__":
 
         root: list[MyObject]
 
-    s = replace_refs(ArrayWithUnionType.model_json_schema())
+    s = replace_refs(ArrayWithUnionType.model_json_schema(), merge_props=True)
     v = MyObject(floaty=0.2).model_dump()
     s["value"] = [v]
     ui = AutoArrayForm.from_schema(s)
@@ -613,7 +613,7 @@ if __name__ == "__main__":
 
         root: list[ty.Union[MyArray, MyObject]]
 
-    s = replace_refs(MyArray.model_json_schema())
+    s = replace_refs(MyArray.model_json_schema(), merge_props=True)
     ui = AutoArray(**s)
     display(ui)
 

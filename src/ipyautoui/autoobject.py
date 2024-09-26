@@ -487,7 +487,7 @@ if __name__ == "__main__":
         "text_short": "short text",
         "textarea": "long text long text " * 20,
     }
-    s = replace_refs(CoreIpywidgets.model_json_schema())
+    s = replace_refs(CoreIpywidgets.model_json_schema(), merge_props=True)
     # s["align_horizontal"] = False
     s["order_can_hide_rows"] = True
     s["order"] = ["int_slider_req", "dropdown_int", "int_range_slider_disabled"]
@@ -503,7 +503,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import NestedEditableGrid, ComplexSerialisation
 
-    s = replace_refs(NestedEditableGrid.model_json_schema())
+    s = replace_refs(NestedEditableGrid.model_json_schema(), merge_props=True)
     s["order_can_hide_rows"] = False
     s["open_nested"] = True
     ui = AutoObject.from_jsonschema(s)
@@ -512,7 +512,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import NestedEditableGrid, ComplexSerialisation
 
-    s = replace_refs(ComplexSerialisation.model_json_schema())
+    s = replace_refs(ComplexSerialisation.model_json_schema(), merge_props=True)
     s["order_can_hide_rows"] = False
     ui = AutoObject.from_jsonschema(s)
     display(ui)
@@ -543,7 +543,7 @@ if __name__ == "__main__":
         "text_short": "short text",
         "textarea": "long text long text" * 20,
     }
-    s = replace_refs(CoreIpywidgets.model_json_schema())
+    s = replace_refs(CoreIpywidgets.model_json_schema(), merge_props=True)
     # s["align_horizontal"] = False
     s["order_can_hide_rows"] = False
     ui = AutoObject.from_jsonschema(s, value=v)
