@@ -9,7 +9,6 @@ from ipyautoui._utils import frozenmap
 # https://github.com/MagicStack/immutables
 
 DIR_MODULE = pathlib.Path(__file__).parent
-DIR_EXAMPLE = DIR_MODULE.parents[1] / "examples"
 PATH_VJSF_TEMPLATE = DIR_MODULE / "vjsf.vue"
 PATH_SVG = DIR_MODULE / "data" / "12-dots-scale-rotate.svg"
 
@@ -236,7 +235,7 @@ KWARGS_HOME_DISPLAY_FILES = frozenmap(
 
 # documentinfo ------------------------------
 #  update this with WebApp data. TODO: delete this?
-ROLES = (
+ROLES = (  # TODO: delete from here - now in document_issue
     "Design Lead",
     "Project Engineer",
     "Engineer",
