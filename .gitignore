@@ -86,3 +86,6 @@ target/
 /.virtual_documents
 /.ipynb_checkpoints
 /.pytest_cache
+# pixi environments
+.pixi
+*.egg-info

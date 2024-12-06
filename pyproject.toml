@@ -24,7 +24,6 @@ dependencies = [
     "ipyfilechooser", # make optional
     "ipyvuetify", # make optional
     "markdown",
-    "Markdown",
     "jsonref",
     "numpy",
     "openpyxl",
@@ -39,7 +38,8 @@ dependencies = [
 [project.optional-dependencies]
 tests = [
   "pytest",
-  "maplocal==0.2.1"
+  "maplocal==0.2.1",
+  "pytest_examples"
 ]
 
 [project.urls]
@@ -54,11 +54,25 @@ version-file = "src/ipyautoui/_version.py"
 [tool.hatch.build.targets.sdist]
 include = ["/src/ipyautoui"]
 
-# [tool.hatch.envs.ipyautoui-dev]
-# type = "conda"
-# command = "mamba"
-# ^ don't understand how this works...
-
 [tool.pytest.ini_options]
 pythonpath = "src"
 testpaths = ["tests"]
+
+[tool.pixi.project]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.pypi-dependencies]
+ipyautoui = { path = ".", editable = true }
+
+[tool.pixi.environments]
+default = { solve-group = "default" }
+tests = { features = ["tests"], solve-group = "default" }
+
+[tool.pixi.tasks]
+
+[tool.pixi.feature.tests.tasks]
+tests = "pytest"
+# check = "ruff check"
+# fix = "ruff check --fix --select I"
+# format = "ruff format"
