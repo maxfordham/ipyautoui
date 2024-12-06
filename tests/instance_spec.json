@@ -1,0 +1,430 @@
+{
+    "data": [
+        {
+            "TypeMark": "ED-1",
+            "TypeSpecId": 1340,
+            "FuelType": "Electricity",
+            "EnergyConsumption": 100.0,
+            "InstanceReference": 1,
+            "ReportingPeriod": "2019/20",
+            "EnergyEndUse": "Heating",
+            "EnergyEndUseTags": "[]",
+            "Id": 142
+        },
+        {
+            "TypeMark": "ED-1",
+            "TypeSpecId": 1340,
+            "FuelType": "Electricity",
+            "EnergyConsumption": 100.0,
+            "InstanceReference": 3,
+            "ReportingPeriod": "2019/20",
+            "EnergyEndUse": "Heating",
+            "EnergyEndUseTags": "[]",
+            "Id": 158
+        },
+        {
+            "TypeMark": "ED-1",
+            "TypeSpecId": 1340,
+            "FuelType": "Electricity",
+            "EnergyConsumption": 0.0,
+            "InstanceReference": 4,
+            "ReportingPeriod": "2019/20",
+            "EnergyEndUse": "Heating",
+            "EnergyEndUseTags": "[]",
+            "Id": 159
+        },
+        {
+            "TypeMark": "ED-1",
+            "TypeSpecId": 1340,
+            "FuelType": "Electricity",
+            "BuildingID": "cxv",
+            "EnergyConsumption": 0.0,
+            "InstanceReference": 5,
+            "ReportingPeriod": "2019/20",
+            "EnergyEndUse": "Heating",
+            "EnergyEndUseTags": "[]",
+            "Id": 160
+        }
+    ],
+    "schema": {
+        "title": "Recorded Energy Use",
+        "type": "array",
+        "format": "DataFrame",
+        "hide_nan": true,
+        "datagrid_index_name": [
+            "section",
+            "title",
+            "unit"
+        ],
+        "items": {
+            "title": "Recorded Energy Use",
+            "description": "Recorded energy data (ED) consumed within the defined reporting period.",
+            "type": "object",
+            "parameter_type": "I",
+            "override_units": false,
+            "properties": {
+                "InstanceReference": {
+                    "type": "integer",
+                    "revit_data_type": "INTEGER",
+                    "ifc_data_type": "IfcInteger",
+                    "namespace_uri": null,
+                    "guid": "2705c5f3-e588-4d32-aac4-3bba358c898b",
+                    "guid_source": "MXF",
+                    "title": "Instance Reference",
+                    "name": "InstanceReference",
+                    "description": "equipment instance reference, integer only. Refers to equipment instance.",
+                    "json_schema_extra": {
+                        "default": 1
+                    },
+                    "category": "Specifications",
+                    "section": "Identity Data",
+                    "tooltip": "",
+                    "property_value_kind": "Single",
+                    "unit": "",
+                    "unit_code": "",
+                    "parameter_type": "I",
+                    "pset": "Pset_IdentityCore",
+                    "id": 2866,
+                    "default": 1
+                },
+                "Notes": {
+                    "revit_data_type": "TEXT",
+                    "ifc_data_type": "IfcText",
+                    "namespace_uri": null,
+                    "guid": "9faa8b0b-ab25-4dce-bb4d-3f8320522146",
+                    "guid_source": "MXF",
+                    "title": "Notes",
+                    "name": "Notes",
+                    "description": "",
+                    "json_schema_extra": null,
+                    "category": "Specifications",
+                    "section": "Application Data",
+                    "tooltip": "Additional information about the product",
+                    "property_value_kind": "Single",
+                    "unit": "",
+                    "unit_code": "",
+                    "parameter_type": "I",
+                    "pset": "EnergyRecord",
+                    "id": 2460,
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "FuelType": {
+                    "enum": [
+                        "Electricity",
+                        "Gas - NG",
+                        "Gas - Biogas",
+                        "Gas - LPG",
+                        "Gas - Other",
+                        "Unknown",
+                        "Unset"
+                    ],
+                    "revit_data_type": "TEXT",
+                    "ifc_data_type": "IfcText",
+                    "namespace_uri": null,
+                    "guid": "9c8c1fec-2d04-4340-9c08-2f250d319c8b",
+                    "guid_source": "BSDD",
+                    "title": "Fuel Type",
+                    "name": "FuelType",
+                    "description": "",
+                    "json_schema_extra": null,
+                    "category": "Specifications",
+                    "section": "Performance Data",
+                    "tooltip": "",
+                    "property_value_kind": "Single",
+                    "unit": "",
+                    "unit_code": "",
+                    "parameter_type": "I",
+                    "pset": "EnergyRecord",
+                    "id": 555,
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "EnergyConsumption": {
+                    "revit_data_type": "NUMBER",
+                    "ifc_data_type": "IfcReal",
+                    "namespace_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/EnergyConsumption",
+                    "guid": "8f737eae-19e8-4576-bca4-4982c4cf5a0a",
+                    "guid_source": "IFC",
+                    "title": "Energy Consumption",
+                    "name": "EnergyConsumption",
+                    "description": "Annual energy consumption requirement",
+                    "json_schema_extra": null,
+                    "category": "Specifications",
+                    "section": "Performance Data",
+                    "tooltip": null,
+                    "property_value_kind": "Single",
+                    "unit": "kWh/m2/yr",
+                    "unit_code": "hr*kW/(m**2*yr)",
+                    "parameter_type": "I",
+                    "pset": "EnergyRecord",
+                    "id": 1355,
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "EnergyEndUse": {
+                    "enum": [
+                        "Heating",
+                        "Domestic Hot Water",
+                        "Heating & Domestic Hot Water",
+                        "Cooling",
+                        "Auxiliary",
+                        "Lighting",
+                        "Small Power",
+                        "IT/Servers",
+                        "PV Generation",
+                        "Lifts",
+                        "Catering",
+                        "Other",
+                        "Unknown"
+                    ],
+                    "revit_data_type": "TEXT",
+                    "ifc_data_type": "IfcText",
+                    "namespace_uri": null,
+                    "guid": "3f92567b-3cec-4e91-9750-48eed59be231",
+                    "guid_source": "MXF",
+                    "title": "Energy End Use",
+                    "name": "EnergyEndUse",
+                    "description": "The end-use of the energy consumption within a building. Pick the most appropriate.",
+                    "json_schema_extra": null,
+                    "category": "Specifications",
+                    "section": "Performance Data",
+                    "tooltip": null,
+                    "property_value_kind": "Single",
+                    "unit": "",
+                    "unit_code": "",
+                    "parameter_type": "I",
+                    "pset": "EnergyRecord",
+                    "id": 3084,
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "EnergyEndUseTags": {
+                    "enum": [
+                        "Heating",
+                        "Heating - Distribution Loss",
+                        "Domestic Hot Water",
+                        "Cooling",
+                        "Auxiliary",
+                        "Lighting",
+                        "Lighting - External",
+                        "Small Power",
+                        "IT/Servers",
+                        "PV Generation",
+                        "Pool",
+                        "Lifts",
+                        "Catering",
+                        "Other",
+                        "Unknown"
+                    ],
+                    "revit_data_type": "TEXT",
+                    "ifc_data_type": "IfcText",
+                    "namespace_uri": null,
+                    "guid": "63e29ae5-d1d6-4e15-8215-e26c5cd02c9f",
+                    "guid_source": "MXF",
+                    "title": "Energy End Use Tags",
+                    "name": "EnergyEndUseTags",
+                    "description": "Additional tags to further describe the end-use of the energy where required, or to indicate energy use when \"Other\" or \"Unknown\" selected.",
+                    "json_schema_extra": null,
+                    "category": "Specifications",
+                    "section": "Performance Data",
+                    "tooltip": null,
+                    "property_value_kind": "Single",
+                    "unit": "",
+                    "unit_code": "",
+                    "parameter_type": "I",
+                    "pset": "EnergyRecord",
+                    "id": 3085,
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "ReportingPeriod": {
+                    "enum": [
+                        "2019/20",
+                        "2020/21",
+                        "2021/22",
+                        "2022/23",
+                        "2023/24",
+                        "2024/25",
+                        "2025/26",
+                        "2026/27",
+                        "2027/28",
+                        "2028/29",
+                        "2029/30",
+                        "Benchmark"
+                    ],
+                    "revit_data_type": "TEXT",
+                    "ifc_data_type": "IfcText",
+                    "namespace_uri": null,
+                    "guid": "399c7065-6e6a-4d7f-b412-903921ba6990",
+                    "guid_source": "MXF",
+                    "title": "Reporting Period",
+                    "name": "ReportingPeriod",
+                    "description": "Which year the energy record should be recorded in",
+                    "json_schema_extra": null,
+                    "category": "Specifications",
+                    "section": "Performance Data",
+                    "tooltip": null,
+                    "property_value_kind": "Single",
+                    "unit": "",
+                    "unit_code": "",
+                    "parameter_type": "I",
+                    "pset": "PostOccupancyEvaluationEnergyRecord",
+                    "id": 3083,
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "BuildingID": {
+                    "revit_data_type": "TEXT",
+                    "ifc_data_type": "IfcIdentifier",
+                    "namespace_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/BuildingID",
+                    "guid": "f5797b00-d1c4-11e1-8000-00215ad4efdf",
+                    "guid_source": "IFC",
+                    "title": "Building I D",
+                    "name": "BuildingID",
+                    "description": "A unique identifier assigned to a building. A temporary identifier is initially assigned at the time of making a planning application. This temporary identifier is changed to a permanent identifier when the building is registered into a statutory buildings and properties database.",
+                    "json_schema_extra": null,
+                    "category": "Undefined",
+                    "section": "Undefined",
+                    "tooltip": null,
+                    "property_value_kind": "Single",
+                    "unit": "",
+                    "unit_code": "",
+                    "parameter_type": "I",
+                    "pset": "EnergyRecord",
+                    "id": 1042,
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "TypeMark": {
+                    "enum": [
+                        "ED-1"
+                    ],
+                    "type": "string",
+                    "revit_data_type": "TEXT",
+                    "ifc_data_type": "IfcText",
+                    "namespace_uri": null,
+                    "guid": "95cba5f9-706b-49e1-9100-c423f2c1f6f5",
+                    "guid_source": "MXF",
+                    "title": "Type Mark",
+                    "name": "TypeMark",
+                    "description": "",
+                    "json_schema_extra": {
+                        "autoui": "ipywidgets.Dropdown"
+                    },
+                    "category": "Undefined",
+                    "section": "Identity Data",
+                    "tooltip": null,
+                    "property_value_kind": "Single",
+                    "unit": "",
+                    "unit_code": "",
+                    "parameter_type": "I",
+                    "pset": "",
+                    "id": 0,
+                    "autoui": "ipywidgets.Dropdown"
+                },
+                "TypeSpecId": {
+                    "format": "default",
+                    "revit_data_type": "INTEGER",
+                    "ifc_data_type": "IfcInteger",
+                    "namespace_uri": null,
+                    "guid": "f5bdea0b-8648-43a6-b85a-5cc443d86e8e",
+                    "guid_source": "MXF",
+                    "title": "Type Spec Id",
+                    "name": "TypeSpecId",
+                    "description": "",
+                    "json_schema_extra": null,
+                    "category": "Undefined",
+                    "section": "Undefined",
+                    "tooltip": null,
+                    "property_value_kind": "Single",
+                    "unit": "",
+                    "unit_code": "",
+                    "parameter_type": "I",
+                    "pset": "",
+                    "id": 0,
+                    "anyOf": [
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "Id": {
+                    "format": "default",
+                    "revit_data_type": "INTEGER",
+                    "ifc_data_type": "IfcInteger",
+                    "namespace_uri": null,
+                    "guid": "958e6995-9f04-49d3-ba03-738b6bd66fd0",
+                    "guid_source": "MXF",
+                    "title": "Id",
+                    "name": "Id",
+                    "description": "",
+                    "json_schema_extra": null,
+                    "category": "Undefined",
+                    "section": "Undefined",
+                    "tooltip": null,
+                    "property_value_kind": "Single",
+                    "unit": "",
+                    "unit_code": "",
+                    "parameter_type": "I",
+                    "pset": "",
+                    "id": 0,
+                    "anyOf": [
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            },
+            "id": 833
+        }
+    }
+}

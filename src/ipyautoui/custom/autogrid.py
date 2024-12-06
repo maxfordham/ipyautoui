@@ -445,7 +445,10 @@ class GridSchema:
 
         if len(col_names) < len(order):
             # add missing columns
-            data = data.reindex(columns=order)
+            if bykeys:
+                data = data.reindex(columns=order)
+            else:
+                data = data.reindex(columns=[self.map_name_index[x] for x in order])
 
         data = data.apply(fill_with_default)
 
@@ -1131,14 +1134,14 @@ if __name__ == "__main__":
     display(grid)
 
 # +
-# grid.selections
-
-# +
 if __name__ == "__main__":
     grid.data = pd.DataFrame(grid.data.to_dict(orient="records") * 4)  # .T
 
 if __name__ == "__main__":
     print(grid.is_transposed)
+# -
+
+
 
 # +
 if __name__ == "__main__":

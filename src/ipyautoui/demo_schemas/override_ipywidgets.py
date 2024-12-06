@@ -1,6 +1,6 @@
 from pydantic import Field
 from ipyautoui.basemodel import BaseModel
-
+import typing as ty
 
 class OverrideIpywidgets(BaseModel):
     """sometimes it isn't possible to guess what widget to use based on type information.
@@ -21,6 +21,12 @@ class OverrideIpywidgets(BaseModel):
     )
     toggle: bool = Field(
         default=True,
+        title="Toggle Button",
+        description="This is a toggle button, normally a checkbox is used for booleans.",
+        json_schema_extra=dict(autoui="ipywidgets.ToggleButton"),
+    )
+    nullable_toggle_overide: ty.Optional[bool] = Field(
+        default=None,
         title="Toggle Button",
         description="This is a toggle button, normally a checkbox is used for booleans.",
         json_schema_extra=dict(autoui="ipywidgets.ToggleButton"),

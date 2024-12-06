@@ -39,7 +39,8 @@ dependencies = [
 tests = [
   "pytest",
   "maplocal==0.2.1",
-  "pytest_examples"
+  "pytest_examples",
+  "hatch"
 ]
 
 [project.urls]
@@ -73,6 +74,6 @@ tests = { features = ["tests"], solve-group = "default" }
 
 [tool.pixi.feature.tests.tasks]
 tests = "pytest"
-# check = "ruff check"
-# fix = "ruff check --fix --select I"
+check = "ruff check"
+build = "hatch build"
 # format = "ruff format"
