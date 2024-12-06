@@ -7,7 +7,7 @@ Traceback (most recent call last):
   File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.12/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
     return loop.run_until_complete(inner)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+  File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.12/asyncio/base_events.py", line 686, in run_until_complete
     return future.result()
            ^^^^^^^^^^^^^^^
   File "/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.12/site-packages/nbclient/client.py", line 705, in async_execute
@@ -38,7 +38,7 @@ validate(
 ------------------
 
 ----- stderr -----
-/tmp/ipykernel_2442/1006366414.py:1: DeprecationWarning: Importing ErrorTree directly from the jsonschema package is deprecated and will become an ImportError. Import it from jsonschema.exceptions instead.
+/tmp/ipykernel_2333/1006366414.py:1: DeprecationWarning: Importing ErrorTree directly from the jsonschema package is deprecated and will become an ImportError. Import it from jsonschema.exceptions instead.
   from jsonschema import validate, Draft202012Validator, ErrorTree
 ------------------
 
@@ -51,10 +51,10 @@ Cell [0;32mIn[3], line 15[0m
 [1;32m     16[0m     instance[38;5;241m=[39m{[38;5;124m"[39m[38;5;124mname[39m[38;5;124m"[39m : [38;5;124m"[39m[38;5;124mEggs[39m[38;5;124m"[39m, [38;5;124m"[39m[38;5;124mprice[39m[38;5;124m"[39m : [38;5;124m"[39m[38;5;124mInvalid[39m[38;5;124m"[39m}, schema[38;5;241m=[39mschema,
 [1;32m     17[0m )
 
-File [0;32m/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.12/site-packages/jsonschema/validators.py:1306[0m, in [0;36mvalidate[0;34m(instance, schema, cls, *args, **kwargs)[0m
-[1;32m   1304[0m error [38;5;241m=[39m exceptions[38;5;241m.[39mbest_match(validator[38;5;241m.[39miter_errors(instance))
-[1;32m   1305[0m [38;5;28;01mif[39;00m error [38;5;129;01mis[39;00m [38;5;129;01mnot[39;00m [38;5;28;01mNone[39;00m:
-[0;32m-> 1306[0m     [38;5;28;01mraise[39;00m error
+File [0;32m/usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.12/site-packages/jsonschema/validators.py:1332[0m, in [0;36mvalidate[0;34m(instance, schema, cls, *args, **kwargs)[0m
+[1;32m   1330[0m error [38;5;241m=[39m exceptions[38;5;241m.[39mbest_match(validator[38;5;241m.[39miter_errors(instance))
+[1;32m   1331[0m [38;5;28;01mif[39;00m error [38;5;129;01mis[39;00m [38;5;129;01mnot[39;00m [38;5;28;01mNone[39;00m:
+[0;32m-> 1332[0m     [38;5;28;01mraise[39;00m error
 
 [0;31mValidationError[0m: 'Invalid' is not of type 'number'
 

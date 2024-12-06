@@ -415,7 +415,7 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/ipykernel_2442/1006366414.py:1: DeprecationWarning: Importing ErrorTree directly from the jsonschema package is deprecated and will become an ImportError. Import it from jsonschema.exceptions instead.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/ipykernel_2333/1006366414.py:1: DeprecationWarning: Importing ErrorTree directly from the jsonschema package is deprecated and will become an ImportError. Import it from jsonschema.exceptions instead.
   from jsonschema import validate, Draft202012Validator, ErrorTree
 </pre></div>
 </div>
@@ -428,10 +428,10 @@ document.write(`
 <span class="g g-Whitespace">     </span><span class="mi">16</span>     <span class="n">instance</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;Eggs&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span> <span class="p">:</span> <span class="s2">&quot;Invalid&quot;</span><span class="p">},</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
 <span class="g g-Whitespace">     </span><span class="mi">17</span> <span class="p">)</span>
 
-<span class="nn">File /usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.12/site-packages/jsonschema/validators.py:1306,</span> in <span class="ni">validate</span><span class="nt">(instance, schema, cls, *args, **kwargs)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1304</span> <span class="n">error</span> <span class="o">=</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">best_match</span><span class="p">(</span><span class="n">validator</span><span class="o">.</span><span class="n">iter_errors</span><span class="p">(</span><span class="n">instance</span><span class="p">))</span>
-<span class="g g-Whitespace">   </span><span class="mi">1305</span> <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<span class="ne">-&gt; </span><span class="mi">1306</span>     <span class="k">raise</span> <span class="n">error</span>
+<span class="nn">File /usr/share/miniconda3/envs/ipyautoui-dev/lib/python3.12/site-packages/jsonschema/validators.py:1332,</span> in <span class="ni">validate</span><span class="nt">(instance, schema, cls, *args, **kwargs)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1330</span> <span class="n">error</span> <span class="o">=</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">best_match</span><span class="p">(</span><span class="n">validator</span><span class="o">.</span><span class="n">iter_errors</span><span class="p">(</span><span class="n">instance</span><span class="p">))</span>
+<span class="g g-Whitespace">   </span><span class="mi">1331</span> <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<span class="ne">-&gt; </span><span class="mi">1332</span>     <span class="k">raise</span> <span class="n">error</span>
 
 <span class="ne">ValidationError</span>: &#39;Invalid&#39; is not of type &#39;number&#39;
 
