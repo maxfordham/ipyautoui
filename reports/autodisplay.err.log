@@ -39,7 +39,7 @@ display(test_ui)
 
 [0;31m---------------------------------------------------------------------------[0m
 [0;31mAttributeError[0m                            Traceback (most recent call last)
-Cell [0;32mIn[3], line 3[0m
+Cell [0;32mIn[2], line 3[0m
 [1;32m      1[0m [38;5;28;01mfrom[39;00m [38;5;21;01mipyautoui[39;00m[38;5;21;01m.[39;00m[38;5;21;01mdemo_schemas[39;00m [38;5;28;01mimport[39;00m CoreIpywidgets
 [0;32m----> 3[0m user_file_renderers [38;5;241m=[39m AutoUi[38;5;241m.[39mcreate_autodisplay_map(
 [1;32m      4[0m     ext[38;5;241m=[39m[38;5;124m"[39m[38;5;124m.aui.json[39m[38;5;124m"[39m, schema[38;5;241m=[39mCoreIpywidgets
