@@ -38,7 +38,7 @@ validate(
 ------------------
 
 ----- stderr -----
-/tmp/ipykernel_2321/1006366414.py:1: DeprecationWarning: Importing ErrorTree directly from the jsonschema package is deprecated and will become an ImportError. Import it from jsonschema.exceptions instead.
+/tmp/ipykernel_2267/1006366414.py:1: DeprecationWarning: Importing ErrorTree directly from the jsonschema package is deprecated and will become an ImportError. Import it from jsonschema.exceptions instead.
   from jsonschema import validate, Draft202012Validator, ErrorTree
 ------------------
 
