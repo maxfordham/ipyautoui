@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.6
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 # %%
 class JsonableDict(w.VBox):
-    _value = tr.Dict()
+    _value = tr.Dict() # allow_none=True, default_value={}
 
     @property
     def value(self):
@@ -31,15 +31,26 @@ class JsonableDict(w.VBox):
 
     @value.setter
     def value(self, value):
-        self.text.value = value
+        if isinstance(value, str):
+            self.text.value = value
+        elif isinstance(value, dict):
+            self.text.value = json.dumps(value)
+        elif value is None:
+            pass
+        else:
+            raise ValueError(f"value must be a dict or jsonable string, not {value}")
+            
 
     def __init__(self, **kwargs):
+        value = kwargs.get("value")
+        kwargs = {k:v for k, v in kwargs.items() if k != "value"}
         self.text = w.Textarea(**kwargs)
         self.out = w.Output()
         self.html = w.HTML()
         super().__init__()
         self.children = [self.text, self.html]
         self._init_controls()
+        self.value = value
 
     def _init_controls(self):
         self.text.observe(self._update, "value")
@@ -60,6 +71,14 @@ class JsonableDict(w.VBox):
 # %%
 if __name__ == "__main__":
     from IPython.display import display
-    jd = JsonableDict()
+    jd = JsonableDict(value={"b": 12})
     display(jd)
+# %%
+if __name__ == "__main__":
+    display(jd.value) 
+
+# %%
+if __name__ == "__main__":
+    jd.value = {"a": [1,2,3]}
+
 # %%
