@@ -40,7 +40,10 @@ tests = [
   "pytest",
   "maplocal==0.2.1",
   "pytest_examples",
-  "hatch"
+  "hatch",
+  "jupyterlab",
+  "jupytext",
+  "voila"
 ]
 
 [project.urls]
@@ -76,4 +79,6 @@ tests = { features = ["tests"], solve-group = "default" }
 tests = "pytest"
 check = "ruff check"
 build = "hatch build"
+demo = "voila docs/demo.ipynb"
+jlab = "jupyter lab"
 # format = "ruff format"
