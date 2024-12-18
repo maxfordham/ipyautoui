@@ -31,3 +31,9 @@ class OverrideIpywidgets(BaseModel):
         description="This is a toggle button, normally a checkbox is used for booleans.",
         json_schema_extra=dict(autoui="ipywidgets.ToggleButton"),
     )
+    jsonable_dict: dict = Field(
+        default={"a": [1,2,3]},
+        title="Toggle Button",
+        description="A simple user input string that is evaluated as a jsonable dict.",
+        json_schema_extra=dict(autoui="ipyautoui.custom.JsonableDict"),
+    )
