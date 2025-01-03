@@ -320,7 +320,6 @@ DEFAULT_BUTTONBAR_CONFIG = CrudView(
     ),
     support=CrudOptions(
         **dict(HELP_BUTTON_KWARGS)
-        | dict(layout=dict(display="None"))
         | dict(
             tooltip="help - click to show description of all buttons in the toolbar",
             tooltip_clicked="hide help dialogue",
