@@ -356,7 +356,7 @@ class CrudButtonBar(w.VBox):
     fn_backward = tr.Callable(default_value=lambda: print("backward"))
     fn_support = tr.Callable(default_value=lambda: print("support"))
     fn_reload = tr.Callable(default_value=None, allow_none=True)
-    show_support = tr.Bool(default_value=False)
+    show_support = tr.Bool(default_value=True)
 
     @tr.observe("show_support")
     def _observe_show_support(self, change):
