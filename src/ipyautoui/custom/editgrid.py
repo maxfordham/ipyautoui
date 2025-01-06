@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.6
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -336,7 +336,9 @@ class EditGrid(w.VBox, TitleDescription):
         self._init_form()
         self._init_row_controls()
         self._init_controls()
-        super().__init__()
+        # NOTE: setting kwargs here and in _init_autogrid may cause unwanted behaviour
+        # PR: https://github.com/maxfordham/ipyautoui/pull/351
+        super().__init__(**kwargs)
         self.warn_on_delete = warn_on_delete
         # self.show_copy_dialogue = show_copy_dialogue
         self.show_copy_dialogue = False
@@ -738,7 +740,7 @@ if __name__ == "__main__":
             ),
         )
 
-    editgrid._update_from_schema(TestDataFrame, value=[{"string": "Test"}] * 10)
+    editgrid.update_from_schema(TestDataFrame, value=[{"string": "Test"}] * 10)
 
 if __name__ == "__main__":
     from pydantic import RootModel
