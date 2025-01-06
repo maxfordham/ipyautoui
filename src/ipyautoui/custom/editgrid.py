@@ -336,6 +336,8 @@ class EditGrid(w.VBox, TitleDescription):
         self._init_form()
         self._init_row_controls()
         self._init_controls()
+        # NOTE: setting kwargs here and in _init_autogrid may cause unwanted behaviour
+        # PR: https://github.com/maxfordham/ipyautoui/pull/351
         super().__init__(**kwargs)
         self.warn_on_delete = warn_on_delete
         # self.show_copy_dialogue = show_copy_dialogue
@@ -891,5 +893,3 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     editgrid.transposed = True
-
-
