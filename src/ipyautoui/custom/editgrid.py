@@ -34,7 +34,7 @@ import json
 
 from ipyautoui.autoobject import AutoObjectForm
 from ipyautoui.custom.buttonbars import CrudButtonBar
-from ipyautoui._utils import frozenmap
+from ipyautoui._utils import frozenmap, traits_in_kwargs
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 from ipyautoui.custom.autogrid import AutoGrid
 from ipyautoui.custom.title_description import TitleDescription
@@ -336,9 +336,13 @@ class EditGrid(w.VBox, TitleDescription):
         self._init_form()
         self._init_row_controls()
         self._init_controls()
-        # NOTE: setting kwargs here and in _init_autogrid may cause unwanted behaviour
-        # PR: https://github.com/maxfordham/ipyautoui/pull/351
-        super().__init__(**kwargs)
+        super().__init__(
+            **{
+                k: v
+                for k, v in kwargs.items()
+                if k not in traits_in_kwargs(AutoGrid, kwargs)
+            }
+        )  # NOTE: Only pass kwargs not in AutoGrid traits
         self.warn_on_delete = warn_on_delete
         # self.show_copy_dialogue = show_copy_dialogue
         self.show_copy_dialogue = False
