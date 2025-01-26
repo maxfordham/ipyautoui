@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.6
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -14,18 +14,15 @@
 # ---
 
 # +
-"""autoui is used to automatically create ipywidget user input (UI) form from a pydantic schema.
+"""autoui is used to automatically create ipywidget user input (UI) form from a pydantic model or jsonschema.
 
-This module maps the pydantic fields to appropriate widgets based on type to display the data in the UI.
+Pydantic fields are mapped to appropriate widgets based on type to display the data in the UI.
 It also supports extension, but mapping custom datatypes onto custom widget classes.
-This information can also be stored to file.
 
 Example:
-    see example for a pydantic schema that can be automatically converted into a 
-    ipywidgets UI. Currently nesting is not supported::
 
-        from ipyautoui.constants import DISPLAY_AUTOUI_SCHEMA_EXAMPLE
-        DISPLAY_AUTOUI_SCHEMA_EXAMPLE()
+    from ipyautoui import AutoUi, demo
+    demo()
 """
 
 
@@ -297,6 +294,13 @@ def get_autodisplay_map(
 
 
 def autoui(schema: ty.Union[ty.Type[BaseModel], dict], value=None, path=None, **kwargs):
+    """
+    Example:
+    
+        from ipyautoui import AutoUi
+        from ipyautoui.demo_schemas import CoreIpywidgets
+        AutoUi(CoreIpywidgets)
+    """
     ui = get_autoui(schema, **kwargs)  # TODO: resolve how path is handled
     if value is None:
         return ui(**kwargs)
