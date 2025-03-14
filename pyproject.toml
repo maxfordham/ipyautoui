@@ -1,6 +1,7 @@
+
 [build-system]
-requires = ["hatchling>=1.10.0", "hatch-vcs"]
 build-backend = "hatchling.build"
+requires = ["hatchling", "hatch-vcs"]
 
 [project]
 name = "ipyautoui"
@@ -69,9 +70,15 @@ platforms = ["linux-64"]
 [tool.pixi.pypi-dependencies]
 ipyautoui = { path = ".", editable = true }
 
+[tool.pixi.feature.docs.dependencies]
+quarto = ">=1.6.40,<2"
+
+
 [tool.pixi.environments]
-default = { solve-group = "default" }
 tests = { features = ["tests"], solve-group = "default" }
+docs = ["docs"]
+
+
 
 [tool.pixi.tasks]
 
@@ -81,4 +88,8 @@ check = "ruff check"
 build = "hatch build"
 demo = "voila docs/demo.ipynb"
 jlab = "jupyter lab"
-# format = "ruff format"
+
+[tool.pixi.feature.docs.tasks]
+build-docs = { cmd = "quarto render .", cwd = "docs" }
+preview-docs = { cmd = "quarto preview .", cwd = "docs" }
+
