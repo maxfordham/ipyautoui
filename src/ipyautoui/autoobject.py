@@ -26,7 +26,7 @@ from ipyautoui._utils import obj_from_importstr, is_null
 from ipyautoui.nullable import Nullable
 from ipyautoui.autobox import AutoBox
 from ipyautoui.autoform import AutoObjectFormLayout
-from ipyautoui.watch_validate import WatchValidate
+from ipyautoui.watch_validate import WatchValidate, pydantic_validate
 from ipyautoui.custom.title_description import TitleDescription
 
 logger = logging.getLogger(__name__)
@@ -89,7 +89,8 @@ class AutoObject(w.VBox, WatchValidate):
             using schema kwargs this is remembered when re-enabled. Defaults to False.
 
     """
-
+    # model - pydantic model from WatchValidate
+    # schema - json schema from WatchValidate
     nested_widgets = tr.List()
     update_map_widgets = tr.Dict()
     widgets_map = tr.Dict()
@@ -108,6 +109,31 @@ class AutoObject(w.VBox, WatchValidate):
     open_nested = tr.Bool(default_value=None, allow_none=True)
     show_null = tr.Bool(default_value=False)
     # show_raw = tr.Bool(default_value=False)  # TODO: match logic for show_null
+
+
+    @tr.observe("model")
+    def observe_model(self, on_change):
+        try:
+            self.schema = self.model.model_json_schema()
+            self.value = pydantic_validate(self.model, self.value)
+            self._update_widgets_from_value()  # NOTE: this should be called by the value setter...
+        except Exception as e:
+            logger.warning(e)
+            self.model = on_change["old"]
+
+    @tr.observe("schema")
+    def observe_schema(self, on_change):
+        schema = replace_refs(on_change["new"], merge_props=True)
+        di_callers = self._get_di_callers(schema["properties"])
+        if {k: v.autoui for k,v in di_callers.items()} != {k: v.autoui for k,v in self.di_callers.items()}:
+            self.schema = on_change["old"]
+            raise ValueError("widgets must match on schema change. changes intended for modifications of existing widgets only.")
+        for k, v in di_callers.items():
+            {setattr(self.di_widgets[k], _k, _v) for _k, _v in v.kwargs.items() if _k != "value"}
+            {setattr(self.di_boxes[k], _k, _v) for _k, _v in v.kwargs_box.items() if _k != "value"}
+        self.di_callers = di_callers
+        self.schema = schema  # TODO: does this call the observer again?
+
 
     @tr.observe("show_null", "_value")
     def observe_show_null(self, on_change):
@@ -151,18 +177,22 @@ class AutoObject(w.VBox, WatchValidate):
 
     @tr.observe("properties")
     def _properties(self, on_change):
-        self.di_callers = {
-            property_key: aumap.map_widget(
-                property_schema, widgets_map=self.widgets_map
+        self.di_callers = self._get_di_callers(self.properties)
+        self._init_ui()
+
+    def _get_di_callers(self, properties):
+        di_callers = {
+            pkey: aumap.map_widget(
+                pschema, widgets_map=self.widgets_map
             )
-            for property_key, property_schema in self.properties.items()
+            for pkey, pschema in properties.items()
         }
-        for k, v in self.di_callers.items():
+        for v in di_callers.values():
             if v.autoui in self.nested_widgets:
                 v.kwargs = v.kwargs | {"show_title": False, "show_description": False}
                 # NOTE: ^ this avoids nested widgets having title and description both in AutoBox and in themselves
                 v.kwargs_box = v.kwargs_box | {"nested": True}
-        self._init_ui()
+        return di_callers
 
     @tr.observe("align_horizontal")
     def _align_horizontal(self, on_change):
