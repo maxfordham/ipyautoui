@@ -187,7 +187,7 @@ def get_from_schema_root(schema: ty.Dict, key: ty.AnyStr) -> ty.AnyStr:
     return schema[key] if key in schema.keys() else ""
 
 
-class AutoRenderMethods:
+class AutoRenderMethods:  # NOT IN USE
     @classmethod
     def create_autoui_renderer(
         cls, schema: ty.Union[ty.Type[BaseModel], dict], path=None, **kwargs

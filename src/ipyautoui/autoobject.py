@@ -20,13 +20,14 @@ import ipywidgets as w
 import traitlets as tr
 from IPython.display import display
 from jsonref import replace_refs
+from pydantic import ValidationError
 
 import ipyautoui.automapschema as aumap
 from ipyautoui._utils import obj_from_importstr, is_null
 from ipyautoui.nullable import Nullable
 from ipyautoui.autobox import AutoBox
 from ipyautoui.autoform import AutoObjectFormLayout
-from ipyautoui.watch_validate import WatchValidate
+from ipyautoui.watch_validate import WatchValidate, pydantic_validate
 from ipyautoui.custom.title_description import TitleDescription
 
 logger = logging.getLogger(__name__)
@@ -89,7 +90,8 @@ class AutoObject(w.VBox, WatchValidate):
             using schema kwargs this is remembered when re-enabled. Defaults to False.
 
     """
-
+    # model - pydantic model from WatchValidate
+    # schema - json schema from WatchValidate
     nested_widgets = tr.List()
     update_map_widgets = tr.Dict()
     widgets_map = tr.Dict()
@@ -108,6 +110,25 @@ class AutoObject(w.VBox, WatchValidate):
     open_nested = tr.Bool(default_value=None, allow_none=True)
     show_null = tr.Bool(default_value=False)
     # show_raw = tr.Bool(default_value=False)  # TODO: match logic for show_null
+
+    def update_model(self, model):
+        self.update_schema(model.model_json_schema())
+        self.model = model
+        try:
+            self.value = pydantic_validate(self.model, self.value)
+            self._update_widgets_from_value()  # NOTE: this should be called by the value setter...
+            self.error = None
+        except ValidationError as e:
+            self.error = str(e)
+
+
+    def update_schema(self, schema):
+        schema = replace_refs(schema, merge_props=True)
+        self.properties = schema["properties"]
+        updates = {k: v for k, v in schema.items() if k in self.traits() and k != "properties" and k != "value"}
+        {setattr(self, k, v) for k, v in updates.items()}
+        self.schema = schema
+
 
     @tr.observe("show_null", "_value")
     def observe_show_null(self, on_change):
@@ -151,18 +172,32 @@ class AutoObject(w.VBox, WatchValidate):
 
     @tr.observe("properties")
     def _properties(self, on_change):
-        self.di_callers = {
-            property_key: aumap.map_widget(
-                property_schema, widgets_map=self.widgets_map
+        if hasattr(self, "di_callers"): # updating schema...
+            di_callers = self._get_di_callers(self.properties)
+            if {k: v.autoui for k,v in di_callers.items()} != {k: v.autoui for k,v in self.di_callers.items()}:
+                self.properties = on_change["old"]
+                raise ValueError("widgets must match on schema change. changes intended for modifications of existing widgets only.")
+            for k, v in di_callers.items():
+                {setattr(self.di_widgets[k], _k, _v) for _k, _v in v.kwargs.items() if _k != "value"}
+                {setattr(self.di_boxes[k], _k, _v) for _k, _v in v.kwargs_box.items() if _k != "value"}
+            self.di_callers = di_callers
+        else: # instantiating...
+            self.di_callers = self._get_di_callers(self.properties)
+            self._init_ui()
+
+    def _get_di_callers(self, properties):
+        di_callers = {
+            pkey: aumap.map_widget(
+                pschema, widgets_map=self.widgets_map
             )
-            for property_key, property_schema in self.properties.items()
+            for pkey, pschema in properties.items()
         }
-        for k, v in self.di_callers.items():
+        for v in di_callers.values():
             if v.autoui in self.nested_widgets:
                 v.kwargs = v.kwargs | {"show_title": False, "show_description": False}
                 # NOTE: ^ this avoids nested widgets having title and description both in AutoBox and in themselves
                 v.kwargs_box = v.kwargs_box | {"nested": True}
-        self._init_ui()
+        return di_callers
 
     @tr.observe("align_horizontal")
     def _align_horizontal(self, on_change):
@@ -424,8 +459,7 @@ class AutoObject(w.VBox, WatchValidate):
 
     @property
     def di_widgets_value(self):  # used to set _value
-        get_value = lambda v: v._value if "_value" in v.traits() else v.value
-        return {k: get_value(v) for k, v in self.di_widgets.items()}
+        return {k: v._value if "_value" in v.traits() else v.value for k, v in self.di_widgets.items()}
 
     def check_for_nullables(self) -> bool:
         """Search through widgets and as soon as a Nullable widget is found, return True.

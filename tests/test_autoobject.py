@@ -17,9 +17,32 @@ class TestAutoObject:
     def test_simple(self):
         class ExampleSchema(BaseModel):
             text: str = Field(default="Test", description="This test is important")
+            integer: int = Field(default=1, description="This test is important too")
 
         ui = AutoObject.from_pydantic_model(ExampleSchema)
-        assert ui.value == {"text": "Test"}
+        assert ui.value == {"text": "Test", "integer": 1}
+
+        ui.value = {"text": "asdf", "integer": 2}
+        assert ui.di_widgets["text"].value == "asdf"
+        assert ui.di_widgets["integer"].value == 2
+
+    def test_change_model(self):
+        class ExampleSchema(BaseModel):
+            text: str = Field(default="Test", description="This test is important")
+            integer: int = Field(default=1, description="This test is important too")
+
+        class ExampleSchema2(BaseModel):
+            text: str = Field(default="Test", description="This test is important")
+            floaty: float = Field(default=1.3, description="This test is important too")
+
+        ui = AutoObject.from_pydantic_model(ExampleSchema)
+        assert ui.value == {"text": "Test", "integer": 1}
+        try:
+            ui.update_model(ExampleSchema2) 
+        except Exception as e:
+            assert str(e) == "widgets must match on schema change. changes intended for modifications of existing widgets only."
+
+
         print("done")
 
 
