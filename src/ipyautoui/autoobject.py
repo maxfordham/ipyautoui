@@ -20,6 +20,7 @@ import ipywidgets as w
 import traitlets as tr
 from IPython.display import display
 from jsonref import replace_refs
+from pydantic import ValidationError
 
 import ipyautoui.automapschema as aumap
 from ipyautoui._utils import obj_from_importstr, is_null
@@ -110,29 +111,23 @@ class AutoObject(w.VBox, WatchValidate):
     show_null = tr.Bool(default_value=False)
     # show_raw = tr.Bool(default_value=False)  # TODO: match logic for show_null
 
-
-    @tr.observe("model")
-    def observe_model(self, on_change):
+    def update_model(self, model):
+        self.update_schema(model.model_json_schema())
+        self.model = model
         try:
-            self.schema = self.model.model_json_schema()
             self.value = pydantic_validate(self.model, self.value)
             self._update_widgets_from_value()  # NOTE: this should be called by the value setter...
-        except Exception as e:
-            logger.warning(e)
-            self.model = on_change["old"]
+            self.error = None
+        except ValidationError as e:
+            self.error = str(e)
 
-    @tr.observe("schema")
-    def observe_schema(self, on_change):
-        schema = replace_refs(on_change["new"], merge_props=True)
-        di_callers = self._get_di_callers(schema["properties"])
-        if {k: v.autoui for k,v in di_callers.items()} != {k: v.autoui for k,v in self.di_callers.items()}:
-            self.schema = on_change["old"]
-            raise ValueError("widgets must match on schema change. changes intended for modifications of existing widgets only.")
-        for k, v in di_callers.items():
-            {setattr(self.di_widgets[k], _k, _v) for _k, _v in v.kwargs.items() if _k != "value"}
-            {setattr(self.di_boxes[k], _k, _v) for _k, _v in v.kwargs_box.items() if _k != "value"}
-        self.di_callers = di_callers
-        self.schema = schema  # TODO: does this call the observer again?
+
+    def update_schema(self, schema):
+        schema = replace_refs(schema, merge_props=True)
+        self.properties = schema["properties"]
+        updates = {k: v for k, v in schema.items() if k in self.traits() and k != "properties" and k != "value"}
+        {setattr(self, k, v) for k, v in updates.items()}
+        self.schema = schema
 
 
     @tr.observe("show_null", "_value")
@@ -177,8 +172,18 @@ class AutoObject(w.VBox, WatchValidate):
 
     @tr.observe("properties")
     def _properties(self, on_change):
-        self.di_callers = self._get_di_callers(self.properties)
-        self._init_ui()
+        if hasattr(self, "di_callers"): # updating schema...
+            di_callers = self._get_di_callers(self.properties)
+            if {k: v.autoui for k,v in di_callers.items()} != {k: v.autoui for k,v in self.di_callers.items()}:
+                self.properties = on_change["old"]
+                raise ValueError("widgets must match on schema change. changes intended for modifications of existing widgets only.")
+            for k, v in di_callers.items():
+                {setattr(self.di_widgets[k], _k, _v) for _k, _v in v.kwargs.items() if _k != "value"}
+                {setattr(self.di_boxes[k], _k, _v) for _k, _v in v.kwargs_box.items() if _k != "value"}
+            self.di_callers = di_callers
+        else: # instantiating...
+            self.di_callers = self._get_di_callers(self.properties)
+            self._init_ui()
 
     def _get_di_callers(self, properties):
         di_callers = {
@@ -454,8 +459,7 @@ class AutoObject(w.VBox, WatchValidate):
 
     @property
     def di_widgets_value(self):  # used to set _value
-        get_value = lambda v: v._value if "_value" in v.traits() else v.value
-        return {k: get_value(v) for k, v in self.di_widgets.items()}
+        return {k: v._value if "_value" in v.traits() else v.value for k, v in self.di_widgets.items()}
 
     def check_for_nullables(self) -> bool:
         """Search through widgets and as soon as a Nullable widget is found, return True.
