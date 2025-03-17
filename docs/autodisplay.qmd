@@ -1,0 +1,51 @@
+---
+title: "AutoDisplay"
+---
+
+::: {.callout-warning}
+## Try on Binder
+
+These docs requires a python kernel to run. Try on Binder [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD?urlpath=%2Fdoc%2Ftree%2Fdocs%2Fautodisplay.qmd)
+:::
+
+
+## Render a list of files
+
+```{python}
+
+from ipyautoui.demo_schemas import CoreIpywidgets
+from ipyautoui import AutoUi, AutoDisplay
+from ipyautoui.autodisplay import DisplayPath
+from ipyautoui.constants import load_test_constants
+from IPython.display import display
+import pathlib
+
+tests_constants = load_test_constants()
+paths = list(load_test_constants().DIR_FILETYPES.glob("*.*"))
+ad = AutoDisplay.from_paths(paths, display_showhide=False)
+display(ad)
+```
+
+## Create a custom renderer
+
+```{python}
+
+# TODO: fix this
+
+# from ipyautoui.demo_schemas import CoreIpywidgets
+
+# user_file_renderers = AutoUi.create_autodisplay_map(
+#     ext=".aui.json", schema=CoreIpywidgets
+# )
+# tests_constants.PATH_TEST_AUI.write_text(
+#     CoreIpywidgets(int_text_req=3, int_text_nullable=None).model_dump_json(indent=4)
+# )
+
+# test_ui = AutoDisplay.from_paths(
+#     paths=[tests_constants.PATH_TEST_AUI],
+#     renderers=user_file_renderers,
+#     display_showhide=False,
+# )
+
+# display(test_ui)
+```

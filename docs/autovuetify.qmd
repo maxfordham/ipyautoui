@@ -1,0 +1,77 @@
+---
+title: "AutoVuetify"
+---
+
+::: {.callout-warning}
+## Try on Binder
+
+These docs requires a python kernel to run. Try on Binder [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD?urlpath=%2Fdoc%2Ftree%2Fdocs%2Fautovuetify.qmd)
+:::
+
+`AutoVjsf` works in exactly the same way as `AutoUi`, but instead of using `ipywidgets` to render the JSON schema it uses [ipyvuetify](https://github.com/widgetti/ipyvuetify) and [vuetify-jsonschema-form](https://github.com/koumoul-dev/vuetify-jsonschema-form). 
+
+
+
+::: {.callout-tip}
+[vuetify-jsonschema-form documentation](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/) is awesome! 
+
+See there docs and the Video below to see what you can do. 
+Once you've created a schema based on those docs it ___should___ work with 
+AutoVjsf
+:::
+
+
+```{python}
+from IPython.display import IFrame
+
+IFrame(
+    width="600",
+    height="500",
+    sandbox="allow-same-origin allow-scripts allow-popups",
+    frameborder="0",
+    src="https://videos.koumoul.com/videos/embed/29d12ba2-f694-4659-8027-e9386692d8b5",
+)
+```
+
+::: {.callout-warning}
+vjsf uses __"-"__ in the schema keys for specifying formatting (e.g. "x-display")...
+when you're using pydantic to make the schema, __"-"__ cannot be used field names, use __"_"__ instead (e.g. "x_display") and AutoVjsf does the conversion. 
+:::
+
+## Creating Simple Widget
+
+So let's create a simple pydantic class. Here we have one text field.
+
+
+```{python}
+from ipyautoui import AutoVjsf
+import json
+from pydantic import BaseModel, Field
+from ipyautoui.constants import DIR_MODULE
+from ipyautoui._utils import display_pydantic_json
+
+# create a pydantic model (or a json-schema) defining the fields of interest
+class AutoUiExample(BaseModel):
+    text: str = Field(default="Test", description="This description is very important")
+
+
+import pathlib
+
+value = {"text": "this is a value"}
+ui = AutoVjsf(schema=AutoUiExample, value=value, path=pathlib.Path("test.json"))
+display(ui)  # uncomment
+```
+
+### A more Complex Example Model
+
+Let's look at a complete pydantic model producing all of the possible widgets. 
+within `import ipyautoui.demo_schemas` there is a class called `CoreIpywidgets` that outlines what is possible. 
+Explore the python file below.
+
+```{python}
+from ipyautoui.demo_schemas import CoreIpywidgets
+
+ui = AutoVjsf(CoreIpywidgets)
+ui.show_raw = True
+ui
+```

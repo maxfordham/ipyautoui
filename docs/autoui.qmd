@@ -1,0 +1,120 @@
+---
+title: "AutoUi"
+---
+
+::: {.callout-warning}
+## Try on Binder
+
+These docs requires a python kernel to run. Try on Binder [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD?urlpath=%2Fdoc%2Ftree%2Fdocs%2Fautoui.qmd)
+:::
+
+With ipyautoui we can create ipywidgets from either a **json-schema** or a **pydantic model**. This makes it quick and easy to whip up a user interface when required.
+
+```{python}
+from ipyautoui import AutoUi
+import pathlib
+import json
+from pydantic import BaseModel, Field, model_validator, ConfigDict
+from enum import Enum
+from ipyautoui.constants import DIR_MODULE
+from ipyautoui._utils import display_pydantic_json
+import ipywidgets as w
+import typing as ty
+```
+
+
+```{python}
+
+# create a pydantic model (or a json-schema) defining the fields of interest
+
+class Sub(BaseModel):
+    a: str = "a"
+    b: int = 1
+
+class My(Enum):
+    "asdfal;ksdfj"
+    a = "a"
+    b = "b"
+
+class Example(BaseModel):
+    text: str = Field(default="Test", description="This description is very important")
+    inty: int = 1
+    sub: Sub
+    nu: ty.Optional[str] = None
+    my: My
+
+
+data = {"text": "this is a value"}
+ui = AutoUi(
+    schema=Example,
+    path=pathlib.Path("test.ui.json"),
+    show_savebuttonbar=True,
+)
+display(ui)
+```
+
+update the `value` of the form as you would any other ipywidget
+
+
+```{python}
+ui.value = {'text': 'Test upates', 'inty': 1, 'sub': {'a': 'asdf', 'b': 3}, 'nu': "not None", 'my': 'b'}
+```
+
+## Updating the model / schema
+
+Minor changes to the model can be made. The keys and resulting widgets must remain the same, but the attributes that define them can change (i.e. descriptions, the options of Dropdown, limits of an integer etc.).
+You can also add validation logic in this way. This is to support the edge case where the parameters of a form must remain the same but the allowed values and other customisations can change.
+
+```{python}
+class New(Enum):
+    "asdfal;ksdfj"
+    c = 1
+    d = 2
+    
+class Example2(BaseModel):
+    """some updated description"""
+    text: str = Field(default="Test", description="This description is very important")
+    inty: int = Field(default=4, description="This integer is very important")
+    sub: Sub
+    nu: ty.Optional[str] = None
+    my: New
+
+    @model_validator(mode='after')
+    def v(self):
+        self.text = "custom validation stuff..."
+        return self
+
+    model_config = ConfigDict(json_schema_extra=dict(show_raw=True))
+
+
+ui.update_model(Example2)
+```
+
+Wholesale updates of the model are not allowed.
+
+```{python}
+
+# this will fail as the model is completely different. 
+# in this case you just want to new AutoUi object. 
+try:
+    ui.update_model(Sub)
+except Exception as e:
+    print(e)
+```
+
+
+```{python}
+# this will fail as the widgets that define the model need to change
+# as `inty` has changed from an `int` to a `str`
+class Example1(BaseModel):
+    text: str = Field(default="Test", description="This description is very important")
+    inty: str = "1"
+    sub: Sub
+    nu: ty.Optional[str] = None
+    my: My
+
+try:
+    ui.update_model(Example1)
+except Exception as e:
+    print(e)
+```

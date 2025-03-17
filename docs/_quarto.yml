@@ -1,0 +1,35 @@
+
+project:
+  type: website
+  # pre-render: 
+  #   - ./_get_document_issue_io_examples.sh
+website:
+  title: "ipyautoui"
+  image: images/logo.png
+  site-url: https://github.com/maxfordham/ipyautoui
+  repo-url: https://github.com/maxfordham/ipyautoui
+  favicon: "images/favicon.png"
+  page-navigation: true
+  navbar:
+    logo: "images/logo.png"
+    left:
+      - demo.qmd
+      - autoui.qmd
+      - autovuetify.qmd
+      - editgrid.qmd
+      - autodisplay.qmd
+
+    right:
+      - CONTRIBUTING.qmd
+      - CHANGELOG.md
+      - icon: github
+        href: https://github.com/maxfordham/ipyautoui
+        aria-label: GitHub
+
+format:
+  html:
+    css: styles.css
+    toc: true
+    theme:
+      light: flatly
+      dark: darkly
