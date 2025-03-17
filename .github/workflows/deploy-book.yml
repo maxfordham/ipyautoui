@@ -1,87 +1,41 @@
+# TODO: setup auto-update pixi.lock https://pixi.sh/latest/advanced/updates_github_actions/#how-to-use
+# TODO: use quarto GH action (https://github.com/quarto-dev/quarto-actions/tree/main/publish)
+
 name: deploy-book
 
-# Only run this when the master branch changes
 on:
-  push:
-    branches:
-    - main
-    # If your git repository has the Jupyter Book within some-subfolder next to
-    # unrelated files, you can make this run only if a file within that specific
-    # folder has been modified.
-    #
-    # paths:
-    # - some-subfolder/**
-  pull_request:
-    branches:
-    - main
-    
-env:
-  CACHE_NUMBER: 1  # increase to reset cache manually
-    
+    push:
+      branches: [main]
+    pull_request:
+      branches: [main]
 
-# This job installs dependencies, builds the book, and pushes it to `gh-pages`
 jobs:
-  deploy-book:
+  build:
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
             label: linux-64
-            prefix: /usr/share/miniconda3/envs/ipyautoui-dev
-
-          # Add macOS and Windows builds here if you need them
-          # - os: macos-latest
-          #   label: osx-64
-          #   prefix: /Users/runner/miniconda3/envs/ipyautoui-dev
-
-          # - os: windows-latest
-          #   label: win-64
-          #   prefix: C:\Miniconda3\envs\ipyautoui-dev
 
     name: ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Mambaforge
-        uses: conda-incubator/setup-miniconda@v2
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.8.0
         with:
-            miniforge-variant: Mambaforge
-            miniforge-version: latest
-            activate-environment: ipyautoui-dev
-            use-mamba: true
-
-      - name: Set cache date
-        run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
-
-      - uses: actions/cache@v2
-        with:
-          path: ${{ matrix.prefix }}
-          key: ${{ matrix.label }}-conda-${{ hashFiles('docs/environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
-        id: cache
-
-      - name: Update environment
-        run: mamba env update -n ipyautoui-dev -f docs/environment.yml
-        if: steps.cache.outputs.cache-hit != 'true'
-           
-      - name: setup jb config
-        shell: bash -l {0}
-        working-directory: ./docs
-        run: jupyter-book config sphinx .
-
-      - name: Build the book
-        shell: bash -l {0}
-        working-directory: ./docs
-        run: sphinx-build . _build/html -b html
+            manifest-path: pyproject.toml
+            pixi-version: v0.42.1
+            cache: true
+            cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+      - run: pixi run build-docs
 
       - name: add .nojekyll file
-        working-directory: ./docs/_build/html
+        working-directory: ./docs/_site
         run: touch .nojekyll
-        
+
       # Push the book's HTML to github-pages
       - name: GitHub Pages action
         uses: peaceiris/actions-gh-pages@v3.6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build/html
-
+          publish_dir: docs/_site
