@@ -1,0 +1,181 @@
+---
+title: "EditGrid"
+---
+
+```{python}
+import typing as ty
+from pydantic import BaseModel, Field, RootModel
+from ipyautoui import AutoUi
+
+
+class DataFrameCols(BaseModel):
+    string: str = Field("string", column_width=100)
+    integer: int = Field(1, column_width=80)
+    floater: float = Field(3.1415, column_width=70, global_decimal_places=3)
+    something_else: float = Field(324, column_width=100)
+    nullable_string: ty.Optional[str] = None
+
+
+class TestDataFrame(BaseModel):
+    """a description of TestDataFrame"""
+    a: str
+    df: ty.List[DataFrameCols] = Field([DataFrameCols().model_dump(mode="json")], format="dataframe")
+       
+```
+
+
+```{python}
+
+from ipyautoui.custom.editgrid import EditGrid
+class TestDataFrame(RootModel):
+    """a description of TestDataFrame"""
+
+    root: ty.List[DataFrameCols] = Field(format="dataframe")
+egrid = EditGrid(schema=TestDataFrame)
+egrid
+```
+
+```{python}
+egrid.value =  [
+        {
+            "string": "important string",
+            "integer": 1,
+            "floater": 3.14,
+            "something_else": 324,
+        },
+        {"string": "update", "integer": 4, "floater": 3.12344, "something_else": 123},
+        {"string": "evening", "integer": 5, "floater": 3.14, "something_else": 235},
+        {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
+        {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
+    ]
+
+```
+
+
+
+
+```{python}
+
+from pydantic import RootModel
+
+# Test: EditGrid instance with multi-indexing.
+AUTO_GRID_DEFAULT_VALUE = [
+    {
+        "string": "important string",
+        "integer": 1,
+        "floater": 3.14,
+    },
+]
+AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
+AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE + [
+    {
+        "string": None,
+        "integer": None,
+        "floater": None,
+    },
+]
+
+class DataFrameCols(BaseModel):
+    string: ty.Optional[str] = Field(
+        "string", json_schema_extra=dict(column_width=400, section="a")
+    )
+    integer: ty.Optional[int] = Field(
+        1, json_schema_extra=dict(column_width=80, section="a")
+    )
+    floater: ty.Optional[float] = Field(
+        None, json_schema_extra=dict(column_width=70, section="b")
+    )
+
+class TestDataFrame(RootModel):
+    """a description of TestDataFrame"""
+
+    root: ty.List[DataFrameCols] = Field(
+        default=AUTO_GRID_DEFAULT_VALUE,
+        json_schema_extra=dict(
+            format="dataframe", datagrid_index_name=("section", "title")
+        ),
+    )
+
+title = "The Wonderful Edit Grid Application"
+description = "Useful for all editing purposes whatever they may be 👍"
+editgrid = EditGrid(
+    schema=TestDataFrame,
+    title=title,
+    description=description,
+    ui_add=None,
+    ui_edit=None,
+    warn_on_delete=True,
+    show_copy_dialogue=False,
+    close_crud_dialogue_on_action=False,
+    global_decimal_places=1,
+    column_width={"String": 400},
+)
+editgrid.observe(lambda c: print("_value changed"), "_value")
+display(editgrid)
+```
+
+```{python}
+
+
+class TestProperties(BaseModel):
+    string: str
+    nullable_string: ty.Optional[str] = None
+    floater: float = 1.5
+    inty: int = 1
+
+
+class TestGridSchema(RootModel):
+    """no default"""
+
+    root: ty.List[TestProperties] = Field(
+        [TestProperties(string="string").model_dump()],
+    )
+
+egrid = EditGrid(
+        schema=TestGridSchema,
+        value=[{"string": "test2","nullable_string":None, "floater": 2.2, "inty": 1}],
+    )
+egrid
+```
+
+
+
+
+```{python}
+from ipyautoui.autoobject import AutoObjectForm
+from ipyautoui.demo_schemas import CoreIpywidgets
+ui = AutoObjectForm.from_pydantic_model(CoreIpywidgets)
+ui
+```
+
+
+
+```{python}
+# Row Validation (WIP)
+
+from pydantic import RootModel
+
+
+class Sub(BaseModel):
+    a: str = "a"
+    b: int = 1
+
+
+class Table(RootModel):
+    root: list[Sub]
+
+
+class NestedTable(BaseModel):
+    table: list[Sub]
+
+
+# for simple root tables it is simple to extract the pydantic model for the row
+RowSchema = Table.__pydantic_core_schema__["schema"]["items_schema"]["cls"]
+print(RowSchema)
+
+# more difficult for nested rows
+NestedRowSchema = NestedTable.__pydantic_core_schema__["schema"]["fields"]["table"][
+    "schema"
+]["items_schema"]["cls"]
+print(NestedRowSchema)
+```
