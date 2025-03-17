@@ -2,6 +2,12 @@
 title: "AutoVuetify"
 ---
 
+::: {.callout-warning}
+## Try on Binder
+
+These docs requires a python kernel to run. Try on Binder [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD?urlpath=%2Fdoc%2Ftree%2Fdocs%2Fautovuetify.qmd)
+:::
+
 `AutoVjsf` works in exactly the same way as `AutoUi`, but instead of using `ipywidgets` to render the JSON schema it uses [ipyvuetify](https://github.com/widgetti/ipyvuetify) and [vuetify-jsonschema-form](https://github.com/koumoul-dev/vuetify-jsonschema-form). 
 
 
