@@ -79,7 +79,11 @@ class WatchValidate(tr.HasTraits):  # TODO: _WatchValidate
     @value.setter
     def value(self, value: ty.Any):
         if self.model is not None:
-            value = pydantic_validate(self.model, value)
+            try:
+                value = pydantic_validate(self.model, value)
+                self.error = None
+            except ValidationError as e:
+                self.error = str(e)
         if value != self._value:
             with self.hold_trait_notifications():
                 # these means that change events will be squashed
