@@ -13,15 +13,15 @@ website:
   navbar:
     logo: "images/logo.png"
     left:
-      - demo
-      - ipyautoui.ipynb
-      - ipyvuetify.ipynb
-      - editgrid.ipynb
+      - demo.qmd
+      - autoui.qmd
+      - autovuetify.qmd
+      - editgrid.qmd
+      - autodisplay.qmd
 
     right:
-      - CONTRIBUTING
-      - text: "release notes"
-        href: release-notes/index.html
+      - CONTRIBUTING.qmd
+      - CHANGELOG.md
       - icon: github
         href: https://github.com/maxfordham/ipyautoui
         aria-label: GitHub
