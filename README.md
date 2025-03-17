@@ -139,35 +139,10 @@ It is also obviously wholly dependent on the excellent json-schema specification
 
 * [json-schema](https://json-schema.org/)
 
-## Development installation
+## Contributing
 
-```sh
-$ git clone https://github.com/maxfordham/ipyautoui
-$ cd ipyautoui
+{{< include ../CONTRIBUTING.md >}}
 
-# assuming that you have `mamba` installed:
-$ mamba env create -f environment.yml
-
-# run tests
-$ pytest
-```
-
-```{note}
-[Jupytext](https://github.com/mwouts/jupytext) is used throughout to allow the `.py` files
-to be ran as notebooks to facillitate easy testing. You can use JupyterLab, or if you are 
-using VS Code then install the Jupytext extension. In the `.vscode/settings.json` file
-`"jupyter.notebookFileRoot": "${fileDirname}"` matching with the jupyterlab default. 
-```
-
-## Packaging
-
-```sh
-#  NOTE: restricted to core-maintainers only
-mamba create -n hatcher python hatch 
-mamba activate hatcher # or conda env with hatch installed
-hatch build  # builds to local folder
-hatch publish -u __token__ -a <your-pypi-token>  # publishes to pypi
-```
 
 ## Contributions
 
