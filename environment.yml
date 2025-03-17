@@ -14,6 +14,7 @@ dependencies:
   - jupyterlab-myst
   - python-lsp-server
   - voila
+  - quarto
   - jupytext
   - black
   - flake8
