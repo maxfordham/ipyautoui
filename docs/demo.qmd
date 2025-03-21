@@ -6,7 +6,7 @@ title: "Demo"
 ::: {.callout-warning}
 ## Try on Binder
 
-the demo requires a python kernel to run. Try on Binder [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD?urlpath=voila%2Frender%2Fdocs%2Fdemo.ipynb)
+the demo requires a python kernel to run. Try on Binder [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD?urlpath=voila%2Frender%2Fdocs%2Fdemo.qmd)
 :::
 
 
