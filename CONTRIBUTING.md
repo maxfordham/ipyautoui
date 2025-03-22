@@ -1,5 +1,5 @@
 
-`ipyautoui` uses [pixi]() for package management and development. To install `pixi`:
+`ipyautoui` uses [pixi](https://pixi.sh/v0.42.1/#installation) for package management and development. Once installed:
 
 ```sh
 $ git clone https://github.com/maxfordham/ipyautoui
@@ -16,8 +16,6 @@ $ pixi run list
 
 ```sh
 #  NOTE: restricted to core-maintainers only
-mamba create -n hatcher python hatch 
-mamba activate hatcher # or conda env with hatch installed
-hatch build  # builds to local folder
+pixi run build
 hatch publish -u __token__ -a <your-pypi-token>  # publishes to pypi
 ```
