@@ -56,25 +56,25 @@
     "text": "AutoUi is built using ipywidgets. It can be easily customised and extended… see ruleset in demo… More TBC"
   },
   {
-    "objectID": "issue-334.html",
-    "href": "issue-334.html",
-    "title": "ipyautoui",
+    "objectID": "demo.html",
+    "href": "demo.html",
+    "title": "Demo",
     "section": "",
-    "text": "import typing as ty\nimport pandas as pd\nfrom pydantic import BaseModel, RootModel, Field\nfrom ipyautoui.custom.autogrid import AutoGrid\nfrom ipyautoui.custom.editgrid import EditGrid, UiDelete\n\n\nautogrid = AutoGrid()\nautogrid\n\n\n\n\n\nclass DataFrameCols(BaseModel):\n    string: str = Field(\n        \"string\", json_schema_extra=dict(column_width=400, section=\"a\")\n    )\n\n\nclass TestDataFrame(RootModel):\n    \"\"\"a description of TestDataFrame\"\"\"\n\n    root: ty.List[DataFrameCols] = Field(\n        json_schema_extra=dict(\n            format=\"dataframe\", datagrid_index_name=(\"section\", \"title\")\n        ),\n    )\n\nautogrid.update_from_schema(TestDataFrame, data=pd.DataFrame([{\"string\": \"Test\"}]*10))\n\n\nclass TestDelete(UiDelete):\n    def __init__(self, *args, **kwargs):\n        super().__init__(*args, **kwargs)\n        self.message.value = (\n            \"⚠️&lt;b&gt;Are you sure you want to delete the following Types and Instances?&lt;/b&gt;⚠️&lt;br&gt;&lt;i&gt;Pressing the DELETE button will\"\n            \" permanently delete the selected Types and Instances!&lt;/i&gt;\"\n        )\nHEADER_BACKGROUND_COLOUR = \"rgb(207, 212, 252)\"\nGRID_STYLE = {\"header_background_color\": HEADER_BACKGROUND_COLOUR}\n\n\neditgrid = EditGrid(ui_delete=TestDelete, grid_style=GRID_STYLE)\ndisplay(editgrid)\n\n\n\n\n\nclass DataFrameCols(BaseModel):\n    string: str = Field(\n        \"string\", json_schema_extra=dict(column_width=400, section=\"a\")\n    )\n\n\nclass TestDataFrame(RootModel):\n    \"\"\"a description of TestDataFrame\"\"\"\n\n    root: ty.List[DataFrameCols] = Field(\n        json_schema_extra=dict(\n            format=\"dataframe\", datagrid_index_name=(\"section\", \"title\")\n        ),\n    )\neditgrid.update_from_schema(TestDataFrame, value=[{\"string\": \"Test\"}]*10, ui_delete=TestDelete)\n\n\nclass DataFrameCols(BaseModel):\n    integer: int = Field(\n        10, json_schema_extra=dict(column_width=400, section=\"a\")\n    )\n\n\n\nclass TestDataFrame(RootModel):\n    \"\"\"a description of TestDataFrame\"\"\"\n\n    root: ty.List[DataFrameCols] = Field(\n        json_schema_extra=dict(\n            format=\"dataframe\", datagrid_index_name=(\"section\", \"title\")\n        ),\n    )\neditgrid.update_from_schema(TestDataFrame)"
+    "text": "Try on Binder\n\n\n\nThese docs requires a python kernel to run. Try on Binder \n\n\n\n\nfrom ipyautoui import demo\ndemo()"
   },
   {
     "objectID": "CONTRIBUTING.html",
     "href": "CONTRIBUTING.html",
     "title": "Contributing",
     "section": "",
-    "text": "ipyautoui uses pixi for package management and development. To install pixi:"
+    "text": "ipyautoui uses pixi for package management and development. Once installed:"
   },
   {
     "objectID": "CONTRIBUTING.html#packaging",
     "href": "CONTRIBUTING.html#packaging",
     "title": "Contributing",
     "section": "Packaging",
-    "text": "Packaging\n#  NOTE: restricted to core-maintainers only\nmamba create -n hatcher python hatch \nmamba activate hatcher # or conda env with hatch installed\nhatch build  # builds to local folder\nhatch publish -u __token__ -a &lt;your-pypi-token&gt;  # publishes to pypi"
+    "text": "Packaging\n#  NOTE: restricted to core-maintainers only\npixi run build\nhatch publish -u __token__ -a &lt;your-pypi-token&gt;  # publishes to pypi"
   },
   {
     "objectID": "CHANGELOG.html",
@@ -158,14 +158,14 @@
     "href": "index.html#contributing",
     "title": "ipyautoui",
     "section": "Contributing",
-    "text": "Contributing\nipyautoui uses pixi for package management and development. To install pixi:\n$ git clone https://github.com/maxfordham/ipyautoui\n$ cd ipyautoui\n\n# assuming that you have `pixi` installed:\n$ pixi run tests\n\n# view other pixi commands\n$ pixi run list"
+    "text": "Contributing\nipyautoui uses pixi for package management and development. Once installed:\n$ git clone https://github.com/maxfordham/ipyautoui\n$ cd ipyautoui\n\n# assuming that you have `pixi` installed:\n$ pixi run tests\n\n# view other pixi commands\n$ pixi run list"
   },
   {
     "objectID": "index.html#packaging",
     "href": "index.html#packaging",
     "title": "ipyautoui",
     "section": "Packaging",
-    "text": "Packaging\n#  NOTE: restricted to core-maintainers only\nmamba create -n hatcher python hatch \nmamba activate hatcher # or conda env with hatch installed\nhatch build  # builds to local folder\nhatch publish -u __token__ -a &lt;your-pypi-token&gt;  # publishes to pypi"
+    "text": "Packaging\n#  NOTE: restricted to core-maintainers only\npixi run build\nhatch publish -u __token__ -a &lt;your-pypi-token&gt;  # publishes to pypi"
   },
   {
     "objectID": "index.html#contributions",
@@ -175,11 +175,11 @@
     "text": "Contributions\nAutoVjsf is a very thin wrapper where ipyvuetify and vuetify-jsonschema-form are doing all the work. Many thanks to @mariobuikhuizen for providing me with the boiler-plate code. Contributions welcome.\nNote: this is a 3rd party that is developed independently of the pydantic.dev company; other than relying heavily on their excellent package (pydantic), it is not affiliated with pydantic.dev in any way."
   },
   {
-    "objectID": "demo.html",
-    "href": "demo.html",
-    "title": "Demo",
+    "objectID": "issue-334.html",
+    "href": "issue-334.html",
+    "title": "ipyautoui",
     "section": "",
-    "text": "Try on Binder\n\n\n\nthe demo requires a python kernel to run. Try on Binder \n\n\n\nfrom ipyautoui import AutoUi, demo\n\ndemo()"
+    "text": "import typing as ty\nimport pandas as pd\nfrom pydantic import BaseModel, RootModel, Field\nfrom ipyautoui.custom.autogrid import AutoGrid\nfrom ipyautoui.custom.editgrid import EditGrid, UiDelete\n\n\nautogrid = AutoGrid()\nautogrid\n\n\n\n\n\nclass DataFrameCols(BaseModel):\n    string: str = Field(\n        \"string\", json_schema_extra=dict(column_width=400, section=\"a\")\n    )\n\n\nclass TestDataFrame(RootModel):\n    \"\"\"a description of TestDataFrame\"\"\"\n\n    root: ty.List[DataFrameCols] = Field(\n        json_schema_extra=dict(\n            format=\"dataframe\", datagrid_index_name=(\"section\", \"title\")\n        ),\n    )\n\nautogrid.update_from_schema(TestDataFrame, data=pd.DataFrame([{\"string\": \"Test\"}]*10))\n\n\nclass TestDelete(UiDelete):\n    def __init__(self, *args, **kwargs):\n        super().__init__(*args, **kwargs)\n        self.message.value = (\n            \"⚠️&lt;b&gt;Are you sure you want to delete the following Types and Instances?&lt;/b&gt;⚠️&lt;br&gt;&lt;i&gt;Pressing the DELETE button will\"\n            \" permanently delete the selected Types and Instances!&lt;/i&gt;\"\n        )\nHEADER_BACKGROUND_COLOUR = \"rgb(207, 212, 252)\"\nGRID_STYLE = {\"header_background_color\": HEADER_BACKGROUND_COLOUR}\n\n\neditgrid = EditGrid(ui_delete=TestDelete, grid_style=GRID_STYLE)\ndisplay(editgrid)\n\n\n\n\n\nclass DataFrameCols(BaseModel):\n    string: str = Field(\n        \"string\", json_schema_extra=dict(column_width=400, section=\"a\")\n    )\n\n\nclass TestDataFrame(RootModel):\n    \"\"\"a description of TestDataFrame\"\"\"\n\n    root: ty.List[DataFrameCols] = Field(\n        json_schema_extra=dict(\n            format=\"dataframe\", datagrid_index_name=(\"section\", \"title\")\n        ),\n    )\neditgrid.update_from_schema(TestDataFrame, value=[{\"string\": \"Test\"}]*10, ui_delete=TestDelete)\n\n\nclass DataFrameCols(BaseModel):\n    integer: int = Field(\n        10, json_schema_extra=dict(column_width=400, section=\"a\")\n    )\n\n\n\nclass TestDataFrame(RootModel):\n    \"\"\"a description of TestDataFrame\"\"\"\n\n    root: ty.List[DataFrameCols] = Field(\n        json_schema_extra=dict(\n            format=\"dataframe\", datagrid_index_name=(\"section\", \"title\")\n        ),\n    )\neditgrid.update_from_schema(TestDataFrame)"
   },
   {
     "objectID": "buttonbar_extended.html",
