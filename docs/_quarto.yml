@@ -13,7 +13,7 @@ website:
   navbar:
     logo: "images/logo.png"
     left:
-      - demo.qmd
+      - demo.ipynb
       - autoui.qmd
       - autovuetify.qmd
       - editgrid.qmd
