@@ -69,11 +69,15 @@ pytest = "*"
 # maplocal= "0.2.1"
 hatch = "*"
 
+[tool.pixi.feature.dev.pypi-dependencies]
+jupyterlab-quarto = "*"
+
 [tool.pixi.feature.dev.dependencies]
 jupyterlab = "*"
 jupytext = "*"
 voila = "*"
 notebook_intelligence = "*"
+quarto = ">=1.6.40,<2"
 
 [tool.pixi.feature.docs.dependencies]
 quarto = ">=1.6.40,<2"
