@@ -95,7 +95,7 @@ check = "ruff check"
 build = "hatch build"
 
 [tool.pixi.feature.dev.tasks]
-demo = "voila docs/demo.qmd" # TODO: make this work
+demo = "voila docs/demo.ipynb"
 jlab = "jupyter lab"
 
 [tool.pixi.feature.docs.tasks]
