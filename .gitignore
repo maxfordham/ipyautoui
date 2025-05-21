@@ -68,6 +68,7 @@ target/
 /ipyautoui/.ipynb_checkpoints
 /ipyautoui/__pycache__
 /docs/autoui_mapping.xlsx
+/docs/images/.ipynb_checkpoints
 /src/ipyautoui/custom/.ipynb_checkpoints
 /src/ipyautoui/custom/__pycache__
 /src/ipyautoui/custom/.virtual_documents

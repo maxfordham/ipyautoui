@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.7
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -255,6 +255,8 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     sb.unsaved_changes = True
 
+IO_BUTTON_KWARGS = {'tooltip': 'import/export', 'style': {}, 'layout': {'width': '44px'}, 'icon': 'arrows-alt-v'}
+
 
 # +
 class CrudOptions(ty.TypedDict):
@@ -326,6 +328,14 @@ DEFAULT_BUTTONBAR_CONFIG = CrudView(
             message="❔ <i>Help Selected</i>",
         )
     ),
+    io=CrudOptions(
+        **dict(IO_BUTTON_KWARGS)
+        | dict(
+            # tooltip="help - click to show description of all buttons in the toolbar",
+            # tooltip_clicked="hide help dialogue",
+            message="❔ <i>Import / Export</i>",
+        )
+    ),
 )
 
 
@@ -355,6 +365,7 @@ class CrudButtonBar(w.VBox):
     fn_delete = tr.Callable(default_value=lambda: print("delete"))
     fn_backward = tr.Callable(default_value=lambda: print("backward"))
     fn_support = tr.Callable(default_value=lambda: print("support"))
+    fn_io = tr.Callable(default_value=lambda: print("io"))
     fn_reload = tr.Callable(default_value=None, allow_none=True)
     show_support = tr.Bool(default_value=True)
 
@@ -404,6 +415,7 @@ class CrudButtonBar(w.VBox):
                 self.delete,
                 self.reload,
                 self.support,
+                self.io,
                 self.message,
             ]
         )
@@ -417,6 +429,7 @@ class CrudButtonBar(w.VBox):
         self.delete = w.ToggleButton()
         self.reload = w.Button()
         self.support = w.ToggleButton()
+        self.io = w.ToggleButton()
         # ^ KWARGS for the buttons are set by CrudView
         self.message = w.HTML()
         self._set_crud_view_options()
@@ -428,6 +441,7 @@ class CrudButtonBar(w.VBox):
         self.delete.observe(self._delete, "value")
         self.support.observe(self._support, "value")
         self.reload.on_click(self._reload)
+        self.io.observe(self._support, "value")
 
     def _onclick(self, button_name):
         wi = getattr(self, button_name)
@@ -462,6 +476,9 @@ class CrudButtonBar(w.VBox):
 
     def _support(self, onchange):
         self._onclick("support")
+
+    def _io(self, onchange):
+        self._onclick("io")
 
     def _reload(self, on_click):
         logger.info("Reloading all data")
@@ -504,12 +521,25 @@ if __name__ == "__main__":
     def backward():
         print("BACK")
 
+    def io():
+        print("IO")
+
     buttonbar = CrudButtonBar(
         fn_add=add,
         fn_edit=edit,
         fn_copy=copy,
         fn_delete=delete,
         fn_backward=backward,
+        fn_io=io,
         fn_reload=lambda: print("fn_reload"),
     )
     display(buttonbar)
+
+# +
+# w.ToggleButton(icon="arrows-alt-v")
+# w.ToggleButton(icon="retweet")
+# -
+
+
+
+
