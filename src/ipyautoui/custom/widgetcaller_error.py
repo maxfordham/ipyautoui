@@ -19,7 +19,6 @@
 # %%
 """widget caller error"""
 
-# %run ../__init__.py
 
 # %%
 import ipywidgets as w
