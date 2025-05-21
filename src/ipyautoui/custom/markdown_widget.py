@@ -14,7 +14,6 @@
 # ---
 
 """simple markdown widget"""
-# %run ../_dev_maplocal_params.py
 
 
 # +

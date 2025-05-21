@@ -17,7 +17,6 @@
 
 """file upload wrapper"""
 
-# %run ../_dev_maplocal_params.py
 
 # +
 import ipywidgets as w

@@ -19,7 +19,6 @@
 # %%
 """widget caller error"""
 
-# %run ../_dev_maplocal_params.py
 # %run ../__init__.py
 
 # %%

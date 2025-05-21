@@ -19,7 +19,6 @@
 # https://github.com/stas-prokopiev/ipywidgets_toggle_buttons
 """
 
-# %run ../_dev_maplocal_params.py
 
 
 # +

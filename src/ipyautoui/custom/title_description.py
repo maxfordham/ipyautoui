@@ -16,7 +16,6 @@
 # ---
 
 """generic support for observed title and description"""
-# %run ../_dev_maplocal_params.py
 
 
 # TODO: move to root
