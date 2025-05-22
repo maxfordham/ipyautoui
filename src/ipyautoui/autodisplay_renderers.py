@@ -32,7 +32,7 @@ import ipywidgets as w
 import traitlets as tr
 import typing as ty
 from io import StringIO, BytesIO
-from pydantic import HttpUrl, parse_obj_as
+from pydantic import HttpUrl
 
 
 #  local imports
@@ -203,7 +203,7 @@ class PreviewExcel(w.VBox):
     @tr.observe("path")
     def _observe_path(self, change):
         byts = getbytes(self.path)
-        self.xl = pd.ExcelFile(BytesIO(byts))
+        self.xl = pd.ExcelFile(BytesIO(byts)) # NOTE: requires openpyxl
 
     @tr.observe("xl")
     def _observe_xl(self, change):
