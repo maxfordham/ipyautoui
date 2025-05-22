@@ -13,9 +13,6 @@
 #     name: python3
 # ---
 
-# # %run ../_dev_maplocal_params.py
-
-
 # +
 import ipywidgets as w
 import traitlets as tr
@@ -24,14 +21,9 @@ from ipyautoui.constants import (
     ADD_BUTTON_KWARGS,
     LOAD_BUTTON_KWARGS,
 )
-from ipyautoui.custom.halo_decorator import halo_decorator
-from IPython.display import clear_output, display
-from ipyautoui.custom.title_description import TitleDescription
+from IPython.display import display
+# from ipyautoui.custom.title_description import TitleDescription
 import inspect
-
-# from ipyautoui.
-# PATH_SVG = "90-ring.svb"
-
 
 # +
 # TODO

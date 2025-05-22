@@ -14,7 +14,6 @@
 # ---
 
 # +
-# %run ../_dev_maplocal_params.py
 
 
 from IPython.display import display
