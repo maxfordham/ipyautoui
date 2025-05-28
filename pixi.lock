@@ -1614,8 +1614,8 @@ packages:
   timestamp: 1733223232820
 - pypi: .
   name: ipyautoui
-  version: 0.7.26.dev5+gee81c34.d20250522
-  sha256: 7592b3b1a158c21c2ee59511680fbca1adb99721518edbd934320073e517bd97
+  version: 0.7.27.dev2+g786e439.d20250528
+  sha256: 9053322012a9487047ba69adca2746a42b20900520e4015d55b30c2f1c81597d
   requires_dist:
   - immutables
   - ipydatagrid==1.3.2
