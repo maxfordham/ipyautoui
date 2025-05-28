@@ -6,8 +6,8 @@ requires = ["hatchling", "hatch-vcs"]
 [project]
 name = "ipyautoui"
 dynamic = ["version"]
-license = "BSD"
-license-files = ["licenses/BSD.txt"]
+license = "BSD-3-Clause"
+license-files = ["licenses/BSD-3-Clause.txt"]
 description = "wrapper that sits on top of ipywidgets and other ipy widget libraries to template / automate the creation of widget forms. Uses pydantic to create defined data-container and serialisation to JSON. Includes example patterns for adding new custom widgets."
 readme = "README.md"
 authors = [{ name = "John Gunstone", email = "gunstone.john@gmail.com" }]
