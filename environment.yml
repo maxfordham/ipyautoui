@@ -1,7 +1,7 @@
-name: ipyautoui-dev
-# channels priority
-# see https://bioconda.github.io/
-# conda-forge has highest prioriy
+name: ipyautoui-binder
+# NOTE: this is used for Binder only
+#       required as repo2docker does not support pixi
+#       https://repo2docker.readthedocs.io/en/latest/configuration/index.html
 channels:
   - defaults
   - conda-forge
@@ -21,11 +21,8 @@ dependencies:
   - nb_black
   - pytest
   - altair # optional
-  - halo # optional
   - plotly # optional
   - pip
   - pip:
-    # - maplocal==0.2.1
-    - pydantic-extra-types
     - pytest-examples
     - -e .

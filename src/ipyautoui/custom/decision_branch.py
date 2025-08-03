@@ -20,7 +20,6 @@
 a UI element that loads a folder for data caching, whilst storing a record of folders in use
 """
 
-# %run ../_dev_maplocal_params.py
 
 # -
 

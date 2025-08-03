@@ -14,7 +14,6 @@
 # ---
 
 """wrapper for ipyfilechooster.FileChooser"""
-# %run ../_dev_maplocal_params.py
 
 
 import pathlib

@@ -22,7 +22,6 @@ Reference:
         
 
 """
-# %run ../__init__.py
 import ipywidgets as w
 import traitlets as tr
 

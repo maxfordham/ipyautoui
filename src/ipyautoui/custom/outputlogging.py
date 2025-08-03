@@ -15,9 +15,7 @@
 
 # +
 """simple set-up of outputting logging messages to widgets output."""
-# %run ../_dev_maplocal_params.py
 #
-# %run ../__init__.py
 
 
 import logging

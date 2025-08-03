@@ -18,7 +18,6 @@
 # +
 """General widget for editing data"""
 
-# %run ../_dev_maplocal_params.py
 
 # TODO: move editgrid.py to root ?
 

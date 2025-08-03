@@ -13,7 +13,6 @@
 #     name: python3
 # ---
 
-# %run ../_dev_maplocal_params.py
 
 
 from IPython.display import IFrame, Javascript, clear_output, display
