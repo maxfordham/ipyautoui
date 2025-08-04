@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.7
+#       jupytext_version: 1.17.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -331,9 +331,9 @@ DEFAULT_BUTTONBAR_CONFIG = CrudView(
     io=CrudOptions(
         **dict(IO_BUTTON_KWARGS)
         | dict(
-            # tooltip="help - click to show description of all buttons in the toolbar",
-            # tooltip_clicked="hide help dialogue",
-            message="❔ <i>Import / Export</i>",
+            tooltip="import/export",
+            tooltip_clicked="Go back to table",
+            message="🔄 <i>Import / Export</i>",
         )
     ),
 )
@@ -349,7 +349,7 @@ def display_ui_tooltips(uiobj: w.DOMWidget) -> w.VBox:
                 if v.tooltip is not None:
                     li.append(v)
         except Exception as err:
-            logging.warning(err)
+            logging.info(err)
     replace_newlines = lambda x: x.replace("\n", "<br>")
     return w.VBox(
         [w.HBox([l, w.HTML(f"<i>{replace_newlines(l.tooltip)}</i>")]) for l in li]
@@ -441,7 +441,7 @@ class CrudButtonBar(w.VBox):
         self.delete.observe(self._delete, "value")
         self.support.observe(self._support, "value")
         self.reload.on_click(self._reload)
-        self.io.observe(self._support, "value")
+        self.io.observe(self._io, "value")
 
     def _onclick(self, button_name):
         wi = getattr(self, button_name)
@@ -535,10 +535,6 @@ if __name__ == "__main__":
     )
     display(buttonbar)
 
-# +
-# w.ToggleButton(icon="arrows-alt-v")
-# w.ToggleButton(icon="retweet")
-# -
 
 
 
