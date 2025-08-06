@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.6
+#       jupytext_version: 1.17.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -229,6 +229,131 @@ class UiCopy(w.HBox):
 
 if __name__ == "__main__":
     display(UiCopy())
+
+import io
+import csv
+from IPython.display import Javascript
+
+# +
+def data_to_tsv(data):
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter='\t')
+    
+    if data:
+        headers = data[0].keys()
+        writer.writerow(headers)
+        for row in data:
+            writer.writerow([row[key] for key in headers])
+    
+    tsv_string = output.getvalue()
+    return tsv_string
+
+class UiIo(w.HBox):
+    value = tr.List(value=None, trait=tr.Dict, allow_none=True)
+    model = tr.Type(klass=BaseModel)
+
+    @tr.observe("value")
+    def value_onchange(self, on_change):
+        self.tsv_string.value = data_to_tsv(self.value)
+
+    def __init__(self, **kwargs):
+        self.tsv_string  = w.Textarea(layout={"width": "100%", "height": "300px"})
+        self.bn_copy = w.Button(icon="copy", layout={"width": BUTTON_WIDTH_MIN})
+        super().__init__(**kwargs)
+
+        # for k,v in kwargs.items():
+        #     setattr(self, k, v)
+
+        self.children = [self.bn_copy, self.tsv_string]
+
+if __name__ == "__main__":
+    from pydantic import RootModel
+
+    # Test: EditGrid instance with multi-indexing.
+    AUTO_GRID_DEFAULT_VALUE = [
+        {
+            "string": "important string",
+            "integer": 1,
+            "floater": 3.14,
+        },
+    ]
+    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
+    
+    uiio = UiIo(value=AUTO_GRID_DEFAULT_VALUE)
+    display(uiio)
+
+# +
+from IPython.display import clear_output
+
+class CopyToClipboard(w.HBox):
+    def __init__(self, **kwargs):
+        
+        value = kwargs.get("value")
+        self.text  = w.Textarea(layout={"width": "100%", "height": "300px"}) #value=value, 
+        self.bn_copy = w.Button(icon="copy", layout={"width": BUTTON_WIDTH_MIN})
+        self.output = w.Output(layout=w.Layout(display="none"))
+        super().__init__(**kwargs)
+        self.children = [self.bn_copy, self.text, self.output]
+        self.bn_copy.on_click(self._bn_copy)
+
+    def _bn_copy(self, event):
+        copy_js = Javascript(f"navigator.clipboard.writeText({json.dumps(self.text.value)})")
+        self.output.clear_output()
+        self.output.append_display_data(copy_js)
+
+class UiIo(CopyToClipboard):
+    value = tr.List(value=None, trait=tr.Dict, allow_none=True)
+    model = tr.Type(klass=BaseModel)
+
+    @tr.observe("value")
+    def value_onchange(self, on_change):
+        self.text.value = data_to_tsv(self.value)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+if __name__ == "__main__":
+
+    cp_clip = CopyToClipboard(value="asdf")
+    display(cp_clip)
+# -
+
+if __name__ == "__main__":
+    from pydantic import RootModel
+
+    # Test: EditGrid instance with multi-indexing.
+    AUTO_GRID_DEFAULT_VALUE = [
+        {
+            "string": "important string",
+            "integer": 1,
+            "floater": 3.14,
+        },
+    ]
+    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
+    
+    uiio = UiIo(value=AUTO_GRID_DEFAULT_VALUE)
+    display(uiio)
+
+# +
+import json
+import ipywidgets as widgets
+from IPython.display import Javascript
+
+def copy_text_button(text: str) -> widgets.Widget:
+	button = widgets.Button(description="Copy", icon="copy")
+	output = widgets.Output(layout=widgets.Layout(display="none"))
+	copy_js = Javascript(f"navigator.clipboard.writeText({json.dumps(text)})")
+	
+	def on_click(_: widgets.Button) -> None:
+		output.clear_output()
+		output.append_display_data(copy_js)
+	button.on_click(on_click)
+	
+	return widgets.Box((button, output))
+
+
+# -
+
 
 # +
 # TODO: refactor how the datahandler works...
