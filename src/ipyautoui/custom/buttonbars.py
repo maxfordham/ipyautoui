@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.17.2
+#       jupytext_version: 1.17.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -311,6 +311,14 @@ DEFAULT_BUTTONBAR_CONFIG = CrudView(
             message="🗑️ <i>Deleting Value</i>",
         )
     ),
+    io=CrudOptions(
+        **dict(IO_BUTTON_KWARGS)
+        | dict(
+            tooltip="import/export",
+            tooltip_clicked="Go back to table",
+            message="🔄 <i>Import / Export</i>",
+        )
+    ),
     reload=CrudOptions(
         **dict(RELOAD_BUTTON_KWARGS)
         | dict(
@@ -326,14 +334,6 @@ DEFAULT_BUTTONBAR_CONFIG = CrudView(
             tooltip="help - click to show description of all buttons in the toolbar",
             tooltip_clicked="hide help dialogue",
             message="❔ <i>Help Selected</i>",
-        )
-    ),
-    io=CrudOptions(
-        **dict(IO_BUTTON_KWARGS)
-        | dict(
-            tooltip="import/export",
-            tooltip_clicked="Go back to table",
-            message="🔄 <i>Import / Export</i>",
         )
     ),
 )
@@ -413,9 +413,9 @@ class CrudButtonBar(w.VBox):
                 self.edit,
                 self.copy,
                 self.delete,
+                self.io,
                 self.reload,
                 self.support,
-                self.io,
                 self.message,
             ]
         )
@@ -427,9 +427,9 @@ class CrudButtonBar(w.VBox):
         self.edit = w.ToggleButton()
         self.copy = w.ToggleButton()
         self.delete = w.ToggleButton()
+        self.io = w.ToggleButton()
         self.reload = w.Button()
         self.support = w.ToggleButton()
-        self.io = w.ToggleButton()
         # ^ KWARGS for the buttons are set by CrudView
         self.message = w.HTML()
         self._set_crud_view_options()
@@ -439,9 +439,9 @@ class CrudButtonBar(w.VBox):
         self.edit.observe(self._edit, "value")
         self.copy.observe(self._copy, "value")
         self.delete.observe(self._delete, "value")
+        self.io.observe(self._io, "value")
         self.support.observe(self._support, "value")
         self.reload.on_click(self._reload)
-        self.io.observe(self._io, "value")
 
     def _onclick(self, button_name):
         wi = getattr(self, button_name)
@@ -502,6 +502,8 @@ class CrudButtonBar(w.VBox):
             setattr(getattr(self, n), "value", False)
 
 
+# +
+# len(DEFAULT_BUTTONBAR_CONFIG)
 # -
 
 if __name__ == "__main__":
@@ -534,8 +536,5 @@ if __name__ == "__main__":
         fn_reload=lambda: print("fn_reload"),
     )
     display(buttonbar)
-
-
-
 
 
