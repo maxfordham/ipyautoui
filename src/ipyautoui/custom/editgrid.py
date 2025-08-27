@@ -39,6 +39,7 @@ from ipyautoui.custom.autogrid import AutoGrid
 from ipyautoui.custom.title_description import TitleDescription
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
+logger = logging.getLogger(__name__)
 # TODO: rename "add" to "fn_add" so not ambiguous...
 # -
 
@@ -63,22 +64,14 @@ class DataHandler(BaseModel):
     fn_patch: ty.Callable[[ty.Any, dict], None]  # TODO: need to add index
     fn_delete: ty.Callable[[list[int]], None]
     fn_copy: ty.Callable[[list[int]], None]
+    fn_io: ty.Callable
 
 
 if __name__ == "__main__":
+    from ipyautoui.demo_schemas import EditableGrid
+    from ipyautoui.demo_schemas.editable_datagrid import DataFrameCols
 
-    class TestModel(BaseModel):
-        string: str = Field("string", title="Important String")
-        integer: int = Field(40, title="Integer of somesort")
-        floater: float = Field(1.33, title="floater")
-
-    def test_save():
-        print("Saved.")
-
-    def test_revert():
-        print("Reverted.")
-
-    ui = AutoObjectForm.from_pydantic_model(TestModel)
+    ui = AutoObjectForm.from_pydantic_model(DataFrameCols)
     display(ui)
 
 if __name__ == "__main__":
@@ -89,13 +82,13 @@ if __name__ == "__main__":
     ui.value = {"string": "adfs", "integer": 2, "floater": 1.22}
 
 
-class RowEditor:
-    fn_add: ty.List[ty.Callable[[ty.Any, dict], None]]  # post
-    fn_edit: ty.List[ty.Callable[[ty.Any, dict], None]]  # patch
-    fn_move: ty.Callable
-    fn_copy: ty.Callable
-    fn_delete: ty.Callable
-
+# +
+# class RowEditor:
+#     fn_add: ty.List[ty.Callable[[ty.Any, dict], None]]  # post
+#     fn_edit: ty.List[ty.Callable[[ty.Any, dict], None]]  # patch
+#     fn_move: ty.Callable
+#     fn_copy: ty.Callable
+#     fn_delete: ty.Callable
 
 # +
 class UiDelete(w.VBox):
@@ -230,109 +223,8 @@ class UiCopy(w.HBox):
 if __name__ == "__main__":
     display(UiCopy())
 
-import io
-import csv
-from IPython.display import Javascript
 
-# +
-def data_to_tsv(data):
-    output = io.StringIO()
-    writer = csv.writer(output, delimiter='\t')
-    
-    if data:
-        headers = data[0].keys()
-        writer.writerow(headers)
-        for row in data:
-            writer.writerow([row[key] for key in headers])
-    
-    tsv_string = output.getvalue()
-    return tsv_string
 
-class UiIo(w.HBox):
-    value = tr.List(value=None, trait=tr.Dict, allow_none=True)
-    model = tr.Type(klass=BaseModel)
-
-    @tr.observe("value")
-    def value_onchange(self, on_change):
-        self.tsv_string.value = data_to_tsv(self.value)
-
-    def __init__(self, **kwargs):
-        self.tsv_string  = w.Textarea(layout={"width": "100%", "height": "300px"})
-        self.bn_copy = w.Button(icon="copy", layout={"width": BUTTON_WIDTH_MIN})
-        super().__init__(**kwargs)
-
-        # for k,v in kwargs.items():
-        #     setattr(self, k, v)
-
-        self.children = [self.bn_copy, self.tsv_string]
-
-if __name__ == "__main__":
-    from pydantic import RootModel
-
-    # Test: EditGrid instance with multi-indexing.
-    AUTO_GRID_DEFAULT_VALUE = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-        },
-    ]
-    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
-    
-    uiio = UiIo(value=AUTO_GRID_DEFAULT_VALUE)
-    display(uiio)
-
-# +
-from IPython.display import clear_output
-
-class CopyToClipboard(w.HBox):
-    def __init__(self, **kwargs):
-        
-        value = kwargs.get("value")
-        self.text  = w.Textarea(layout={"width": "100%", "height": "300px"}) #value=value, 
-        self.bn_copy = w.Button(icon="copy", layout={"width": BUTTON_WIDTH_MIN})
-        self.output = w.Output(layout=w.Layout(display="none"))
-        super().__init__(**kwargs)
-        self.children = [self.bn_copy, self.text, self.output]
-        self.bn_copy.on_click(self._bn_copy)
-
-    def _bn_copy(self, event):
-        copy_js = Javascript(f"navigator.clipboard.writeText({json.dumps(self.text.value)})")
-        self.output.clear_output()
-        self.output.append_display_data(copy_js)
-
-class UiIo(CopyToClipboard):
-    value = tr.List(value=None, trait=tr.Dict, allow_none=True)
-    model = tr.Type(klass=BaseModel)
-
-    @tr.observe("value")
-    def value_onchange(self, on_change):
-        self.text.value = data_to_tsv(self.value)
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        
-if __name__ == "__main__":
-
-    cp_clip = CopyToClipboard(value="asdf")
-    display(cp_clip)
-# -
-
-if __name__ == "__main__":
-    from pydantic import RootModel
-
-    # Test: EditGrid instance with multi-indexing.
-    AUTO_GRID_DEFAULT_VALUE = [
-        {
-            "string": "important string",
-            "integer": 1,
-            "floater": 3.14,
-        },
-    ]
-    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
-    
-    uiio = UiIo(value=AUTO_GRID_DEFAULT_VALUE)
-    display(uiio)
 
 # +
 import json
@@ -352,13 +244,10 @@ def copy_text_button(text: str) -> widgets.Widget:
 	return widgets.Box((button, output))
 
 
-# -
-
-
 # +
 # TODO: refactor how the datahandler works...
 # TODO: add a test for the datahandler...
-
+from ipyautoui.custom.edittsv import EditTsv
 
 # from ipyautoui.watch_validate import WatchValidate
 class EditGrid(w.VBox, TitleDescription):
@@ -434,6 +323,7 @@ class EditGrid(w.VBox, TitleDescription):
         ui_edit: ty.Optional[ty.Callable] = None,
         ui_delete: ty.Optional[ty.Callable] = None,
         ui_copy: ty.Optional[ty.Callable] = None,
+        ui_io: ty.Optional[ty.Callable] = None,
         warn_on_delete: bool = False,
         show_copy_dialogue: bool = False,
         close_crud_dialogue_on_action: bool = False,
@@ -443,7 +333,7 @@ class EditGrid(w.VBox, TitleDescription):
         **kwargs,
     ):  # TODO: use **kwargs to pass attributes to EditGrid as in AutoObject and AutoArray
         self.vbx_error = w.VBox()
-        self.vbx_widget = w.VBox()
+        self.vbx_widget = w.VBox(layout={"width": "100%"})
         # TODO: ^ move common container attributes to WatchValidate
         self.description = description
         self.title = title
@@ -455,7 +345,7 @@ class EditGrid(w.VBox, TitleDescription):
         self.close_crud_dialogue_on_action = close_crud_dialogue_on_action
         self._init_autogrid(schema, value, **kwargs)
         self._init_ui_callables(
-            ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy
+            ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy, ui_io=ui_io
         )
         self._init_form()
         self._init_row_controls()
@@ -519,6 +409,7 @@ class EditGrid(w.VBox, TitleDescription):
         ui_edit: ty.Optional[ty.Callable] = None,
         ui_delete: ty.Optional[ty.Callable] = None,
         ui_copy: ty.Optional[ty.Callable] = None,
+        ui_io: ty.Optional[ty.Callable] = None,
     ):
         if ui_add is None:
             self.ui_add = AutoObjectForm.from_jsonschema(self.row_schema)
@@ -537,8 +428,18 @@ class EditGrid(w.VBox, TitleDescription):
             self.ui_copy = UiCopy()
         else:
             self.ui_copy = ui_copy()
+        if ui_io is None:
+            if self.model is not None: # is BaseModel
+                self.ui_io = EditTsv(model=self.model, fn_upload=self.set_value_from_tsv)
+            else:
+                self.ui_io = w.HTML("must instantiate with pydantic model for this feature")
+        else:
+            self.ui_io = ui_io(model=self.model, fn_upload=self.set_value_from_tsv)
         self.ui_copy.layout.display = "None"
         self.ui_delete.fn_delete = self._delete_selected
+
+    def set_value_from_tsv(self, value):
+        self.value=value
 
     def _init_row_controls(self):
         self.ui_edit.show_savebuttonbar = True
@@ -558,9 +459,11 @@ class EditGrid(w.VBox, TitleDescription):
             fn_copy=self._copy,
             fn_delete=self._delete,
             fn_reload=get_reload(),
+            fn_io=self._io
+            
         )
         self.stk_crud = w.Stack(
-            children=[self.ui_add, self.ui_edit, self.ui_copy, self.ui_delete]
+            children=[self.ui_add, self.ui_edit, self.ui_copy, self.ui_delete, self.ui_io]
         )
 
     def _init_controls(self):
@@ -585,6 +488,7 @@ class EditGrid(w.VBox, TitleDescription):
             self.ui_edit,
             self.ui_copy,
             self.ui_delete,
+            self.ui_io,
         ]
         self.children = [self.hbx_title_description, self.vbx_widget]
 
@@ -800,6 +704,13 @@ class EditGrid(w.VBox, TitleDescription):
             print("delete error")
             traceback.print_exc()
 
+    # io
+    # --------------------------------------------------------------------------
+    def _io(self):
+        self.ui_io.value = self.value
+        self.ui_io.button_style = None
+        
+
 
 # -
 
@@ -851,6 +762,14 @@ if __name__ == "__main__":
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
+
+# +
+# 
+# [x.__name__ for x in editgrid.stk_crud.children]
+
+# +
+# editgrid.stk_crud.children[0].type
+# -
 
 if __name__ == "__main__":
 
@@ -939,6 +858,9 @@ if __name__ == "__main__":
     display(editgrid)
 
 if __name__ == "__main__":
+    display(editgrid.ui_io)
+
+if __name__ == "__main__":
     editgrid.grid.order = ("floater", "string")
     # ^ NOTE: this will result in a value change in the grid
 
@@ -965,6 +887,7 @@ if __name__ == "__main__":
         fn_patch=lambda v: v,
         fn_delete=lambda v: print(v),
         fn_copy=lambda v: print(v),
+        fn_io = lambda v: print("io")
     )
     title = "The Wonderful Edit Grid Application"
     description = "Useful for all editing purposes whatever they may be 👍"
