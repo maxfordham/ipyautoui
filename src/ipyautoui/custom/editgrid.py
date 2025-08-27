@@ -708,7 +708,7 @@ class EditGrid(w.VBox, TitleDescription):
     # --------------------------------------------------------------------------
     def _io(self):
         self.ui_io.value = self.value
-        self.ui_io.button_style = None
+        self.ui_io.upload_status = "None"
         
 
 
@@ -858,9 +858,6 @@ if __name__ == "__main__":
     display(editgrid)
 
 if __name__ == "__main__":
-    display(editgrid.ui_io)
-
-if __name__ == "__main__":
     editgrid.grid.order = ("floater", "string")
     # ^ NOTE: this will result in a value change in the grid
 
@@ -876,7 +873,7 @@ if __name__ == "__main__":
         root: list[TestListCol]
 
     gr = EditGrid(Test, value=[{"li_col": ["a", "b"], "stringy": "string", "num": 23}])
-    display(gr)
+    display(gr)  # TODO: this needs fixing. not handling the list correctly. 
 
 if __name__ == "__main__":
     import random
@@ -943,4 +940,6 @@ if __name__ == "__main__":
     display(editgrid)
 
 if __name__ == "__main__":
-    editgrid.transposed = True
+    editgrid.transposed = False
+
+

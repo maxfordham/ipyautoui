@@ -87,21 +87,21 @@ class EditTsv(CopyToClipboard):
     model = tr.Type(klass=BaseModel)
     errors = tr.List(value=[], trait=tr.Dict)
     fn_upload = tr.Callable(default_value=default_fn_upload)
-    upload_status = tr.Enum(values=["abled", "disabled"], allow_none=True, default_value=None)
+    upload_status = tr.Enum(values=["enabled", "disabled", "None"], allow_none=False, default_value="None")
 
     @tr.observe("upload_status")
     def upload_status_onchange(self, on_change):
         if self.upload_status == "disabled":
             self.bn_upload_text.disabled = True
             self.bn_upload_text.button_style="danger"
-        elif self.upload_status == "abled":
+        elif self.upload_status == "enabled":
             self.bn_upload_text.disabled = False
             self.bn_upload_text.button_style="success"
-        elif self.upload_status is None:
+        elif self.upload_status == "None":
             self.bn_upload_text.disabled = True
-            self.bn_upload_text.button_style=None
+            self.bn_upload_text.button_style= ""
         else:
-            raise ValueError("button style must be in list: ['abled', 'disabled', None]")
+            raise ValueError("button style must be in list: ['enabled', 'disabled', 'None']")
 
     @tr.observe("value")
     def value_onchange(self, on_change):
@@ -113,7 +113,7 @@ class EditTsv(CopyToClipboard):
         if self.errors:
             self.upload_status = "disabled"
         else:
-            self.upload_status = "abled"
+            self.upload_status = "enabled"
 
     def __init__(self, **kwargs):
         self.vbx_errors = w.VBox()
@@ -136,6 +136,7 @@ class EditTsv(CopyToClipboard):
             value = pydantic_validate(self.model, value)
             self._value = value
             self.text.value = data_to_tsv(self.value)
+            
         except ValidationError as exc:
             logging.info(exc)
             
@@ -152,6 +153,7 @@ class EditTsv(CopyToClipboard):
             self.vbx_errors.children = [w.HTML(markdown(markdown_error(e))) for e in self.errors]
         else:
             self._value = value
+            self.upload_status = "enabled"
 
     @property
     def tsv_data(self): # TODO: ensure header row unchanged
@@ -185,16 +187,13 @@ if __name__ == "__main__":
     
     EditTsv = EditTsv(value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid, fn_upload=fn_upload)
     display(EditTsv)
+# -
 
-# +
 if __name__ == "__main__":
     
     display(w.HBox([
         w.Button(icon="file-import"),
         w.Button(icon="file-export"),
     ]))
-
-
-# -
 
 
