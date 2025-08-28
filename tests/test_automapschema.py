@@ -2,7 +2,7 @@ import pytest
 import pathlib
 from pytest_examples import find_examples, CodeExample, EvalExample
 from ipyautoui.automapschema import _init_model_schema, map_widget
-import stringcase
+import casefy
 from pydantic import BaseModel, Field, conint
 from ipyautoui.demo_schemas import (
     ArrayObjectDataframe,
@@ -51,7 +51,7 @@ def assert_widget_map(pydantic_model):
         for property_key, property_schema in pr.items()
     }
     for k, v in wi.items():
-        got, target = v.autoui.__name__, stringcase.pascalcase(k)
+        got, target = v.autoui.__name__, casefy.pascalcase(k)
         try:
             assert got in target
         except:

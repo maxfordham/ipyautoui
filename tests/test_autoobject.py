@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field, RootModel, ConfigDict
 from ipyautoui.autoobject import AutoObject, AutoObjectForm
 import pytest
-import stringcase
 from ipyautoui.demo_schemas import RootEnum, RootArrayEnum, CoreIpywidgets
 import typing as ty
 from enum import Enum

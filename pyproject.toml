@@ -35,11 +35,11 @@ dependencies = [
     "openpyxl",
     "requests",
     "pandas",
+    # "casefy",
     "pydantic>=2",
     "pydantic-settings",
     "pydantic-extra-types",
     "PyYAML",
-    "stringcase",
     "wcmatch",
 ]
 
@@ -75,6 +75,7 @@ pytest_examples = "*"
 [tool.pixi.feature.tests.dependencies]
 pytest = "*"
 hatch = "*"
+casefy = "*"
 
 [tool.pixi.feature.dev.pypi-dependencies]
 jupyterlab-quarto = "*"
