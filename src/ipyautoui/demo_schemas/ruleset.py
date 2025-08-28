@@ -14,10 +14,10 @@
 #     name: python3
 # ---
 
-# %%
+# +
 
 
-# %%
+# +
 from enum import Enum
 from pydantic import (
     ConfigDict,
@@ -36,7 +36,7 @@ from enum import Enum
 from jsonref import replace_refs
 
 
-# %%
+# +
 def get_property_names():
     return {
         "Abbreviation": 1,
@@ -58,7 +58,7 @@ PR_CLASSIFICATION = "Classification.Uniclass.Pr.Number"
 SS_CLASSIFICATION = "Classification.Uniclass.Ss.Number"
 
 
-# %%
+# +
 class StrEnum(str, Enum):
     pass
 
@@ -262,7 +262,7 @@ Analogous to filter rules in
     + "<br>---"
 )
 
-# %%
+# +
 if __name__ == "__main__":
     from IPython.display import display
 
@@ -270,15 +270,15 @@ if __name__ == "__main__":
     ui = AutoObjectForm.from_pydantic_model(ScheduleRuleSet)
     display(ui)
 
-# %%
+# +
 if __name__ == "__main__":
     import yaml
     from ipyautoui.autodisplay_renderers import preview_yaml_string
 
     display(preview_yaml_string(yaml.dump(ui.value)))
 
-# %%
+# +
 if __name__ == "__main__":
     display(ui.value)
 
-# %%
+# +

@@ -1,15 +1,15 @@
-# %%
+# +
 """widget caller error"""
 
 
-# %%
+# +
 import ipywidgets as w
 import traitlets as tr
 from IPython.display import clear_output, JSON, display
 from ipyautoui._utils import display_python_string
 
 
-# %%
+# +
 class WidgetCallerError(w.VBox):
     widget = tr.Unicode(default_value="")
     error = tr.Unicode(default_value="")
@@ -56,7 +56,7 @@ class WidgetCallerError(w.VBox):
         ]
 
 
-# %%
+# +
 if __name__ == "__main__":
     widget = "<class 'ipyautoui.autoobject.AutoObject'>"
 
@@ -119,4 +119,4 @@ if __name__ == "__main__":
     error_widget = WidgetCallerError(widget=widget, schema=schema, error=error)
     display(error_widget)
 
-# %%
+# +

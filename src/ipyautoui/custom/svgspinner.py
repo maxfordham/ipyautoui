@@ -1,4 +1,4 @@
-# %%
+# +
 import ipywidgets as w
 import traitlets as tr
 from IPython.display import SVG, clear_output, display
@@ -43,12 +43,12 @@ if __name__ == "__main__":
     spinner = SvgSpinner()
     display(spinner)
 
-# %%
+# +
 if __name__ == "__main__":
     spinner.complete = True
 
-# %%
+# +
 if __name__ == "__main__":
     spinner.show = False
 
-# %%
+# +

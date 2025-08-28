@@ -1,4 +1,4 @@
-# %%
+# +
 import ipywidgets as w
 import traitlets as tr
 import json
@@ -6,7 +6,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# %%
+# +
 class JsonableDict(w.VBox):
     _value = tr.Dict() # allow_none=True, default_value={}
 
@@ -53,17 +53,17 @@ class JsonableDict(w.VBox):
 
 
 
-# %%
+# +
 if __name__ == "__main__":
     from IPython.display import display
     jd = JsonableDict(value={"b": 12})
     display(jd)
-# %%
+# +
 if __name__ == "__main__":
     display(jd.value) 
 
-# %%
+# +
 if __name__ == "__main__":
     jd.value = {"a": [1,2,3]}
 
-# %%
+# +

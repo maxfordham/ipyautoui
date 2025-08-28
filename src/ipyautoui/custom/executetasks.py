@@ -1,4 +1,4 @@
-# %%
+# +
 import ipywidgets as w
 import traitlets as tr
 import typing as ty
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     ex.start()
 
 
-# %%
+# +
 class SelectAndExecute(w.HBox):
     title = tr.Unicode()
     tasks = tr.Dict(
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     se = SelectAndExecute(tasks=tasks, title="<b>Generate Selected Schedules</b>")
     display(se)
 
-# %%
+# +
 if __name__ == "__main__":
     from random import random
     from time import sleep
@@ -181,6 +181,6 @@ if __name__ == "__main__":
     se = SelectAndExecute(title="<b>Generate Selected Schedules</b>")
     display(se)
 
-# %%
+# +
 if __name__ == "__main__":
     se.tasks = tasks

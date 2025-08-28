@@ -1,9 +1,9 @@
-# %%
+# +
 """generic iterable object."""
 #
 
 
-# %%
+# +
 import traitlets as tr
 import re
 import ipywidgets as w

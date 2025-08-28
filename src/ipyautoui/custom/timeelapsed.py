@@ -1,4 +1,4 @@
-# %%
+# +
 import ipywidgets as w
 import traitlets as tr
 from datetime import datetime, timedelta
@@ -89,8 +89,8 @@ if __name__ == "__main__":
     te = TimeElapsed(start_time=datetime.now())
     display(te)
 
-# %%
+# +
 if __name__ == "__main__":
     te.end_time = datetime.now()
 
-# %%
+# +
