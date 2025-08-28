@@ -55,8 +55,14 @@ class TestEditGrid:
         grid._save_add_to_grid()
         assert v != grid._value
 
-    def test_editgrid_set_data(self):
-        pass # WIP
+    def test_editgrid_set_data_coerce_titles(self):
+        grid = EditGrid(schema=EditableGrid)
+        v = grid.value
+        titles = ['String', 'Integer', 'Floater', 'Something Else']
+        v_with_titles = [dict(zip(titles, list(_.keys()))) for _ in v]
+        v_with_titles[0]["Something Else"] = 1
+        grid.value = v_with_titles
+        assert grid._value[0]["something_else"] == 1
 
 
     def test_editgrid_multiindex_change_data(self):
