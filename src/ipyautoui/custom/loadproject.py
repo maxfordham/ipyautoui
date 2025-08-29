@@ -1,23 +1,9 @@
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.13.6
-#   kernelspec:
-#     display_name: Python [conda env:ipyautoui]
-#     language: python
-#     name: ipyautoui
-# ---
-
-# %%
+# +
 """generic iterable object."""
 #
 
 
-# %%
+# +
 import traitlets as tr
 import re
 import ipywidgets as w

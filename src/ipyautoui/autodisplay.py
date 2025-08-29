@@ -1,21 +1,4 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     custom_cell_magics: kql
-#     formats: py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.15.2
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
-
-# %%
+# +
 """
 displayfile is used to display certain types of files.
 The module lets us preview a file, open a file, and open its directory.
@@ -38,7 +21,7 @@ Example:
 """
 #
 
-# %%
+# +
 import pathlib
 import functools
 from IPython.display import (
@@ -84,7 +67,7 @@ import requests
 #     pass
 
 
-# %%
+# +
 def merge_default_renderers(
     renderers: ty.Optional[dict[str, ty.Callable]],
     default_renderers: frozenmap[str, ty.Callable] = DEFAULT_FILE_RENDERERS,
@@ -94,7 +77,7 @@ def merge_default_renderers(
     return {**dict(default_renderers), **renderers}
 
 
-# %%
+# +
 def get_renderers(
     renderers: ty.Optional[dict[str, ty.Callable]],
     extend_default_renderers: bool = True,
@@ -110,7 +93,7 @@ def get_renderers(
 from pydantic import field_validator, ValidationInfo, Field
 
 
-# %%
+# +
 class DisplayObjectActions(BaseModel):
     """base object with callables for creating a display object"""
 
@@ -293,12 +276,12 @@ class DisplayFromCallable(DisplayObjectActions):
         return info.data["path"].__name__
 
 
-# %%
+# +
 if __name__ == "__main__":
     d = DisplayFromPath(path="__init__.py")
     display(d.renderer())
 
-# %%
+# +
 # TODO: separate out the bit that is display data and display from path...
 # TODO: probs useful to have a `value` trait (allowing the object to be updated instead of remade)
 #       this probably means having DisplayObject as a base class and extending it for display file...
@@ -548,24 +531,24 @@ open folder:
         self.out_caller.layout.display = "none"
 
 
-# %%
+# +
 if __name__ == "__main__":
     d = DisplayFromPath(path="__init__.py")
     do = DisplayObject(d)
     display(do)
 
-# %%
+# +
 if __name__ == "__main__":
     DisplayPath(value="__init__.py")
 
-# %%
+# +
 if __name__ == "__main__":
     path = "https://catfact.ninja/fact"
     ext = ".json"
     display(DisplayFromRequest(path=path, ext=ext).renderer())
 
 
-# %%
+# +
 if __name__ == "__main__":
     path = "https://catfact.ninja/fact"
     ext = ".json"
@@ -575,20 +558,20 @@ if __name__ == "__main__":
 
     display(DisplayFromCallable(path=get_catfact, ext=ext).renderer())
 
-# %%
+# +
 if __name__ == "__main__":
     path = "https://catfact.ninja/fact"
     ext = ".json"
     display(DisplayRequest(value=path, ext=ext, order=ORDER_DEFAULT))
 
-# %%
+# +
 if __name__ == "__main__":
     # FIXME:
     ext = ".json"
     dobj = DisplayCallable(value=get_catfact, ext=ext)
     display(dobj)
 
-# %%
+# +
 if __name__ == "__main__":
     import json
     from datetime import datetime
@@ -611,7 +594,7 @@ if __name__ == "__main__":
     d = DisplayRequest(value=path, ext=ext, renderers={".catfact": display_catfact})
     display(d)
 
-# %%
+# +
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
     from ipyautoui.autoui import AutoUi
@@ -626,7 +609,7 @@ if __name__ == "__main__":
     # ------------------
 
 
-# %%
+# +
 if __name__ == "__main__":
     d.order = (
         "openpreview",
@@ -634,7 +617,7 @@ if __name__ == "__main__":
     )
     d.auto_open = True
 
-# %%
+# +
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
 
@@ -648,7 +631,7 @@ if __name__ == "__main__":
     display(d)
 
 
-# %%
+# +
 class AutoDisplay(tr.HasTraits):
     order = tr.Tuple(default_value=ORDER_NOTPATH, allow_none=False)
 
@@ -1003,7 +986,7 @@ class AutoDisplay(tr.HasTraits):
         [d._update_file() for d in self.display_objects]
 
 
-# %%
+# +
 # TODO: render pdf update the relative path
 
 if __name__ == "__main__":
@@ -1016,12 +999,12 @@ if __name__ == "__main__":
     paths = list(pathlib.Path(DIR_FILETYPES).glob("*"))
     ad = AutoDisplay.from_paths(paths, patterns="*.csv")
     display(ad)
-# %%
+# +
 if __name__ == "__main__":
     # FIXME
     ad.order = ORDER_DEFAULT
 
-# %%
+# +
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
 
@@ -1037,7 +1020,7 @@ if __name__ == "__main__":
 
     display(test_ui)
 
-# %%
+# +
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
 
@@ -1052,7 +1035,7 @@ if __name__ == "__main__":
 
     display(test_ui)
 
-# %% editable=true slideshow={"slide_type": ""}
+# + editable=true slideshow={"slide_type": ""}
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import CoreIpywidgets
     from pydantic import parse_obj_as
@@ -1070,7 +1053,7 @@ if __name__ == "__main__":
 
     display(test_ui)
 
-# %%
+# +
 if __name__ == "__main__":
     import json
     from datetime import datetime
@@ -1097,4 +1080,4 @@ if __name__ == "__main__":
     display(Markdown("### From requests: "))
     display(test_display)
 
-# %%
+# +
