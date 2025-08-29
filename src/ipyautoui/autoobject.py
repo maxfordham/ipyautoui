@@ -8,7 +8,7 @@ from jsonref import replace_refs
 from pydantic import ValidationError
 
 import ipyautoui.automapschema as aumap
-from ipyautoui._utils import obj_from_importstr, is_null
+from ipyautoui._utils import obj_from_importstr, is_null, trait_order
 from ipyautoui.nullable import Nullable
 from ipyautoui.autobox import AutoBox
 from ipyautoui.autoform import AutoObjectFormLayout
@@ -307,15 +307,12 @@ class AutoObject(w.VBox, WatchValidate):
         # TODO: add validation?
         return proposal["value"]
 
-    @staticmethod
-    def trait_order():
-        return [
-            k for k, v in AutoObject.__dict__.items() if isinstance(v, tr.TraitType)
-        ]
-
     def get_ordered_kwargs(self, kwargs):
         in_order = list(kwargs.keys())
-        tr_order = self.trait_order()
+        tr_order = trait_order(type(self))
+        if isinstance(self, AutoObjectForm): # HACK: traits not found in inherited class...
+            tr_order = trait_order(AutoObject)
+
         out_order = tr_order + [i for i in in_order if i not in tr_order]
         return {o: kwargs[o] for o in out_order if o in in_order}
 
@@ -360,9 +357,10 @@ class AutoObject(w.VBox, WatchValidate):
         pass
 
     def _open_nested(self):
-        for r in self.di_boxes.values():
-            if r.nested:
-                r.tgl.value = True
+        if getattr(self, "di_boxes", None) is not None: # HACK: as AutoArray doesn't have di_boxes
+            for r in self.di_boxes.values():
+                if r.nested:
+                    r.tgl.value = True
 
     def _close_nested(self):
         for r in self.di_boxes.values():
@@ -460,6 +458,9 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout, TitleDescription):
         super().__init__(
             **kwargs,
         )
+        self._post_init(**kwargs)
+
+    def _post_init(self, **kwargs):
         self.children = [
             w.HBox([self.bn_shownull, self.savebuttonbar]),
             self.html_title,

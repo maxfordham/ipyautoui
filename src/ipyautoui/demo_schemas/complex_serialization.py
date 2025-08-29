@@ -18,6 +18,6 @@ class ComplexSerialisation(BaseModel):
     naive_datetime_picker_string: ty.Optional[datetime] = datetime.now()
     color_picker_ipywidgets: Color = "#f5f595"
     markdown_widget: str = Field(json_schema_extra=dict(format="markdown"))
-    any_of: ty.Union[conint(ge=0, le=3), str] = Field(
+    any_of: ty.Union[conint(ge=0, le=3), str] = Field( # type: ignore
         description="anyof widget. once selected the type is fixed."
     )

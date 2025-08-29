@@ -28,7 +28,7 @@ class ExecuteTasks(w.VBox):
         ],
         default_value={},
     )
-    task_names = tr.List(trait=tr.Unicode())
+    # task_names = tr.List(trait=tr.Unicode())
     runner = tr.Callable(default_value=pool_runner)
     results = tr.List(trait=tr.Any())
 
@@ -61,9 +61,9 @@ class ExecuteTasks(w.VBox):
             return list(self.tasks.keys())
 
     def __init__(self, **kwargs):
-        if "task_names" not in kwargs:
-            kwargs["task_names"] = ["" for _ in range(self.end)]
-        self.progress = w.IntProgress(min=0, step=1)
+        # if "task_names" not in kwargs:
+        #     kwargs["task_names"] = ["" for _ in range(self.end)]
+        self.progress = w.IntProgress(min=0) # , stepytestp=1
         self.vbx_tasks = w.VBox()
         self.time_elapsed = TimeElapsed()
         super().__init__(**kwargs)

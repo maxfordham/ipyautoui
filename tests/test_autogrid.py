@@ -318,7 +318,7 @@ class TestGridSchema:
             array: list = ["test", "test again"]
 
         class TestDataFrame(RootModel):
-            root: ty.List[Test] = Field(format="dataframe")
+            root: ty.List[Test] = Field(json_schema_extra=dict(format="dataframe"))
 
         model, schema = _init_model_schema(TestDataFrame)
         gridschema = GridSchema(schema)
