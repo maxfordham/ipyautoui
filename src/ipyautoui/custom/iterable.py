@@ -33,6 +33,7 @@ import random
 from ipyautoui.automapschema import from_schema_method, get_widget
 from jsonref import replace_refs
 from ipyautoui.watch_validate import WatchValidate
+from ipyautoui._utils import remove_non_present_kwargs, traits_in_kwargs
 
 logger = logging.getLogger(__name__)
 BOX = frozenmap({True: w.HBox, False: w.VBox})
@@ -168,6 +169,7 @@ class Array(w.VBox, WatchValidate):
         self.boxes = [
             ItemBox(index=n, widget=widget) for n, widget in enumerate(widgets)
         ]
+        self.di_boxes = {box.key: box for box in self.boxes} # HACK: to match with AutoObject. TODO: update to di_boxes? to match AutoObject
 
     def _update_widgets_from_value(self):
         diff = len(self.value) - len(self.boxes)
@@ -254,7 +256,7 @@ class Array(w.VBox, WatchValidate):
         self._init_form_controls()
         self.widgets = self._init_widgets(kwargs)
         self.bn_add_from_zero.layout.display = ""
-        super().__init__(**kwargs)
+        super().__init__(**traits_in_kwargs(type(self), kwargs))
         self.vbx_widget.children = [self.bn_add_from_zero, self.bx_boxes]
 
         self.layout.border = "1px solid #00a3e0"

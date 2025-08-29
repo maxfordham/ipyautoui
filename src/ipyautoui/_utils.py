@@ -14,6 +14,7 @@ import importlib.util
 import pandas as pd
 import ipywidgets as w
 import typing as ty
+import traitlets as tr
 from typing import Type
 from base64 import b64encode
 from markdown import markdown
@@ -371,6 +372,9 @@ def traits_in_kwargs(call: ty.Callable, kwargs: dict):
     else:
         li = list(call.traits(call).keys())
         return {k: v for k, v in kwargs.items() if k in li or f"_{k}" in li}
+
+def trait_order(cls: ty.Callable):
+    return [k for k, v in cls.__dict__.items() if isinstance(v, tr.TraitType)]
 
 
 def remove_non_present_kwargs(callable_: ty.Callable, di: dict):

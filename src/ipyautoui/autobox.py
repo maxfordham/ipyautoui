@@ -165,7 +165,7 @@ class AutoBox(w.VBox, Nest, TitleDescription):
         self.widget.value = value
 
     def __init__(self, **kwargs):
-        super().__init__(**{k: v for k, v in kwargs.items() if k != "tooltip"})
+        super().__init__(**{k: v for k, v in kwargs.items() if k not in ["tooltip", "value"]})
         #  ^ tooltip issue: https://github.com/jupyter-widgets/ipywidgets/issues/3860
         self.format_box()
 

@@ -1171,7 +1171,6 @@ if __name__ == "__main__":
         )
 
     class TestDataFrame(RootModel):
-        # dataframe: ty.List[DataFrameCols] = Field(..., format="dataframe")
         root: ty.List[DataFrameCols] = Field(
             [DataFrameCols()],
             json_schema_extra=dict(
@@ -1208,8 +1207,7 @@ if __name__ == "__main__":
 
     class TestDataFrame(RootModel):
         root: ty.List[DataFrameCols] = Field(
-            format="dataframe",
-            hide_nan=True,
+            json_schema_extra=dict(format="dataframe", hide_nan=True),
         )
 
     grid = AutoGrid(

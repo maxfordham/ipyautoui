@@ -79,11 +79,12 @@ class AnyOf(w.HBox):
 
     def __init__(self, **kwargs):
         self.select = w.Dropdown(description="select widget:")
+        value = kwargs.pop("value", None)
         super().__init__(**kwargs)
         self.children = [self.select]
         self._init_controls()
-        if "value" in kwargs:
-            self.value = kwargs["value"]
+        if value is not None:
+            self.value = value
 
     def _init_controls(self):
         self.select.observe(self._select, "value")
