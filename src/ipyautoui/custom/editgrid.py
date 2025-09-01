@@ -1,20 +1,3 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: py:light
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.17.2
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
-
 # +
 """General widget for editing data"""
 
@@ -361,7 +344,7 @@ class EditGrid(w.VBox, TitleDescription):
         # self.show_copy_dialogue = show_copy_dialogue
         self.show_copy_dialogue = False
         # ^ TODO: delete this when that functionality is added
-        self._set_children()
+        self._set_children_editgrid()
         self._set_datahandler(datahandler=datahandler)
         self._update_value_from_grid()
 
@@ -387,7 +370,7 @@ class EditGrid(w.VBox, TitleDescription):
         )
         self._init_row_controls()
         self._init_controls()
-        self._set_children()
+        self._set_children_editgrid()
         self._set_datahandler(datahandler=datahandler)
 
     def _init_autogrid(
@@ -481,7 +464,7 @@ class EditGrid(w.VBox, TitleDescription):
         if self.datahandler is not None:
             self.buttonbar_grid.fn_reload = self._reload_datahandler
 
-    def _set_children(self):
+    def _set_children_editgrid(self):
         self.vbx_widget.children = [self.buttonbar_grid, self.stk_crud, self.grid]
         self.stk_crud.children = [
             self.ui_add,

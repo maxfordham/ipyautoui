@@ -1,33 +1,15 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     custom_cell_magics: kql
-#     formats: py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.14.0
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
-
-# %%
+# +
 """widget caller error"""
 
 
-# %%
+# +
 import ipywidgets as w
 import traitlets as tr
 from IPython.display import clear_output, JSON, display
 from ipyautoui._utils import display_python_string
 
 
-# %%
+# +
 class WidgetCallerError(w.VBox):
     widget = tr.Unicode(default_value="")
     error = tr.Unicode(default_value="")
@@ -74,7 +56,7 @@ class WidgetCallerError(w.VBox):
         ]
 
 
-# %%
+# +
 if __name__ == "__main__":
     widget = "<class 'ipyautoui.autoobject.AutoObject'>"
 
@@ -137,4 +119,4 @@ if __name__ == "__main__":
     error_widget = WidgetCallerError(widget=widget, schema=schema, error=error)
     display(error_widget)
 
-# %%
+# +

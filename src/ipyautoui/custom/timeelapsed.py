@@ -1,19 +1,4 @@
-# ---
-# jupyter:
-#   jupytext:
-#     formats: py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.16.1
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
-
-# %%
+# +
 import ipywidgets as w
 import traitlets as tr
 from datetime import datetime, timedelta
@@ -104,8 +89,8 @@ if __name__ == "__main__":
     te = TimeElapsed(start_time=datetime.now())
     display(te)
 
-# %%
+# +
 if __name__ == "__main__":
     te.end_time = datetime.now()
 
-# %%
+# +

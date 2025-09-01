@@ -1,18 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     formats: py:light
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.11.5
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
-
 # +
 
 
@@ -1282,8 +1267,8 @@ def map_widget(
         widget_name, allow_none = mapped[0]
         wi = get_widget(di, widget_name, widgets_map)
         kwargs = di
-        for l in widgets_map[widget_name].li_fn_modify:
-            kwargs = l(kwargs, wi)
+        for x in widgets_map[widget_name].li_fn_modify:
+            kwargs = x(kwargs, wi)
 
         kwargs_box = flatten_type_and_nullable(di)
         # TODO: ^ probs a more efficient way to do this to avoid repetition with above

@@ -1,17 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     formats: py:light
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.15.2
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
 
 
 import ipywidgets as w
@@ -93,11 +79,12 @@ class AnyOf(w.HBox):
 
     def __init__(self, **kwargs):
         self.select = w.Dropdown(description="select widget:")
+        value = kwargs.pop("value", None)
         super().__init__(**kwargs)
         self.children = [self.select]
         self._init_controls()
-        if "value" in kwargs:
-            self.value = kwargs["value"]
+        if value is not None:
+            self.value = value
 
     def _init_controls(self):
         self.select.observe(self._select, "value")

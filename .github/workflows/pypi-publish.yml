@@ -1,0 +1,33 @@
+# NOTE-1: This action builds the py pkg as per a pixi command `pixi run build`
+#         and publishes it to PyPI. Requires org / repo / action / env setup
+#         as a trusted publisher.
+# NOTE-2: this can be copy and pasted between repos without edit
+#         provided that the repo name and pypi pkg name are the same
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - '*'
+      - '!rc*'  # Exclude release candidates
+      
+jobs:
+
+  pypi-publish:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.8.10
+        with:
+            pixi-version: v0.49.0
+            cache: true
+            cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+      - run: pixi run build
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+    environment:
+      name: pypi
+      url: https://pypi.org/p/${{ github.action.repository }}
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing

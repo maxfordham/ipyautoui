@@ -1,19 +1,3 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: py:light
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.16.1
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
 
 """file upload wrapper"""
 
@@ -29,7 +13,7 @@ import logging
 import time
 
 from ipyautoui.constants import DELETE_BUTTON_KWARGS
-from ipyautoui._utils import getuser
+from ipyautoui._utils import getuser, trait_order
 from ipyautoui.autodisplay import (
     DisplayPath,
     ORDER_NOTPATH,
@@ -248,13 +232,10 @@ class FilesUploadToDir(Array, TitleDescription):
             widg = self.upld
         {setattr(widg, k, v) for k, v in value.items()}
 
-    @classmethod
-    def trait_order(cls):
-        return [k for k, v in cls.__dict__.items() if isinstance(v, tr.TraitType)]
 
     def get_ordered_kwargs(self, kwargs):
         in_order = list(kwargs.keys())
-        tr_order = self.trait_order()
+        tr_order = trait_order(self)
         out_order = tr_order + [i for i in in_order if i not in tr_order]
         return {o: kwargs[o] for o in out_order if o in in_order}
 

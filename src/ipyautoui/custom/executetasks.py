@@ -1,19 +1,4 @@
-# ---
-# jupyter:
-#   jupytext:
-#     formats: py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.16.1
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
-
-# %%
+# +
 import ipywidgets as w
 import traitlets as tr
 import typing as ty
@@ -43,7 +28,7 @@ class ExecuteTasks(w.VBox):
         ],
         default_value={},
     )
-    task_names = tr.List(trait=tr.Unicode())
+    # task_names = tr.List(trait=tr.Unicode())
     runner = tr.Callable(default_value=pool_runner)
     results = tr.List(trait=tr.Any())
 
@@ -76,9 +61,9 @@ class ExecuteTasks(w.VBox):
             return list(self.tasks.keys())
 
     def __init__(self, **kwargs):
-        if "task_names" not in kwargs:
-            kwargs["task_names"] = ["" for _ in range(self.end)]
-        self.progress = w.IntProgress(min=0, step=1)
+        # if "task_names" not in kwargs:
+        #     kwargs["task_names"] = ["" for _ in range(self.end)]
+        self.progress = w.IntProgress(min=0) # , stepytestp=1
         self.vbx_tasks = w.VBox()
         self.time_elapsed = TimeElapsed()
         super().__init__(**kwargs)
@@ -123,7 +108,7 @@ if __name__ == "__main__":
     ex.start()
 
 
-# %%
+# +
 class SelectAndExecute(w.HBox):
     title = tr.Unicode()
     tasks = tr.Dict(
@@ -181,7 +166,7 @@ if __name__ == "__main__":
     se = SelectAndExecute(tasks=tasks, title="<b>Generate Selected Schedules</b>")
     display(se)
 
-# %%
+# +
 if __name__ == "__main__":
     from random import random
     from time import sleep
@@ -196,6 +181,6 @@ if __name__ == "__main__":
     se = SelectAndExecute(title="<b>Generate Selected Schedules</b>")
     display(se)
 
-# %%
+# +
 if __name__ == "__main__":
     se.tasks = tasks

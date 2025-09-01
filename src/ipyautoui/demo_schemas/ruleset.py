@@ -1,23 +1,8 @@
 # ---
-# jupyter:
-#   jupytext:
-#     custom_cell_magics: kql
-#     formats: py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.15.2
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
-
-# %%
+# +
 
 
-# %%
+# +
 from enum import Enum
 from pydantic import (
     ConfigDict,
@@ -26,17 +11,13 @@ from pydantic import (
     RootModel,
     ValidationInfo,
     field_validator,
-    ValidationError,
 )
-from ipyautoui import AutoUi
 from ipyautoui.autoobject import AutoObjectForm
 from ipyautoui._utils import html_link
 import typing as ty
-from enum import Enum
-from jsonref import replace_refs
 
 
-# %%
+# +
 def get_property_names():
     return {
         "Abbreviation": 1,
@@ -58,7 +39,7 @@ PR_CLASSIFICATION = "Classification.Uniclass.Pr.Number"
 SS_CLASSIFICATION = "Classification.Uniclass.Ss.Number"
 
 
-# %%
+# +
 class StrEnum(str, Enum):
     pass
 
@@ -161,13 +142,6 @@ class RulePatch(Rule):
             # raise ValidationError("could not find that parameter in the database...")
         return v
 
-    # model_config = ConfigDict(
-    #     json_schema_extra=dict(
-    #         autoui="ipyautoui.demo_schemas.ruleset.rule_ui",
-    #         order=["categories", "parameter", "operator", "value"],
-    #     )
-    # )
-
 
 URL_REVIT_FILTERS = "https://help.autodesk.com/view/RVT/2023/ENU/?guid=GUID-400FD74B-00E0-4573-B3AC-3965E65CBBDB"
 DI_UNICLASS_PR = {
@@ -241,7 +215,7 @@ ScheduleRuleSet = ty.ForwardRef("ScheduleRuleSet")
 
 class ScheduleRuleSet(BaseModel):
     set_type: RuleSetType = Field(
-        default=RuleSetType.AND, autoui="ipywidgets.ToggleButtons"
+        default=RuleSetType.AND, json_schema_extra=dict(autoui="ipywidgets.ToggleButtons")
     )
     rule_sets: ty.List[ty.Union[RulePatch, ScheduleRuleSet]] = Field(
         description="""
@@ -262,7 +236,7 @@ Analogous to filter rules in
     + "<br>---"
 )
 
-# %%
+# +
 if __name__ == "__main__":
     from IPython.display import display
 
@@ -270,15 +244,15 @@ if __name__ == "__main__":
     ui = AutoObjectForm.from_pydantic_model(ScheduleRuleSet)
     display(ui)
 
-# %%
+# +
 if __name__ == "__main__":
     import yaml
     from ipyautoui.autodisplay_renderers import preview_yaml_string
 
     display(preview_yaml_string(yaml.dump(ui.value)))
 
-# %%
+# +
 if __name__ == "__main__":
     display(ui.value)
 
-# %%
+# +
