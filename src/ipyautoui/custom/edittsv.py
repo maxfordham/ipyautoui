@@ -65,7 +65,7 @@ class CopyToClipboard(w.VBox):
     def __init__(self, **kwargs):
         
         value = kwargs.get("value")
-        self.text  = w.Textarea(layout={"width": "80%", "height": "300px"}) #value=value, 
+        self.text  = w.Textarea(layout={"width": "800px", "height": "300px"}) #value=value, # TODO: why is % not working?
         self.bn_copy = w.Button(icon="copy", layout={"width": BUTTON_WIDTH_MIN})
         self.vbx_bns = w.VBox([self.bn_copy])
         self.output = w.Output(layout=w.Layout(display="none"))
