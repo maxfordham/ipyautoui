@@ -40,7 +40,8 @@ dependencies = [
     "pydantic-settings",
     "pydantic-extra-types",
     "PyYAML",
-    "wcmatch",
+    "wcmatch", 
+    "deepdiff",
 ]
 
 [project.urls]
