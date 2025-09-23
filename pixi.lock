@@ -1882,8 +1882,8 @@ packages:
   timestamp: 1733223232820
 - pypi: ./
   name: ipyautoui
-  version: 0.7.27.dev32+gad88a7fae.d20250923
-  sha256: 71eaf002170114b0b4feaadebc81896406f4bb6142cd685d4f707bc9b3d7058d
+  version: 0.7.27.dev34+g210e1dc0b
+  sha256: 7757df7e4bfcede8e7ae34706cfa8d9f620025b0a324030f0cee189653d1aa75
   requires_dist:
   - deepdiff
   - immutables
