@@ -212,21 +212,9 @@ if __name__ == "__main__":
         value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid, fn_upload=fn_upload
     )
     display(edit_tsv)
+# -
 
 
-# +
-# TODO:
-
-
-class EditTsvWithDiff(EditTsv):
-    new_value = tr.List(value=None, trait=tr.Dict, allow_none=True)
-    # add ui functionality to use deepdiff to view changes between new_value and _value and prompt the user to accept changes before proceeding
-    #
-
-    pass
-
-
-# +
 if __name__ == "__main__":
     # example of how to use DeepDiff
     from deepdiff import DeepDiff
@@ -268,8 +256,6 @@ if __name__ == "__main__":
 
 # +
 # display DeepDiff with ipywidgets. TODO: integrate into EditTsvWithDiff
-
-
 class DisplayDeepDiff(w.VBox):
     value = tr.List(value=None, trait=tr.Dict, allow_none=True)
     new_value = tr.List(value=None, trait=tr.Dict, allow_none=True)
@@ -278,7 +264,7 @@ class DisplayDeepDiff(w.VBox):
     def __init__(self, **kwargs):
         self.out = w.Output()
         super().__init__(**kwargs)
-        self.children = [self.out]
+        self.children = [w.HTML("change diff"), self.out]
 
     @tr.observe("new_value")
     def _update_diff(self, on_change):
@@ -295,7 +281,100 @@ class DisplayDeepDiff(w.VBox):
 if __name__ == "__main__":
     display_deepdiff = DisplayDeepDiff()
     display(display_deepdiff)
+
 # -
+
+from copy import deepcopy
+
+class EditTsvWithDiff(EditTsv):
+    prev_value = tr.List(value=None, trait=tr.Dict, allow_none=True)
+    # add ui functionality to use deepdiff to view changes between new_value and _value and prompt the user to accept changes before proceeding
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        
+        try:
+            value = pydantic_validate(self.model, value)
+            self._value = value
+            self.text.value = data_to_tsv(self.value)
+            self.prev_value = deepcopy(self.value)
+
+        except ValidationError as exc:
+            logging.info(exc)
+
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+        self.ddiff = DisplayDeepDiff(layout=w.Layout(display="None"))
+        self.bn_confirmation = w.Button(
+            icon="check", disabled=True, layout={"width": BUTTON_WIDTH_MIN}
+        )
+        self.bn_confirmation.layout.display = "None"
+        self.bn_confirmation.on_click(self._bn_check_upload)
+
+        self.bn_cross = w.Button(
+            icon="ban", disabled=True, layout={"width": BUTTON_WIDTH_MIN}
+        )
+        self.bn_cross.layout.display = "None"
+        self.bn_cross.on_click(self._bn_cross_clicked)
+
+        self.vbx_bns.children = [self.bn_copy, self.bn_upload_text, self.bn_confirmation, self.bn_cross]
+        
+        self.children = list(self.children)
+        
+    def _bn_upload_text(self, on_click):
+        # hide grid/errors
+        self.text.layout.display = "none"
+
+        # Hide upload button and show check button
+        self.bn_upload_text.layout.display = "none"
+        self.bn_confirmation.layout.display = ""
+        self.bn_confirmation.disabled = False
+        self.bn_confirmation.button_style = "success"
+        self.bn_cross.layout.display = ""
+        self.bn_cross.disabled = False
+        self.bn_cross.button_style = "danger"
+
+        # Add DeepDiff widget to the output box
+        self.hbx_main.children = (self.vbx_bns, self.ddiff, self.output)
+        
+        # Show DeepDiff widget
+        self.ddiff.layout.display = ""
+
+        # update deepdiff with original vs edited values
+        self.ddiff.value = self.prev_value # original
+        self.ddiff.new_value = self.value # edited
+
+    def _bn_check_upload(self, onclick):
+        self.prev_value = deepcopy(self.value)
+        self.show_upload_button()
+        return self.fn_upload(self.value)
+
+    def _bn_cross_clicked(self, onclick):
+        self.value = self.prev_value
+        self.show_upload_button()
+
+    def show_upload_button(self):
+        # Hide check button and show upload button as well as text area
+        self.bn_upload_text.layout.display = ""
+        self.upload_status = "None"
+        self.bn_confirmation.layout.display = "none"
+        self.bn_confirmation.disabled = True
+        self.bn_cross.layout.display = "None"
+        self.bn_cross.disabled = True
+        self.text.layout.display = ""
+
+        self.hbx_main.children = (self.vbx_bns, self.text, self.output)
+
+
+if __name__ == "__main__":
+    edit_tsv_w_diff = EditTsvWithDiff(value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid)
+    display(edit_tsv_w_diff)
 
 if __name__ == "__main__":
     t1 = [

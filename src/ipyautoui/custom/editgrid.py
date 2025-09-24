@@ -230,7 +230,7 @@ def copy_text_button(text: str) -> widgets.Widget:
 # +
 # TODO: refactor how the datahandler works...
 # TODO: add a test for the datahandler...
-from ipyautoui.custom.edittsv import EditTsv
+from ipyautoui.custom.edittsv import EditTsvWithDiff
 
 # from ipyautoui.watch_validate import WatchValidate
 class EditGrid(w.VBox, TitleDescription):
@@ -413,7 +413,7 @@ class EditGrid(w.VBox, TitleDescription):
             self.ui_copy = ui_copy()
         if ui_io is None:
             if self.model is not None: # is BaseModel
-                self.ui_io = EditTsv(model=self.model, fn_upload=self.set_value_from_tsv)
+                self.ui_io = EditTsvWithDiff(model=self.model, fn_upload=self.set_value_from_tsv)
             else:
                 self.ui_io = w.HTML("must instantiate with pydantic model for this feature")
         else:
