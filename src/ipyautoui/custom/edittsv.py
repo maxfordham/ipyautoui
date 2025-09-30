@@ -75,12 +75,21 @@ class CopyToClipboard(w.VBox):
             layout={"width": "800px", "height": "300px"}
         )  # value=value, # TODO: why is % not working?
         self.bn_copy = w.Button(icon="copy", layout={"width": BUTTON_WIDTH_MIN})
-        self.vbx_bns = w.VBox([self.bn_copy])
+        self.vbx_bns = w.VBox(layout={"width": "48px"})
+        self.hbx_main = w.HBox()
         self.output = w.Output(layout=w.Layout(display="none"))
         super().__init__(**kwargs)
-        self.hbx_main = w.HBox([self.vbx_bns, self.text, self.output])
-        self.children = [self.hbx_main]
+    
+        self._init_controls_c_to_c()
+        self._set_children()
+
+    def _init_controls_c_to_c(self):
         self.bn_copy.on_click(self._bn_copy)
+        
+    def _set_children(self):
+        self.vbx_bns.children = [self.bn_copy]
+        self.hbx_main.children = [self.vbx_bns, self.text, self.output]
+        self.children = [self.hbx_main]
 
     def _bn_copy(self, event):
         copy_js = Javascript(
@@ -89,7 +98,16 @@ class CopyToClipboard(w.VBox):
         self.output.clear_output()
         self.output.append_display_data(copy_js)
 
+if __name__ == "__main__":
+    cc = CopyToClipboard()
+    display(cc)
 
+
+# +
+# cc.vbx_bns
+# cc.hbx_main
+
+# +
 def default_fn_upload(value):
     print(value)
 
@@ -135,16 +153,18 @@ class EditTsv(CopyToClipboard):
 
     def __init__(self, **kwargs):
         self.vbx_errors = w.VBox()
-        super().__init__(**kwargs)
-        self.value = kwargs.get("value")
-
-        self.children = [self.vbx_errors, self.hbx_main]
         self.bn_upload_text = w.Button(
             icon="upload", disabled=True, layout={"width": BUTTON_WIDTH_MIN}
         )
-        self.vbx_bns.children = [self.bn_copy, self.bn_upload_text]
+        super().__init__(**kwargs)
+        self.value = kwargs.get("value")
 
         self._init_contols()
+
+    def _set_children(self): 
+        self.vbx_bns.children = [self.bn_copy, self.bn_upload_text]
+        self.hbx_main.children = [self.vbx_bns, self.text, self.output]
+        self.children = [self.hbx_main]
 
     @property
     def value(self):
@@ -214,7 +234,6 @@ if __name__ == "__main__":
     display(edit_tsv)
 # -
 
-
 if __name__ == "__main__":
     # example of how to use DeepDiff
     from deepdiff import DeepDiff
@@ -262,9 +281,9 @@ class DisplayDeepDiff(w.VBox):
     diff = tr.Instance(value=None, klass=DeepDiff, allow_none=True)
 
     def __init__(self, **kwargs):
-        self.out = w.Output()
+        self.out = w.Output(layout=w.Layout(width="400px")) # Explicit width value NEEDED to render properly on voila. Otherwise, it takes up all the width and nothing besides it is visible on screen.
         super().__init__(**kwargs)
-        self.children = [w.HTML("change diff"), self.out]
+        self.children = [w.HTML("Changes: Lines Added in Green, Lines Removed in Red"), self.out] # 
 
     @tr.observe("new_value")
     def _update_diff(self, on_change):
@@ -277,10 +296,12 @@ class DisplayDeepDiff(w.VBox):
             clear_output()
             print(self.diff)
 
-
 if __name__ == "__main__":
     display_deepdiff = DisplayDeepDiff()
     display(display_deepdiff)
+    display_deepdiff.value= t1
+    display_deepdiff.new_value= t2
+    
 
 # -
 
@@ -308,24 +329,24 @@ class EditTsvWithDiff(EditTsv):
 
     
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
         
         self.ddiff = DisplayDeepDiff(layout=w.Layout(display="None"))
         self.bn_confirmation = w.Button(
-            icon="check", disabled=True, layout={"width": BUTTON_WIDTH_MIN}
+            icon="check", disabled=True, layout={"width": BUTTON_WIDTH_MIN, "display": "None"}
         )
-        self.bn_confirmation.layout.display = "None"
-        self.bn_confirmation.on_click(self._bn_check_upload)
-
         self.bn_cross = w.Button(
-            icon="ban", disabled=True, layout={"width": BUTTON_WIDTH_MIN}
+            icon="ban", disabled=True, layout={"width": BUTTON_WIDTH_MIN, "display": "None"}
         )
-        self.bn_cross.layout.display = "None"
-        self.bn_cross.on_click(self._bn_cross_clicked)
 
+        self.bn_confirmation.on_click(self._bn_check_upload)
+        self.bn_cross.on_click(self._bn_cross_clicked)
+        super().__init__(**kwargs)
+
+    def _set_children(self):        
         self.vbx_bns.children = [self.bn_copy, self.bn_upload_text, self.bn_confirmation, self.bn_cross]
-        
-        self.children = list(self.children)
+        self.hbx_main.children = [self.vbx_bns, self.text, self.ddiff, self.output]
+        self.children = [self.hbx_main]
+    
         
     def _bn_upload_text(self, on_click):
         # hide grid/errors
@@ -339,9 +360,6 @@ class EditTsvWithDiff(EditTsv):
         self.bn_cross.layout.display = ""
         self.bn_cross.disabled = False
         self.bn_cross.button_style = "danger"
-
-        # Add DeepDiff widget to the output box
-        self.hbx_main.children = (self.vbx_bns, self.ddiff, self.output)
         
         # Show DeepDiff widget
         self.ddiff.layout.display = ""
@@ -352,14 +370,15 @@ class EditTsvWithDiff(EditTsv):
 
     def _bn_check_upload(self, onclick):
         self.prev_value = deepcopy(self.value)
-        self.show_upload_button()
+        self.show_upload_button_and_hide_deepdiff()
+        
         return self.fn_upload(self.value)
 
     def _bn_cross_clicked(self, onclick):
         self.value = self.prev_value
-        self.show_upload_button()
+        self.show_upload_button_and_hide_deepdiff()
 
-    def show_upload_button(self):
+    def show_upload_button_and_hide_deepdiff(self):
         # Hide check button and show upload button as well as text area
         self.bn_upload_text.layout.display = ""
         self.upload_status = "None"
@@ -368,13 +387,23 @@ class EditTsvWithDiff(EditTsv):
         self.bn_cross.layout.display = "None"
         self.bn_cross.disabled = True
         self.text.layout.display = ""
-
-        self.hbx_main.children = (self.vbx_bns, self.text, self.output)
+        self.ddiff.layout.display = "None"
 
 
 if __name__ == "__main__":
+    
     edit_tsv_w_diff = EditTsvWithDiff(value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid)
     display(edit_tsv_w_diff)
+
+# + active=""
+#
+
+# + active=""
+#
+
+# + active=""
+#
+# -
 
 if __name__ == "__main__":
     t1 = [
@@ -428,3 +457,5 @@ if __name__ == "__main__":
             ]
         )
     )
+
+
