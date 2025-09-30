@@ -283,7 +283,8 @@ class DisplayDeepDiff(w.VBox):
     def __init__(self, **kwargs):
         self.out = w.Output(layout=w.Layout(width="400px")) # Explicit width value NEEDED to render properly on voila. Otherwise, it takes up all the width and nothing besides it is visible on screen.
         super().__init__(**kwargs)
-        self.children = [w.HTML("Changes: Lines Added in Green, Lines Removed in Red"), self.out] # 
+        self.children = [w.HTML('<span style="color:green;">Lines Added in Green</span>, '
+        '<span style="color:red;">Lines Removed in Red</span>'), self.out]
 
     @tr.observe("new_value")
     def _update_diff(self, on_change):
@@ -301,7 +302,7 @@ if __name__ == "__main__":
     display(display_deepdiff)
     display_deepdiff.value= t1
     display_deepdiff.new_value= t2
-    
+
 
 # -
 
