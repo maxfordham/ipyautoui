@@ -330,7 +330,9 @@ class EditTsvWithDiff(EditTsv):
 
     
     def __init__(self, **kwargs):
-        
+        value = kwargs.get("value")
+        if "value" in kwargs:
+            kwargs.pop("value")
         self.ddiff = DisplayDeepDiff(layout=w.Layout(display="None"))
         self.bn_confirmation = w.Button(
             icon="check", disabled=True, layout={"width": BUTTON_WIDTH_MIN, "display": "None"}
@@ -342,6 +344,7 @@ class EditTsvWithDiff(EditTsv):
         self.bn_confirmation.on_click(self._bn_check_upload)
         self.bn_cross.on_click(self._bn_cross_clicked)
         super().__init__(**kwargs)
+        self.value = value
 
     def _set_children(self):        
         self.vbx_bns.children = [self.bn_copy, self.bn_upload_text, self.bn_confirmation, self.bn_cross]
