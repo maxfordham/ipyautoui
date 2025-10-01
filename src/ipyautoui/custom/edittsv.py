@@ -351,10 +351,10 @@ class EditTsvWithDiff(EditTsv):
         
     def _bn_upload_text(self, on_click):
         # hide grid/errors
-        self.text.layout.display = "none"
+        self.text.layout.display = "None"
 
         # Hide upload button and show check button
-        self.bn_upload_text.layout.display = "none"
+        self.bn_upload_text.layout.display = "None"
         self.bn_confirmation.layout.display = ""
         self.bn_confirmation.disabled = False
         self.bn_confirmation.button_style = "success"
@@ -383,7 +383,7 @@ class EditTsvWithDiff(EditTsv):
         # Hide check button and show upload button as well as text area
         self.bn_upload_text.layout.display = ""
         self.upload_status = "None"
-        self.bn_confirmation.layout.display = "none"
+        self.bn_confirmation.layout.display = "None"
         self.bn_confirmation.disabled = True
         self.bn_cross.layout.display = "None"
         self.bn_cross.disabled = True
@@ -398,11 +398,14 @@ if __name__ == "__main__":
 
 # + active=""
 #
+# -
 
 # + active=""
-#
-
-# + active=""
+# string	integer	floater	something_else
+# important string	1	3.14	324.0
+# important string	1	3.14	324.0
+# important string	1	3.14	324.0
+# important string	1	3.14	324.0
 #
 # -
 
