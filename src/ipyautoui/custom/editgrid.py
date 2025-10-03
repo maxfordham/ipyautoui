@@ -238,6 +238,7 @@ class EditGrid(w.VBox, TitleDescription):
     warn_on_delete = tr.Bool()
     show_copy_dialogue = tr.Bool()
     close_crud_dialogue_on_action = tr.Bool()
+    allow_download = tr.Bool(default_value=True)
 
     @tr.observe("warn_on_delete")
     def observe_warn_on_delete(self, on_change):
@@ -253,6 +254,13 @@ class EditGrid(w.VBox, TitleDescription):
         else:
             self.ui_copy.layout.display = "None"
 
+    @tr.observe("allow_download")
+    def show_hide_download_bn_edittsv(self, on_change):
+        if "allow_download" in self.ui_io.traits():
+            self.ui_io.allow_download = self.allow_download
+        else:
+            logger.warning("allow_download not found in ui_io")
+    
     @property
     def json(self):  # HOTFIX: not required if WatchValidate is used
         return json.dumps(self.value, indent=4)
@@ -264,6 +272,10 @@ class EditGrid(w.VBox, TitleDescription):
     @transposed.setter
     def transposed(self, value: bool):
         self.grid.transposed = value
+        if "transposed" in self.ui_io.traits():
+            self.ui_io.transposed = value
+        else:
+            logger.warning("transposed not found in ui_io")
 
     @property
     def value(self):
@@ -413,7 +425,7 @@ class EditGrid(w.VBox, TitleDescription):
             self.ui_copy = ui_copy()
         if ui_io is None:
             if self.model is not None: # is BaseModel
-                self.ui_io = EditTsvWithDiff(model=self.model, fn_upload=self.set_value_from_tsv)
+                self.ui_io = EditTsvWithDiff(model=self.model, fn_upload=self.set_value_from_tsv, transposed=self.transposed, allow_download=self.allow_download)
             else:
                 self.ui_io = w.HTML("must instantiate with pydantic model for this feature")
         else:
@@ -749,10 +761,16 @@ if __name__ == "__main__":
 # +
 # 
 # [x.__name__ for x in editgrid.stk_crud.children]
-
-# +
-# editgrid.stk_crud.children[0].type
 # -
+
+if __name__ == "__main__":
+    editgrid.grid.data.to_records()
+
+if __name__ == "__main__":
+    print(editgrid.grid.data.to_csv(sep="\t"))
+
+if __name__ == "__main__":
+    editgrid.grid.data.to_dict(orient="records")
 
 if __name__ == "__main__":
 

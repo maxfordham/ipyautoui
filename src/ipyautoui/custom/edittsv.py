@@ -11,6 +11,8 @@ from markdown import markdown
 from IPython.display import clear_output
 from deepdiff import DeepDiff
 from deepdiff.helper import COLORED_COMPACT_VIEW  # COLORED_VIEW,
+from ipyautoui.custom.filedownload import MakeFileAndDownload
+import pathlib
 
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 from ipyautoui.watch_validate import pydantic_validate
@@ -32,6 +34,23 @@ def data_to_tsv(data):
     tsv_string = output.getvalue()
     return tsv_string
 
+def data_to_tsv_transposed(tsv_string):
+    input_io = io.StringIO(tsv_string)
+    reader = csv.reader(input_io, delimiter="\t")
+    
+    rows = list(reader)
+    if not rows:
+        return ""
+
+    # Transpose using zip
+    transposed = list(zip(*rows))
+
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter="\t")
+    for row in transposed:
+        writer.writerow(row)
+
+    return output.getvalue()
 
 def header_from_tsv(tsv_string):
     tsv_file = io.StringIO(tsv_string)
@@ -108,6 +127,12 @@ if __name__ == "__main__":
 # cc.hbx_main
 
 # +
+# value, _value # list of dicts
+# tsv_data # load text as tsv
+# text_data
+# pydantic_object
+
+# +
 def default_fn_upload(value):
     print(value)
 
@@ -120,6 +145,8 @@ class EditTsv(CopyToClipboard):
     upload_status = tr.Enum(
         values=["enabled", "disabled", "None"], allow_none=False, default_value="None"
     )
+    transposed = tr.Bool(default_value=False)
+    allow_download = tr.Bool(default_value=True)
 
     @tr.observe("upload_status")
     def upload_status_onchange(self, on_change):
@@ -139,7 +166,7 @@ class EditTsv(CopyToClipboard):
 
     @tr.observe("value")
     def value_onchange(self, on_change):
-        self.text.value = data_to_tsv(self.value)
+        self.text.value = self.get_tsv_data()
 
     @tr.observe("errors")
     def errors_onchange(self, on_change):
@@ -150,19 +177,31 @@ class EditTsv(CopyToClipboard):
             self.upload_status = "disabled"
         else:
             self.upload_status = "enabled"
+            
+    @tr.observe("transposed")
+    def transpose(self, on_change):
+        self.text.value = self.get_tsv_data()
+
+    @tr.observe("allow_download")
+    def show_hide_download_btn(self, on_change):
+        if self.allow_download:
+            self.mfdld.layout.display = ""
+        else:
+            self.mfdld.layout.display = "None"
 
     def __init__(self, **kwargs):
         self.vbx_errors = w.VBox()
         self.bn_upload_text = w.Button(
             icon="upload", disabled=True, layout={"width": BUTTON_WIDTH_MIN}
         )
+        self.mfdld = MakeFileAndDownload(fn_create_file=self.create_file)
         super().__init__(**kwargs)
         self.value = kwargs.get("value")
 
         self._init_contols()
 
     def _set_children(self): 
-        self.vbx_bns.children = [self.bn_copy, self.bn_upload_text]
+        self.vbx_bns.children = [self.bn_copy, self.bn_upload_text, self.mfdld]
         self.hbx_main.children = [self.vbx_bns, self.text, self.output]
         self.children = [self.hbx_main]
 
@@ -175,10 +214,16 @@ class EditTsv(CopyToClipboard):
         try:
             value = pydantic_validate(self.model, value)
             self._value = value
-            self.text.value = data_to_tsv(self.value)
+            self.text.value = self.get_tsv_data()
 
         except ValidationError as exc:
             logging.info(exc)
+
+    def get_tsv_data(self):
+        if self.transposed:
+            return data_to_tsv_transposed(data_to_tsv(self.value))
+        else:
+            return data_to_tsv(self.value)
 
     def _init_contols(self):
         self.text.observe(self._text, "value")
@@ -186,6 +231,28 @@ class EditTsv(CopyToClipboard):
 
     def _bn_upload_text(self, on_click):
         return self.fn_upload(self.value)
+
+    def generate_csv_file_from_tsv(self):
+        tsv_str = self.text.value  
+
+        # parse the current TSV string
+        reader = csv.reader(io.StringIO(tsv_str), delimiter="\t")
+        rows = list(reader)
+    
+        # write to CSV
+        schema_name = self.model.model_json_schema().get("title", self.model.__name__)
+        fpth = pathlib.Path(f"{schema_name}.csv")
+        with fpth.open("w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerows(rows)
+            return fpth
+    
+    def create_file(self):
+        # obj = self.pydantic_object
+        # fpth = xdg.from_pydantic_object(obj)
+        # return fpth
+        fpth = self.generate_csv_file_from_tsv()
+        return fpth
 
     def _text(self, change):
         value, self.errors = self.validate_text_value()
@@ -199,7 +266,15 @@ class EditTsv(CopyToClipboard):
 
     @property
     def tsv_data(self):  # TODO: ensure header row unchanged
-        return data_from_tsv(self.text.value)
+        tsv_text = self.text.value
+        if self.transposed:
+            # Transpose again == untranspose back to original orientation
+            tsv_text = data_to_tsv_transposed(tsv_text)
+        return data_from_tsv(tsv_text)
+
+    @property
+    def pydantic_object(self):
+        return self.model(self.value)
 
     def validate_text_value(self):  # > value, errors
         try:
@@ -218,20 +293,51 @@ if __name__ == "__main__":
     # Test: EditGrid instance with multi-indexing.
     AUTO_GRID_DEFAULT_VALUE = [
         {
-            "string": "important string",
+            "string": "apples",
+            "integer": 5,
+            "floater": 2.0,
+        },
+        {
+            "string": "bananas",
+            "integer": 2,
+            "floater": 3.5,
+        },
+        {
+            "string": "oranges",
+            "integer": 2,
+            "floater": 4.0,
+        },
+        {
+            "string": "pineapples",
             "integer": 1,
-            "floater": 3.14,
+            "floater": 7.0
         },
     ]
-    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
+    # AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
 
     def fn_upload(value):
         print(value[0].keys())
 
     edit_tsv = EditTsv(
-        value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid, fn_upload=fn_upload
+        value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid, fn_upload=fn_upload, transposed=False, allow_download = True
     )
     display(edit_tsv)
+# -
+
+
+if __name__ == "__main__":
+    # edit_tsv.transposed = True
+    # edit_tsv.allow_download = False
+    print(edit_tsv.pydantic_object.root)
+    print(edit_tsv.model.model_json_schema().get("title", edit_tsv.model.__name__))
+
+# +
+# if __name__ == "__main__":
+    
+    # obj = edit_tsv.model(edit_tsv.value)
+    # fpth = pathlib.Path("test.xlsx")
+    
+    # xdg.from_pydantic_object(obj, fpth)
 # -
 
 if __name__ == "__main__":
@@ -283,8 +389,8 @@ class DisplayDeepDiff(w.VBox):
     def __init__(self, **kwargs):
         self.out = w.Output(layout=w.Layout(width="400px")) # Explicit width value NEEDED to render properly on voila. Otherwise, it takes up all the width and nothing besides it is visible on screen.
         super().__init__(**kwargs)
-        self.children = [w.HTML('<span style="color:green;">Lines Added in Green</span>, '
-        '<span style="color:red;">Lines Removed in Red</span>'), self.out]
+        self.children = [w.HTML('Additions in <span style="color:green;">Green</span>, '
+        'Deletions in <span style="color:red;">Red</span>'), self.out]
 
     @tr.observe("new_value")
     def _update_diff(self, on_change):
@@ -322,7 +428,7 @@ class EditTsvWithDiff(EditTsv):
         try:
             value = pydantic_validate(self.model, value)
             self._value = value
-            self.text.value = data_to_tsv(self.value)
+            self.text.value = self.get_tsv_data()
             self.prev_value = deepcopy(self.value)
 
         except ValidationError as exc:
@@ -346,8 +452,11 @@ class EditTsvWithDiff(EditTsv):
         super().__init__(**kwargs)
         self.value = value
 
-    def _set_children(self):        
-        self.vbx_bns.children = [self.bn_copy, self.bn_upload_text, self.bn_confirmation, self.bn_cross]
+    def _set_children(self):
+        if self.allow_download:
+            self.vbx_bns.children = [self.bn_copy, self.bn_upload_text, self.mfdld, self.bn_confirmation, self.bn_cross]
+        else:
+            self.vbx_bns.children = [self.bn_copy, self.bn_upload_text, self.bn_confirmation, self.bn_cross]
         self.hbx_main.children = [self.vbx_bns, self.text, self.ddiff, self.output]
         self.children = [self.hbx_main]
     
@@ -394,23 +503,39 @@ class EditTsvWithDiff(EditTsv):
         self.ddiff.layout.display = "None"
 
 
-if __name__ == "__main__":
-    
-    edit_tsv_w_diff = EditTsvWithDiff(value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid)
+if __name__ == "__main__":    
+    edit_tsv_w_diff = EditTsvWithDiff(value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid, transposed = False)    
     display(edit_tsv_w_diff)
 
-# + active=""
-#
-# -
+if __name__ == "__main__": 
+    display(edit_tsv_w_diff.ddiff.diff)
 
-# + active=""
-# string	integer	floater	something_else
-# important string	1	3.14	324.0
-# important string	1	3.14	324.0
-# important string	1	3.14	324.0
-# important string	1	3.14	324.0
-#
-# -
+
+
+if __name__ == "__main__":
+    edit_tsv_w_diff.transposed = True
+
+if __name__ == "__main__":
+    from ipyautoui.custom.autogrid import GridSchema
+    from jsonref import replace_refs
+    display(edit_tsv_w_diff.model)
+    pschema = edit_tsv_w_diff.model.model_json_schema()
+    display(pschema)
+    schema = replace_refs(pschema)
+    
+    gschema = GridSchema(schema)
+
+if __name__ == "__main__":
+    gschema.is_multiindex
+
+if __name__ == "__main__":
+    gschema.map_name_index
+
+if __name__ == "__main__":
+    edit_tsv_w_diff.value
+
+if __name__ == "__main__":
+    display(edit_tsv_w_diff._value)
 
 if __name__ == "__main__":
     t1 = [

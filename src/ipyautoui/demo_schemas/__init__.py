@@ -7,6 +7,7 @@ from ipyautoui.demo_schemas.complex_serialization import ComplexSerialisation
 from ipyautoui.demo_schemas.nested import Nested
 from ipyautoui.demo_schemas.null_and_required import NullAndRequired
 from ipyautoui.demo_schemas.editable_datagrid import EditableGrid
+from ipyautoui.demo_schemas.editable_datagrid_transposed import EditableGridTransposed
 from ipyautoui.demo_schemas.editable_datagrid_with_nullable import (
     EditableGridWithNullable,
 )

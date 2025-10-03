@@ -6,7 +6,7 @@ from ipyautoui.custom.buttonbars import SaveButtonBar
 from ipyautoui.custom.fileupload import FileUploadToDir, FilesUploadToDir
 from ipyautoui.custom.executetasks import ExecuteTasks, SelectAndExecute
 from ipyautoui.custom.svgspinner import SvgSpinner
-from ipyautoui.custom.filedownload import FileDownload, FilesDownload, SelectAndDownload
+from ipyautoui.custom.filedownload import FileDownload, FilesDownload, SelectAndDownload, MakeFileAndDownload
 from ipyautoui.custom.maplist import MapList
 from ipyautoui.custom.jsonable_dict import JsonableDict
 
@@ -23,6 +23,7 @@ __all__ = [
     "SelectAndExecute",
     "SvgSpinner", 
     "FileDownload", 
+    "MakeFileAndDownload",
     "FilesDownload", 
     "SelectAndDownload",
     "MapList",
