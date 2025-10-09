@@ -1,0 +1,14 @@
+[
+    {
+        "id": 6,
+        "string": "strawberry",
+        "integer": 3,
+        "floater": 3.0
+    },
+    {
+        "id": 8,
+        "string": "apple",
+        "integer": 3,
+        "floater": 2.2
+    }
+]

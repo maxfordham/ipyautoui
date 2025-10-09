@@ -4,6 +4,7 @@ import typing as ty
 
 DATAGRID_TEST_VALUE = [
     {
+        "id": 1,
         "string": "how long",
         "integer": 1,
         "floater": 3.14,
@@ -13,6 +14,7 @@ DATAGRID_TEST_VALUE = [
 
 
 class DataFrameCols(BaseModel):
+    id: int = Field(1)
     string: str = Field("string", json_schema_extra=dict(column_width=200))
     integer: int = Field(1)
     floater: float = Field(3.1415, json_schema_extra=dict(column_width=70))

@@ -1,0 +1,26 @@
+[
+    {
+        "id": 6,
+        "string": "strawberry",
+        "integer": 2,
+        "floater": 2.8
+    },
+    {
+        "id": 7,
+        "string": "banana",
+        "integer": 3,
+        "floater": 2.1
+    },
+    {
+        "id": 8,
+        "string": "apple",
+        "integer": 3,
+        "floater": 2.1
+    },
+    {
+        "id": 2,
+        "string": "orange",
+        "integer": 3,
+        "floater": 2.8
+    }
+]
