@@ -1,8 +1,6 @@
-
 """file download widget"""
 
 
-# +
 import ipywidgets as w
 import traitlets as tr
 import pathlib
@@ -88,25 +86,50 @@ class FileDownload(_Base):
         self.reload()
 
     def reload(self):
-        if self.value.is_file():
+        if self.value is not None and self.value.is_file():
             self.content_b64 = load_file_to_b64(self.value)
             self.bn_download.disabled = False
         else:
-            self.bn_download.disabled = True
-        self.bn_download.tooltip = f"download file: {self.value.name}"
+            self.bn_download.disabled = False
+        if self.value is None:
+            name = "None"
+        else: 
+            name = self.value.name
+        self.bn_download.tooltip = f"download file: {name}"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.bn_download.disabled = True
+        self.reload()
 
     def trigger_download(self):
+        self.reload()
         trigger_download(self.content_b64, self.filename, self.output)
 
 
 if __name__ == "__main__":
     fpth = pathlib.Path("../../../tests/filetypes/eg_pdf.pdf")
-    fd = FileDownload(value=fpth)
+    fd = FileDownload(value =fpth)
     display(fd)
+
+
+# +
+class MakeFileAndDownload(FileDownload):
+    fn_create_file = tr.Callable()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+    def _on_bn_download_clicked(self, on_click):
+        p = self.fn_create_file()
+        self.value = p
+        self.trigger_download()
+
+def create_file():
+    p = pathlib.Path("test.txt")
+    p.write_text("asdfsadfas")
+    return p
+if __name__ == "__main__":   
+    mfdld = MakeFileAndDownload(fn_create_file=create_file)
+    display(mfdld)
 
 
 # +
@@ -204,4 +227,3 @@ if __name__ == "__main__":
         title="Download Files",
     )
     display(sd)
-# -
