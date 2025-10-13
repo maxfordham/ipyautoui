@@ -125,56 +125,36 @@ def add_row(addition: dict, primary_key_name = "id", fpth: pathlib.Path = pathli
     print(f"➕ Added new row")
     return data
 
-
-# +
-
-
-# datahandler = DataHandler(
-#     fn_get_all_data=lambda: AUTO_GRID_DEFAULT_VALUE * random.randint(1, 5),
-#     fn_post=lambda v: print(v),
-#     fn_patch=lambda v: v,
-#     fn_delete=delete_row,
-#     fn_copy=lambda v: print(v),
-#     fn_io = lambda v: print("io")
-# )
-# -
-
 class EditGridFile(EditGrid):
     primary_key_name = tr.Unicode(default_value="id")
-    fpth = tr.Instance(klass=pathlib.Path, default_value= pathlib.Path("..") / "data" / "sample-data.json")
+    fpth = tr.Instance(klass=pathlib.Path, allow_none=False)
 
-    # @tr.observe("fpth")
-    def update_handler(self, change):
-        self.datahandler = DataHandler(
-            fn_get_all_data=lambda: AUTO_GRID_DEFAULT_VALUE * random.randint(1, 5),
-            fn_post=lambda v: print(v),
-            fn_patch=lambda v: v,
-            fn_delete=lambda v: print(v),
-            fn_copy=lambda v: print(v),
-            fn_io = lambda v: print("io")
-        )
+    @tr.observe("fpth")
+    def update_handler(self, change):       
         self.datahandler.fn_get_all_data = functools.partial(load_json, fpth=self.fpth)
         self.datahandler.fn_post = functools.partial(add_row, primary_key_name=self.primary_key_name, fpth=self.fpth)
         self.datahandler.fn_patch = functools.partial(edit_row, primary_key_name=self.primary_key_name, fpth=self.fpth)
         self.datahandler.fn_delete = functools.partial(delete_row, primary_key_name=self.primary_key_name, fpth=self.fpth)
         self.datahandler.fn_copy = functools.partial(add_row, primary_key_name=self.primary_key_name, fpth=self.fpth)
         self.datahandler.fn_io = functools.partial(self.handle_crud)
+
+        self._set_datahandler(self.datahandler)
         
     def __init__(
         self,
         **kwargs,
     ):
-
-        # datahandler = DataHandler(
-        #     fn_get_all_data=functools.partial(load_json, fpth),
-        #     fn_post=add_rows,
-        #     fn_patch=edit_row,
-        #     fn_delete=delete_row,
-        #     fn_copy=add_rows,
-        #     fn_io=self.handle_crud
-        # )
+        
+        datahandler = DataHandler(
+            fn_get_all_data=lambda v: print(v),
+            fn_post=lambda v: print(v),
+            fn_patch=lambda v: v,
+            fn_delete=lambda v: print(v),
+            fn_copy=lambda v: print(v),
+            fn_io = lambda v: print("io")
+        )        
         super().__init__(
-            # datahandler=datahandler,
+            datahandler=datahandler,
             warn_on_delete=True,
             layout=w.Layout(height="800px"),
             **kwargs,
@@ -196,7 +176,7 @@ class EditGridFile(EditGrid):
 
 
 if __name__ == "__main__":
-    json_path = pathlib.Path("..") / "data" / "sample-data.json"
+    json_path = pathlib.Path("../../..") / "tests" / "test_data" / "edit-grid-file-data.json"
     with json_path.open('r', encoding='utf-8') as file:
         data = json.load(file)
                      
@@ -221,7 +201,7 @@ if __name__ == "__main__":
             json_schema_extra=dict(
                 format="dataframe", datagrid_index_name=("section", "title")
             ),
-        )    
+        )
 
     title = "Testing Crud Info Grid"
     description = "Useful for all editing purposes whatever they may be 👍"
@@ -235,7 +215,7 @@ if __name__ == "__main__":
         close_crud_dialogue_on_action=False,
         global_decimal_places=1,
         column_width={"String": 400},
-        fpth=pathlib.Path("..") / "data" / "sample-data.json"
+        fpth=json_path
     )
     display(edit_grid_file)
 

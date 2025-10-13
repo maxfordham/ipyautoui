@@ -51,23 +51,6 @@ class DataHandler(BaseModel):
     fn_io: ty.Callable # TOOD: rename -> fn_dump
 
 
-# +
-def test(arg): print(arg)
-
-
-test("asdf")
-
-
-# +
-def wrap():
-    return test("asdf")
-
-import functools
-
-fn = functools.partial(test, "hello")
-fn()
-# -
-
 if __name__ == "__main__":
     from ipyautoui.demo_schemas import EditableGrid
     from ipyautoui.demo_schemas.editable_datagrid import DataFrameCols
@@ -83,15 +66,6 @@ if __name__ == "__main__":
     ui.value = {"string": "adfs", "integer": 2, "floater": 1.22}
 
 
-# +
-# class RowEditor:
-#     fn_add: ty.List[ty.Callable[[ty.Any, dict], None]]  # post
-#     fn_edit: ty.List[ty.Callable[[ty.Any, dict], None]]  # patch
-#     fn_move: ty.Callable
-#     fn_copy: ty.Callable
-#     fn_delete: ty.Callable
-
-# +
 class UiDelete(w.VBox):
     value = tr.Dict(default_value={})
     columns = tr.List(default_value=[])
@@ -775,99 +749,6 @@ if __name__ == "__main__":
     )
     editgrid.observe(lambda c: print("_value changed"), "_value")
     display(editgrid)
-
-if __name__ == "__main__":
-    import json
-    from pathlib import Path
-    from pydantic import RootModel
-
-    json_path = Path("..") / "data" / "sample-data.json"
-    with json_path.open('r', encoding='utf-8') as file:
-        data = json.load(file)
-                     
-    # Test: EditGrid instance with multi-indexing.
-    AUTO_GRID_DEFAULT_VALUE = data
-
-    class DataFrameCols(BaseModel):
-        id: int = Field(1, json_schema_extra=dict(column_width=80, section="a"))
-        string: str = Field(
-            "string", json_schema_extra=dict(column_width=400, section="a")
-        )
-        integer: int = Field(1, json_schema_extra=dict(column_width=80, section="a"))
-        floater: float = Field(
-            None, json_schema_extra=dict(column_width=70, section="b")
-        )
-
-    class TestDataFrame(RootModel):
-        """a description of TestDataFrame"""
-
-        root: ty.List[DataFrameCols] = Field(
-            default=AUTO_GRID_DEFAULT_VALUE,
-            json_schema_extra=dict(
-                format="dataframe", datagrid_index_name=("section", "title")
-            ),
-        )
-
-    datahandler = DataHandler(
-        fn_get_all_data=lambda: AUTO_GRID_DEFAULT_VALUE * random.randint(1, 5),
-        fn_post=lambda v: print(v),
-        fn_patch=lambda v: v,
-        fn_delete=delete_row,
-        fn_copy=lambda v: print(v),
-        fn_io = lambda v: print("io")
-    )
-
-    
-        
-
-    title = "Testing Crud Info Grid"
-    description = "Useful for all editing purposes whatever they may be 👍"
-    editgrid = EditGrid(
-        schema=TestDataFrame,
-        title=title,
-        description=description,
-        ui_add=None,
-        ui_edit=None,
-        warn_on_delete=True,
-        show_copy_dialogue=False,
-        close_crud_dialogue_on_action=False,
-        global_decimal_places=1,
-        column_width={"String": 400},
-        datahandler=datahandler,
-        transposed = False,
-    )
-    editgrid.observe(lambda c: print("_value changed"), "_value")
-    display(editgrid)
-
-#
-
-
-# +
-# [print(x) for x in list("abc")];
-    
-
-    
-# -
-
-# 
-# [x.__name__ for x in editgrid.stk_crud.children]
-if __name__ == "__main__":
-    display(editgrid.ui_io.changes)
-    print('\n\n\n')
-    display(editgrid.ui_io.ddiff.diff)
-    print('\n\n\n')
-    handle_crud(editgrid.ui_io.changes)
-    print(editgrid.ui_io.changes)
-
-
-if __name__ == "__main__":
-    editgrid.grid.data.to_records()
-
-if __name__ == "__main__":
-    print(editgrid.grid.data.to_csv(sep="\t"))
-
-if __name__ == "__main__":
-    editgrid.grid.data.to_dict(orient="records")
 
 if __name__ == "__main__":
 

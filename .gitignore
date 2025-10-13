@@ -76,6 +76,7 @@ target/
 /src/ipyautoui/.ipynb_checkpoints
 /src/ipyautoui/_version.py
 /src/ipyautoui/demo_schemas/.ipynb_checkpoints/
+/src/ipyautoui/data/.ipynb_checkpoints
 /src/ipyautoui/demo_schemas/.__pycache__/
 /tests/.ipynb_checkpoints
 /tests/__pycache__
