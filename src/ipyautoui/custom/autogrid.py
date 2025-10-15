@@ -614,7 +614,7 @@ class AutoGrid(DataGrid):
         )
         self.by_title = by_title
         self.selection_mode = MAP_TRANSPOSED_SELECTION_MODE[self.transposed]
-        self.model, self.schema = asch._init_model_schema(schema, by_alias=by_alias)
+        self.model, self.schema = asch._init_model_schema(schema, by_alias=by_alias, pydantic_model_from_json=False)
         # ^ generates gridschema
         self.gridschema.get_traits = self.datagrid_trait_names
         _data = self._init_data(data)

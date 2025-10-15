@@ -50,7 +50,7 @@ def pydantic_model_from_json_schema(json_schema: str) -> ty.Type[BaseModel]:
     return getattr(module, load)
 
 def _init_model_schema(
-    schema=None, by_alias=False
+    schema=None, by_alias=False, pydantic_model_from_json = True
 ) -> tuple[ty.Optional[ty.Type[BaseModel]], dict]:
     if schema is None:
         return None, {
@@ -59,7 +59,10 @@ def _init_model_schema(
             "items": {"properties": {}},
         }
     if isinstance(schema, dict):
-        model = pydantic_model_from_json_schema(schema)
+        if pydantic_model_from_json:
+            model = pydantic_model_from_json_schema(schema)
+        else:
+            model = None
         # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM
         # jsonschema_to_pydantic
         # https://koxudaxi.github.io/datamodel-code-generator/using_as_module/
