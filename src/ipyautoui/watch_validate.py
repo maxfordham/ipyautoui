@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def pydantic_validate(model: BaseModel, value):
-    return model.model_validate(value).model_dump(mode="json")
+    return model.model_validate(value).model_dump(mode="json", by_alias=True)
 
 
 class _WatchSilent(tr.HasTraits):  # TODO: contains context manager for silencing traits

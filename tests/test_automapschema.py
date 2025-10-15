@@ -88,8 +88,7 @@ def test_combobox():
 
         combobox: ty.Union[str, FruitEnum] = Field("apple")
 
-    model, schema = _init_model_schema(Test)
-    assert_widget_map(schema)
+    assert_widget_map(Test)
 
 
 def test_combobox_mapped():

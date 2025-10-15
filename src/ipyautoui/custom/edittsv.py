@@ -124,17 +124,6 @@ if __name__ == "__main__":
     display(cc)
 
 
-# +
-# cc.vbx_bns
-# cc.hbx_main
-
-# +
-# value, _value # list of dicts
-# tsv_data # load text as tsv
-# text_data
-# pydantic_object
-
-# +
 def default_fn_upload(value):
     print(value)
 
@@ -214,9 +203,14 @@ class EditTsv(CopyToClipboard):
     @value.setter
     def value(self, value):
         try:
-            value = pydantic_validate(self.model, value)
-            self._value = value
-            self.text.value = self.get_tsv_data()
+            value, self.errors = self.validate_value(value)
+            if self.errors:
+                self.vbx_errors.children = [
+                    w.HTML(markdown(markdown_error(e))) for e in self.errors
+                ]
+            else:
+                self._value = value
+                self.text.value = self.get_tsv_data()
 
         except ValidationError as exc:
             logging.info(exc)
@@ -250,9 +244,6 @@ class EditTsv(CopyToClipboard):
             return fpth
     
     def create_file(self):
-        # obj = self.pydantic_object
-        # fpth = xdg.from_pydantic_object(obj)
-        # return fpth
         fpth = self.generate_csv_file_from_tsv()
         return fpth
 
@@ -286,6 +277,15 @@ class EditTsv(CopyToClipboard):
             value = self.value
             errors = exc.errors()
         return value, errors
+    
+    def validate_value(self, value):
+        try:
+            val = pydantic_validate(self.model, value)
+            errors = []
+        except ValidationError as exc:
+            val = self.value
+            errors = exc.errors()
+        return val, errors
 
 
 if __name__ == "__main__":
@@ -424,41 +424,6 @@ if __name__ == "__main__":
     display(ddiff)
 
 
-# +
-# if __name__ == "__main__":
-#     t1 = [
-#         {
-#             "name": "John",
-#             "age": 30,
-#             "scores": [1, 2, 3],
-#             "address": {"city": "New York", "zip": "10001"},
-#         },
-#         {
-#             "name": "John",
-#             "age": 30,
-#             "scores": [1, 2, 3],
-#             "address": {"city": "New York", "zip": "10001"},
-#         },
-#     ]
-#     t2 = [
-#         {
-#             "name": "John",
-#             "age": 31,
-#             "scores": [1, 2, 4],
-#             "address": {"city": "Boston", "zip": "10001"},
-#             "new": "value",
-#         },
-#         {
-#             "name": "John",
-#             "age": 30,
-#             "scores": [1, 2, 3],
-#             "address": {"city": "New York", "zip": "10001"},
-#         },
-#     ]
-
-#     display_deepdiff.value = t1
-#     display_deepdiff.new_value = t2
-# -
 
 class DisplayDeepDiff(w.VBox):
     value = tr.Dict(value=None, trait=tr.Dict, allow_none=True)
@@ -507,10 +472,15 @@ class EditTsvWithDiff(EditTsv):
     def value(self, value):
         
         try:
-            value = pydantic_validate(self.model, value)
-            self._value = value
-            self.text.value = self.get_tsv_data()
-            self.prev_value = deepcopy(self.value)
+            value, self.errors = self.validate_value(value)
+            if self.errors:
+                self.vbx_errors.children = [
+                    w.HTML(markdown(markdown_error(e))) for e in self.errors
+                ]
+            else:
+                self._value = value
+                self.text.value = self.get_tsv_data()
+                self.prev_value = deepcopy(self.value)
 
         except ValidationError as exc:
             logging.info(exc)
@@ -546,7 +516,7 @@ class EditTsvWithDiff(EditTsv):
         else:
             self.vbx_bns.children = [self.bn_copy, self.bn_upload_text, self.bn_confirmation, self.bn_cross]
         self.hbx_main.children = [self.vbx_bns, self.text, self.ddiff, self.output]
-        self.children = [self.hbx_main]
+        self.children = [self.vbx_errors, self.hbx_main]
     
         
     def _bn_upload_text(self, on_click):
@@ -646,36 +616,3 @@ class EditTsvWithDiff(EditTsv):
 if __name__ == "__main__":    
     edit_tsv_w_diff = EditTsvWithDiff(value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid, transposed = False, primary_key_name="string")    
     display(edit_tsv_w_diff)
-
-# edit_tsv_w_diff.changes
-if __name__ == "__main__":
-    # print(edit_tsv_w_diff.ddiff.diff["values_changed"])
-    print(edit_tsv_w_diff.ddiff.diff.affected_paths)
-    print(edit_tsv_w_diff.ddiff.diff.affected_root_keys)
-    print(edit_tsv_w_diff.changes)
-
-# +
-# dlevel = diff['dictionary_item_removed'][0]
-# type(dlevel)
-# dlevel
-
-# +
-# from deepdiff.model import DiffLevel
-# import typing as ty
-
-# +
-# diff = edit_tsv_w_diff.ddiff.diff
-# pkey = "id"
-
-
-    
-# deletions = [x.t1[pkey] for x in diff['dictionary_item_removed']]
-# deletions
-# -
-
-if __name__ == "__main__":
-    print(edit_tsv_w_diff.changes)
-    print('\n\n\n')
-    print(edit_tsv_w_diff.ddiff.diff.to_dict())
-
-

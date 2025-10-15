@@ -1,3 +1,4 @@
+import numpy as np
 from ipyautoui.custom.edittsv import DisplayDeepDiff
 from ipyautoui.custom.edittsv import EditTsvWithDiff
 from ipyautoui.demo_schemas import EditableGrid
@@ -5,14 +6,16 @@ from ipyautoui.custom.edittsv import data_to_tsv
 from deepdiff import DeepDiff
 
 def test_DisplayDeepDiff():
-    d1 = [
-        {"name": "John", "age": 30, "scores": [1, 2, 3], "address": {"city": "New York", "zip": "10001"}},
-        {"name": "John", "age": 30, "scores": [1, 2, 3], "address": {"city": "New York", "zip": "10001"}}
-    ]
-    d2 = [
-        {"name": "John", "age": 31, "scores": [1, 2, 4], "address": {"city": "Boston", "zip": "10001"}, "new": "value"},
-        {"name": "John", "age": 30, "scores": [1, 2, 3], "address": {"city": "New York", "zip": "10001"}}
-    ]
+    d1 = {
+            1: {"name": "John", "age": 30, "scores": [1, 2, 3], "address": {"city": "New York", "zip": "10001"}},
+            2: {"name": "John", "age": 30, "scores": [1, 2, 3], "address": {"city": "New York", "zip": "10001"}}
+        }
+        
+    d2 = {
+            1: {"name": "John", "age": 31, "scores": [1, 2, 4], "address": {"city": "Boston", "zip": "10001"}, "new": "value"},
+            2: {"name": "John", "age": 30, "scores": [1, 2, 3], "address": {"city": "New York", "zip": "10001"}}
+        }
+    
     ddiff = DisplayDeepDiff()
     assert ddiff.diff is None
     assert ddiff is not None
@@ -186,3 +189,25 @@ def test_edit_tsv_with_diff_rejection():
     check_editing_mode(edit_tsv_with_diff)
     
     assert edit_tsv_with_diff.bn_upload_text.disabled is True
+
+def test_edit_tsv_blank_from_empty_volume_reference():
+    """Test that an edittsv becomes blank when a property is nan / None."""
+    AUTO_GRID_DEFAULT_VALUE = [
+        {
+            "string": "important string",
+            "integer": 1,
+            "floater": 3.14,
+        },
+    ]
+    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
+    edit_tsv_with_diff = EditTsvWithDiff(value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid)
+    new_tuple = (
+        {
+            'string': "test string",
+            "integer": np.nan,
+            "floater": 3.24,
+        },
+    )
+    edit_tsv_with_diff.value = new_tuple
+    
+    assert edit_tsv_with_diff.value != []

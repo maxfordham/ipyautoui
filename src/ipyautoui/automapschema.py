@@ -12,11 +12,42 @@ from ipyautoui.custom.markdown_widget import MarkdownWidget
 from ipyautoui.custom.filechooser import FileChooser
 from ipyautoui.custom.date_string import DatePickerString, NaiveDatetimePickerString
 from ipyautoui.autobox import AutoBox
+from tempfile import TemporaryDirectory
+import pathlib
+from datamodel_code_generator import DataModelType, InputFileType, generate
+import json
+import importlib.util
+import sys
 
 import logging
 
 logger = logging.getLogger(__name__)
 
+def pydantic_model_file_from_json_schema(json_schema, fpth):
+    return generate(
+            json.dumps(json_schema),
+            input_file_type=InputFileType.JsonSchema,
+            input_filename="example.json",
+            output=fpth,
+            output_model_type=DataModelType.PydanticV2BaseModel,
+            capitalise_enum_members=True,
+        )
+
+def pydantic_model_from_json_schema(json_schema: str) -> ty.Type[BaseModel]:
+    load = json_schema["title"].replace(" ", "") if "title" in json_schema else "Model"
+    # TODO: refactor this when title vs name vs code has been sorted out...
+
+    with TemporaryDirectory() as temporary_directory_name:
+        temporary_directory = pathlib.Path(temporary_directory_name)
+        file_path = "model.py"
+        module_name = file_path.split(".")[0]
+        output = pathlib.Path(temporary_directory / file_path)
+        pydantic_model_file_from_json_schema(json_schema, output)
+        spec = importlib.util.spec_from_file_location(module_name, output)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+    return getattr(module, load)
 
 def _init_model_schema(
     schema=None, by_alias=False
@@ -28,7 +59,7 @@ def _init_model_schema(
             "items": {"properties": {}},
         }
     if isinstance(schema, dict):
-        model = None  # jsonschema_to_pydantic(schema)
+        model = pydantic_model_from_json_schema(schema)
         # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM
         # jsonschema_to_pydantic
         # https://koxudaxi.github.io/datamodel-code-generator/using_as_module/
