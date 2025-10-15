@@ -516,6 +516,7 @@ class AutoGrid(DataGrid):
         by_alias: bool = False,
         by_title: bool = True,
         order: ty.Optional[tuple] = None,
+        pydantic_model_from_json: bool = False,
         **kwargs,
     ):
         self.__init__(
@@ -524,6 +525,7 @@ class AutoGrid(DataGrid):
             by_alias=by_alias,
             by_title=by_title,
             order=order,
+            pydantic_model_from_json=pydantic_model_from_json,
             **kwargs,
         )
 
@@ -606,6 +608,7 @@ class AutoGrid(DataGrid):
         by_alias: bool = False,
         by_title: bool = True,
         order: ty.Optional[tuple] = None,
+        pydantic_model_from_json: bool = False,
         **kwargs,
     ):
         # accept schema or pydantic schema
@@ -614,7 +617,7 @@ class AutoGrid(DataGrid):
         )
         self.by_title = by_title
         self.selection_mode = MAP_TRANSPOSED_SELECTION_MODE[self.transposed]
-        self.model, self.schema = asch._init_model_schema(schema, by_alias=by_alias, pydantic_model_from_json=False)
+        self.model, self.schema = asch._init_model_schema(schema, by_alias=by_alias, pydantic_model_from_json=pydantic_model_from_json)
         # ^ generates gridschema
         self.gridschema.get_traits = self.datagrid_trait_names
         _data = self._init_data(data)

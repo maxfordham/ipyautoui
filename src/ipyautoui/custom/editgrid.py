@@ -317,6 +317,7 @@ class EditGrid(w.VBox, TitleDescription):
         title: str = None,
         description: str = None,
         show_title: bool = True,
+        pydantic_model_from_json: bool = False,
         **kwargs,
     ):  # TODO: use **kwargs to pass attributes to EditGrid as in AutoObject and AutoArray
         self.vbx_error = w.VBox()
@@ -328,6 +329,7 @@ class EditGrid(w.VBox, TitleDescription):
         self.by_title = by_title
         self.by_alias = by_alias
         self.datahandler = datahandler
+        self.pydantic_model_from_json = pydantic_model_from_json
 
         self.close_crud_dialogue_on_action = close_crud_dialogue_on_action
         self._init_autogrid(schema, value, **kwargs)
@@ -367,7 +369,7 @@ class EditGrid(w.VBox, TitleDescription):
             None if value is None or value == [{}] else pd.DataFrame(value)
         )
         self.grid.update_from_schema(
-            schema, data=getvalue(value), by_alias=self.by_alias, **kwargs
+            schema, data=getvalue(value), by_alias=self.by_alias, pydantic_model_from_json=self.pydantic_model_from_json, **kwargs
         )
         self._init_ui_callables(
             ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy
@@ -387,7 +389,7 @@ class EditGrid(w.VBox, TitleDescription):
             None if value is None or value == [{}] else pd.DataFrame(value)
         )
         self.grid = AutoGrid(
-            schema, data=getvalue(value), by_alias=self.by_alias, **kwargs
+            schema, data=getvalue(value), pydantic_model_from_json=self.pydantic_model_from_json, by_alias=self.by_alias, **kwargs
         )
 
     def _init_ui_callables(
