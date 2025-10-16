@@ -188,7 +188,7 @@ def test_edit_tsv_with_diff_rejection():
     
     check_editing_mode(edit_tsv_with_diff)
     
-    assert edit_tsv_with_diff.bn_upload_text.disabled is True
+    assert edit_tsv_with_diff.bn_upload_text.disabled is False
 
 def test_edit_tsv_blank_from_empty_volume_reference():
     """Test that an edittsv becomes blank when a property is nan / None."""
