@@ -556,14 +556,13 @@ class EditTsvWithDiff(EditTsv):
         self.reset_deep_diff()
 
     def _bn_cross_clicked(self, onclick):
-        self.value = self.prev_value
-        self.show_upload_button_and_hide_deepdiff()
-        self.reset_deep_diff()
+        self.show_upload_button_and_hide_deepdiff(upload_disabled=False)
 
-    def show_upload_button_and_hide_deepdiff(self):
+    def show_upload_button_and_hide_deepdiff(self, upload_disabled=True):
         # Hide check button and show upload button as well as text area
         self.bn_upload_text.layout.display = ""
-        self.upload_status = "None"
+        if upload_disabled:
+            self.upload_status = "None"
         self.bn_confirmation.layout.display = "None"
         self.bn_confirmation.disabled = True
         self.bn_cross.layout.display = "None"
