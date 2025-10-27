@@ -12,12 +12,11 @@ from IPython.display import clear_output
 from deepdiff import DeepDiff
 from deepdiff.helper import COLORED_COMPACT_VIEW  # COLORED_VIEW,
 from ipyautoui.custom.filedownload import MakeFileAndDownload
-import pathlib
 from copy import deepcopy
 import typing as ty
+import xlsxdatagrid as xdg
 
 from ipyautoui.constants import BUTTON_WIDTH_MIN
-from ipyautoui.watch_validate import pydantic_validate
 
 
 logger = logging.getLogger(__name__)
@@ -138,6 +137,9 @@ class EditTsv(CopyToClipboard):
     )
     transposed = tr.Bool(default_value=False)
     allow_download = tr.Bool(default_value=True)
+    exclude_metadata = tr.Bool(default_value=True)
+    exclude_header_lines = tr.Bool(default_value=True)
+    header_depth = tr.Int(default_value=1)
 
     @tr.observe("upload_status")
     def upload_status_onchange(self, on_change):
@@ -203,7 +205,15 @@ class EditTsv(CopyToClipboard):
     @value.setter
     def value(self, value):
         try:
-            value, self.errors = self.validate_value(value)
+            value = []
+            if self.text.value:
+                value, self.errors = xdg.read_csv_string(
+                    self.text.value,
+                    remove_header_titles=True,
+                    is_transposed=self.transposed,
+                    model=self.model,
+                    delimiter="\t",
+                    header_depth=self.header_depth)
             if self.errors:
                 self.vbx_errors.children = [
                     w.HTML(markdown(markdown_error(e))) for e in self.errors
@@ -228,27 +238,25 @@ class EditTsv(CopyToClipboard):
     def _bn_upload_text(self, on_click):
         return self.fn_upload(self.value)
 
-    def generate_csv_file_from_tsv(self):
-        tsv_str = self.text.value  
-
-        # parse the current TSV string
-        reader = csv.reader(io.StringIO(tsv_str), delimiter="\t")
-        rows = list(reader)
-    
-        # write to CSV
-        schema_name = self.model.model_json_schema().get("title", self.model.__name__)
-        fpth = pathlib.Path(f"{schema_name}.csv")
-        with fpth.open("w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerows(rows)
-            return fpth
-    
     def create_file(self):
-        fpth = self.generate_csv_file_from_tsv()
+        pydantic_obj = self.model(self.value)
+        fpth = xdg.from_pydantic_object(
+            pydantic_obj,
+            is_transposed=self.transposed,
+            exclude_metadata=self.exclude_metadata,
+            exclude_header_lines=self.exclude_header_lines
+        )[0]
         return fpth
 
     def _text(self, change):
-        value, self.errors = self.validate_text_value()
+        value = []
+        if self.text.value:
+            value, self.errors = xdg.read_csv_string(
+                self.text.value,
+                is_transposed=self.transposed,
+                model=self.model,
+                delimiter="\t",
+                header_depth=self.header_depth)
         if self.errors:
             self.vbx_errors.children = [
                 w.HTML(markdown(markdown_error(e))) for e in self.errors
@@ -259,34 +267,17 @@ class EditTsv(CopyToClipboard):
 
     @property
     def tsv_data(self):  # TODO: ensure header row unchanged
-        tsv_text = self.text.value
-        if self.transposed:
-            # Transpose again == untranspose back to original orientation
-            tsv_text = data_to_tsv_transposed(tsv_text)
-        return data_from_tsv(tsv_text)
+        return xdg.read_csv_string(
+            self.text.value,
+            remove_header_titles=True,
+            is_transposed=self.transposed,
+            model=self.model,
+            delimiter="\t",
+            header_depth=self.heeder_depth)
 
     @property
     def pydantic_object(self):
         return self.model(self.value)
-
-    def validate_text_value(self):  # > value, errors
-        try:
-            value = pydantic_validate(self.model, self.tsv_data)
-            errors = []
-        except ValidationError as exc:
-            value = self.value
-            errors = exc.errors()
-        return value, errors
-    
-    def validate_value(self, value):
-        try:
-            val = pydantic_validate(self.model, value)
-            errors = []
-        except ValidationError as exc:
-            val = self.value
-            errors = exc.errors()
-        return val, errors
-
 
 if __name__ == "__main__":
     from pydantic import RootModel
@@ -470,9 +461,16 @@ class EditTsvWithDiff(EditTsv):
 
     @value.setter
     def value(self, value):
-        
         try:
-            value, self.errors = self.validate_value(value)
+            value = []
+            if self.text.value:
+                value, self.errors = xdg.read_csv_string(
+                    self.text.value,
+                    remove_header_titles=True,
+                    is_transposed=self.transposed,
+                    model=self.model,
+                    delimiter="\t",
+                    header_depth=self.header_depth)
             if self.errors:
                 self.vbx_errors.children = [
                     w.HTML(markdown(markdown_error(e))) for e in self.errors
@@ -608,10 +606,25 @@ class EditTsvWithDiff(EditTsv):
                     changes.edits[primary_key] = {}
         
                 changes.edits[primary_key][field] = delta.t2
+            
+        if "type_changes" in diff:
+            for delta in diff["type_changes"]:
+                path_list = delta.path(output_format="list")
+                primary_key = str(path_list[0])  # first key (primary key)
+                field = path_list[-1]            # last key (field name)
+        
+                if primary_key not in changes.edits:
+                    changes.edits[primary_key] = {}
+        
+                changes.edits[primary_key][field] = delta.t2
 
         return changes
 
 
 if __name__ == "__main__":    
-    edit_tsv_w_diff = EditTsvWithDiff(value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid, transposed = False, primary_key_name="string")    
+    edit_tsv_w_diff = EditTsvWithDiff(value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid, transposed = False, primary_key_name="id")
     display(edit_tsv_w_diff)
+
+if __name__ == "__main__":
+    display(edit_tsv_w_diff.value)
+    display(edit_tsv_w_diff.text.value)
