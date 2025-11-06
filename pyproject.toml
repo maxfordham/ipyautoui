@@ -7,6 +7,7 @@ requires = ["hatchling", "hatch-vcs"]
 name = "ipyautoui"
 dynamic = ["version"]
 license = "BSD-3-Clause"
+requires-python = ">=3.8,<3.14"
 license-files = ["licenses/BSD-3-Clause.txt"]
 description = "wrapper that sits on top of ipywidgets and other ipy widget libraries to template / automate the creation of widget forms. Uses pydantic to create defined data-container and serialisation to JSON. Includes example patterns for adding new custom widgets."
 readme = "README.md"
@@ -40,7 +41,10 @@ dependencies = [
     "pydantic-settings",
     "pydantic-extra-types",
     "PyYAML",
-    "wcmatch",
+    "wcmatch", 
+    "deepdiff",
+    "datamodel-code-generator>=0.28.5",
+    # "xlsxdatagrid>=0.3.1,<0.4",
 ]
 
 [project.urls]
@@ -68,6 +72,8 @@ platforms = ["linux-64"]
 
 [tool.pixi.pypi-dependencies]
 ipyautoui = { path = ".", editable = true }
+# xlsxdatagrid = { path = "/home/jovyan/xlsxdatagrid", editable = true }
+xlsxdatagrid = { git = "https://github.com/maxfordham/xlsxdatagrid.git", rev = "31-write_grid-function-safety-checks-missing" }
 
 [tool.pixi.feature.tests.pypi-dependencies]
 pytest_examples = "*"

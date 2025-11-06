@@ -11,7 +11,7 @@ import traceback
 import pandas as pd
 import ipywidgets as w
 from IPython.display import clear_output, display
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, RootModel, Field
 import json
 
 from ipyautoui.autoobject import AutoObjectForm
@@ -19,9 +19,11 @@ from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui._utils import frozenmap, traits_in_kwargs
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 from ipyautoui.custom.autogrid import AutoGrid
+from ipyautoui.custom.edittsv import EditTsvWithDiff
 from ipyautoui.custom.title_description import TitleDescription
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
+logger = logging.getLogger(__name__)
 # TODO: rename "add" to "fn_add" so not ambiguous...
 # -
 
@@ -42,26 +44,18 @@ class DataHandler(BaseModel):
 
     # REVIEW... MAYBE SHOULD USE *ARGS AND **KWARGS
     fn_get_all_data: ty.Callable  # TODO: rename to fn_get
-    fn_post: ty.Callable[[dict], None]
+    fn_post: ty.Callable[[dict], None] # should return int
     fn_patch: ty.Callable[[ty.Any, dict], None]  # TODO: need to add index
     fn_delete: ty.Callable[[list[int]], None]
     fn_copy: ty.Callable[[list[int]], None]
+    fn_io: ty.Callable # TOOD: rename -> fn_dump
 
 
 if __name__ == "__main__":
+    from ipyautoui.demo_schemas import EditableGrid
+    from ipyautoui.demo_schemas.editable_datagrid import DataFrameCols
 
-    class TestModel(BaseModel):
-        string: str = Field("string", title="Important String")
-        integer: int = Field(40, title="Integer of somesort")
-        floater: float = Field(1.33, title="floater")
-
-    def test_save():
-        print("Saved.")
-
-    def test_revert():
-        print("Reverted.")
-
-    ui = AutoObjectForm.from_pydantic_model(TestModel)
+    ui = AutoObjectForm.from_pydantic_model(DataFrameCols)
     display(ui)
 
 if __name__ == "__main__":
@@ -72,15 +66,6 @@ if __name__ == "__main__":
     ui.value = {"string": "adfs", "integer": 2, "floater": 1.22}
 
 
-class RowEditor:
-    fn_add: ty.List[ty.Callable[[ty.Any, dict], None]]  # post
-    fn_edit: ty.List[ty.Callable[[ty.Any, dict], None]]  # patch
-    fn_move: ty.Callable
-    fn_copy: ty.Callable
-    fn_delete: ty.Callable
-
-
-# +
 class UiDelete(w.VBox):
     value = tr.Dict(default_value={})
     columns = tr.List(default_value=[])
@@ -213,10 +198,30 @@ class UiCopy(w.HBox):
 if __name__ == "__main__":
     display(UiCopy())
 
+
+
+
+# +
+import json
+import ipywidgets as widgets
+from IPython.display import Javascript
+
+def copy_text_button(text: str) -> widgets.Widget:
+	button = widgets.Button(description="Copy", icon="copy")
+	output = widgets.Output(layout=widgets.Layout(display="none"))
+	copy_js = Javascript(f"navigator.clipboard.writeText({json.dumps(text)})")
+	
+	def on_click(_: widgets.Button) -> None:
+		output.clear_output()
+		output.append_display_data(copy_js)
+	button.on_click(on_click)
+	
+	return widgets.Box((button, output))
+
+
 # +
 # TODO: refactor how the datahandler works...
 # TODO: add a test for the datahandler...
-
 
 # from ipyautoui.watch_validate import WatchValidate
 class EditGrid(w.VBox, TitleDescription):
@@ -238,7 +243,7 @@ class EditGrid(w.VBox, TitleDescription):
             self.ui_copy.layout.display = ""
         else:
             self.ui_copy.layout.display = "None"
-
+    
     @property
     def json(self):  # HOTFIX: not required if WatchValidate is used
         return json.dumps(self.value, indent=4)
@@ -250,6 +255,10 @@ class EditGrid(w.VBox, TitleDescription):
     @transposed.setter
     def transposed(self, value: bool):
         self.grid.transposed = value
+        if "transposed" in self.ui_io.traits():
+            self.ui_io.transposed = value
+        else:
+            logger.warning("transposed not found in ui_io")
 
     @property
     def value(self):
@@ -292,16 +301,18 @@ class EditGrid(w.VBox, TitleDescription):
         ui_edit: ty.Optional[ty.Callable] = None,
         ui_delete: ty.Optional[ty.Callable] = None,
         ui_copy: ty.Optional[ty.Callable] = None,
+        ui_io: ty.Optional[ty.Callable] = None,
         warn_on_delete: bool = False,
         show_copy_dialogue: bool = False,
         close_crud_dialogue_on_action: bool = False,
         title: str = None,
         description: str = None,
         show_title: bool = True,
+        generate_pydantic_model_from_json_schema: bool = False,
         **kwargs,
     ):  # TODO: use **kwargs to pass attributes to EditGrid as in AutoObject and AutoArray
         self.vbx_error = w.VBox()
-        self.vbx_widget = w.VBox()
+        self.vbx_widget = w.VBox(layout={"width": "100%"})
         # TODO: ^ move common container attributes to WatchValidate
         self.description = description
         self.title = title
@@ -309,11 +320,12 @@ class EditGrid(w.VBox, TitleDescription):
         self.by_title = by_title
         self.by_alias = by_alias
         self.datahandler = datahandler
+        self.generate_pydantic_model_from_json_schema = generate_pydantic_model_from_json_schema
 
         self.close_crud_dialogue_on_action = close_crud_dialogue_on_action
         self._init_autogrid(schema, value, **kwargs)
         self._init_ui_callables(
-            ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy
+            ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy, ui_io=ui_io
         )
         self._init_form()
         self._init_row_controls()
@@ -342,16 +354,17 @@ class EditGrid(w.VBox, TitleDescription):
         ui_edit: ty.Optional[ty.Callable] = None,
         ui_delete: ty.Optional[ty.Callable] = None,
         ui_copy: ty.Optional[ty.Callable] = None,
+        ui_io: ty.Optional[ty.Callable] = None,
         **kwargs,
     ):
         getvalue = lambda value: (
             None if value is None or value == [{}] else pd.DataFrame(value)
         )
         self.grid.update_from_schema(
-            schema, data=getvalue(value), by_alias=self.by_alias, **kwargs
+            schema, data=getvalue(value), by_alias=self.by_alias, generate_pydantic_model_from_json_schema=self.generate_pydantic_model_from_json_schema, **kwargs
         )
         self._init_ui_callables(
-            ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy
+            ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy, ui_io=ui_io
         )
         self._init_row_controls()
         self._init_controls()
@@ -368,7 +381,7 @@ class EditGrid(w.VBox, TitleDescription):
             None if value is None or value == [{}] else pd.DataFrame(value)
         )
         self.grid = AutoGrid(
-            schema, data=getvalue(value), by_alias=self.by_alias, **kwargs
+            schema, data=getvalue(value), generate_pydantic_model_from_json_schema=self.generate_pydantic_model_from_json_schema, by_alias=self.by_alias, **kwargs
         )
 
     def _init_ui_callables(
@@ -377,6 +390,7 @@ class EditGrid(w.VBox, TitleDescription):
         ui_edit: ty.Optional[ty.Callable] = None,
         ui_delete: ty.Optional[ty.Callable] = None,
         ui_copy: ty.Optional[ty.Callable] = None,
+        ui_io: ty.Optional[ty.Callable] = None,
     ):
         if ui_add is None:
             self.ui_add = AutoObjectForm.from_jsonschema(self.row_schema)
@@ -395,8 +409,30 @@ class EditGrid(w.VBox, TitleDescription):
             self.ui_copy = UiCopy()
         else:
             self.ui_copy = ui_copy()
+        if ui_io is None:
+            if self.model is not None: # is BaseModel
+                self.ui_io = EditTsvWithDiff(model=self.model, fn_upload=self.fn_upload, transposed=self.transposed)
+            else:
+                self.ui_io = w.HTML("must instantiate with pydantic model for this feature")
+        else:
+            if self.model is not None: # is BaseModel
+                # NOTE: required traits for ui_io are: `model`, `fn_upload`, `transposed`
+                try:
+                    self.ui_io = ui_io(model=self.model, fn_upload=self.fn_upload, transposed=self.transposed)
+                except Exception as e:
+                    raise RuntimeError(
+                        f"Failed to initialize ui_io '{ui_io.__name__}'."
+                        f"Required traits are: `model`, `fn_upload`, `transposed`. Original error: {e}"
+                    ) from e
+            else:
+                self.ui_io = w.HTML("must instantiate with pydantic model for this feature")
         self.ui_copy.layout.display = "None"
         self.ui_delete.fn_delete = self._delete_selected
+
+
+    def fn_upload(self, value):
+        """This method sets the grid's value to the ui_io value. Override this method to add additional functionality to save changes."""
+        self.value=value
 
     def _init_row_controls(self):
         self.ui_edit.show_savebuttonbar = True
@@ -416,9 +452,11 @@ class EditGrid(w.VBox, TitleDescription):
             fn_copy=self._copy,
             fn_delete=self._delete,
             fn_reload=get_reload(),
+            fn_io=self._io
+            
         )
         self.stk_crud = w.Stack(
-            children=[self.ui_add, self.ui_edit, self.ui_copy, self.ui_delete]
+            children=[self.ui_add, self.ui_edit, self.ui_copy, self.ui_delete, self.ui_io]
         )
 
     def _init_controls(self):
@@ -443,6 +481,7 @@ class EditGrid(w.VBox, TitleDescription):
             self.ui_edit,
             self.ui_copy,
             self.ui_delete,
+            self.ui_io,
         ]
         self.children = [self.hbx_title_description, self.vbx_widget]
 
@@ -658,6 +697,13 @@ class EditGrid(w.VBox, TitleDescription):
             print("delete error")
             traceback.print_exc()
 
+    # io
+    # --------------------------------------------------------------------------
+    def _io(self):
+        self.ui_io.value = self.value
+        self.ui_io.upload_status = "None"
+        
+
 
 # -
 
@@ -812,7 +858,7 @@ if __name__ == "__main__":
         root: list[TestListCol]
 
     gr = EditGrid(Test, value=[{"li_col": ["a", "b"], "stringy": "string", "num": 23}])
-    display(gr)
+    display(gr)  # TODO: this needs fixing. not handling the list correctly. 
 
 if __name__ == "__main__":
     import random
@@ -823,6 +869,7 @@ if __name__ == "__main__":
         fn_patch=lambda v: v,
         fn_delete=lambda v: print(v),
         fn_copy=lambda v: print(v),
+        fn_io = lambda v: print("io")
     )
     title = "The Wonderful Edit Grid Application"
     description = "Useful for all editing purposes whatever they may be 👍"
@@ -878,4 +925,6 @@ if __name__ == "__main__":
     display(editgrid)
 
 if __name__ == "__main__":
-    editgrid.transposed = True
+    editgrid.transposed = False
+
+

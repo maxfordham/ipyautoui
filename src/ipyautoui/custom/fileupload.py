@@ -11,6 +11,7 @@ import typing as ty
 import traitlets as tr
 import logging
 import time
+import tempfile
 
 from ipyautoui.constants import DELETE_BUTTON_KWARGS
 from ipyautoui._utils import getuser, trait_order
@@ -200,6 +201,55 @@ class FileUploadToDir(w.VBox):
 if __name__ == "__main__":
     fupld = FileUploadToDir(value="IMG_0688.jpg")
     display(fupld)
+# +
+class TempFileUploadProcessor(FileUploadToDir):
+    """A wrapper widget that uploads a file, processes it via callback, and deletes it after use."""
+    fn_process = tr.Callable(default_value=None, allow_none=True)
+    allowed_file_type = tr.Unicode(default_value="", allow_none=True)
+
+    def __init__(self, **kwargs):
+        self.fn_process = kwargs.pop("fn_process", None)
+        allowed_file_type = kwargs.pop("allowed_file_type", None)
+        super().__init__(**kwargs)
+        self.children = [w.HBox([self.bn_delete, self.upld])]
+        if allowed_file_type is not None:
+            self.allowed_file_type = allowed_file_type
+        self._apply_allowed_file_type()
+
+    def _upld(self, on_change):
+        """Override upload handler to use temp directory and auto-delete."""
+        if not self.upld.value:
+            return
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = pathlib.Path(tmpdir)
+
+            paths = add_files(self.upld.value, fdir=tmp_path)
+
+            # Run callback on uploaded file(s)
+            if self.fn_process is not None:
+                try:
+                    for path in paths:
+                        self.fn_process(path)
+                except Exception as e:
+                    logger.exception("Processing failed", exc_info=e)
+                    
+        self.upld.value = ()
+
+    def _apply_allowed_file_type(self):
+        """Sync the trait with the widget accept attribute."""
+        if hasattr(self, "upld"):
+            self.upld.accept = self.allowed_file_type or ""
+
+    @tr.observe("allowed_file_type")
+    def _obs_allowed_file_type(self, change):
+        self._apply_allowed_file_type()
+
+if __name__ == "__main__":
+    def process_file_callback(path: pathlib.Path):
+        print(f"Processing uploaded file: {path}")
+    upload_widget = TempFileUploadProcessor(fn_process=process_file_callback)
+    display(upload_widget)
 # +
 MAP_FILEUPLOAD_TYPE = {True: VuetifyFileUplad, False: w.FileUpload}
 MAP_CLEARFILEUPLOAD = {

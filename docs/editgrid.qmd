@@ -1,5 +1,16 @@
 ---
-title: "EditGrid"
+title: EditGrid
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.18.1
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
 ---
 
 ::: {.callout-warning}
@@ -26,12 +37,9 @@ class TestDataFrame(BaseModel):
     """a description of TestDataFrame"""
     a: str
     df: ty.List[DataFrameCols] = Field([DataFrameCols().model_dump(mode="json")], format="dataframe")
-       
 ```
 
-
 ```{python}
-
 from ipyautoui.custom.editgrid import EditGrid
 class TestDataFrame(RootModel):
     """a description of TestDataFrame"""
@@ -54,14 +62,9 @@ egrid.value =  [
         {"string": "morning", "integer": 5, "floater": 3.14, "something_else": 12},
         {"string": "number", "integer": 3, "floater": 3.14, "something_else": 123},
     ]
-
 ```
 
-
-
-
 ```{python}
-
 from pydantic import RootModel
 
 # Test: EditGrid instance with multi-indexing.
@@ -121,8 +124,6 @@ display(editgrid)
 ```
 
 ```{python}
-
-
 class TestProperties(BaseModel):
     string: str
     nullable_string: ty.Optional[str] = None
@@ -144,44 +145,20 @@ egrid = EditGrid(
 egrid
 ```
 
-
-
-
 ```{python}
-from ipyautoui.autoobject import AutoObjectForm
-from ipyautoui.demo_schemas import CoreIpywidgets
-ui = AutoObjectForm.from_pydantic_model(CoreIpywidgets)
-ui
+eg = EditGrid(schema=None)
+eg
 ```
 
-
+```{python}
+eg.ui_edit
+```
 
 ```{python}
-# Row Validation (WIP)
-
-from pydantic import RootModel
-
-
-class Sub(BaseModel):
-    a: str = "a"
-    b: int = 1
-
-
-class Table(RootModel):
-    root: list[Sub]
-
-
-class NestedTable(BaseModel):
-    table: list[Sub]
-
-
-# for simple root tables it is simple to extract the pydantic model for the row
-RowSchema = Table.__pydantic_core_schema__["schema"]["items_schema"]["cls"]
-print(RowSchema)
-
-# more difficult for nested rows
-NestedRowSchema = NestedTable.__pydantic_core_schema__["schema"]["fields"]["table"][
-    "schema"
-]["items_schema"]["cls"]
-print(NestedRowSchema)
+eg.row_schema
 ```
+
+```{python}
+eg.update_from_schema(TestGridSchema)
+```
+
