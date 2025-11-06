@@ -9,7 +9,6 @@ import json
 from pydantic import BaseModel, RootModel, Field
 import typing as ty
 import ipywidgets as w
-import random
 import functools
 
 
@@ -165,7 +164,7 @@ class EditGridFile(EditGrid):
 
         self.update_handler("")
 
-    def set_value_from_tsv(self, value):
+    def fn_upload(self, value):
         self.value=value
         if self.ui_io is not None:
             self.datahandler.fn_io(self.ui_io.changes)
@@ -195,7 +194,6 @@ if __name__ == "__main__":
 
     class TestDataFrame(RootModel):
         """a description of TestDataFrame"""
-
         root: ty.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE,
             json_schema_extra=dict(

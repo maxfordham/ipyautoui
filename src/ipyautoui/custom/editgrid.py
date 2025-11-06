@@ -11,7 +11,7 @@ import traceback
 import pandas as pd
 import ipywidgets as w
 from IPython.display import clear_output, display
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, RootModel, Field
 import json
 
 from ipyautoui.autoobject import AutoObjectForm
@@ -19,8 +19,8 @@ from ipyautoui.custom.buttonbars import CrudButtonBar
 from ipyautoui._utils import frozenmap, traits_in_kwargs
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 from ipyautoui.custom.autogrid import AutoGrid
+from ipyautoui.custom.edittsv import EditTsvWithDiff
 from ipyautoui.custom.title_description import TitleDescription
-from ipyautoui.custom.edittsv import Changes
 
 MAP_TRANSPOSED_SELECTION_MODE = frozenmap({True: "column", False: "row"})
 logger = logging.getLogger(__name__)
@@ -222,7 +222,6 @@ def copy_text_button(text: str) -> widgets.Widget:
 # +
 # TODO: refactor how the datahandler works...
 # TODO: add a test for the datahandler...
-from ipyautoui.custom.edittsv import EditTsvWithDiff
 
 # from ipyautoui.watch_validate import WatchValidate
 class EditGrid(w.VBox, TitleDescription):
@@ -230,7 +229,6 @@ class EditGrid(w.VBox, TitleDescription):
     warn_on_delete = tr.Bool()
     show_copy_dialogue = tr.Bool()
     close_crud_dialogue_on_action = tr.Bool()
-    allow_download = tr.Bool(default_value=True)
 
     @tr.observe("warn_on_delete")
     def observe_warn_on_delete(self, on_change):
@@ -245,13 +243,6 @@ class EditGrid(w.VBox, TitleDescription):
             self.ui_copy.layout.display = ""
         else:
             self.ui_copy.layout.display = "None"
-
-    @tr.observe("allow_download")
-    def show_hide_download_bn_edittsv(self, on_change):
-        if "allow_download" in self.ui_io.traits():
-            self.ui_io.allow_download = self.allow_download
-        else:
-            logger.warning("allow_download not found in ui_io")
     
     @property
     def json(self):  # HOTFIX: not required if WatchValidate is used
@@ -317,7 +308,7 @@ class EditGrid(w.VBox, TitleDescription):
         title: str = None,
         description: str = None,
         show_title: bool = True,
-        pydantic_model_from_json: bool = False,
+        generate_pydantic_model_from_json_schema: bool = False,
         **kwargs,
     ):  # TODO: use **kwargs to pass attributes to EditGrid as in AutoObject and AutoArray
         self.vbx_error = w.VBox()
@@ -329,7 +320,7 @@ class EditGrid(w.VBox, TitleDescription):
         self.by_title = by_title
         self.by_alias = by_alias
         self.datahandler = datahandler
-        self.pydantic_model_from_json = pydantic_model_from_json
+        self.generate_pydantic_model_from_json_schema = generate_pydantic_model_from_json_schema
 
         self.close_crud_dialogue_on_action = close_crud_dialogue_on_action
         self._init_autogrid(schema, value, **kwargs)
@@ -363,16 +354,17 @@ class EditGrid(w.VBox, TitleDescription):
         ui_edit: ty.Optional[ty.Callable] = None,
         ui_delete: ty.Optional[ty.Callable] = None,
         ui_copy: ty.Optional[ty.Callable] = None,
+        ui_io: ty.Optional[ty.Callable] = None,
         **kwargs,
     ):
         getvalue = lambda value: (
             None if value is None or value == [{}] else pd.DataFrame(value)
         )
         self.grid.update_from_schema(
-            schema, data=getvalue(value), by_alias=self.by_alias, pydantic_model_from_json=self.pydantic_model_from_json, **kwargs
+            schema, data=getvalue(value), by_alias=self.by_alias, generate_pydantic_model_from_json_schema=self.generate_pydantic_model_from_json_schema, **kwargs
         )
         self._init_ui_callables(
-            ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy
+            ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy, ui_io=ui_io
         )
         self._init_row_controls()
         self._init_controls()
@@ -389,7 +381,7 @@ class EditGrid(w.VBox, TitleDescription):
             None if value is None or value == [{}] else pd.DataFrame(value)
         )
         self.grid = AutoGrid(
-            schema, data=getvalue(value), pydantic_model_from_json=self.pydantic_model_from_json, by_alias=self.by_alias, **kwargs
+            schema, data=getvalue(value), generate_pydantic_model_from_json_schema=self.generate_pydantic_model_from_json_schema, by_alias=self.by_alias, **kwargs
         )
 
     def _init_ui_callables(
@@ -419,15 +411,27 @@ class EditGrid(w.VBox, TitleDescription):
             self.ui_copy = ui_copy()
         if ui_io is None:
             if self.model is not None: # is BaseModel
-                self.ui_io = EditTsvWithDiff(model=self.model, fn_upload=self.set_value_from_tsv, transposed=self.transposed, allow_download=self.allow_download)
+                self.ui_io = EditTsvWithDiff(model=self.model, fn_upload=self.fn_upload, transposed=self.transposed)
             else:
                 self.ui_io = w.HTML("must instantiate with pydantic model for this feature")
         else:
-            self.ui_io = ui_io(model=self.model, fn_upload=self.set_value_from_tsv)
+            if self.model is not None: # is BaseModel
+                # NOTE: required traits for ui_io are: `model`, `fn_upload`, `transposed`
+                try:
+                    self.ui_io = ui_io(model=self.model, fn_upload=self.fn_upload, transposed=self.transposed)
+                except Exception as e:
+                    raise RuntimeError(
+                        f"Failed to initialize ui_io '{ui_io.__name__}'."
+                        f"Required traits are: `model`, `fn_upload`, `transposed`. Original error: {e}"
+                    ) from e
+            else:
+                self.ui_io = w.HTML("must instantiate with pydantic model for this feature")
         self.ui_copy.layout.display = "None"
         self.ui_delete.fn_delete = self._delete_selected
 
-    def set_value_from_tsv(self, value):
+
+    def fn_upload(self, value):
+        """This method sets the grid's value to the ui_io value. Override this method to add additional functionality to save changes."""
         self.value=value
 
     def _init_row_controls(self):

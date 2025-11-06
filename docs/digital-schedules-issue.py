@@ -68,7 +68,7 @@ model_file = pydantic_model_file_from_json_schema(json_schema, fpth)
 model = pydantic_model_from_json_schema(json_schema)
 edittsvwdiff = EditTsvWithDiff(model=model, value=(
     {'InstanceReference': 2, 'LevelReference': '1', 'VolumeReference': '1', 'TypeMark': 'DB-Type1', 'TypeSpecId': 2, 'Id': 3},
-    {'InstanceReference': 3, 'LevelReference': np.nan, 'VolumeReference': np.nan, 'TypeMark': 'DB-Type1', 'TypeSpecId': 2, 'Id': 4}
+    {'InstanceReference': 3, 'LevelReference': None, 'VolumeReference': None, 'TypeMark': 'DB-Type1', 'TypeSpecId': 2, 'Id': 4}
     )
 )
 display(edittsvwdiff)
@@ -375,6 +375,8 @@ type_spec_json_schema = {'datagrid_index_name': ['section', 'title', 'unit'],
  'type': 'array'}
 
 
+
+
 fpth = pathlib.Path("type-spec-test-schema.py")
 model_file = pydantic_model_file_from_json_schema(type_spec_json_schema, fpth)
 model = pydantic_model_from_json_schema(type_spec_json_schema)
@@ -392,7 +394,57 @@ tsedittsvwdiff = EditTsvWithDiff(transposed=True,model=model, value=[{'Abbreviat
 )
 display(tsedittsvwdiff)
 
-if __name__ == "__main__":
-    print(model)
+print(model)
+
+# +
+
+# Imports and schema
+from typing import Optional, List, Literal
+from datetime import date, datetime, time, timedelta
+from enum import Enum
+from pydantic import BaseModel, Field, RootModel, ConfigDict, StringConstraints, conint, constr
+from ipyautoui.custom.edittsv import EditTsvWithDiff, EditTsvFileUpload
+from ipyautoui.custom.edittsv_with_diff_and_key_mapping import EditTsvWithDiffAndKeyMapping
+from ipyautoui.custom.fileupload import TempFileUploadProcessor
+from typing_extensions import Annotated
+import xlsxdatagrid as xdg
+import pathlib
+import ipywidgets as w
+from IPython.display import display
+
+class Test(BaseModel):
+    a_string: str = Field(
+        "empty",
+        title="A String",
+    )
+
+    a_list: str = Field(
+        "[]",
+        title="A List",
+    )
+
+class TestArray(RootModel[List[Test]]):
+    model_config = ConfigDict(
+        title="TestArrayString",
+    )
+    root: List[Test]
+
+
+
+# -
+
+edit_tsv_w_diff = EditTsvWithDiff(
+    model=TestArray,
+    transposed=False,
+    primary_key_name="a_string",
+    header_depth=1,
+    exclude_metadata=True,
+    value=[{"a_string": "hm", "a_list": "['Hello', 'Hey']"}]
+)
+display(edit_tsv_w_diff)
+
+display(edit_tsv_w_diff.value)
+
+eval(edit_tsv_w_diff.value[0]["a_list"])
 
 

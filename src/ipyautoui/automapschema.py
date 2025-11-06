@@ -50,7 +50,7 @@ def pydantic_model_from_json_schema(json_schema: str) -> ty.Type[BaseModel]:
     return getattr(module, load)
 
 def _init_model_schema(
-    schema=None, by_alias=False, pydantic_model_from_json = True
+    schema=None, by_alias=False, generate_pydantic_model_from_json_schema = True
 ) -> tuple[ty.Optional[ty.Type[BaseModel]], dict]:
     if schema is None:
         return None, {
@@ -59,7 +59,7 @@ def _init_model_schema(
             "items": {"properties": {}},
         }
     if isinstance(schema, dict):
-        if pydantic_model_from_json:
+        if generate_pydantic_model_from_json_schema:
             model = pydantic_model_from_json_schema(schema)
         else:
             model = None

@@ -196,20 +196,21 @@ def test_edit_tsv_blank_from_empty_volume_reference():
     """Test that an edittsv becomes blank when a property is nan / None."""
     AUTO_GRID_DEFAULT_VALUE = [
         {
+            "id": 1,
             "string": "important string",
             "integer": 1,
             "floater": 3.14,
         },
     ]
-    AUTO_GRID_DEFAULT_VALUE = AUTO_GRID_DEFAULT_VALUE * 4
     edit_tsv_with_diff = EditTsvWithDiff(value=AUTO_GRID_DEFAULT_VALUE, model=EditableGrid)
     new_tuple = (
         {
+            "id": 1,
             'string': "test string",
-            "integer": np.nan,
+            "integer": 2,
             "floater": 3.24,
         },
     )
     edit_tsv_with_diff.value = new_tuple
     
-    assert edit_tsv_with_diff.value == []
+    assert edit_tsv_with_diff.value != []

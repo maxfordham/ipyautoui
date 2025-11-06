@@ -6,15 +6,17 @@ import logging
 import ipywidgets as w
 import traitlets as tr
 from IPython.display import Javascript
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 from markdown import markdown
 from IPython.display import clear_output
 from deepdiff import DeepDiff
 from deepdiff.helper import COLORED_COMPACT_VIEW  # COLORED_VIEW,
 from ipyautoui.custom.filedownload import MakeFileAndDownload
+from ipyautoui.custom.fileupload import TempFileUploadProcessor
 from copy import deepcopy
 import typing as ty
 import xlsxdatagrid as xdg
+from pathlib import Path
 
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 
@@ -138,8 +140,8 @@ class EditTsv(CopyToClipboard):
     transposed = tr.Bool(default_value=False)
     allow_download = tr.Bool(default_value=True)
     exclude_metadata = tr.Bool(default_value=True)
-    exclude_header_lines = tr.Bool(default_value=True)
     header_depth = tr.Int(default_value=1)
+    disable_text_editing = tr.Bool(default_value=False)
 
     @tr.observe("upload_status")
     def upload_status_onchange(self, on_change):
@@ -181,11 +183,18 @@ class EditTsv(CopyToClipboard):
             self.mfdld.layout.display = ""
         else:
             self.mfdld.layout.display = "None"
+        
+    @tr.observe("disable_text_editing")
+    def disable_text_editing_onchange(self, on_change):
+        if self.disable_text_editing:
+            self.text.disabled = True
+        else:
+            self.text.disabled = False
 
     def __init__(self, **kwargs):
         self.vbx_errors = w.VBox()
         self.bn_upload_text = w.Button(
-            icon="upload", disabled=True, layout={"width": BUTTON_WIDTH_MIN}
+            icon="save", disabled=True, layout={"width": BUTTON_WIDTH_MIN}
         )
         self.mfdld = MakeFileAndDownload(fn_create_file=self.create_file)
         super().__init__(**kwargs)
@@ -204,26 +213,9 @@ class EditTsv(CopyToClipboard):
 
     @value.setter
     def value(self, value):
-        try:
-            value = []
-            if self.text.value:
-                value, self.errors = xdg.read_csv_string(
-                    self.text.value,
-                    remove_header_titles=True,
-                    is_transposed=self.transposed,
-                    model=self.model,
-                    delimiter="\t",
-                    header_depth=self.header_depth)
-            if self.errors:
-                self.vbx_errors.children = [
-                    w.HTML(markdown(markdown_error(e))) for e in self.errors
-                ]
-            else:
-                self._value = value
-                self.text.value = self.get_tsv_data()
-
-        except ValidationError as exc:
-            logging.info(exc)
+        data = self.model.model_validate(value).model_dump(mode="json", by_alias=True) if value else []
+        self._value = data
+        self.text.value = self.get_tsv_data()
 
     def get_tsv_data(self):
         if self.transposed:
@@ -240,11 +232,10 @@ class EditTsv(CopyToClipboard):
 
     def create_file(self):
         pydantic_obj = self.model(self.value)
-        fpth = xdg.from_pydantic_object(
+        fpth = xdg.xdg_from_pydantic_object(
             pydantic_obj,
             is_transposed=self.transposed,
             exclude_metadata=self.exclude_metadata,
-            exclude_header_lines=self.exclude_header_lines
         )[0]
         return fpth
 
@@ -269,11 +260,10 @@ class EditTsv(CopyToClipboard):
     def tsv_data(self):  # TODO: ensure header row unchanged
         return xdg.read_csv_string(
             self.text.value,
-            remove_header_titles=True,
             is_transposed=self.transposed,
             model=self.model,
             delimiter="\t",
-            header_depth=self.heeder_depth)
+            header_depth=self.header_depth)
 
     @property
     def pydantic_object(self):
@@ -446,7 +436,7 @@ class Changes(BaseModel):
 
 
 class EditTsvWithDiff(EditTsv):
-    primary_key_name = tr.Unicode(default="id")
+    primary_key_name = tr.Unicode()
     prev_value = tr.List(value=None, trait=tr.Dict, allow_none=True)
     changes = Changes(
         deletions=[],
@@ -461,27 +451,18 @@ class EditTsvWithDiff(EditTsv):
 
     @value.setter
     def value(self, value):
-        try:
-            value = []
-            if self.text.value:
-                value, self.errors = xdg.read_csv_string(
-                    self.text.value,
-                    remove_header_titles=True,
-                    is_transposed=self.transposed,
-                    model=self.model,
-                    delimiter="\t",
-                    header_depth=self.header_depth)
-            if self.errors:
-                self.vbx_errors.children = [
-                    w.HTML(markdown(markdown_error(e))) for e in self.errors
-                ]
-            else:
-                self._value = value
-                self.text.value = self.get_tsv_data()
-                self.prev_value = deepcopy(self.value)
+        data = self.model.model_validate(value).model_dump(mode="json", by_alias=True) if value else []
+        self._value = data
+        """Code added to trigger manual validation if needed (text new value is same as previous text value - In that case,text obsever fn won't be triggered automatically)"""
+        trigger_manual_validation = False
+        if self.text.value and self.text.value == self.get_tsv_data():
+            trigger_manual_validation = True
 
-        except ValidationError as exc:
-            logging.info(exc)
+        self.text.value = self.get_tsv_data()
+        ### Trigger manual validation
+        if trigger_manual_validation:
+            self._text(None)
+        self.prev_value = deepcopy(self.value or [])
     
     def __init__(self, **kwargs):
         value = kwargs.get("value")
@@ -534,17 +515,26 @@ class EditTsvWithDiff(EditTsv):
         self.ddiff.layout.display = ""
 
         # update deepdiff with original vs edited values
-        pk = getattr(self, "primary_key_name", "id") or "id"
+        pk = getattr(self, "primary_key_name", None)
 
-        self.ddiff.value = {
-            v[pk]: {k: val for k, val in v.items() if k != pk}
-            for v in self.prev_value
-        } #original
-        
-        self.ddiff.new_value = {
-            v[pk]: {k: val for k, val in v.items() if k != pk}
-            for v in self.value
-        } #edited
+        if not pk:
+            # no primary key given → use index
+            self.ddiff.value = {
+                i: v for i, v in enumerate(self.prev_value)
+            }
+            self.ddiff.new_value = {
+                i: v for i, v in enumerate(self.value)
+            }
+        else:
+            # primary key given → use it, excluding the pk field in the nested dict
+            self.ddiff.value = {
+                v[pk]: {k: val for k, val in v.items() if k != pk}
+                for v in self.prev_value
+            }
+            self.ddiff.new_value = {
+                v[pk]: {k: val for k, val in v.items() if k != pk}
+                for v in self.value
+            }
 
     def _bn_check_upload(self, onclick):
         self.prev_value = deepcopy(self.value)
@@ -628,3 +618,64 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     display(edit_tsv_w_diff.value)
     display(edit_tsv_w_diff.text.value)
+
+
+class EditTsvFileUpload(EditTsvWithDiff):
+    """
+    A widget for editing and uploading Excel files (e.g. .xlsx).
+    - Inherits full diffing and validation logic from EditTsvWithDiff.
+    - Disables manual text editing.
+    - Adds an upload button for Excel files.
+    """
+
+    def __init__(self, **kwargs):
+        # Ensure text editing is disabled by default
+        kwargs.setdefault("disable_text_editing", True)
+
+        # Create uploader before parent init so it's available during layout build
+        self.file_uploader = TempFileUploadProcessor(
+            fn_process=self._process_uploaded_file,
+            allowed_file_type=".xlsx",
+        )
+
+        # Initialize base class
+        super().__init__(**kwargs)
+        self.last_upload_metadata = None
+
+    def _set_children(self):
+        super()._set_children()
+        buttons = list(self.vbx_bns.children)
+        if self.file_uploader not in buttons:
+            insert_at = 1 if buttons else 0
+            buttons.insert(insert_at, self.file_uploader)
+            self.vbx_bns.children = tuple(buttons)
+
+    def _text(self, change):
+        pass
+
+    def _process_uploaded_file(self, path: Path):
+        """Handle Excel file upload and load into the widget."""
+        if path is None:
+            return
+
+        path = Path(path)
+        try:
+            data, errors = xdg.read_excel(
+                path,
+                is_transposed=self.transposed,
+                header_depth=self.header_depth,
+                model=self.model,
+            )
+        except Exception:
+            logger.exception("Failed to read uploaded Excel file")
+            self.upload_status = "disabled"
+            return
+
+        self.errors = errors or []
+        if self.errors:
+            self.upload_status = "disabled"
+            return
+
+        self._value = data
+        self.upload_status = "enabled"
+        self.text.value = self.get_tsv_data()
