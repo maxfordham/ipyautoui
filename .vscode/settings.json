@@ -11,6 +11,7 @@
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
     "python.formatting.provider": "none",
-    "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python-envs.pythonProjects": []
+    "python-envs.defaultEnvManager": "renan-r-santos.pixi-code:pixi",
+    "python-envs.pythonProjects": [],
+    "python-envs.defaultPackageManager": "renan-r-santos.pixi-code:pixi"
 }

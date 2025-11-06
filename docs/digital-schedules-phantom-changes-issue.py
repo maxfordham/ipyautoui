@@ -4,75 +4,6 @@ from ipyautoui.custom.edittsv import EditTsvWithDiff
 import pathlib
 import numpy as np
 
-
-json_schema = {
-    "$defs": {
-        "DistributionBoardItem": {
-            "properties": {
-                "InstanceReference": {
-                    "anyOf": [{"type": "integer"}, {"type": "null"}],
-                    "default": 1,
-                    "description": "equipment instance reference, integer only. Refers to equipment instance.",
-                    "title": "Instance Reference",
-                },
-                "LevelReference": {
-                    "anyOf": [{"type": "string"}, {"type": "null"}],
-                    "default": None,
-                    "description": "indicates the floor level an element is located on",
-                    "title": "Level Reference",
-                },
-                "VolumeReference": {
-                    "anyOf": [{"type": "string"}, {"type": "null"}],
-                    "default": None,
-                    "description": "indicates the floor level an element is located on",
-                    "title": "Volume Reference",
-                },
-                "TypeMark": {
-                    "anyOf": [{"$ref": "#/$defs/TypeMark"}, {"type": "null"}],
-                    "default": None,
-                    "description": "",
-                    "title": "Type Mark",
-                },
-                "TypeSpecId": {
-                    "anyOf": [{"type": "integer"}, {"type": "null"}],
-                    "default": None,
-                    "description": "",
-                    "title": "Type Spec Id",
-                },
-                "Id": {
-                    "anyOf": [{"type": "integer"}, {"type": "null"}],
-                    "default": None,
-                    "description": "",
-                    "title": "Id",
-                },
-            },
-            "title": "DistributionBoardItem",
-            "type": "object",
-        },
-        "TypeMark": {
-            "enum": ["DB-Type1", "DB-Type2", "DB-Type3"],
-            "title": "TypeMark",
-            "type": "string",
-        },
-    },
-    "items": {"$ref": "#/$defs/DistributionBoardItem"},
-    "title": "DistributionBoard",
-    "type": "array",
-}
-
-
-# +
-
-fpth = pathlib.Path("test-schema.py")
-model_file = pydantic_model_file_from_json_schema(json_schema, fpth)
-model = pydantic_model_from_json_schema(json_schema)
-edittsvwdiff = EditTsvWithDiff(model=model, value=(
-    {'InstanceReference': 2, 'LevelReference': '1', 'VolumeReference': '1', 'TypeMark': 'DB-Type1', 'TypeSpecId': 2, 'Id': 3},
-    {'InstanceReference': 3, 'LevelReference': None, 'VolumeReference': None, 'TypeMark': 'DB-Type1', 'TypeSpecId': 2, 'Id': 4}
-    )
-)
-display(edittsvwdiff)
-# -
 type_spec_json_schema = {'datagrid_index_name': ['section', 'title', 'unit'],
  'format': 'DataFrame',
  'hide_nan': True,
@@ -375,76 +306,39 @@ type_spec_json_schema = {'datagrid_index_name': ['section', 'title', 'unit'],
  'type': 'array'}
 
 
-
-
 fpth = pathlib.Path("type-spec-test-schema.py")
 model_file = pydantic_model_file_from_json_schema(type_spec_json_schema, fpth)
 model = pydantic_model_from_json_schema(type_spec_json_schema)
-tsedittsvwdiff = EditTsvWithDiff(transposed=True,model=model, value=[{'Abbreviation': 'DB',
+tsedittsvwdiff = EditTsvWithDiff(transposed=True, model=model, primary_key_name = "Id", value=[{'Abbreviation': 'DB',
   'TypeReference': 1,
   'Symbol': '',
   'ClassificationUniclassProductNumber': 'Pr_60_70_22_22',
   'ClassificationUniclassSystemNumber': '',
-  'FunctionReference': '',
-  'Notes': '',
-  'OverallLength': 1.0,
+  'FunctionReference': None,
+  'Notes': None,
+  'OverallLength': None,
   'ManufacturerWebsite': 'https://maxfordham.com/',
-  'Voltage': 1.0,
+  'Voltage': None,
   'Id': 2}]
 )
 display(tsedittsvwdiff)
 
-print(model)
+if __name__ == "__main__":
+    display(tsedittsvwdiff.text.value)
+    display(tsedittsvwdiff.value)
 
-# +
+# if __name__ == "__main__":
+#     display(tsedittsvwdiff.value)
+    # display(tsedittsvwdiff.text.value)
+    # cleaned_val = xdg.read_records(tsedittsvwdiff.value, model, only_for=["FunctionReference", "Notes", "Voltage", "OverallLength"])
+    # display(cleaned_val)
 
-# Imports and schema
-from typing import Optional, List, Literal
-from datetime import date, datetime, time, timedelta
-from enum import Enum
-from pydantic import BaseModel, Field, RootModel, ConfigDict, StringConstraints, conint, constr
-from ipyautoui.custom.edittsv import EditTsvWithDiff, EditTsvFileUpload
-from ipyautoui.custom.edittsv_with_diff_and_key_mapping import EditTsvWithDiffAndKeyMapping
-from ipyautoui.custom.fileupload import TempFileUploadProcessor
-from typing_extensions import Annotated
-import xlsxdatagrid as xdg
-import pathlib
-import ipywidgets as w
-from IPython.display import display
-
-class Test(BaseModel):
-    a_string: str = Field(
-        "empty",
-        title="A String",
-    )
-
-    a_list: str = Field(
-        "[]",
-        title="A List",
-    )
-
-class TestArray(RootModel[List[Test]]):
-    model_config = ConfigDict(
-        title="TestArrayString",
-    )
-    root: List[Test]
-
-
-
-# -
-
-edit_tsv_w_diff = EditTsvWithDiff(
-    model=TestArray,
-    transposed=False,
-    primary_key_name="a_string",
-    header_depth=1,
-    exclude_metadata=True,
-    value=[{"a_string": "hm", "a_list": "['Hello', 'Hey']"}]
-)
-display(edit_tsv_w_diff)
-
-display(edit_tsv_w_diff.value)
-
-eval(edit_tsv_w_diff.value[0]["a_list"])
+# if __name__ == "__main__":
+#     display(tsedittsvwdiff.value)
+#     cleaned_val = xdg.read_records(tsedittsvwdiff.value, model, only_for=["FunctionReference", "Notes"])
+#     display(cleaned_val)
+#     tsedittsvwdiff.value = xdg.read_records(tsedittsvwdiff.value, model, only_for=["FunctionReference", "Notes"])
+#     display(tsedittsvwdiff.value)
+    # display(tsedittsvwdiff.ddiff.diff)
 
 
