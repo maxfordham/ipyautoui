@@ -5,7 +5,10 @@ import traitlets as tr
 import typing as ty
 
 class EditTsvWithDiffAndKeyMapping(EditTsvWithDiff):
-    unique_id_fields = tr.List(tr.Unicode(), default_value=[])
+    primary_key_name = tr.List(tr.Unicode(),
+        default_value=None,
+        allow_none=True,
+    )
     exclude_fields_from_model = tr.List(tr.Unicode(), default_value=[])
     
     def __init__(self, **kwargs):
@@ -49,20 +52,17 @@ class EditTsvWithDiffAndKeyMapping(EditTsvWithDiff):
             result = {}
             for i, v in enumerate(records or []):
                 # --- Determine key ---
-                if self.unique_id_fields:
+                if self.primary_key_name:
                     # Replace None with "" and filter out empty parts
-                    parts = [str(v.get(f) or "") for f in self.unique_id_fields]
+                    parts = [str(v.get(f) or "") for f in self.primary_key_name]
                     non_empty_parts = [p for p in parts if p]  # remove empty strings
                     key = "-".join(non_empty_parts)
-                else:
-                    pk = getattr(self, "primary_key_name", "id") or "id"
-                    key = str(v.get(pk, i))
-                # --- Normalize None → "" for values ---
-                clean_row = {
-                    k: ("" if val is None else val)
-                    for k, val in v.items()
-                }
-                result[key] = clean_row
+                    # --- Normalize None → "" for values ---
+                    clean_row = {
+                        k: ("" if val is None else val)
+                        for k, val in v.items()
+                    }
+                    result[key] = clean_row
             return result
         
         self.ddiff.value = build_diff_map(self.prev_value or [])
@@ -73,7 +73,8 @@ class EditTsvWithDiffAndKeyMapping(EditTsvWithDiff):
         changes = Changes(
             deletions=[],
             edits={},
-            additions=[]
+            additions=[],
+            edited_rows={}
         )
 
         # Helper for consistent key resolution
@@ -106,6 +107,17 @@ class EditTsvWithDiffAndKeyMapping(EditTsvWithDiff):
                 if primary_key not in changes.edits:
                     changes.edits[primary_key] = {}
                 changes.edits[primary_key][field] = delta.t2
+        
+        #Adding edited_rows (all the fields included for edited rows)
+        if len(changes.edits):
+            if self.primary_key_name:
+                # Composite key mode
+                for comp_key in changes.edits.keys():
+                    for row in self.value:
+                        row_key = self._composite_key_from_row(row)
+                        if row_key and str(row_key) == str(comp_key):
+                            changes.edited_rows[comp_key] = row
+                            break
 
         return changes
     
@@ -113,7 +125,7 @@ class EditTsvWithDiffAndKeyMapping(EditTsvWithDiff):
         """Build a composite key string from the configured primary key fields."""
         if not row:
             return ""
-        fields = getattr(self, "unique_id_fields", None) or []
+        fields = getattr(self, "primary_key_name", None) or []
         parts = []
         for field in fields:
             value = row.get(field)
@@ -151,16 +163,29 @@ class EditTsvWithDiffAndKeyMapping(EditTsvWithDiff):
     
     def _resolve_composite_to_ids(self, changes: Changes, key_to_id_map: dict[str, int]) -> Changes:
         """Translate composite keys from Changes to actual database Ids."""
-        resolved = Changes(deletions=[], edits={}, additions=changes.additions)
-
+        resolved = Changes(
+            deletions=[],
+            edits={},
+            additions=changes.additions,
+            edited_rows={}
+        )
+        
+        # Resolve deletions
         for comp_key in changes.deletions:
             id_ = key_to_id_map.get(comp_key)
             if id_ is not None:
                 resolved.deletions.append(id_)
 
+        # Resolve edits
         for comp_key, edit in changes.edits.items():
             id_ = key_to_id_map.get(comp_key)
             if id_ is not None:
                 resolved.edits[id_] = edit
+
+        # --- Resolve edited_rows ---
+        for comp_key, row in changes.edited_rows.items():
+            id_ = key_to_id_map.get(comp_key)
+            if id_ is not None:
+                resolved.edited_rows[id_] = row
 
         return resolved

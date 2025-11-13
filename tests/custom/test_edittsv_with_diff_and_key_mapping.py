@@ -29,9 +29,8 @@ def _make_widget(initial_value: list[dict]) -> EditTsvWithDiffAndKeyMapping:
     widget = EditTsvWithDiffAndKeyMapping(
         value=initial_value,
         model=Example,
-        primary_key_name="Id",
+        primary_key_name=["Site", "Meter"],
     )
-    widget.unique_id_fields = ["Site", "Meter"]
     return widget
 
 
@@ -131,6 +130,7 @@ def test_resolve_composite_keys_to_real_ids():
         deletions=["A-001", "missing"],
         edits={"A-001": {"reading": 9}, "missing": {"reading": 5}},
         additions=[{"Id": 200, "Site": "X"}],
+        edited_rows={"A-001": {"reading": 9}, "missing": {"reading": 5}}
     )
 
     resolved = widget._resolve_composite_to_ids(raw_changes, mapping)
@@ -138,3 +138,4 @@ def test_resolve_composite_keys_to_real_ids():
     assert resolved.deletions == [101]
     assert resolved.edits == {101: {"reading": 9}}
     assert resolved.additions == [{"Id": 200, "Site": "X"}]
+    assert resolved.edited_rows == {101: {"reading": 9}}
