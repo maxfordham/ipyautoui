@@ -18,7 +18,8 @@ class EditTsvWithDiffAndKeyMapping(EditTsvWithDiff):
             # Keep alias names in the new model
             fields = {}
             for name, field in inner_model.model_fields.items():
-                if name not in self.exclude_fields_from_model:
+                converted_name = field.alias or name
+                if converted_name not in self.exclude_fields_from_model:
                     alias = field.alias or name
                     fields[alias] = (field.annotation, field.default)
 

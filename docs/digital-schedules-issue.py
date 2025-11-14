@@ -703,3 +703,38 @@ display(peu_edt)
 peu_edt.model.model_fields['root'].annotation.__args__[0].model_fields
 
 
+# +
+class Role(Enum):
+    ADMIN = 'Admin'
+    USER = 'User'
+    GUEST = 'Guest'
+
+class UserItem(BaseModel):
+    UserId: Optional[int] = Field(None, description='Numeric user ID', title='User ID')
+    Username: constr(pattern=r'^[A-Za-z0-9_]{3,20}$') = Field(
+        ...,
+        description='A username consisting of 3–20 alphanumeric characters or underscores',
+        title='Username',
+    )
+    String: Optional[constr(pattern=r'^[A-Za-z]{2}_(\d{2})(_\d{2}){0,3}$')] = Field(
+        None, description='A regex string', title='String'
+    )
+
+class UserList(RootModel[List[UserItem]]):
+    root: List[UserItem] = Field(..., title='UserList')
+
+
+# -
+
+edit_tsv_w_diff = EditTsvWithDiff(
+    model=UserList,
+    transposed=False,
+    header_depth=1,
+    exclude_metadata=True,
+    value=[{"Username": "abc1"}]
+)
+display(edit_tsv_w_diff)
+
+
+
+

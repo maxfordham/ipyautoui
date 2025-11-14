@@ -496,3 +496,69 @@ uset_type_area_schema = {'title': 'Project Building Area',
 
 fpth=pathlib.Path("pydantic-model-use-type-area.py")
 model_file = pydantic_model_file_from_json_schema(uset_type_area_schema, fpth)
+
+# +
+"""Pydantic Model with Regex validation on a field"""
+regex_schema = {
+  "$defs": {
+    "Role": {
+      "enum": ["Admin", "User", "Guest"],
+      "title": "Role",
+      "type": "string"
+    },
+    "UserItem": {
+      "title": "UserItem",
+      "type": "object",
+      "properties": {
+        "UserId": {
+          "anyOf": [
+            { "type": "integer" },
+            { "type": "null" }
+          ],
+          "default": None,
+          "description": "Numeric user ID",
+          "title": "User ID"
+        },
+        "Username": {
+          "type": "string",
+          "title": "Username",
+          "description": "A username consisting of 3–20 alphanumeric characters or underscores",
+          "pattern": "^[A-Za-z0-9_]{3,20}$"
+        },
+        "String": {
+          "type": "string",
+          "title": "String",
+          "description": "A regex string",
+          "pattern": "^[A-Za-z]{2}_(\\d{2})(_\\d{2}){0,3}$"
+        },
+        "Tags": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,32}$"
+              }
+            },
+            { "type": "null" }
+          ],
+          "default": None,
+          "title": "Tags",
+          "description": "Optional list of lowercase tag identifiers"
+        }
+      },
+      "required": ["Username"]
+    }
+  },
+  "items": {
+    "$ref": "#/$defs/UserItem"
+  },
+  "title": "UserList",
+  "type": "array"
+}
+
+fpth=pathlib.Path("pydantic-model-regex_schema.py")
+model_file = pydantic_model_file_from_json_schema(regex_schema, fpth)
+# -
+
+
