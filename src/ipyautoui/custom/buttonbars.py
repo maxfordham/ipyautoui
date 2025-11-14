@@ -240,6 +240,8 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     sb.unsaved_changes = True
 
+IO_BUTTON_KWARGS = {'tooltip': 'import/export', 'style': {}, 'layout': {'width': '44px'}, 'icon': 'arrows-alt-v'}
+
 
 # +
 class CrudOptions(ty.TypedDict):
@@ -254,7 +256,9 @@ class CrudView(ty.TypedDict):
     edit: CrudOptions
     copy: CrudOptions
     delete: CrudOptions
+    io: CrudOptions
     reload: CrudOptions
+    support: CrudOptions
 
 
 DEFAULT_BUTTONBAR_CONFIG = CrudView(
@@ -294,6 +298,14 @@ DEFAULT_BUTTONBAR_CONFIG = CrudView(
             message="🗑️ <i>Deleting Value</i>",
         )
     ),
+    io=CrudOptions(
+        **dict(IO_BUTTON_KWARGS)
+        | dict(
+            tooltip="import/export",
+            tooltip_clicked="Go back to table",
+            message="🔄 <i>Import / Export</i>",
+        )
+    ),
     reload=CrudOptions(
         **dict(RELOAD_BUTTON_KWARGS)
         | dict(
@@ -324,7 +336,7 @@ def display_ui_tooltips(uiobj: w.DOMWidget) -> w.VBox:
                 if v.tooltip is not None:
                     li.append(v)
         except Exception as err:
-            logging.warning(err)
+            logging.info(err)
     replace_newlines = lambda x: x.replace("\n", "<br>")
     return w.VBox(
         [w.HBox([l, w.HTML(f"<i>{replace_newlines(l.tooltip)}</i>")]) for l in li]
@@ -340,8 +352,17 @@ class CrudButtonBar(w.VBox):
     fn_delete = tr.Callable(default_value=lambda: print("delete"))
     fn_backward = tr.Callable(default_value=lambda: print("backward"))
     fn_support = tr.Callable(default_value=lambda: print("support"))
+    fn_io = tr.Callable(default_value=lambda: print("io"))
     fn_reload = tr.Callable(default_value=None, allow_none=True)
+    show_io = tr.Bool(default_value=False)
     show_support = tr.Bool(default_value=True)
+
+    @tr.observe("show_io")
+    def _observe_show_io(self, change):
+        if change["new"]:
+            self.io.layout.display = ""
+        else:
+            self.io.layout.display = "None"
 
     @tr.observe("show_support")
     def _observe_show_support(self, change):
@@ -387,6 +408,7 @@ class CrudButtonBar(w.VBox):
                 self.edit,
                 self.copy,
                 self.delete,
+                self.io,
                 self.reload,
                 self.support,
                 self.message,
@@ -400,17 +422,20 @@ class CrudButtonBar(w.VBox):
         self.edit = w.ToggleButton()
         self.copy = w.ToggleButton()
         self.delete = w.ToggleButton()
+        self.io = w.ToggleButton()
         self.reload = w.Button()
         self.support = w.ToggleButton()
         # ^ KWARGS for the buttons are set by CrudView
         self.message = w.HTML()
         self._set_crud_view_options()
+        self.io.layout.display = "" if self.show_io else "None"
 
     def _init_controls(self):
         self.add.observe(self._add, "value")
         self.edit.observe(self._edit, "value")
         self.copy.observe(self._copy, "value")
         self.delete.observe(self._delete, "value")
+        self.io.observe(self._io, "value")
         self.support.observe(self._support, "value")
         self.reload.on_click(self._reload)
 
@@ -448,6 +473,9 @@ class CrudButtonBar(w.VBox):
     def _support(self, onchange):
         self._onclick("support")
 
+    def _io(self, onchange):
+        self._onclick("io")
+
     def _reload(self, on_click):
         logger.info("Reloading all data")
         self.fn_reload()
@@ -470,6 +498,8 @@ class CrudButtonBar(w.VBox):
             setattr(getattr(self, n), "value", False)
 
 
+# +
+# len(DEFAULT_BUTTONBAR_CONFIG)
 # -
 
 if __name__ == "__main__":
@@ -489,12 +519,16 @@ if __name__ == "__main__":
     def backward():
         print("BACK")
 
+    def io():
+        print("IO")
+
     buttonbar = CrudButtonBar(
         fn_add=add,
         fn_edit=edit,
         fn_copy=copy,
         fn_delete=delete,
         fn_backward=backward,
+        fn_io=io,
         fn_reload=lambda: print("fn_reload"),
     )
     display(buttonbar)

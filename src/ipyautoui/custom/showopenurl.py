@@ -33,6 +33,7 @@ class ShowOpenUrl(ShowHide):
             self.btn_launch.layout.display = "None"
         else:
             self.btn_launch.layout.display = ""
+            self.display_out("click")
 
     @tr.observe("description_launch")
     def _obs_description_launch(self, change):
