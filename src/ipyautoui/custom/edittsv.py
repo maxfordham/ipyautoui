@@ -433,6 +433,7 @@ class Changes(BaseModel):
     deletions: list[ty.Union[str, int]]
     edits: dict[ty.Union[str, int], dict]
     additions: list[dict]
+    edited_rows: dict[ty.Union[str, int], dict]
 
 
 class EditTsvWithDiff(EditTsv):
@@ -441,7 +442,8 @@ class EditTsvWithDiff(EditTsv):
     changes = Changes(
         deletions=[],
         edits={},
-        additions=[]
+        additions=[],
+        edited_rows={}
     )
     # add ui functionality to use deepdiff to view changes between new_value and _value and prompt the user to accept changes before proceeding
 
@@ -563,14 +565,16 @@ class EditTsvWithDiff(EditTsv):
         self.changes = Changes(
             deletions=[],
             edits={},
-            additions=[]
+            additions=[],
+            edited_rows={}
         )
 
     def deepdiff_to_crud(self, diff: DeepDiff):
         changes = Changes(
             deletions=[],
             edits={},
-            additions=[]
+            additions=[],
+            edited_rows={},
         )
     
         # Additions
@@ -607,6 +611,21 @@ class EditTsvWithDiff(EditTsv):
                     changes.edits[primary_key] = {}
         
                 changes.edits[primary_key][field] = delta.t2
+
+        #Adding edited_rows (all the fields included for edited rows)
+        if len(changes.edits): #TODO: use index instead of pk when pk is none
+            pk = getattr(self, "primary_key_name", None)  # Confirm that primary key exists
+            if pk:
+                for primary_key in changes.edits.keys():
+                    for row in self.value:
+                        if str(row.get(pk)) == str(primary_key):
+                            changes.edited_rows[primary_key] = row
+                            break
+            else:
+                rows_by_index = {str(index): row for index, row in enumerate(self.value)}
+                for index in changes.edits.keys():
+                    if index in rows_by_index:
+                        changes.edited_rows[index] = rows_by_index[index]
 
         return changes
 

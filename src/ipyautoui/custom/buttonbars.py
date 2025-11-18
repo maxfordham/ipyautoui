@@ -256,7 +256,9 @@ class CrudView(ty.TypedDict):
     edit: CrudOptions
     copy: CrudOptions
     delete: CrudOptions
+    io: CrudOptions
     reload: CrudOptions
+    support: CrudOptions
 
 
 DEFAULT_BUTTONBAR_CONFIG = CrudView(
@@ -352,7 +354,15 @@ class CrudButtonBar(w.VBox):
     fn_support = tr.Callable(default_value=lambda: print("support"))
     fn_io = tr.Callable(default_value=lambda: print("io"))
     fn_reload = tr.Callable(default_value=None, allow_none=True)
+    show_io = tr.Bool(default_value=False)
     show_support = tr.Bool(default_value=True)
+
+    @tr.observe("show_io")
+    def _observe_show_io(self, change):
+        if change["new"]:
+            self.io.layout.display = ""
+        else:
+            self.io.layout.display = "None"
 
     @tr.observe("show_support")
     def _observe_show_support(self, change):
@@ -418,6 +428,7 @@ class CrudButtonBar(w.VBox):
         # ^ KWARGS for the buttons are set by CrudView
         self.message = w.HTML()
         self._set_crud_view_options()
+        self.io.layout.display = "" if self.show_io else "None"
 
     def _init_controls(self):
         self.add.observe(self._add, "value")
@@ -521,5 +532,3 @@ if __name__ == "__main__":
         fn_reload=lambda: print("fn_reload"),
     )
     display(buttonbar)
-
-

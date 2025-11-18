@@ -458,9 +458,7 @@ class AutoObjectForm(AutoObject, AutoObjectFormLayout, TitleDescription):
         super().__init__(
             **kwargs,
         )
-        self._post_init(**kwargs)
 
-    def _post_init(self, **kwargs):
         self.children = [
             w.HBox([self.bn_shownull, self.savebuttonbar]),
             self.html_title,

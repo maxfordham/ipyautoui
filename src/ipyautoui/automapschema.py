@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 def pydantic_model_file_from_json_schema(json_schema, fpth):
     return generate(
-            json.dumps(json_schema),
+            json.dumps(json_schema, ensure_ascii=False),
             input_file_type=InputFileType.JsonSchema,
             input_filename="example.json",
             output=fpth,
@@ -33,16 +33,32 @@ def pydantic_model_file_from_json_schema(json_schema, fpth):
             capitalise_enum_members=True,
         )
 
-def pydantic_model_from_json_schema(json_schema: str) -> ty.Type[BaseModel]:
+def pydantic_model_from_json_schema(json_schema: dict) -> ty.Type[BaseModel]:
     load = json_schema["title"].replace(" ", "") if "title" in json_schema else "Model"
-    # TODO: refactor this when title vs name vs code has been sorted out...
 
     with TemporaryDirectory() as temporary_directory_name:
         temporary_directory = pathlib.Path(temporary_directory_name)
         file_path = "model.py"
         module_name = file_path.split(".")[0]
         output = pathlib.Path(temporary_directory / file_path)
+        
         pydantic_model_file_from_json_schema(json_schema, output)
+
+        #HACK refer to https://github.com/koxudaxi/datamodel-code-generator/issues/2534 for official fix, then remove the PATCH LOGIC once that is resolved
+        # --- NEW PATCH LOGIC ---
+        if json_schema.get("title") == "Project Building Area":
+            text = output.read_text()
+
+            # Replace Enum → IntEnum in TargetYear only
+            text = text.replace("class TargetYear(Enum):", "class TargetYear(IntEnum):")
+
+            # Ensure IntEnum is imported
+            if "from enum import IntEnum" not in text:
+                text = text.replace("from enum import Enum", "from enum import Enum, IntEnum")
+
+            output.write_text(text)
+        # --- END PATCH LOGIC ---
+
         spec = importlib.util.spec_from_file_location(module_name, output)
         module = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = module

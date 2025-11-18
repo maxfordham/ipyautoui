@@ -213,10 +213,14 @@ if __name__ == "__main__":
         close_crud_dialogue_on_action=False,
         global_decimal_places=1,
         column_width={"String": 400},
-        fpth=json_path
+        fpth=json_path,
+        show_ui_io=True
     )
     display(edit_grid_file)
 
 
+
+
+# -
 
 
