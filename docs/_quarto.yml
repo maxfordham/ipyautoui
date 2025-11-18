@@ -17,6 +17,7 @@ website:
       - autoui.qmd
       - autovuetify.qmd
       - editgrid.qmd
+      - edittsv-widgets.ipynb
       - autodisplay.qmd
 
     right:

@@ -28,6 +28,8 @@ class EditableGrid(RootModel):
             default=DATAGRID_TEST_VALUE,
             # default_factory=lambda: DATAGRID_TEST_VALUE, # TODO: AutoUi isn't getting data when set using default_factory. make this work!
             format="DataFrame",
+            show_ui_io=True,
+            generate_pydantic_model_from_json_schema=True,
             warn_on_delete=True,  # TODO: this isn't being passed
             global_decimal_places=2,
         )

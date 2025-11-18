@@ -20,32 +20,30 @@ These docs requires a python kernel to run. Try on Binder [![Binder](https://myb
 :::
 
 ```{python}
+from ipyautoui.custom.editgrid import EditGrid
 import typing as ty
 from pydantic import BaseModel, Field, RootModel
 from ipyautoui import AutoUi
 
 
 class DataFrameCols(BaseModel):
-    string: str = Field("string", column_width=100)
-    integer: int = Field(1, column_width=80)
-    floater: float = Field(3.1415, column_width=70, global_decimal_places=3)
-    something_else: float = Field(324, column_width=100)
+    string: str = Field("string", json_schema_extra=dict(column_width=100))
+    integer: int = Field(1, json_schema_extra=dict(column_width=80))
+    floater: float = Field(3.1415, json_schema_extra=dict(column_width=70, global_decimal_places=3))
+    something_else: float = Field(324, json_schema_extra=dict(column_width=100))
     nullable_string: ty.Optional[str] = None
 
-
-class TestDataFrame(BaseModel):
-    """a description of TestDataFrame"""
-    a: str
-    df: ty.List[DataFrameCols] = Field([DataFrameCols().model_dump(mode="json")], format="dataframe")
-```
-
-```{python}
-from ipyautoui.custom.editgrid import EditGrid
 class TestDataFrame(RootModel):
     """a description of TestDataFrame"""
 
-    root: ty.List[DataFrameCols] = Field(format="dataframe")
-egrid = EditGrid(schema=TestDataFrame)
+    root: ty.List[DataFrameCols] = Field(json_schema_extra=dict(format="dataframe"))
+    
+egrid = EditGrid(schema=TestDataFrame, show_ui_io=True)
+egrid
+```
+
+```{python}
+egrid = AutoUi(schema=TestDataFrame)
 egrid
 ```
 
@@ -161,4 +159,3 @@ eg.row_schema
 ```{python}
 eg.update_from_schema(TestGridSchema)
 ```
-
