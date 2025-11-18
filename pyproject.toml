@@ -7,6 +7,7 @@ requires = ["hatchling", "hatch-vcs"]
 name = "ipyautoui"
 dynamic = ["version"]
 license = "BSD-3-Clause"
+requires-python = ">=3.8,<3.14"
 license-files = ["licenses/BSD-3-Clause.txt"]
 description = "wrapper that sits on top of ipywidgets and other ipy widget libraries to template / automate the creation of widget forms. Uses pydantic to create defined data-container and serialisation to JSON. Includes example patterns for adding new custom widgets."
 readme = "README.md"
@@ -40,7 +41,10 @@ dependencies = [
     "pydantic-settings",
     "pydantic-extra-types",
     "PyYAML",
-    "wcmatch",
+    "wcmatch", 
+    "deepdiff",
+    "datamodel-code-generator>=0.28.5",
+    "xlsxdatagrid>=0.3.2,<0.4",
 ]
 
 [project.urls]
@@ -85,6 +89,7 @@ jupyterlab = "*"
 jupytext = "*"
 voila = "*"
 notebook_intelligence = "*"
+jupyterlab-search-replace = "*"
 quarto = ">=1.6.40,<2"
 
 [tool.pixi.feature.docs.dependencies]
@@ -110,3 +115,4 @@ jlab = "jupyter lab"
 [tool.pixi.feature.docs.tasks]
 build-docs = { cmd = "quarto render .", cwd = "docs" }
 preview-docs = { cmd = "quarto preview .", cwd = "docs" }
+open-docs = {cmd="/mnt/c/windows/explorer.exe index.html", cwd="docs/_site"} # this will only work on WSL

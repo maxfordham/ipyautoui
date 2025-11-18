@@ -10,7 +10,7 @@ import pathlib
 # from ipyautoui.tests import test_display_widget_mapping
 from .constants import DIR_TESTS, DIR_FILETYPES
 from ipyautoui import AutoUi
-from ipyautoui.demo_schemas import CoreIpywidgets
+from ipyautoui.demo_schemas import CoreIpywidgets, EditableGrid
 from ipyautoui.basemodel import file
 import pytest
 from pydantic import field_validator, BaseModel
@@ -63,6 +63,17 @@ class TestAutoUi:
         )
         assert ui.show_savebuttonbar == False
         assert ui.savebuttonbar.layout.display == "None"
+        print("done")
+
+    @pytest.mark.skip(
+        reason="this fails, currently EditGrid config kwargs aren't being passed at instantiation."
+    )
+    def test_kwargs_in_config_edit_grid(self):
+        ui = AutoUi(
+            EditableGrid,
+            path=PATH_TEST_AUTO_READ_FILE,
+        )
+        assert ui.show_ui_io 
         print("done")
 
     def test_pydantic_validation(self):
