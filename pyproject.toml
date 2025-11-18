@@ -89,6 +89,7 @@ jupyterlab = "*"
 jupytext = "*"
 voila = "*"
 notebook_intelligence = "*"
+jupyterlab-search-replace = "*"
 quarto = ">=1.6.40,<2"
 
 [tool.pixi.feature.docs.dependencies]
