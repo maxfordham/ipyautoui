@@ -2295,8 +2295,8 @@ packages:
   timestamp: 1760831448842
 - pypi: ./
   name: ipyautoui
-  version: 0.7.27.dev58+g35159f708.d20251113
-  sha256: f31ff5036b8a7e4d310c93bc2e2d4bde24cf5b13b2adcb398b1bf13714d0ba5a
+  version: 0.7.27.dev61+gc379b8647.d20251118
+  sha256: aa7578b6df731907dbc231cd94eed2b8b84ce06702f436bdd466ad9d5780fa85
   requires_dist:
   - datamodel-code-generator>=0.28.5
   - deepdiff

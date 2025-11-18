@@ -115,3 +115,4 @@ jlab = "jupyter lab"
 [tool.pixi.feature.docs.tasks]
 build-docs = { cmd = "quarto render .", cwd = "docs" }
 preview-docs = { cmd = "quarto preview .", cwd = "docs" }
+open-docs = {cmd="/mnt/c/windows/explorer.exe index.html", cwd="docs/_site"} # this will only work on WSL
