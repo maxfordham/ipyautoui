@@ -198,27 +198,6 @@ class UiCopy(w.HBox):
 if __name__ == "__main__":
     display(UiCopy())
 
-
-
-
-# +
-import json
-import ipywidgets as widgets
-from IPython.display import Javascript
-
-def copy_text_button(text: str) -> widgets.Widget:
-	button = widgets.Button(description="Copy", icon="copy")
-	output = widgets.Output(layout=widgets.Layout(display="none"))
-	copy_js = Javascript(f"navigator.clipboard.writeText({json.dumps(text)})")
-	
-	def on_click(_: widgets.Button) -> None:
-		output.clear_output()
-		output.append_display_data(copy_js)
-	button.on_click(on_click)
-	
-	return widgets.Box((button, output))
-
-
 # +
 # TODO: refactor how the datahandler works...
 # TODO: add a test for the datahandler...
