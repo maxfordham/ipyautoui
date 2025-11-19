@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def pydantic_validate(model: BaseModel, value, by_alias: bool = True, mode:str="json"):
+def pydantic_validate(model: BaseModel, value, by_alias: bool = False, mode:str="json"):
     return model.model_validate(value).model_dump(mode=mode, by_alias=by_alias)
 
 

@@ -328,7 +328,7 @@ class EditGrid(w.VBox, TitleDescription):
         # self.show_copy_dialogue = show_copy_dialogue
         self.show_copy_dialogue = False
         # ^ TODO: delete this when that functionality is added
-        self._set_children_editgrid()
+        self._set_children()
         self._set_datahandler(datahandler=datahandler)
         self._update_value_from_grid()
 
@@ -354,7 +354,7 @@ class EditGrid(w.VBox, TitleDescription):
         self._init_ui_io(ui_io=ui_io)
         self._init_row_controls()
         self._init_controls()
-        self._set_children_editgrid()
+        self._set_children()
         self._set_datahandler(datahandler=datahandler)
 
     def _init_autogrid(
@@ -406,7 +406,7 @@ class EditGrid(w.VBox, TitleDescription):
                     if self.model is None:
                         return _missing_model_ui()
                     return EditTsvWithDiff(
-                        model=self.model, fn_upload=self.fn_upload, transposed=self.transposed
+                        model=self.model, fn_upload=self.fn_upload, transposed=self.transposed, by_alias = self.by_alias
                     )
                 self._ui_io_factory = _factory
             else:
@@ -415,7 +415,7 @@ class EditGrid(w.VBox, TitleDescription):
                         return _missing_model_ui()
                     try:
                         return ui_io(
-                            model=self.model, fn_upload=self.fn_upload, transposed=self.transposed
+                            model=self.model, fn_upload=self.fn_upload, transposed=self.transposed, by_alias = self.by_alias
                         )
                     except Exception as e:
                         raise RuntimeError(
@@ -430,7 +430,7 @@ class EditGrid(w.VBox, TitleDescription):
     def _init_ui_io(self, ui_io):
         if ui_io is not None and self.ui_io_initialised:
             self.ui_io = ui_io(
-                model=self.model, fn_upload=self.fn_upload, transposed=self.transposed
+                model=self.model, fn_upload=self.fn_upload, transposed=self.transposed, by_alias = self.by_alias
             )
 
     def _ensure_ui_io_initialised(self):
@@ -443,7 +443,7 @@ class EditGrid(w.VBox, TitleDescription):
         self.ui_io = self._ui_io_factory()
         if hasattr(self.ui_io, "traits") and "transposed" in self.ui_io.traits():
             self.ui_io.transposed = self.transposed
-        self._set_children_editgrid()
+        self._set_children()
         return self.ui_io
 
     def fn_upload(self, value):
@@ -490,7 +490,7 @@ class EditGrid(w.VBox, TitleDescription):
         if self.datahandler is not None:
             self.buttonbar_grid.fn_reload = self._reload_datahandler
 
-    def _set_children_editgrid(self):
+    def _set_children(self):
         self.vbx_widget.children = [self.buttonbar_grid, self.stk_crud, self.grid]
     
         # Base CRUD UIs
