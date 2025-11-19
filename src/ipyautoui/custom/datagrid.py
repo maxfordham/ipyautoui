@@ -1,11 +1,6 @@
 import logging
-from copy import deepcopy
-
-import pandas as pd
 import traitlets as tr
-
-from ipydatagrid import CellRenderer, DataGrid, TextRenderer, VegaExpr
-from ipydatagrid.datagrid import SelectionHelper
+from ipydatagrid import DataGrid, VegaExpr
 
 
 class DataGrid(DataGrid):

@@ -6,14 +6,12 @@ contains methods for validation, coercion, and default values.
 defines AutoGrid, a datagrid generated from a jsonschema."""
 
 import typing as ty
-from copy import deepcopy
 import logging
 import pandas as pd
 
 import traitlets as tr
 from pydantic import BaseModel, Field
-from ipydatagrid import CellRenderer, DataGrid, TextRenderer, VegaExpr
-from ipydatagrid.datagrid import SelectionHelper
+from ipydatagrid import CellRenderer, TextRenderer
 
 from ipyautoui.custom.datagrid import DataGrid
 import ipyautoui.automapschema as asch
@@ -60,7 +58,7 @@ def get_default_row_data_from_schema_properties(
     Returns:
         dict: dictionary column values
     """
-    get = lambda k, v: v["default"] if "default" in v.keys() else None
+    def get(k, v): return v["default"] if "default" in v.keys() else None
     di = {k: get(k, v) for k, v in properties.items()}
     return {k: v for k, v in di.items()}
 
@@ -131,7 +129,7 @@ def get_global_renderer_from_schema(
     if renderer_name in kwargs:
         return kwargs[renderer_name]
 
-    get_from_schema = lambda r, schema: schema[r] if r in schema.keys() else None
+    def get_from_schema(r, schema): return schema[r] if r in schema.keys() else None
     _ = get_from_schema(renderer_name, schema)
 
     if _ is not None:
@@ -144,7 +142,7 @@ def get_global_renderers_from_schema(schema, **kwargs) -> dict:
     li_renderers = ["default_renderer", "header_renderer", "corner_renderer"]
     # ^ globally specified ipydatagrid renderers
     renderers = {
-        l: get_global_renderer_from_schema(schema, l, **kwargs) for l in li_renderers
+        x: get_global_renderer_from_schema(schema, x, **kwargs) for x in li_renderers
     }
     return {k: v for k, v in renderers.items() if v is not None}
 

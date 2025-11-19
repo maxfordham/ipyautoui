@@ -17,6 +17,7 @@ from copy import deepcopy
 import typing as ty
 import xlsxdatagrid as xdg
 from pathlib import Path
+from ipyautoui.watch_validate import pydantic_validate
 
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 
@@ -132,6 +133,7 @@ def default_fn_upload(value):
 class EditTsv(CopyToClipboard):
     _value = tr.List(value=None, trait=tr.Dict, allow_none=True)
     model = tr.Type(klass=BaseModel)
+    by_alias = tr.Bool(default_value=False)
     errors = tr.List(value=[], trait=tr.Dict)
     fn_upload = tr.Callable(default_value=default_fn_upload)
     upload_status = tr.Enum(
@@ -213,7 +215,7 @@ class EditTsv(CopyToClipboard):
 
     @value.setter
     def value(self, value):
-        data = self.model.model_validate(value).model_dump(mode="json", by_alias=True) if value else []
+        data = pydantic_validate(self.model, value, by_alias=self.by_alias) if value else []
         self._value = data
         self.text.value = self.get_tsv_data()
 
@@ -453,7 +455,7 @@ class EditTsvWithDiff(EditTsv):
 
     @value.setter
     def value(self, value):
-        data = self.model.model_validate(value).model_dump(mode="json", by_alias=True) if value else []
+        data = pydantic_validate(self.model, value, by_alias=self.by_alias) if value else []
         self._value = data
         """Code added to trigger manual validation if needed (text new value is same as previous text value - In that case,text obsever fn won't be triggered automatically)"""
         trigger_manual_validation = False

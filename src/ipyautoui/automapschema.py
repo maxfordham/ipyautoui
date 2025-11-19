@@ -91,10 +91,6 @@ def _init_model_schema(
     return model, schema
 
 
-def pydantic_validate(model, value):
-    return model.model_validate(value).model_dump(mode="json")
-
-
 def is_allowed_type(di: dict) -> bool:
     #  https://json-schema.org/understanding-json-schema/reference/combining.html
     if "anyOf" in di:

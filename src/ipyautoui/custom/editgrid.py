@@ -344,11 +344,9 @@ class EditGrid(w.VBox, TitleDescription):
         ui_io: ty.Optional[ty.Callable] = None,
         **kwargs,
     ):
-        getvalue = lambda value: (
-            None if value is None or value == [{}] else pd.DataFrame(value)
-        )
+        value = None if value is None or value == [{}] else pd.DataFrame(value)
         self.grid.update_from_schema(
-            schema, data=getvalue(value), by_alias=self.by_alias, generate_pydantic_model_from_json_schema=self.generate_pydantic_model_from_json_schema, **kwargs
+            schema, data=value, by_alias=self.by_alias, generate_pydantic_model_from_json_schema=self.generate_pydantic_model_from_json_schema, **kwargs
         )
         self._init_ui_callables(
             ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy, ui_io=ui_io
