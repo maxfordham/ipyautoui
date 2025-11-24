@@ -143,7 +143,8 @@ class EditTsv(CopyToClipboard):
     allow_download = tr.Bool(default_value=True)
     exclude_metadata = tr.Bool(default_value=True)
     header_depth = tr.Int(default_value=1)
-    disable_text_editing = tr.Bool(default_value=False)
+    disable_text_editing = tr.Bool(default_value=True)
+    filename_suffix = tr.Unicode(default_value="", allow_none=True)
 
     @tr.observe("upload_status")
     def upload_status_onchange(self, on_change):
@@ -239,6 +240,12 @@ class EditTsv(CopyToClipboard):
             is_transposed=self.transposed,
             exclude_metadata=self.exclude_metadata,
         )[0]
+        # Append suffix to filename if provided
+        if self.filename_suffix:
+            new_name = fpth.stem + self.filename_suffix + fpth.suffix
+            new_fpth = fpth.parent / new_name
+            fpth.rename(new_fpth)
+            fpth = new_fpth
         return fpth
 
     def _text(self, change):
@@ -249,7 +256,7 @@ class EditTsv(CopyToClipboard):
                 is_transposed=self.transposed,
                 model=self.model,
                 delimiter="\t",
-                header_depth=self.header_depth)
+            )
         if self.errors:
             self.vbx_errors.children = [
                 w.HTML(markdown(markdown_error(e))) for e in self.errors
@@ -265,7 +272,7 @@ class EditTsv(CopyToClipboard):
             is_transposed=self.transposed,
             model=self.model,
             delimiter="\t",
-            header_depth=self.header_depth)
+        )
 
     @property
     def pydantic_object(self):
@@ -484,6 +491,12 @@ class EditTsvWithDiff(EditTsv):
 
         self.bn_confirmation.on_click(self._bn_check_upload)
         self.bn_cross.on_click(self._bn_cross_clicked)
+        
+        self.file_uploader = TempFileUploadProcessor(
+            fn_process=self._process_uploaded_file,
+            allowed_file_type=".xlsx",
+        )
+        
         super().__init__(**kwargs)
         self.value = value
         self.upload_status = "None"
@@ -495,9 +508,9 @@ class EditTsvWithDiff(EditTsv):
 
     def _set_children(self):
         if self.allow_download:
-            self.vbx_bns.children = [self.bn_copy, self.bn_upload_text, self.mfdld, self.bn_confirmation, self.bn_cross]
+            self.vbx_bns.children = [self.bn_copy, self.bn_upload_text, self.mfdld, self.bn_confirmation, self.bn_cross, self.file_uploader]
         else:
-            self.vbx_bns.children = [self.bn_copy, self.bn_upload_text, self.bn_confirmation, self.bn_cross]
+            self.vbx_bns.children = [self.bn_copy, self.bn_upload_text, self.bn_confirmation, self.bn_cross, self.file_uploader]
         self.hbx_main.children = [self.vbx_bns, self.text, self.ddiff, self.output]
         self.children = [self.vbx_errors, self.hbx_main]
     
@@ -549,6 +562,9 @@ class EditTsvWithDiff(EditTsv):
 
     def _bn_cross_clicked(self, onclick):
         self.show_upload_button_and_hide_deepdiff(upload_disabled=False)
+        
+    def _process_uploaded_file(self, path: Path):
+        pass
 
     def show_upload_button_and_hide_deepdiff(self, upload_disabled=True):
         # Hide check button and show upload button as well as text area
@@ -590,7 +606,6 @@ class EditTsvWithDiff(EditTsv):
                 path_list = delta.path(output_format="list")
                 primary_key = str(path_list[0])  # first key (primary key)
                 changes.deletions.append(primary_key)
-    
 
         if "values_changed" in diff:
             for delta in diff["values_changed"]:
@@ -653,23 +668,8 @@ class EditTsvFileUpload(EditTsvWithDiff):
         # Ensure text editing is disabled by default
         kwargs.setdefault("disable_text_editing", True)
 
-        # Create uploader before parent init so it's available during layout build
-        self.file_uploader = TempFileUploadProcessor(
-            fn_process=self._process_uploaded_file,
-            allowed_file_type=".xlsx",
-        )
-
         # Initialize base class
         super().__init__(**kwargs)
-        self.last_upload_metadata = None
-
-    def _set_children(self):
-        super()._set_children()
-        buttons = list(self.vbx_bns.children)
-        if self.file_uploader not in buttons:
-            insert_at = 1 if buttons else 0
-            buttons.insert(insert_at, self.file_uploader)
-            self.vbx_bns.children = tuple(buttons)
 
     def _text(self, change):
         pass
@@ -684,7 +684,6 @@ class EditTsvFileUpload(EditTsvWithDiff):
             data, errors = xdg.read_excel(
                 path,
                 is_transposed=self.transposed,
-                header_depth=self.header_depth,
                 model=self.model,
             )
         except Exception:

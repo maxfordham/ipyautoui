@@ -210,14 +210,7 @@ def get_autoui(schema: ty.Union[ty.Type[BaseModel], dict], **kwargs):
             li = [caller.autoui, TitleDescription, ShowRaw, AutoUiFileMethods]
 
             class AutoUi(*li):
-                def _set_children(self):
-                    self.children = [
-                        w.HBox([self.bn_showraw, self.html_title]),
-                        self.html_description,
-                        self.vbx_error,
-                        self.vbx_widget,
-                        self.vbx_showraw,
-                    ]
+                pass
 
         else:
 

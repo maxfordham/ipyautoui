@@ -31,6 +31,7 @@ def pydantic_model_file_from_json_schema(json_schema, fpth):
             output=fpth,
             output_model_type=DataModelType.PydanticV2BaseModel,
             capitalise_enum_members=True,
+            field_include_all_keys=True
         )
 
 def pydantic_model_from_json_schema(json_schema: dict) -> ty.Type[BaseModel]:
@@ -76,18 +77,22 @@ def _init_model_schema(
         }
     if isinstance(schema, dict):
         if generate_pydantic_model_from_json_schema:
+            schema = replace_refs(schema, merge_props=True)
+            schema = {k: v for k, v in schema.items() if k != "$defs"}
             model = pydantic_model_from_json_schema(schema)
         else:
             model = None
+            schema = replace_refs(schema, merge_props=True)
+            schema = {k: v for k, v in schema.items() if k != "$defs"}
         # IDEA: Possible implementations -@jovyan at 8/24/2022, 12:05:02 PM
         # jsonschema_to_pydantic
         # https://koxudaxi.github.io/datamodel-code-generator/using_as_module/
     else:
         model = schema  # the "model" passed is a pydantic model
         schema = model.model_json_schema(by_alias=by_alias).copy()
-
-    schema = replace_refs(schema, merge_props=True)
-    schema = {k: v for k, v in schema.items() if k != "$defs"}
+        schema = replace_refs(schema, merge_props=True)
+        schema = {k: v for k, v in schema.items() if k != "$defs"}
+        
     return model, schema
 
 
