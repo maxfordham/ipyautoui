@@ -1,10 +1,10 @@
 from deepdiff import DeepDiff
-from pydantic import RootModel, create_model
-from ipyautoui.custom.edittsv import Changes, EditTsvWithDiff
+from pydantic import RootModel, create_model, ConfigDict
+from ipyautoui.custom.edittsv import Changes, EditTsvFileUpload
 import traitlets as tr
 import typing as ty
 
-class EditTsvWithDiffAndKeyMapping(EditTsvWithDiff):
+class EditTsvWithDiffAndKeyMapping(EditTsvFileUpload):
     primary_key_name = tr.List(tr.Unicode(),
         default_value=None,
         allow_none=True,
@@ -14,24 +14,57 @@ class EditTsvWithDiffAndKeyMapping(EditTsvWithDiff):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if self.exclude_fields_from_model:
+            # Get original schema from RootModel BEFORE we replace it
+            original_schema = self.model.model_json_schema()
+            
             inner_model = self.model.model_fields['root'].annotation.__args__[0]
-            # Keep alias names in the new model
+            
+            # Preserve the original model_config
+            original_config = getattr(inner_model, 'model_config', {})
+
+            config_dict = dict(original_config) if original_config else {}
+            
+            # Keep alias names in the new model and preserve json_schema_extra
             fields = {}
             for name, field in inner_model.model_fields.items():
                 converted_name = field.alias or name
                 if converted_name not in self.exclude_fields_from_model:
                     alias = field.alias or name
-                    fields[alias] = (field.annotation, field.default)
+                    # Preserve the field with all its metadata
+                    fields[alias] = (field.annotation, field)
 
+            # Create new model with preserved config
             stripped_inner = create_model(
                 inner_model.__name__,
+                __config__=ConfigDict(**config_dict) if config_dict else None,
                 **fields,
             )
-            self.model = type(
-                self.model.__name__,
-                (RootModel[list[stripped_inner]],),
-                {},
-            )
+            
+            # Create new RootModel wrapping the stripped inner model
+            class StrippedRootModel(RootModel[list[stripped_inner]]):
+                @classmethod
+                def model_json_schema(cls, **kwargs):
+                    """Override to preserve datagrid_index_name and other schema metadata."""
+                    schema = super().model_json_schema(**kwargs)
+                    # Preserve top-level schema metadata from original RootModel
+                    for key in ['datagrid_index_name', 'hide_nan', 'format', 'is_transposed']:
+                        if key in original_schema:
+                            schema[key] = original_schema[key]
+                    
+                    # Modify datagrid_index_name: remove 'title', append 'name' at end
+                    if 'datagrid_index_name' in schema:
+                        index_list = schema['datagrid_index_name']
+                        if index_list and isinstance(index_list, list) and 'title' in index_list:
+                            # Remove 'title' and append 'name' at the end
+                            schema['datagrid_index_name'] = [
+                                item for item in index_list if item != 'title'
+                            ]
+                            schema['datagrid_index_name'].append('name')
+                    
+                    return schema
+            
+            StrippedRootModel.__name__ = self.model.__name__
+            self.model = StrippedRootModel
     
     def _bn_upload_text(self, on_click):
         # hide grid/errors
