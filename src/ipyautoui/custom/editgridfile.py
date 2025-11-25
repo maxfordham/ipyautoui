@@ -2,7 +2,7 @@ from ipyautoui.custom.editgrid import (
     EditGrid,
     DataHandler,
 )
-from ipyautoui.custom.edittsv import Changes
+from ipyautoui.custom.edittsv import Changes, EditTsvFileUpload
 import pathlib
 import traitlets as tr
 import json
@@ -183,13 +183,13 @@ if __name__ == "__main__":
     AUTO_GRID_DEFAULT_VALUE = data
 
     class DataFrameCols(BaseModel):
-        id: int = Field(1, json_schema_extra=dict(column_width=80, section="a"))
+        id: int = Field(1, json_schema_extra=dict(column_width=80, section="a", name= "id"))
         string: str = Field(
-            "string", json_schema_extra=dict(column_width=400, section="a")
+            "string", json_schema_extra=dict(column_width=400, section="a", name= "string")
         )
-        integer: int = Field(1, json_schema_extra=dict(column_width=80, section="a"))
+        integer: int = Field(1, json_schema_extra=dict(column_width=80, section="a", name= "integer"))
         floater: float = Field(
-            None, json_schema_extra=dict(column_width=70, section="b")
+            None, json_schema_extra=dict(column_width=70, section="b", name= "floater")
         )
 
     class TestDataFrame(RootModel):
@@ -197,7 +197,7 @@ if __name__ == "__main__":
         root: ty.List[DataFrameCols] = Field(
             default=AUTO_GRID_DEFAULT_VALUE,
             json_schema_extra=dict(
-                format="dataframe", datagrid_index_name=("section", "title")
+                format="dataframe", datagrid_index_name=("section", "title", "name")
             ),
         )
 
@@ -214,7 +214,8 @@ if __name__ == "__main__":
         global_decimal_places=1,
         column_width={"String": 400},
         fpth=json_path,
-        show_ui_io=True
+        show_ui_io=True,
+        ui_io=EditTsvFileUpload
     )
     display(edit_grid_file)
 
@@ -222,5 +223,4 @@ if __name__ == "__main__":
 
 
 # -
-
 

@@ -11,6 +11,7 @@ from markdown import markdown
 from IPython.display import clear_output
 from deepdiff import DeepDiff
 from deepdiff.helper import COLORED_COMPACT_VIEW  # COLORED_VIEW,
+from ipyautoui.automapschema import _init_model_schema
 from ipyautoui.custom.filedownload import MakeFileAndDownload
 from ipyautoui.custom.fileupload import TempFileUploadProcessor
 from copy import deepcopy
@@ -18,6 +19,7 @@ import typing as ty
 import xlsxdatagrid as xdg
 from pathlib import Path
 from ipyautoui.watch_validate import pydantic_validate
+from ipyautoui._utils import pydantic_model_from_json_schema
 
 from ipyautoui.constants import BUTTON_WIDTH_MIN
 
@@ -132,7 +134,7 @@ def default_fn_upload(value):
 
 class EditTsv(CopyToClipboard):
     _value = tr.List(value=None, trait=tr.Dict, allow_none=True)
-    model = tr.Type(klass=BaseModel)
+    model = tr.Type(klass=BaseModel, default_value=None, allow_none=True)
     by_alias = tr.Bool(default_value=False)
     errors = tr.List(value=[], trait=tr.Dict)
     fn_upload = tr.Callable(default_value=default_fn_upload)
@@ -145,6 +147,7 @@ class EditTsv(CopyToClipboard):
     header_depth = tr.Int(default_value=1)
     disable_text_editing = tr.Bool(default_value=True)
     filename_suffix = tr.Unicode(default_value="", allow_none=True)
+    schema = tr.Dict()
 
     @tr.observe("upload_status")
     def upload_status_onchange(self, on_change):
@@ -195,6 +198,10 @@ class EditTsv(CopyToClipboard):
             self.text.disabled = False
 
     def __init__(self, **kwargs):
+        #If model json schema is given, generate model from it, otherwise use given model
+        self.model, self.schema = _init_model_schema(kwargs.get("schema"))
+        if self.model is None:
+            self.model = pydantic_model_from_json_schema(self.schema)
         self.vbx_errors = w.VBox()
         self.bn_upload_text = w.Button(
             icon="save", disabled=True, layout={"width": BUTTON_WIDTH_MIN}
