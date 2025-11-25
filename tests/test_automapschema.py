@@ -5,7 +5,6 @@ from pytest_examples import find_examples, CodeExample, EvalExample
 from ipyautoui.automapschema import (
     _init_model_schema,
     map_widget,
-    pydantic_model_from_json_schema,
 )
 import casefy
 from pydantic import BaseModel, Field, conint
@@ -20,6 +19,7 @@ from typing_extensions import Annotated
 from enum import Enum, IntEnum
 from jsonref import replace_refs
 from ipyautoui.automapschema import widgetcaller
+from ipyautoui._utils import pydantic_model_from_json_schema
 
 fpth_module = (
     pathlib.Path(__file__).parent.parent / "src" / "ipyautoui" / "automapschema.py"

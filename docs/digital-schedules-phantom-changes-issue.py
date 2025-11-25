@@ -1,5 +1,5 @@
-from ipyautoui.automapschema import pydantic_model_from_json_schema
-from ipyautoui.automapschema import pydantic_model_file_from_json_schema
+from ipyautoui._utils import pydantic_model_from_json_schema
+from ipyautoui._utils import pydantic_model_file_from_json_schema
 from ipyautoui.custom.edittsv import EditTsvWithDiff
 import pathlib
 import numpy as np

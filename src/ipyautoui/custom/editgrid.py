@@ -289,7 +289,6 @@ class EditGrid(w.VBox, TitleDescription):
         title: str = None,
         description: str = None,
         show_title: bool = True,
-        generate_pydantic_model_from_json_schema: bool = False,
         show_ui_io: bool = False,
         **kwargs,
     ):  # TODO: use **kwargs to pass attributes to EditGrid as in AutoObject and AutoArray
@@ -302,7 +301,6 @@ class EditGrid(w.VBox, TitleDescription):
         self.by_title = by_title
         self.by_alias = by_alias
         self.datahandler = datahandler
-        self.generate_pydantic_model_from_json_schema = generate_pydantic_model_from_json_schema
 
         self.ui_io = None
         self._ui_io_factory = None
@@ -346,7 +344,7 @@ class EditGrid(w.VBox, TitleDescription):
     ):
         value = None if value is None or value == [{}] else pd.DataFrame(value)
         self.grid.update_from_schema(
-            schema, data=value, by_alias=self.by_alias, generate_pydantic_model_from_json_schema=self.generate_pydantic_model_from_json_schema, **kwargs
+            schema, data=value, by_alias=self.by_alias, **kwargs
         )
         self._init_ui_callables(
             ui_add=ui_add, ui_edit=ui_edit, ui_delete=ui_delete, ui_copy=ui_copy, ui_io=ui_io
@@ -367,7 +365,7 @@ class EditGrid(w.VBox, TitleDescription):
             None if value is None or value == [{}] else pd.DataFrame(value)
         )
         self.grid = AutoGrid(
-            schema, data=getvalue(value), generate_pydantic_model_from_json_schema=self.generate_pydantic_model_from_json_schema, by_alias=self.by_alias, **kwargs
+            schema, data=getvalue(value), by_alias=self.by_alias, **kwargs
         )
 
     def _init_ui_callables(
@@ -403,24 +401,24 @@ class EditGrid(w.VBox, TitleDescription):
 
             if ui_io is None:
                 def _factory():
-                    if self.model is None:
+                    if self.schema is None:
                         return _missing_model_ui()
                     return EditTsvWithDiff(
-                        model=self.model, fn_upload=self.fn_upload, transposed=self.transposed, by_alias = self.by_alias
+                        schema=self.schema, fn_upload=self.fn_upload, transposed=self.transposed, by_alias = self.by_alias
                     )
                 self._ui_io_factory = _factory
             else:
                 def _factory_custom():
-                    if self.model is None:
+                    if self.schema is None:
                         return _missing_model_ui()
                     try:
                         return ui_io(
-                            model=self.model, fn_upload=self.fn_upload, transposed=self.transposed, by_alias = self.by_alias
+                            schema=self.schema, fn_upload=self.fn_upload, transposed=self.transposed, by_alias = self.by_alias
                         )
                     except Exception as e:
                         raise RuntimeError(
                             f"Failed to initialize ui_io '{ui_io.__name__}'."
-                            " Required traits are: `model`, `fn_upload`, `transposed`."
+                            " Required traits are: `schema`, `fn_upload`, `transposed`."
                             f" Original error: {e}"
                         ) from e
                 self._ui_io_factory = _factory_custom
@@ -430,7 +428,7 @@ class EditGrid(w.VBox, TitleDescription):
     def _init_ui_io(self, ui_io):
         if ui_io is not None and self.ui_io_initialised:
             self.ui_io = ui_io(
-                model=self.model, fn_upload=self.fn_upload, transposed=self.transposed, by_alias = self.by_alias
+                schema=self.schema, fn_upload=self.fn_upload, transposed=self.transposed, by_alias = self.by_alias
             )
 
     def _ensure_ui_io_initialised(self):

@@ -21,24 +21,24 @@ These docs requires a python kernel to run. Try on Binder [![Binder](https://myb
 
 ```{python}
 from ipyautoui.custom.editgrid import EditGrid
+from ipyautoui.custom.edittsv import EditTsvFileUpload
 import typing as ty
 from pydantic import BaseModel, Field, RootModel
 from ipyautoui import AutoUi
 
 
 class DataFrameCols(BaseModel):
-    string: str = Field("string", json_schema_extra=dict(column_width=100))
-    integer: int = Field(1, json_schema_extra=dict(column_width=80))
-    floater: float = Field(3.1415, json_schema_extra=dict(column_width=70, global_decimal_places=3))
-    something_else: float = Field(324, json_schema_extra=dict(column_width=100))
-    nullable_string: ty.Optional[str] = None
+    string: str = Field("string", json_schema_extra=dict(column_width=100, name="string"))
+    integer: int = Field(1, json_schema_extra=dict(column_width=80, name="integer"))
+    floater: float = Field(3.1415, json_schema_extra=dict(column_width=70, global_decimal_places=3, name="floater"))
+    something_else: float = Field(324, json_schema_extra=dict(column_width=100, name="something_else"))
 
 class TestDataFrame(RootModel):
     """a description of TestDataFrame"""
 
-    root: ty.List[DataFrameCols] = Field(json_schema_extra=dict(format="dataframe"))
+    root: ty.List[DataFrameCols] = Field(json_schema_extra=dict(format="dataframe", datagrid_index_name=("name", )))
     
-egrid = EditGrid(schema=TestDataFrame, show_ui_io=True)
+egrid = EditGrid(schema=TestDataFrame, show_ui_io=True, ui_io=EditTsvFileUpload)
 egrid
 ```
 
