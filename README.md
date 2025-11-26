@@ -1,6 +1,6 @@
 # ipyautoui
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD?urlpath=voila%2Frender%2Fdocs%2Fdemo.ipynb) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![PyPI version](https://badge.fury.io/py/ipyautoui.svg)](https://badge.fury.io/py/ipyautoui) [![Test Python Package](https://github.com/maxfordham/ipyautoui/actions/workflows/test-and-lint.yml/badge.svg)](https://github.com/maxfordham/ipyautoui/actions/workflows/test-python-package.yml)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD?urlpath=voila%2Frender%2Fdocs%2Fdemo.ipynb) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![PyPI version](https://badge.fury.io/py/ipyautoui.svg)](https://badge.fury.io/py/ipyautoui) [![Anaconda-Server Badge](https://anaconda.org/conda-forge/ipyautoui/badges/version.svg)](https://anaconda.org/conda-forge/ipyautoui) [![Test Python Package](https://github.com/maxfordham/ipyautoui/actions/workflows/test-and-lint.yml/badge.svg)](https://github.com/maxfordham/ipyautoui/actions/workflows/test-python-package.yml)
 
 ![](images/logo.png)
 
@@ -14,10 +14,25 @@ launch [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/
 
 ## Installation
 
+
 ```sh
+# with pip:
 pip install ipyautoui
-mamba install ipyautoui -c conda-forge  # mamba ... TODO: add to conda-forge.
-conda install ipyautoui -c conda-forge  # or conda ... TODO: add to conda-forge.
+
+# or pixi (my fave!):
+pixi add ipyautoui
+
+# or uv:
+uv add ipyautoui
+
+# or mamba:
+mamba install ipyautoui -c conda-forge
+
+# or micromamba:
+micromamba install ipyautoui -c conda-forge
+
+# or conda:
+conda install ipyautoui -c conda-forge
 ```
 
 ## Intro
