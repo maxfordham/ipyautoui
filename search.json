@@ -130,7 +130,7 @@
     "href": "index.html#installation",
     "title": "ipyautoui",
     "section": "Installation",
-    "text": "Installation\npip install ipyautoui\nmamba install ipyautoui -c conda-forge  # mamba ... TODO: add to conda-forge.\nconda install ipyautoui -c conda-forge  # or conda ... TODO: add to conda-forge."
+    "text": "Installation\n# with pip:\npip install ipyautoui\n\n# or pixi (my fave!):\npixi add ipyautoui\n\n# or uv:\nuv add ipyautoui\n\n# or mamba:\nmamba install ipyautoui -c conda-forge\n\n# or micromamba:\nmicromamba install ipyautoui -c conda-forge\n\n# or conda:\nconda install ipyautoui -c conda-forge"
   },
   {
     "objectID": "index.html#intro",

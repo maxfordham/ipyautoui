@@ -395,7 +395,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><a href="https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD?urlpath=voila%2Frender%2Fdocs%2Fdemo.ipynb"><img src="https://mybinder.org/badge_logo.svg" class="img-fluid" alt="Binder"></a> <a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/code%20style-black-000000.svg" class="img-fluid" alt="Code style: black"></a> <a href="https://badge.fury.io/py/ipyautoui"><img src="https://badge.fury.io/py/ipyautoui.svg" class="img-fluid" alt="PyPI version"></a> <a href="https://github.com/maxfordham/ipyautoui/actions/workflows/test-python-package.yml"><img src="https://github.com/maxfordham/ipyautoui/actions/workflows/test-and-lint.yml/badge.svg" class="img-fluid" alt="Test Python Package"></a></p>
+<p><a href="https://mybinder.org/v2/gh/maxfordham/ipyautoui/HEAD?urlpath=voila%2Frender%2Fdocs%2Fdemo.ipynb"><img src="https://mybinder.org/badge_logo.svg" class="img-fluid" alt="Binder"></a> <a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/code%20style-black-000000.svg" class="img-fluid" alt="Code style: black"></a> <a href="https://badge.fury.io/py/ipyautoui"><img src="https://badge.fury.io/py/ipyautoui.svg" class="img-fluid" alt="PyPI version"></a> <a href="https://anaconda.org/conda-forge/ipyautoui"><img src="https://anaconda.org/conda-forge/ipyautoui/badges/version.svg" class="img-fluid" alt="Anaconda-Server Badge"></a> <a href="https://github.com/maxfordham/ipyautoui/actions/workflows/test-python-package.yml"><img src="https://github.com/maxfordham/ipyautoui/actions/workflows/test-and-lint.yml/badge.svg" class="img-fluid" alt="Test Python Package"></a></p>
 <p><img src="images/logo.png" class="img-fluid"></p>
 <section id="documentation" class="level2">
 <h2 class="anchored" data-anchor-id="documentation">Documentation</h2>
@@ -407,9 +407,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="installation" class="level2">
 <h2 class="anchored" data-anchor-id="installation">Installation</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install ipyautoui</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mamba</span> install ipyautoui <span class="at">-c</span> conda-forge  <span class="co"># mamba ... </span><span class="al">TODO</span><span class="co">: add to conda-forge.</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> install ipyautoui <span class="at">-c</span> conda-forge  <span class="co"># or conda ... </span><span class="al">TODO</span><span class="co">: add to conda-forge.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># with pip:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install ipyautoui</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># or pixi (my fave!):</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> add ipyautoui</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># or uv:</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> add ipyautoui</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># or mamba:</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ex">mamba</span> install ipyautoui <span class="at">-c</span> conda-forge</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># or micromamba:</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ex">micromamba</span> install ipyautoui <span class="at">-c</span> conda-forge</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># or conda:</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> install ipyautoui <span class="at">-c</span> conda-forge</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="intro" class="level2">
 <h2 class="anchored" data-anchor-id="intro">Intro</h2>
