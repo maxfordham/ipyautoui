@@ -24,6 +24,7 @@ from datamodel_code_generator import DataModelType, InputFileType, generate
 from tempfile import TemporaryDirectory
 from IPython.display import display, Markdown
 import sys
+from datamodel_code_generator.parser.base import title_to_class_name
 
 logger = logging.getLogger(__name__)
 frozenmap = immutables.Map
@@ -543,7 +544,8 @@ def pydantic_model_file_from_json_schema(json_schema, fpth):
         )
 
 def pydantic_model_from_json_schema(json_schema: dict) -> ty.Type[BaseModel]:
-    load = json_schema["title"].replace(" ", "") if "title" in json_schema else "Model"
+    title = json_schema["title"] if "title" in json_schema else "Model"
+    title = title_to_class_name(title)
 
     with TemporaryDirectory() as temporary_directory_name:
         temporary_directory = pathlib.Path(temporary_directory_name)
@@ -572,4 +574,4 @@ def pydantic_model_from_json_schema(json_schema: dict) -> ty.Type[BaseModel]:
         module = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = module
         spec.loader.exec_module(module)
-    return getattr(module, load)
+    return getattr(module, title)
