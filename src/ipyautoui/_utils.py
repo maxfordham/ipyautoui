@@ -555,21 +555,6 @@ def pydantic_model_from_json_schema(json_schema: dict) -> ty.Type[BaseModel]:
         
         pydantic_model_file_from_json_schema(json_schema, output)
 
-        #HACK refer to https://github.com/koxudaxi/datamodel-code-generator/issues/2534 for official fix, then remove the PATCH LOGIC once that is resolved
-        # --- NEW PATCH LOGIC ---
-        if json_schema.get("title") == "Project Building Area":
-            text = output.read_text()
-
-            # Replace Enum → IntEnum in TargetYear only
-            text = text.replace("class TargetYear(Enum):", "class TargetYear(IntEnum):")
-
-            # Ensure IntEnum is imported
-            if "from enum import IntEnum" not in text:
-                text = text.replace("from enum import Enum", "from enum import Enum, IntEnum")
-
-            output.write_text(text)
-        # --- END PATCH LOGIC ---
-
         spec = importlib.util.spec_from_file_location(module_name, output)
         module = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = module

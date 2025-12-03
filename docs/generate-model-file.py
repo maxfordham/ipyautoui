@@ -1,5 +1,5 @@
 import pathlib
-from ipyautoui.automapschema import pydantic_model_file_from_json_schema
+from ipyautoui._utils import pydantic_model_file_from_json_schema
 
 predicted_energy_use_item = {'$defs': {'EnergyEndUse': {'enum': ['Heating',
     'Domestic Hot Water',
