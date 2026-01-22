@@ -22,6 +22,7 @@ dependencies:
   - pytest
   - altair # optional
   - plotly # optional
+  - reacton
   - pip
   - pip:
     - pytest-examples
